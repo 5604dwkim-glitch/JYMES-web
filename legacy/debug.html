@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>디버그 진단 페이지</title>
+  <style>
+    body { font-family: monospace; background: #1e293b; color: #e2e8f0; padding: 20px; }
+    h1 { color: #38bdf8; }
+    .ok   { color: #4ade80; }
+    .err  { color: #f87171; background: #450a0a; padding: 6px; border-radius: 4px; margin: 4px 0; white-space: pre-wrap; word-break: break-all; }
+    .warn { color: #fbbf24; }
+    .section { margin: 16px 0; border-top: 1px solid #334155; padding-top: 12px; }
+    pre { background: #0f172a; padding: 12px; border-radius: 6px; overflow: auto; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>🔍 JS 오류 진단 페이지</h1>
+  <div id="log"></div>
+
+  <script>
+    const logEl = document.getElementById('log');
+    const errors = [];
+
+    function log(msg, type='ok') {
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = msg;
+      logEl.appendChild(div);
+    }
+
+    // 전역 오류 포착
+    window.onerror = function(msg, src, line, col, err) {
+      errors.push({ msg, src, line, col, stack: err?.stack });
+      log(`❌ 전역 오류: ${msg}\n   파일: ${src}\n   위치: ${line}:${col}`, 'err');
+    };
+
+    window.addEventListener('unhandledrejection', (e) => {
+      log(`❌ Promise 미처리 거부: ${e.reason?.message || e.reason}\n   Stack: ${e.reason?.stack || ''}`, 'err');
+    });
+
+    log('⏳ JS 모듈 동적 import 테스트 시작...', 'warn');
+  </script>
+
+  <script type="module">
+    const logEl = document.getElementById('log');
+    function log(msg, type='ok') {
+      const div = document.createElement('div');
+      div.className = type;
+      div.textContent = msg;
+      logEl.appendChild(div);
+    }
+
+    async function testImport(path) {
+      try {
+        const mod = await import(path);
+        log(`✅ OK: ${path}  exports=[${Object.keys(mod).join(', ')}]`, 'ok');
+        return mod;
+      } catch(e) {
+        log(`❌ FAIL: ${path}\n   ${e.message}\n   ${e.stack||''}`, 'err');
+        return null;
+      }
+    }
+
+    log('─── store.js ───', 'warn');
+    const storeModule = await testImport('./js/store.js');
+
+    log('─── i18n.js ───', 'warn');
+    const i18nModule = await testImport('./js/i18n.js');
+
+    log('─── components/dashboard.js ───', 'warn');
+    await testImport('./js/components/dashboard.js');
+
+    log('─── components/reportForm.js ───', 'warn');
+    await testImport('./js/components/reportForm.js');
+
+    log('─── components/reportList.js ───', 'warn');
+    await testImport('./js/components/reportList.js');
+
+    log('─── components/analytics.js ───', 'warn');
+    await testImport('./js/components/analytics.js');
+
+    log('─── components/masterData.js ───', 'warn');
+    await testImport('./js/components/masterData.js');
+
+    log('─── components/draftReports.js ───', 'warn');
+    await testImport('./js/components/draftReports.js');
+
+    log('─── app.js ───', 'warn');
+    await testImport('./js/app.js');
+
+    // store 기능 체크
+    if (storeModule) {
+      log('─── store 기능 검증 ───', 'warn');
+      try {
+        const { store } = storeModule;
+        const workers = store.getWorkers();
+        log(`✅ getWorkers() → ${workers.length}명`, 'ok');
+        const reports = store.getReports();
+        log(`✅ getReports() → ${reports.length}건`, 'ok');
+        const role = store.getUserRole();
+        log(`✅ getUserRole() → ${JSON.stringify(role)}`, 'ok');
+        const summary = store.getTodaySummary();
+        log(`✅ getTodaySummary() → ${JSON.stringify(summary)}`, 'ok');
+      } catch(e) {
+        log(`❌ store 기능 오류: ${e.message}\n${e.stack}`, 'err');
+      }
+    }
+
+    log('=== 진단 완료 ===', 'warn');
+  </script>
+</body>
+</html>

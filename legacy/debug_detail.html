@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Debug Detail Modal</title></head>
+<body>
+<script type="module">
+import { store } from './js/store.js';
+
+// Get a non-leader report to test the else branch
+const reports = store.getReports({});
+console.log(`Total reports: ${reports.length}`);
+
+const nonLeaderReport = reports.find(r => !r.isLeaderForm && r.workerName !== '장수미');
+const leaderReport = reports.find(r => r.isLeaderForm || r.workerName === '장수미');
+
+console.log('Non-leader report:', nonLeaderReport ? nonLeaderReport.id : 'NONE');
+console.log('Leader report:', leaderReport ? leaderReport.id : 'NONE');
+
+if (nonLeaderReport) {
+  const r = nonLeaderReport;
+  console.log('Testing non-leader detail render...');
+  try {
+    const thStyle = 'border: 1px solid #000; padding: 4px; text-align: center;';
+    const tdStyle = 'border: 1px solid #000; padding: 4px; text-align: center;';
+    const td = (val) => `<td style="${tdStyle}">${val !== undefined && val !== null ? val : ''}</td>`;
+    const tdBold = (val, color) => `<td style="${tdStyle} font-weight: 800; color: ${color || '#000'};">${val !== undefined && val !== null ? val : ''}</td>`;
+    
+    let secIndex = 1;
+    
+    // Test cardDateTime
+    const cardDateTime = `<div>Date: ${r.date}, Worker: ${r.workerName}, secIndex=${secIndex++}</div>`;
+    console.log('cardDateTime OK, secIndex now:', secIndex);
+
+    // Test cardSummary
+    const cardSummary = `<div>Target: ${(r.targetQty || 0)}, Actual: ${(r.actualQty || 0)}, secIndex=${secIndex++}</div>`;
+    console.log('cardSummary OK, secIndex now:', secIndex);
+
+    // Test renderMaterialLotsCard
+    const renderMaterialLotsCard = (num) => {
+      const matLots = r.materialLots || {};
+      const entries = Object.entries(matLots).filter(([k, v]) => v && v.trim() !== '');
+      const hasJointRubber = r.jointRubberLotNo && r.jointRubberLotNo.trim() !== '';
+      if (entries.length === 0 && !hasJointRubber) return '';
+      return `<div>Material Lots (${num})</div>`;
+    };
+    console.log('renderMaterialLotsCard OK');
+
+    // Test renderDimensionsCard
+    const renderDimensionsCard = (num) => {
+      let html = '';
+      const km = r.kmkxClipQty;
+      const dt = r.dtCrewQty;
+      const dtB = r.dtCrewQtyB;
+      const d2005 = r.dim2005Data;
+      const dim = r.dimData;
+      // Just return empty for test
+      return html;
+    };
+    console.log('renderDimensionsCard OK');
+
+    // Test renderVulcanizationCard
+    const renderVulcanizationCard = (num) => {
+      let html = '';
+      return html;
+    };
+    console.log('renderVulcanizationCard OK');
+
+    // Now test the actual card generation
+    let matCardNum = secIndex;
+    const cardMaterialLots = renderMaterialLotsCard(matCardNum);
+    if (cardMaterialLots) secIndex++;
+    console.log('cardMaterialLots OK, secIndex now:', secIndex);
+
+    let dimCardNum = secIndex;
+    const cardDimensions = renderDimensionsCard(dimCardNum);
+    if (cardDimensions) secIndex++;
+    console.log('cardDimensions OK, secIndex now:', secIndex);
+
+    let vulcCardNum = secIndex;
+    const cardVulcanization = renderVulcanizationCard(vulcCardNum);
+    if (cardVulcanization) secIndex++;
+    console.log('cardVulcanization OK, secIndex now:', secIndex);
+
+    console.log('✅ All detail rendering tests passed for non-leader report');
+  } catch(e) {
+    console.error('❌ Error in non-leader detail render:', e.message);
+    console.error(e.stack);
+  }
+}
+
+// Now test with a leader report
+if (leaderReport) {
+  const r = leaderReport;
+  console.log('Testing leader detail render...');
+  try {
+    // Import DEFAULT_LEADER_ITEMS and DEFAULT_ATTENDANCE
+    const { DEFAULT_LEADER_ITEMS, DEFAULT_ATTENDANCE } = await import('./js/store.js');
+    const leaderItems = r.leaderFormItems && r.leaderFormItems.length > 0 ? r.leaderFormItems : DEFAULT_LEADER_ITEMS;
+    const att = r.attendanceData || DEFAULT_ATTENDANCE;
+    console.log('✅ Leader detail rendering test passed');
+  } catch(e) {
+    console.error('❌ Error in leader detail render:', e.message);
+    console.error(e.stack);
+  }
+}
+</script>
+</body>
+</html>

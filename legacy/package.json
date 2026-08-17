@@ -1,0 +1,20 @@
+{
+  "name": "work-report-management-system",
+  "version": "1.0.0",
+  "description": "50인 제조업체 공정별 작업일보 관리 시스템",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "node server.cjs",
+    "dev": "node server.cjs"
+  },
+  "keywords": [
+    "work-report",
+    "manufacturing",
+    "process-management",
+    "mes",
+    "kpi"
+  ],
+  "author": "",
+  "license": "ISC"
+}
