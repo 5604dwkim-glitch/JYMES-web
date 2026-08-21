@@ -3073,6 +3073,9 @@ ${renderDtRow4('종')}
       if (formCode === 2041) {
         select.innerHTML = `<option value="전용 클립머신" selected>전용 클립머신</option>`;
         select.value = '전용 클립머신';
+      } else if (formCode === 4001) {
+        select.innerHTML = `<option value="정치 절단기" selected>정치 절단기</option>`;
+        select.value = '정치 절단기';
       } else {
         const currentVal = select.value;
         select.innerHTML = `<option value="">호기 선택</option>` +
