@@ -1,0 +1,6 @@
+legacy/
+*.cjs
+*.txt
+dist/
+public/
+.firebase/
