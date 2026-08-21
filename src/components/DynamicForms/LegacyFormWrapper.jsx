@@ -1362,7 +1362,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
               <thead>
                 <tr style="background: #fffde7; font-weight: 700; color: #000;">
                   <th colspan="3" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 72%;">Frunk</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 72%;">PTG</th>
                 </tr>
               </thead>
               <tbody>
@@ -1535,9 +1535,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
           </div>
         </div>
       `;
-      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_초'), '정치절단길이 Frunk 초', 1870, 50);
-      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_중'), '정치절단길이 Frunk 중', 1870, 50);
-      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_종'), '정치절단길이 Frunk 종', 1870, 50);
+      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_초'), '정치절단길이 PTG 초', 1870, 50);
+      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_중'), '정치절단길이 PTG 중', 1870, 50);
+      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_종'), '정치절단길이 PTG 종', 1870, 50);
       return;
     }
 
