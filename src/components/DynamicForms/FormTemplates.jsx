@@ -2156,8 +2156,8 @@ import { store } from './LegacyFormWrapper.jsx';
                 <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
                   구 분(Division)
                 </th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">FRT LH</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">FRT RH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">RH</th>
                 
               </tr>
             </thead>
