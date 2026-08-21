@@ -953,3 +953,36 @@ input, select, textarea, button {
     padding: 0 !important;
   }
 }
+
+/* 반응형 데이터 테이블 (작업일보 작성중 리스트) */
+.responsive-data-table .mobile-row {
+  display: none;
+}
+@media (max-width: 768px) {
+  .responsive-data-table .desktop-row {
+    display: none;
+  }
+  .responsive-data-table .mobile-row {
+    display: table-row;
+  }
+  /* 모바일에서 테이블 넓이 및 패딩 조정 */
+  .responsive-data-table th, .responsive-data-table td {
+    white-space: nowrap;
+    padding: 6px 4px !important;
+  }
+  /* 버튼 줄바꿈 방지 */
+  .responsive-data-table .btn {
+    white-space: nowrap;
+  }
+}
+
+/* 모바일 테이블 내부 선 완전 제거 */
+@media (max-width: 768px) {
+  .responsive-data-table .mobile-row th,
+  .responsive-data-table .mobile-row td {
+    border: none !important;
+  }
+  .responsive-data-table .mobile-row-bottom td {
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+}

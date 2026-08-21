@@ -1,24 +1,52 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { generate50Workers } from '../constants/masterData';
+import { fetchWorkers } from '../services/firestore';
 
 export default function Login() {
   const { login } = useAuth();
   const { t, lang, setLang } = useI18n();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [role, setRole] = useState('worker');
   const [workerName, setWorkerName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    const attemptAutoLogin = async () => {
+      const id = searchParams.get('id');
+      const pw = searchParams.get('pw');
+      
+      if (id && (pw === '0000' || pw === '1111')) {
+        setIsLoading(true);
+        try {
+          const workers = await fetchWorkers();
+          const matched = workers.find(w => w.id.toUpperCase() === id.toUpperCase() || w.name === id);
+          if (matched) {
+            login('worker', matched.name);
+            navigate('/');
+          } else {
+            setError('QR 코드 로그인 실패: 등록되지 않은 사번/이름입니다.');
+          }
+        } catch (e) {
+          setError('로그인 처리 중 오류가 발생했습니다.');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    attemptAutoLogin();
+  }, [searchParams, login, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (password !== '1111') {
+    if (password !== '1111' && password !== '0000') {
       setError(t('toast_auth_failed') || '비밀번호가 올바르지 않습니다. (기본: 1111)');
       return;
     }
@@ -26,24 +54,32 @@ export default function Login() {
     if (role === 'worker') {
       const name = workerName.trim();
       if (!name) {
-        setError('작업자 성함을 입력해주세요.');
+        setError('작업자 성함 또는 사번을 입력해주세요.');
         return;
       }
       
-      const workers = generate50Workers();
-      const matched = workers.find(w => w.name === name || w.id.toUpperCase() === name.toUpperCase());
-      
-      if (!matched) {
-        setError(`등록되지 않은 작업자입니다. (예: ${workers[0].name})`);
+      setIsLoading(true);
+      try {
+        const workers = await fetchWorkers();
+        const matched = workers.find(w => w.name === name || w.id.toUpperCase() === name.toUpperCase());
+        
+        if (!matched) {
+          setError(`등록되지 않은 작업자/사번입니다.`);
+          setIsLoading(false);
+          return;
+        }
+        
+        login('worker', matched.name);
+        navigate('/');
+      } catch (e) {
+        setError('서버와 통신 중 오류가 발생했습니다.');
+        setIsLoading(false);
         return;
       }
-      
-      login('worker', matched.name);
     } else {
       login('admin', '관리자');
+      navigate('/');
     }
-
-    navigate('/');
   };
 
   return (
@@ -59,11 +95,11 @@ export default function Login() {
               value={lang}
               onChange={(e) => setLang(e.target.value)}
             >
-              <option value="ko">🇰🇷 한국어</option>
-              <option value="en">🇺🇸 English</option>
-              <option value="th">🇹🇭 ภาษาไทย</option>
-              <option value="tl">🇵🇭 Tagalog</option>
-              <option value="vi">🇻🇳 Tiếng Việt</option>
+              <option value="ko">🇰🇷 {t('lang_ko') || '한국어'}</option>
+              <option value="en">🇺🇸 {t('lang_en') || 'English'}</option>
+              <option value="th">🇹🇭 {t('lang_th') || 'ภาษาไทย'}</option>
+              <option value="tl">🇵🇭 {t('lang_tl') || 'Tagalog'}</option>
+              <option value="vi">🇻🇳 {t('lang_vi') || 'Tiếng Việt'}</option>
             </select>
           </div>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { TRANSLATIONS } from '../constants/translations';
+import { TRANSLATIONS, i18n } from '../constants/translations';
 
 const I18nContext = createContext();
 
@@ -11,6 +11,13 @@ export function I18nProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('mfg_lang_v12', lang);
     document.documentElement.lang = lang;
+    if (window.i18n) {
+      window.i18n.setLang(lang); // Sync global vanilla i18n manager
+      window.i18n.applyTranslations(); // Force re-render of vanilla DOM if necessary
+    } else {
+      i18n.setLang(lang);
+      i18n.applyTranslations();
+    }
   }, [lang]);
 
   const t = (key) => {

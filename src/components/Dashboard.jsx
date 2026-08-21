@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { fetchReports } from '../services/firestore';
+import { fetchReports, fetchMyRecentReports, fetchAdminDashboardReports } from '../services/firestore';
 import { MANUFACTURERS, CAR_MODELS, CAR_MODEL_PARTS } from '../constants/masterData';
 import { useNavigate } from 'react-router-dom';
+import LegacyDashboardWrapper from './DynamicForms/LegacyDashboardWrapper';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -43,12 +44,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function loadData() {
-      const data = await fetchReports();
-      setReports(data);
+      setLoading(true);
+      if (userRole?.role === 'worker') {
+        const data = await fetchMyRecentReports(userRole.workerName);
+        setReports(data);
+      } else {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const data = await fetchAdminDashboardReports(todayStr);
+        setReports(data);
+      }
       setLoading(false);
     }
     loadData();
-  }, []);
+  }, [userRole]);
 
   const isWorker = userRole?.role !== 'admin';
 
@@ -82,7 +90,7 @@ function WorkerDashboard({ reports, workerName, navigate, t }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '4px' }}>👋 안녕하세요, {workerName || '작업자'} 님!</h2>
-              <p style={{ fontSize: '13px', opacity: 0.9 }}>오늘도 안전하고 정확한 작업일보를 작성해 주세요.</p>
+              <p style={{ fontSize: '13px', opacity: 0.9, lineHeight: '1.4' }}>안녕하세요 오늘도 안전하고 즐거운 하루 되세요.<br />작업일보 초,중,종 시간에 맞춰 해당 항목 기입 잘 부탁드리며 품질 관리에 최선을 다해 주세요</p>
             </div>
             <button className="btn btn-success" onClick={() => navigate('/form')} style={{ padding: '10px 20px', fontSize: '14px' }}>
               ✍️ {t('quick_report')}
@@ -134,7 +142,7 @@ function WorkerDashboard({ reports, workerName, navigate, t }) {
   );
 }
 
-function AdminDashboard({ reports, t, selectedMaker, setSelectedMaker, selectedCar, setSelectedCar, selectedPart, setSelectedPart, gridMaker, setGridMaker }) {
+function AdminDashboard({ reports, t }) {
   // Compute summary stats
   const todayStr = new Date().toISOString().split('T')[0];
   let targetReports = reports.filter(r => r.date === todayStr);
@@ -155,61 +163,27 @@ function AdminDashboard({ reports, t, selectedMaker, setSelectedMaker, selectedC
   const activeProcessesCount = new Set(targetReports.map(r => r.processName)).size;
   const activeCarModelsCount = new Set(targetReports.map(r => r.carModel)).size;
 
+  const summary = {
+    totalTarget,
+    totalActual,
+    totalDefect,
+    pendingCount,
+    avgAttainment,
+    avgDefectRate,
+    activeProcessesCount,
+    activeCarModelsCount,
+    dateLabel: targetDateLabel
+  };
+
+  const { userRole } = useAuth();
+  const navigate = useNavigate();
+
   return (
-    <div className="dashboard-view">
-      <div className="kpi-grid" style={{ marginBottom: '16px' }}>
-        <div className="kpi-card cyan">
-          <div className="kpi-header">
-            <span>{t('kpi_total_prod')}</span>
-            <span>📦 {t('unit_pcs')}</span>
-          </div>
-          <div className="kpi-value">{totalActual.toLocaleString()}</div>
-          <div className="kpi-sub">{t('kpi_target_rate')}: {totalTarget.toLocaleString()} {t('unit_pcs')} ({avgAttainment}%)</div>
-        </div>
-
-        <div className="kpi-card rose">
-          <div className="kpi-header">
-            <span>오늘 불량 수량</span>
-            <span>⚠️ {t('unit_pcs')}</span>
-          </div>
-          <div className="kpi-value" style={{ color: 'var(--accent-rose)' }}>{totalDefect.toLocaleString()}</div>
-          <div className="kpi-sub">{t('kpi_defect_rate')} {avgDefectRate}%</div>
-        </div>
-
-        <div className="kpi-card amber">
-          <div className="kpi-header">
-            <span>{t('status_pending')}</span>
-            <span>⏳ 건</span>
-          </div>
-          <div className="kpi-value" style={{ color: 'var(--accent-amber)' }}>{pendingCount}</div>
-          <div className="kpi-sub">결재 필요</div>
-        </div>
-
-        <div className="kpi-card emerald">
-          <div className="kpi-header">
-            <span>{t('form_line')}</span>
-            <span>🏭 종</span>
-          </div>
-          <div className="kpi-value">{activeCarModelsCount} / {activeProcessesCount}</div>
-          <div className="kpi-sub">{targetDateLabel}</div>
-        </div>
-      </div>
-
-      <div className="card" style={{ marginBottom: '16px', border: '1px solid var(--border-color)', background: '#ffffff' }}>
-        <div className="card-header" style={{ flexWrap: 'wrap', gap: '10px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-          <div>
-            <div className="card-title" style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-main)' }}>
-              <span>📊 세부 차종 및 하위 세부 부품별 월간 불량 추이 분석</span>
-            </div>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-              자동차 제조사 및 세부 차종 선택 후 하위 세부 부품의 생산량 및 불량률 추이를 분석합니다.
-            </p>
-          </div>
-        </div>
-        <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-          (차트 상세 분석 영역 - React Chart.js 연동 준비됨)
-        </div>
-      </div>
-    </div>
+    <LegacyDashboardWrapper 
+      reports={reports} 
+      summary={summary} 
+      userRoleInfo={userRole} 
+      onNavigate={(path) => navigate(`/${path}`)} 
+    />
   );
 }

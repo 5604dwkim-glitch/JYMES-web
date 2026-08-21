@@ -5,6 +5,21 @@
 
 export const TRANSLATIONS = {
   ko: {
+    dim_spec_cutt: "(Spec Cutt,g )",
+    dim_step_cutt: "(Step cutt,g)",
+    dim_first_mid_last: "(초/중/종)",
+    defect_scortch: "스코치(Scortch)",
+    defect_scratch: "외면흠 (Scratch)",
+    defect_flock: "후로킹 (Flock,g)",
+    defect_contam: "오염 (Contamination)",
+    defect_cutting: "컷팅 (Cutting)",
+    defect_length: "길이 (Length)",
+    dim_check_title: "치수확인",
+    picker_base_date: "작업일자 기준",
+    picker_base_day: "기준일",
+    picker_lot_title: "LOT 번호 선택 (년월일시분)",
+    picker_time_title: "시간 선택",
+    picker_number_title: "치수 입력",
     // Header & Sidebar
     company_name: "(주)조영산업",
     system_title: "(주)조영산업 생산 시스템",
@@ -19,6 +34,11 @@ export const TRANSLATIONS = {
     nav_analytics: "공정 및 불량 분석",
     nav_master: "작업자 관리",
     quick_report: "일보 작성",
+    lang_ko: "한국어",
+    lang_en: "영어",
+    lang_th: "태국어",
+    lang_tl: "타갈로그어",
+    lang_vi: "베트남어",
 
     // Titles & Subtitles
     title_dashboard: "메인 대시보드",
@@ -129,17 +149,17 @@ export const TRANSLATIONS = {
     form_standard_title: "📱 공정 모바일 원터치 양식",
     form_leader_title: "📋 작업일보(반장)",
 
-    step1_date_time: "📅 1. 작업 일자 & 작업 시간 (시작시간 ~ 종료시간)",
+    step1_date_time: "📅 작업 일자 & 작업 시간 (시작시간 ~ 종료시간)",
     start_time: "시작시간",
     end_time: "종료시간",
-    step2_vehicle: "🚘 2. 차종 선택 (원터치 버튼 방식)",
+    step2_vehicle: "🚘 차종 선택 (원터치 버튼 방식)",
     step2_maker: "[1단계] 완성차 제조사 선택",
     step2_subcar: "[2단계] 세부 차종 선택",
-    step3_process: "🏭 3. 생산공정 선택",
-    step4_worker_item: "👷 4. 작업자 성함 & 품목 선택",
+    step3_process: "🏭 생산공정 선택",
+    step4_worker_item: "👷 작업자 성함 & 품목 선택",
     label_worker_name_req: "작업자 성함 *",
     label_item_select: "차종 품목 선택",
-    step4_1_lot: "🧪 4. 소재 LOT 번호 입력",
+    step4_1_lot: "🧪 소재 LOT 번호 입력",
     lot_help: "숫자를 입력하면 (예: 2607251330) 자동으로 '26년 07월 25일 13시 30분' 형태로 변환됩니다.",
     frt_material: "🔹 DT A Roll 소재",
     rr_material: "🔹 DT B Roll 소재",
@@ -147,11 +167,11 @@ export const TRANSLATIONS = {
     lot_mid: "중물 LOT",
     lot_last: "종물 LOT",
     placeholder_datetime: "년월일시분 입력",
-    step5_qty: "🔢 6. 생산실적 (터치 버튼 수량 조절)",
+    step5_qty: "📦 🔢 6. 생산실적 (터치 버튼 수량 조절)",
     target_qty_label: "목표 수량 (EA)",
     actual_qty_label: "생산 완료 수량 (EA)",
     defect_qty_label: "총 불량 수량 (EA)",
-    step6_downtime: "📝 7. 비가동 시간 & 원터치 특이사항 작성",
+    step6_downtime: "⚠️ 📝 7. 비가동 시간 & 원터치 특이사항 작성",
     downtime_min_label: "비가동 (분)",
     downtime_cause_label: "비가동 주요 원인",
     downtime_none: "사유 없음 (정상가동)",
@@ -256,6 +276,21 @@ export const TRANSLATIONS = {
   },
 
   en: {
+    dim_spec_cutt: "(Spec Cutt,g )",
+    dim_step_cutt: "(Step cutt,g)",
+    dim_first_mid_last: "(F/M/L)",
+    defect_scortch: "Scortch",
+    defect_scratch: "Scratch",
+    defect_flock: "Flock",
+    defect_contam: "Contamination",
+    defect_cutting: "Cutting",
+    defect_length: "Length",
+    dim_check_title: "Dimension Check",
+    picker_base_date: "Base Work Date",
+    picker_base_day: "Base Day",
+    picker_lot_title: "Select LOT Number (YYMMDDHHMM)",
+    picker_time_title: "Select Time",
+    picker_number_title: "Enter Dimension",
     // Header & Sidebar
     company_name: "Joyoung Ind.",
     system_title: "Joyoung Industry MES",
@@ -380,17 +415,17 @@ export const TRANSLATIONS = {
     form_standard_title: "📱 Mobile Process Form",
     form_leader_title: "📋 Leader Work Report",
 
-    step1_date_time: "📅 1. Work Date & Working Hours (Start ~ End)",
+    step1_date_time: "📅 Work Date & Working Hours (Start ~ End)",
     start_time: "Start Time",
     end_time: "End Time",
-    step2_vehicle: "🚘 2. Select Vehicle Model (Touch Button)",
+    step2_vehicle: "🚘 Select Vehicle Model (Touch Button)",
     step2_maker: "[Step 1] Select Manufacturer",
     step2_subcar: "[Step 2] Select Sub-Model",
-    step3_process: "🏭 3. Select Production Process",
-    step4_worker_item: "👷 4. Worker Name & Item Selection",
+    step3_process: "🏭 Select Production Process",
+    step4_worker_item: "👷 Worker Name & Item Selection",
     label_worker_name_req: "Worker Name *",
     label_item_select: "Select Model Item",
-    step4_1_lot: "🧪 4-1. Material LOT Number Input (FRT & RR Materials)",
+    step4_1_lot: "🧪 Material LOT Number Input (FRT & RR Materials)",
     lot_help: "Enter numbers (e.g. 2607251330) to convert to '26-07-25 13:30'.",
     frt_material: "🔹 FRT Material",
     rr_material: "🔹 RR Material",
@@ -398,11 +433,11 @@ export const TRANSLATIONS = {
     lot_mid: "Middle LOT",
     lot_last: "Final LOT",
     placeholder_datetime: "Enter YYMMDDHHMM",
-    step5_qty: "🔢 5. Quantity Performance (Touch Stepper)",
+    step5_qty: "🔢 Quantity Performance (Touch Stepper)",
     target_qty_label: "Target Qty (pcs)",
     actual_qty_label: "Actual Output (pcs)",
     defect_qty_label: "Total Defect Qty (pcs)",
-    step6_downtime: "📝 6. Downtime Hours & Remarks",
+    step6_downtime: "📝 Downtime Hours & Remarks",
     downtime_min_label: "Downtime (min)",
     downtime_cause_label: "Main Downtime Cause",
     downtime_none: "Normal Operation (No Downtime)",
@@ -507,6 +542,21 @@ export const TRANSLATIONS = {
   },
 
     vi: {
+    dim_spec_cutt: "(Spec Cutt,g )",
+    dim_step_cutt: "(Step cutt,g)",
+    dim_first_mid_last: "(Đ/G/C)",
+    defect_scortch: "Vết cháy",
+    defect_scratch: "Vết xước",
+    defect_flock: "Vết xù",
+    defect_contam: "Ô nhiễm",
+    defect_cutting: "Cắt",
+    defect_length: "Chiều dài",
+    dim_check_title: "Kiểm tra kích thước",
+    picker_base_date: "Ngày làm việc cơ sở",
+    picker_base_day: "Ngày cơ sở",
+    picker_lot_title: "Chọn số LOT (YYMMDDHHMM)",
+    picker_time_title: "Chọn thời gian",
+    picker_number_title: "Nhập kích thước",
     // Header & Sidebar
     company_name: "Công ty Joyoung",
     system_title: "Hệ thống sản xuất Joyoung",
@@ -521,6 +571,11 @@ export const TRANSLATIONS = {
     nav_analytics: "Phân tích quy trình & lỗi",
     nav_master: "Quản lý nhân viên",
     quick_report: "Báo cáo nhanh",
+    lang_ko: "Tiếng Hàn",
+    lang_en: "Tiếng Anh",
+    lang_th: "Tiếng Thái",
+    lang_tl: "Tiếng Tagalog",
+    lang_vi: "Tiếng Việt",
 
     // Titles & Subtitles
     title_dashboard: "Bảng điều khiển",
@@ -649,11 +704,11 @@ export const TRANSLATIONS = {
     lot_mid: "Lô Giữa",
     lot_last: "Lô Cuối",
     placeholder_datetime: "Nhập NămThángNgàyGiờPhút",
-    step5_qty: "🔢 Kết quả sản xuất",
+    step5_qty: "📦 🔢 Kết quả sản xuất",
     target_qty_label: "Mục tiêu (Cái)",
     actual_qty_label: "Sản lượng (Cái)",
     defect_qty_label: "Tổng lỗi (Cái)",
-    step6_downtime: "📝 Thời gian ngừng máy & Ghi chú",
+    step6_downtime: "⚠️ 📝 Thời gian ngừng máy & Ghi chú",
     downtime_min_label: "Dừng máy (phút)",
     downtime_cause_label: "Nguyên nhân dừng máy chính",
     downtime_none: "Bình thường (Không dừng)",
@@ -762,6 +817,21 @@ export const TRANSLATIONS = {
   },
 
   th: {
+    dim_spec_cutt: "(Spec Cutt,g )",
+    dim_step_cutt: "(Step cutt,g)",
+    dim_first_mid_last: "(แรก/กลาง/ท้าย)",
+    defect_scortch: "รอยไหม้",
+    defect_scratch: "รอยขีดข่วน",
+    defect_flock: "รอยขน",
+    defect_contam: "การปนเปื้อน",
+    defect_cutting: "การตัด",
+    defect_length: "ความยาว",
+    dim_check_title: "ตรวจสอบขนาด",
+    picker_base_date: "วันที่ทำงานอ้างอิง",
+    picker_base_day: "วันอ้างอิง",
+    picker_lot_title: "เลือกหมายเลข LOT (YYMMDDHHMM)",
+    picker_time_title: "เลือกเวลา",
+    picker_number_title: "ป้อนขนาด",
     // Header & Sidebar
     company_name: "(บริษัท) โจยอง อินดัสทรี",
     system_title: "ระบบการผลิต โจยอง อินดัสทรี",
@@ -886,17 +956,17 @@ export const TRANSLATIONS = {
     form_standard_title: "📱 แบบฟอร์มมือถือ",
     form_leader_title: "📋 รายงานการทำงาน (หัวหน้า)",
 
-    step1_date_time: "📅 1. วันที่ทำงาน & เวลาทำงาน (เริ่ม ~ สิ้นสุด)",
+    step1_date_time: "📅 วันที่ทำงาน & เวลาทำงาน (เริ่ม ~ สิ้นสุด)",
     start_time: "เวลาเริ่ม",
     end_time: "เวลาสิ้นสุด",
-    step2_vehicle: "🚘 2. เลือกรุ่นรถยนต์ (ปุ่มกดง่าย)",
+    step2_vehicle: "🚘 เลือกรุ่นรถยนต์ (ปุ่มกดง่าย)",
     step2_maker: "[ขั้นตอนที่ 1] เลือกผู้ผลิต",
     step2_subcar: "[ขั้นตอนที่ 2] เลือกรุ่นย่อย",
-    step3_process: "🏭 3. เลือกกระบวนการผลิต",
-    step4_worker_item: "👷 4. ชื่อพนักงาน & เลือกชิ้นงาน",
+    step3_process: "🏭 เลือกกระบวนการผลิต",
+    step4_worker_item: "👷 ชื่อพนักงาน & เลือกชิ้นงาน",
     label_worker_name_req: "ชื่อพนักงาน *",
     label_item_select: "เลือกรายการชิ้นงาน",
-    step4_1_lot: "🧪 4-1. กรอกหมายเลข LOT วัสดุ (วัสดุ FRT & RR)",
+    step4_1_lot: "🧪 กรอกหมายเลข LOT วัสดุ (วัสดุ FRT & RR)",
     lot_help: "กรอกตัวเลข (เช่น 2607251330) จะแปลงเป็น '26-07-25 13:30' โดยอัตโนมัติ",
     frt_material: "🔹 วัสดุ FRT",
     rr_material: "🔹 วัสดุ RR",
@@ -904,11 +974,11 @@ export const TRANSLATIONS = {
     lot_mid: "ชิ้นงานกลาง (Middle)",
     lot_last: "ชิ้นงานสุดท้าย (Final)",
     placeholder_datetime: "กรอก ปีเดือนวันชั่วโมงนาที",
-    step5_qty: "🔢 5. ยอดผลงาน (ปุ่มปรับจำนวน)",
+    step5_qty: "🔢 ยอดผลงาน (ปุ่มปรับจำนวน)",
     target_qty_label: "จำนวนเป้าหมาย (ชิ้น)",
     actual_qty_label: "จำนวนที่เสร็จ (ชิ้น)",
     defect_qty_label: "จำนวนของเสียรวม (ชิ้น)",
-    step6_downtime: "📝 6. เวลาหยุดเครื่อง & หมายเหตุ",
+    step6_downtime: "📝 เวลาหยุดเครื่อง & หมายเหตุ",
     downtime_min_label: "เวลาหยุด (นาที)",
     downtime_cause_label: "สาเหตุหลักที่หยุดเครื่อง",
     downtime_none: "ทำงานปกติ (ไม่มีหยุดเครื่อง)",
@@ -1013,6 +1083,21 @@ export const TRANSLATIONS = {
   },
 
   tl: {
+    dim_spec_cutt: "(Spec Cutt,g )",
+    dim_step_cutt: "(Step cutt,g)",
+    dim_first_mid_last: "(U/G/H)",
+    defect_scortch: "Pagkakasunog",
+    defect_scratch: "Gasgas",
+    defect_flock: "Balahibo",
+    defect_contam: "Kontaminasyon",
+    defect_cutting: "Pagputol",
+    defect_length: "Haba",
+    dim_check_title: "Suriin ang Sukat",
+    picker_base_date: "Batayang Petsa ng Trabaho",
+    picker_base_day: "Batayang Araw",
+    picker_lot_title: "Pumili ng Numero ng LOT (YYMMDDHHMM)",
+    picker_time_title: "Pumili ng Oras",
+    picker_number_title: "Ilagay ang Sukat",
     // Header & Sidebar
     company_name: "(Kompanya) Joyoung Ind.",
     system_title: "Sistema ng Produksyon ng Joyoung",
@@ -1137,17 +1222,17 @@ export const TRANSLATIONS = {
     form_standard_title: "📱 Form sa Mobile",
     form_leader_title: "📋 Report ng Trabaho (Lider)",
 
-    step1_date_time: "📅 1. Petsa at Oras ng Trabaho (Simula ~ Katapusan)",
+    step1_date_time: "📅 Petsa at Oras ng Trabaho (Simula ~ Katapusan)",
     start_time: "Oras ng Simula",
     end_time: "Oras ng Katapusan",
-    step2_vehicle: "🚘 2. Pumili ng Modelo ng Kotse (Button)",
+    step2_vehicle: "🚘 Pumili ng Modelo ng Kotse (Button)",
     step2_maker: "[Hakbang 1] Pumili ng Tagagawa",
     step2_subcar: "[Hakbang 2] Pumili ng Sub-Model",
-    step3_process: "🏭 3. Pumili ng Proseso ng Produksyon",
-    step4_worker_item: "👷 4. Pangalan ng Manggagawa at Item",
+    step3_process: "🏭 Pumili ng Proseso ng Produksyon",
+    step4_worker_item: "👷 Pangalan ng Manggagawa at Item",
     label_worker_name_req: "Pangalan ng Manggagawa *",
     label_item_select: "Pumili ng Item",
-    step4_1_lot: "🧪 4-1. Ipasok ang LOT ng Materyal (FRT & RR)",
+    step4_1_lot: "🧪 Ipasok ang LOT ng Materyal (FRT & RR)",
     lot_help: "I-type ang numero (hal. 2607251330) para maging '26-07-25 13:30'.",
     frt_material: "🔹 Materyal na FRT",
     rr_material: "🔹 Materyal na RR",
@@ -1155,11 +1240,11 @@ export const TRANSLATIONS = {
     lot_mid: "Gitnang LOT (Middle)",
     lot_last: "Huling LOT (Final)",
     placeholder_datetime: "I-type ang TaonBuwanArawOrasMinuto",
-    step5_qty: "🔢 5. Dami ng Produksyon (Touch Stepper)",
+    step5_qty: "🔢 Dami ng Produksyon (Touch Stepper)",
     target_qty_label: "Target na Dami (pcs)",
     actual_qty_label: "Nabuong Dami (pcs)",
     defect_qty_label: "Kabuuang Depekto (pcs)",
-    step6_downtime: "📝 6. Oras ng Paghinto at Note",
+    step6_downtime: "📝 Oras ng Paghinto at Note",
     downtime_min_label: "Paghinto (min)",
     downtime_cause_label: "Pangunahing Dahilan ng Paghinto",
     downtime_none: "Normal na Paggana (Walang Paghinto)",
@@ -1265,6 +1350,21 @@ export const TRANSLATIONS = {
 };
 
 export const STRING_TO_KEY_MAP = {
+  '(Spec Cutt,g )': 'dim_spec_cutt',
+  '(Step cutt,g)': 'dim_step_cutt',
+  '(초/중/종)': 'dim_first_mid_last',
+  '스코치(Scortch)': 'defect_scortch',
+  '외면흠 (Scratch)': 'defect_scratch',
+  '후로킹 (Flock,g)': 'defect_flock',
+  '오염 (Contamination)': 'defect_contam',
+  '컷팅 (Cutting)': 'defect_cutting',
+  '길이 (Length)': 'defect_length',
+  '치수확인': 'dim_check_title',
+  '작업일자 기준': 'picker_base_date',
+  '기준일': 'picker_base_day',
+  'LOT 번호 선택 (년월일시분)': 'picker_lot_title',
+  '시간 선택': 'picker_time_title',
+  '치수 입력': 'picker_number_title',
   '클립머신': 'proc_clip',
   '소재준비': 'proc_prep',
   '소재준비(A)': 'proc_prep_a',
@@ -1511,7 +1611,22 @@ class I18nManager {
     elements.forEach(elem => {
       const key = elem.getAttribute('data-i18n');
       if (key) {
-        elem.textContent = this.t(key, elem.textContent);
+        const secNumSpan = elem.querySelector('.sec-num');
+        const translatedText = this.t(key);
+        if (secNumSpan) {
+          const currentNum = secNumSpan.textContent;
+          elem.innerHTML = '';
+          const newSpan = document.createElement('span');
+          newSpan.className = 'sec-num';
+          newSpan.textContent = currentNum;
+          elem.appendChild(newSpan);
+          
+          const textSpan = document.createElement('span');
+          textSpan.innerHTML = ' ' + translatedText;
+          elem.appendChild(textSpan);
+        } else {
+          elem.innerHTML = translatedText;
+        }
       }
     });
 
@@ -1598,3 +1713,6 @@ class I18nManager {
 }
 
 export const i18n = new I18nManager();
+if (typeof window !== 'undefined') {
+  window.i18n = i18n;
+}

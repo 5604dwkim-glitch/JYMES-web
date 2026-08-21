@@ -18,6 +18,7 @@ export default function Layout() {
     switch (location.pathname) {
       case '/': return { title: t('title_dashboard'), sub: t('subtitle_dashboard') };
       case '/form': return { title: t('title_form'), sub: t('subtitle_form') };
+      case '/drafts': return { title: t('title_drafts') || '작성중인 작업일보', sub: '' };
       case '/reports': return { title: t('title_reports'), sub: t('subtitle_reports') };
       case '/analytics': return { title: t('title_analytics'), sub: t('subtitle_analytics') };
       case '/master': return { title: t('title_master'), sub: t('subtitle_master') };
@@ -64,18 +65,26 @@ export default function Layout() {
             <span>✍️</span>
             <span>{t('nav_form')}</span>
           </NavLink>
-          <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span>📋</span>
-            <span>{t('nav_reports')}</span>
+          <NavLink to="/drafts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <span>📝</span>
+            <span>{t('nav_drafts') || '작성중인 작업일보'}</span>
           </NavLink>
-          <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span>📈</span>
-            <span>{t('nav_analytics')}</span>
-          </NavLink>
-          <NavLink to="/master" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span>👥</span>
-            <span>{t('nav_master')}</span>
-          </NavLink>
+          {userRole?.role !== 'worker' && (
+            <>
+              <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>📋</span>
+                <span>{t('nav_reports')}</span>
+              </NavLink>
+              <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>📈</span>
+                <span>{t('nav_analytics')}</span>
+              </NavLink>
+              <NavLink to="/master" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>👥</span>
+                <span>{t('nav_master')}</span>
+              </NavLink>
+            </>
+          )}
         </nav>
 
         <div className="sidebar-footer">
@@ -102,11 +111,11 @@ export default function Layout() {
                 value={lang} 
                 onChange={(e) => setLang(e.target.value)}
               >
-                <option value="ko">🇰🇷 한국어</option>
-                <option value="en">🇺🇸 English</option>
-                <option value="th">🇹🇭 ภาษาไทย</option>
-                <option value="tl">🇵🇭 Tagalog</option>
-                <option value="vi">🇻🇳 Tiếng Việt</option>
+                <option value="ko">🇰🇷 {t('lang_ko') || '한국어'}</option>
+                <option value="en">🇺🇸 {t('lang_en') || 'English'}</option>
+                <option value="th">🇹🇭 {t('lang_th') || 'ภาษาไทย'}</option>
+                <option value="tl">🇵🇭 {t('lang_tl') || 'Tagalog'}</option>
+                <option value="vi">🇻🇳 {t('lang_vi') || 'Tiếng Việt'}</option>
               </select>
             </div>
             <button className="btn btn-primary btn-sm">

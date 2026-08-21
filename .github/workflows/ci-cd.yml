@@ -1,0 +1,55 @@
+name: CI/CD Pipeline (Build, Lint, Deploy)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # 1단계: 자체 점검 (에러가 있으면 여기서 멈추고 배포 차단)
+  self-check:
+    name: 🛠️ 코드 자체 점검 (Lint & Build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm install
+
+      - name: 🔍 Code Linting (문법 및 에러 검사)
+        run: npm run lint
+
+      - name: 🏗️ Build Test (빌드 안정성 검사)
+        run: npm run build
+
+  # 2단계: 자동 배포 (1단계 자체 점검을 통과했을 때만 실행)
+  deploy:
+    name: 🚀 Firebase 실서버 자동 배포
+    needs: self-check
+    runs-on: ubuntu-latest
+    # main 브랜치에 코드가 푸시되었을 때만 배포 실행
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: 📂 Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: 📦 Install Dependencies & Build
+        run: npm install && npm run build
+
+      - name: 🌐 Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JY001_EB144 }}'
+          channelId: live
+          projectId: jy001-eb144

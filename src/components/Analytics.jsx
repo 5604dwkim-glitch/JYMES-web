@@ -1,10 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import LegacyAnalyticsWrapper from './DynamicForms/LegacyAnalyticsWrapper';
+import { fetchReports } from '../services/firestore';
 
 export default function Analytics() {
-  return (
-    <div className="card" style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)' }}>
-      <h2>📈 공정 및 불량 분석</h2>
-      <p>통계 및 분석 화면은 React로 포팅 중입니다.</p>
-    </div>
-  );
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      // By default, fetch the last 30 days of data for analytics to prevent huge read costs
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const endDate = new Date().toISOString().split('T')[0];
+      const data = await fetchReports({ startDate, endDate });
+      setReports(data);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
+  if (loading) {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading Analytics...</div>;
+  }
+
+  return <LegacyAnalyticsWrapper reports={reports} />;
 }

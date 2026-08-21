@@ -30,7 +30,8 @@ export default function App() {
         }>
           <Route index element={<Dashboard />} />
           <Route path="form" element={<ReportForm />} />
-          <Route path="reports" element={<ReportList />} />
+          <Route path="drafts" element={<ReportList key="drafts" initialStatus="임시저장" />} />
+          <Route path="reports" element={<ReportList key="reports" />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="master" element={<MasterData />} />
         </Route>
