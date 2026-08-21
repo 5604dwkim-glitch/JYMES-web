@@ -3924,7 +3924,7 @@ ${renderDtRow4('종')}
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%; background: #fffde7;">구 분(Division)</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 13px; color: #000; width: 70%;">Frunk</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 13px; color: #000; width: 70%;">PTG</th>
               </tr>
             </thead>
             <tbody>
