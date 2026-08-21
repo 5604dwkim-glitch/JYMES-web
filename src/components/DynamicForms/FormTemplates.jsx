@@ -1355,6 +1355,7 @@ import { store } from './LegacyFormWrapper.jsx';
 
   export function getStandardQtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
+    const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
     const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
 
