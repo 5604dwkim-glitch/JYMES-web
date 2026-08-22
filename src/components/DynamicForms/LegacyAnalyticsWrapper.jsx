@@ -681,6 +681,7 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
             <tr style="background: #f8fafc;">
               <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 50px;">순번</th>
               <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 120px;">구분</th>
+              <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 120px;">호기</th>
               <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 120px;">(${parseInt(selectedMonth.split('-')[1], 10)}월) 정품완료</th>
               <th colspan="${displayWeeksCount}" style="border: 1px solid #000; text-align: left; padding-left: 8px;">주차별 불량 현황</th>
               <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 180px;">${parseInt(selectedMonth.split('-')[1], 10)}월 누적 불량 세부</th>
@@ -693,7 +694,14 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
             ${variantData.map((vData, vIdx) => {
               let html = `<tr>`;
               html += `<td style="border: 1px solid #000; text-align: center; padding: 6px;">${vIdx + 1}</td>`;
-              html += `<td style="border: 1px solid #000; padding: 6px; font-weight: 700; color: var(--text-main);">${vData.variant.name}</td>`;
+              
+              if (vIdx === 0) {
+                html += `<td style="border: 1px solid #000; padding: 6px; font-weight: 700; text-align: center;">${vData.variant.section}</td>`;
+              } else if (vIdx === 1) {
+                html += `<td style="border: 1px solid #000; padding: 6px; font-weight: 700; text-align: center;" rowspan="3">B단면</td>`;
+              }
+              html += `<td style="border: 1px solid #000; padding: 6px; font-weight: 700; text-align: center; color: var(--accent-blue);">${vData.variant.name}</td>`;
+  
               html += `<td style="border: 1px solid #000; text-align: center; padding: 6px; font-weight: 800; color: var(--accent-blue);">${vData.monthPacked.toLocaleString()}</td>`;
               
               for (let i = startIdx; i <= endIdx; i++) {
@@ -729,7 +737,7 @@ function exportDtclipMonthlyCsv(reports, selectedMonth) {
 
   let csvContent = "\uFEFF";
   csvContent += `(주)조영산업 - DT 클립머신 생산 불량 실적(${selectedMonth}) 월간 누적 합산 보고서\n\n`;
-  csvContent += `순번,구분,월간 포장완료 수량,월간 폐기 수량,불량률(%)\n`;
+  csvContent += `순번,구분,호기,월간 포장완료 수량,월간 폐기 수량,불량률(%)\n`;
 
   const variants = [
     { id: 'A_SEC', name: 'A단면(1호기)', components: [{id: 'LH', source: 'A'}, {id: 'RH', source: 'A'}] },
@@ -751,7 +759,7 @@ function exportDtclipMonthlyCsv(reports, selectedMonth) {
       });
     });
     const rate = packed > 0 ? ((scrap / packed) * 100).toFixed(2) : '0.00';
-    csvContent += `${idx+1},"${v.name}",${packed},${scrap},${rate}%\n`;
+    csvContent += `${idx+1},"${v.section}","${v.name}",${packed},${scrap},${rate}%\n`;
   });
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
