@@ -175,9 +175,9 @@ function renderLeaderPaperForm(container, existingData, loggedInWorkerName) {
       <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
         <div style="display: flex; align-items: center; gap: 6px;">
           <span><span data-i18n="form_work_date">작성일</span> : 20</span>
-          <input type="text" id="leaderYear" style="width: 35px; text-align: center;" class="form-control" value="${dateParts[0]?.substring(2) || '26'}" /> <span data-i18n="leader_year">년</span>
-          <input type="text" id="leaderMonth" style="width: 35px; text-align: center;" class="form-control" value="${dateParts[1] || '07'}" /> <span data-i18n="leader_month">월</span>
-          <input type="text" id="leaderDay" style="width: 35px; text-align: center;" class="form-control" value="${dateParts[2] || '25'}" /> <span data-i18n="leader_day">일</span>
+          <input type="text" id="leaderYear" style="width: 55px; text-align: center;" class="form-control" value="${dateParts[0]?.substring(2) || '26'}" /> <span data-i18n="leader_year">년</span>
+          <input type="text" id="leaderMonth" style="width: 55px; text-align: center;" class="form-control" value="${dateParts[1] || '07'}" /> <span data-i18n="leader_month">월</span>
+          <input type="text" id="leaderDay" style="width: 55px; text-align: center;" class="form-control" value="${dateParts[2] || '25'}" /> <span data-i18n="leader_day">일</span>
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
