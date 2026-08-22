@@ -41,9 +41,380 @@ export function renderAnalytics(container) {
   const months = getUniqueMonths(allReports);
   const currentSelectedMonth = months[0] || new Date().toISOString().substring(0, 7);
 
-  // ----------------------------------------------------
-  // React Component Rendering
-  // ----------------------------------------------------
+  container.innerHTML = `
+    <div class="analytics-tabs-wrapper">
+      <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color);">
+        <button class="analytics-tab-btn active" data-tab="tab-leader" style="padding: 12px 24px; font-weight: 700; background: var(--accent-purple); color: #fff; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📋 반장 작업일보</button>
+        <button class="analytics-tab-btn" data-tab="tab-dtclip" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">🛠️ DT 클립머신 실적</button>
+        <button class="analytics-tab-btn" data-tab="tab-charts" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📈 공정 및 불량 분석</button>
+      </div>
+
+      <!-- Tab 1: Leader Report -->
+      <div id="tab-leader" class="analytics-tab-content" style="display: block;">
+        <div class="card" style="border: 2px solid var(--accent-purple);">
+          <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+            <div class="card-title">
+              <span style="background: var(--accent-purple); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 13px;">
+                📋 작업일보(반장)
+              </span>
+              <span style="font-size: 16px;">월 단위 누적 합산 보고서</span>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <label style="font-size: 12px; font-weight: 700; color: var(--accent-purple);">조회 월 선택:</label>
+              <select id="leaderMonthSelector" class="form-control" style="width: auto; min-height: 36px; padding: 4px 12px; font-size: 13px; font-weight: 700;">
+                ${months.map(m => `
+                  <option value="${m}" ${m === currentSelectedMonth ? 'selected' : ''}>${m.substring(0, 4)}년 ${m.substring(5)}월 합산</option>
+                `).join('')}
+              </select>
+              <button class="btn btn-secondary btn-sm" id="btnPrintLeaderMonthly">🖨️ 합산표 인쇄</button>
+              <button class="btn btn-success btn-sm" id="btnExportLeaderMonthlyCsv">📊 엑셀/CSV 다운로드</button>
+            </div>
+          </div>
+
+          <div id="leaderMonthlyTableArea">
+            <!-- Dynamic Leader Monthly Table Render -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: DT Clip Machine Report -->
+      <div id="tab-dtclip" class="analytics-tab-content" style="display: none;">
+        <div class="card" style="border: 2px solid var(--accent-blue);">
+          <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
+            <div class="card-title">
+              <span style="background: var(--accent-blue); color: #fff; padding: 4px 10px; border-radius: 4px; font-size: 13px;">
+                🛠️ DT 클립머신
+              </span>
+              <span style="font-size: 16px;">월 단위 누적 실적 및 불량 보고서</span>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <label style="font-size: 12px; font-weight: 700; color: var(--accent-blue);">조회 월 선택:</label>
+              <select id="dtclipMonthSelector" class="form-control" style="width: auto; min-height: 36px; padding: 4px 12px; font-size: 13px; font-weight: 700;">
+                ${months.map(m => `
+                  <option value="${m}" ${m === currentSelectedMonth ? 'selected' : ''}>${m.substring(0, 4)}년 ${m.substring(5)}월 합산</option>
+                `).join('')}
+              </select>
+              <button class="btn btn-secondary btn-sm" id="btnPrintDtclipMonthly">🖨️ 합산표 인쇄</button>
+              <button class="btn btn-success btn-sm" id="btnExportDtclipMonthlyCsv">📊 엑셀/CSV 다운로드</button>
+
+            </div>
+          </div>
+
+          <div id="dtclipMonthlyTableArea">
+            <!-- Dynamic DT Clip Monthly Table Render -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Charts -->
+      <div id="tab-charts" class="analytics-tab-content" style="display: none;">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🚨 공정별 불량 원인 파레토 모니터링</div>
+            </div>
+            <div style="position: relative; height: 240px; width: 100%;">
+              <canvas id="defectParetoChart" height="240"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 1차 차종별 월간 생산 비중</div>
+            </div>
+            <div style="position: relative; height: 240px; width: 100%;">
+              <canvas id="carModelShareChart" height="240"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+`;
+
+
+  const monthSelector = container.querySelector('#leaderMonthSelector');
+  const tableArea = container.querySelector('#leaderMonthlyTableArea');
+
+  function updateLeaderMonthlyView(selectedMonth) {
+    renderLeaderMonthlySummaryTable(tableArea, allReports, selectedMonth);
+    i18n.applyTranslations(tableArea);
+  }
+
+  
+  const tabBtns = container.querySelectorAll('.analytics-tab-btn');
+  const tabContents = container.querySelectorAll('.analytics-tab-content');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => {
+        b.style.background = '#e2e8f0';
+        b.style.color = '#475569';
+        b.classList.remove('active');
+      });
+      tabContents.forEach(tc => tc.style.display = 'none');
+      
+      btn.style.color = '#fff';
+      if (btn.dataset.tab === 'tab-leader') btn.style.background = 'var(--accent-purple)';
+      else if (btn.dataset.tab === 'tab-dtclip') btn.style.background = 'var(--accent-blue)';
+      else btn.style.background = 'var(--text-main)';
+      
+      btn.classList.add('active');
+      const target = container.querySelector('#' + btn.dataset.tab);
+      if (target) target.style.display = 'block';
+    });
+  });
+
+  const dtclipMonthSelector = container.querySelector('#dtclipMonthSelector');
+  const dtclipTableArea = container.querySelector('#dtclipMonthlyTableArea');
+
+  function updateDtclipMonthlyView(selectedMonth) {
+    if (typeof renderDtclipMonthlySummaryTable === 'function') {
+      renderDtclipMonthlySummaryTable(dtclipTableArea, allReports, selectedMonth);
+      i18n.applyTranslations(dtclipTableArea);
+    }
+  }
+
+  updateDtclipMonthlyView(currentSelectedMonth);
+
+  
+  const btnPrintDtclipMonthly = container.querySelector('#btnPrintDtclipMonthly');
+  if (btnPrintDtclipMonthly) {
+    btnPrintDtclipMonthly.addEventListener('click', () => {
+      const dtclipTable = container.querySelector('#dtclipMonthlyTableArea');
+      if (dtclipTable) {
+        printIsolatedReport(dtclipTable, 'DT클립머신_월단위_누적합산표');
+      }
+    });
+  }
+
+  const btnExportDtclipMonthlyCsv = container.querySelector('#btnExportDtclipMonthlyCsv');
+  if (btnExportDtclipMonthlyCsv) {
+    btnExportDtclipMonthlyCsv.addEventListener('click', () => {
+      exportDtclipMonthlyCsv(allReports, dtclipMonthSelector.value);
+    });
+  }
+
+  if (dtclipMonthSelector) {
+    dtclipMonthSelector.addEventListener('change', () => {
+      updateDtclipMonthlyView(dtclipMonthSelector.value);
+    });
+  }
+
+  updateLeaderMonthlyView(currentSelectedMonth);
+
+  if (monthSelector) {
+    monthSelector.addEventListener('change', () => {
+      updateLeaderMonthlyView(monthSelector.value);
+    });
+  }
+
+  container.querySelector('#btnPrintLeaderMonthly').addEventListener('click', () => {
+    const leaderTable = container.querySelector('#leaderMonthlyTableArea');
+    if (leaderTable) {
+      printIsolatedReport(leaderTable, '반장_월단위_누적합산표');
+    } else {
+      window.print();
+    }
+  });
+
+  container.querySelector('#btnExportLeaderMonthlyCsv').addEventListener('click', () => {
+    exportLeaderMonthlyCsv(allReports, monthSelector.value);
+  });
+
+  drawParetoChart(container.querySelector('#defectParetoChart'), allReports);
+  drawShareChart(container.querySelector('#carModelShareChart'), allReports);
+  i18n.applyTranslations(container);
+}
+
+function getUniqueMonths(reports) {
+  const set = new Set();
+  reports.forEach(r => {
+    if (r.date) set.add(r.date.substring(0, 7));
+  });
+  const arr = Array.from(set).sort((a, b) => b.localeCompare(a));
+  return arr.length > 0 ? arr : [new Date().toISOString().substring(0, 7)];
+}
+
+// Helper to get weeks in a month
+function getWeeksOfMonth(yearMonth) {
+  const [yearStr, monthStr] = yearMonth.split('-');
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10) - 1; // JS months are 0-indexed
+  
+  const weeks = [];
+  let currentDate = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  
+  let weekStart = new Date(currentDate);
+  
+  while (currentDate <= lastDay) {
+    if (currentDate.getDay() === 6 || currentDate.getTime() === lastDay.getTime()) {
+      weeks.push({
+        start: new Date(weekStart),
+        end: new Date(currentDate)
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
+      weekStart = new Date(currentDate);
+    } else {
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
+  return weeks;
+}
+
+const formatDateStr = d => String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+
+/**
+ * 📊 장수미 반장 작업일보 (HSC-DT-005) 월 단위 누적 합산 표 렌더링
+ */
+function renderLeaderMonthlySummaryTable(container, reports, selectedMonth) {
+  const monthReports = reports.filter(r => 
+    r.date && r.date.startsWith(selectedMonth) && (r.isLeaderForm || r.workerName === '장수미')
+  );
+
+  const weeks = getWeeksOfMonth(selectedMonth);
+  const weekLabels = ['첫째주', '둘째주', '셋째주', '넷째주', '다섯째주', '여섯째주'];
+  const weekTitlesAll = weeks.map((w, i) => `${weekLabels[i] || (i+1)+'주차'}<br>(${formatDateStr(w.start)}~${formatDateStr(w.end)})`);
+
+  let latestWeekIdx = 0;
+  weeks.forEach((w, i) => {
+    const hasReport = monthReports.some(r => {
+      const d = new Date(r.date);
+      return d >= w.start && d <= w.end;
+    });
+    if (hasReport) latestWeekIdx = i;
+  });
+
+  let endIdx = Math.max(3, latestWeekIdx);
+  if (endIdx >= weeks.length) endIdx = weeks.length - 1;
+  let startIdx = endIdx - 3;
+  if (startIdx < 0) startIdx = 0;
+  if (endIdx - startIdx > 3) startIdx = endIdx - 3; // Ensure exactly 4 max if possible
+
+  const displayWeeksCount = endIdx - startIdx + 1;
+  const displayWeekTitles = weekTitlesAll.slice(startIdx, endIdx + 1);
+
+  const groups = [
+    { id: 1, name: 'DS CREW', variants: ['LH', 'RH'] },
+    { id: 2, name: 'DS STD', variants: ['LH', 'RH'] },
+    { id: 3, name: 'DT CREW', variants: ['LH', 'RH'] },
+    { id: 4, name: 'DT QUAD', variants: ['LH', 'RH'] },
+    { id: 5, name: 'KM/KX Hood', variants: ['-'] }
+  ];
+
+  const groupData = groups.map(g => {
+    return {
+      id: g.id,
+      name: g.name,
+      variants: g.variants.map(v => {
+        const itemName = g.name === 'KM/KX Hood' ? g.name : `${g.name} ${v}`;
+        
+        let monthPacked = 0;
+        let monthRework = 0;
+        monthReports.forEach(r => {
+          const it = r.leaderFormItems?.find(i => i.name === itemName);
+          if (it) {
+            monthPacked += Number(it.packedQty) || 0;
+            monthRework += Number(it.reworkQty) || 0;
+          }
+        });
+
+        const weeklyScraps = weeks.map(w => {
+          const wReports = monthReports.filter(r => {
+            const d = new Date(r.date);
+            return d >= w.start && d <= w.end;
+          });
+          
+          let wPacked = 0, scrapA = 0, scrapB = 0, scrapC = 0, scrapD = 0, scrapCenter = 0, scrapSide = 0;
+          wReports.forEach(r => {
+            const it = r.leaderFormItems?.find(i => i.name === itemName);
+            if (it) {
+              wPacked += Number(it.packedQty) || 0;
+              scrapA += Number(it.scrapA) || 0;
+              scrapB += Number(it.scrapB) || 0;
+              scrapC += Number(it.scrapC) || 0;
+              scrapD += Number(it.scrapD) || 0;
+              scrapCenter += Number(it.scrapCenter) || 0;
+              scrapSide += Number(it.scrapSide) || 0;
+            }
+          });
+          return { wPacked, scrapA, scrapB, scrapC, scrapD, scrapCenter, scrapSide };
+        });
+
+        const totalScrap = weeklyScraps.reduce((acc, ws) => ({
+          scrapA: acc.scrapA + ws.scrapA,
+          scrapB: acc.scrapB + ws.scrapB,
+          scrapC: acc.scrapC + ws.scrapC,
+          scrapD: acc.scrapD + ws.scrapD,
+          scrapCenter: acc.scrapCenter + ws.scrapCenter,
+          scrapSide: acc.scrapSide + ws.scrapSide,
+        }), { scrapA: 0, scrapB: 0, scrapC: 0, scrapD: 0, scrapCenter: 0, scrapSide: 0 });
+
+        return {
+          variant: v,
+          monthPacked,
+          monthRework,
+          weeklyScraps,
+          totalScrap
+        };
+      })
+    };
+  });
+
+  const totalMonthlyPacked = groupData.reduce((acc, g) => acc + g.variants.reduce((a, v) => a + v.monthPacked, 0), 0);
+  const totalMonthlyRework = groupData.reduce((acc, g) => acc + g.variants.reduce((a, v) => a + v.monthRework, 0), 0);
+  const totalMonthlyScrap = groupData.reduce((acc, g) => acc + g.variants.reduce((a, v) => a + Object.values(v.totalScrap).reduce((sa, sv) => sa + sv, 0), 0), 0);
+  const avgDefectRate = totalMonthlyPacked > 0 ? ((totalMonthlyScrap / totalMonthlyPacked) * 100).toFixed(2) : '0.00';
+
+  const formatScrap = (item, scrapObj, basePacked) => {
+    if (item.includes('Hood')) {
+      const pcC = basePacked > 0 ? ((scrapObj.scrapCenter / basePacked) * 100).toFixed(1) : '0.0';
+      const pcS = basePacked > 0 ? ((scrapObj.scrapSide / basePacked) * 100).toFixed(1) : '0.0';
+      return `<div style="margin-bottom:2px;">센터: ${scrapObj.scrapCenter}&nbsp;&nbsp;&nbsp;(${pcC}%)</div><div>사이드: ${scrapObj.scrapSide}&nbsp;&nbsp;&nbsp;(${pcS}%)</div>`;
+    }
+    
+    const hasD = item.includes('DS CREW');
+    const pcA = basePacked > 0 ? ((scrapObj.scrapA / basePacked) * 100).toFixed(1) : '0.0';
+    const pcB = basePacked > 0 ? ((scrapObj.scrapB / basePacked) * 100).toFixed(1) : '0.0';
+    const pcC = basePacked > 0 ? ((scrapObj.scrapC / basePacked) * 100).toFixed(1) : '0.0';
+    let str = `<div style="margin-bottom:2px;">A: ${scrapObj.scrapA}&nbsp;&nbsp;&nbsp;(${pcA}%)</div>
+               <div style="margin-bottom:2px;">B: ${scrapObj.scrapB}&nbsp;&nbsp;&nbsp;(${pcB}%)</div>
+               <div style="margin-bottom:2px;">C: ${scrapObj.scrapC}&nbsp;&nbsp;&nbsp;(${pcC}%)</div>`;
+    if (hasD) {
+      const pcD = basePacked > 0 ? ((scrapObj.scrapD / basePacked) * 100).toFixed(1) : '0.0';
+      str += `<div>D: ${scrapObj.scrapD}&nbsp;&nbsp;&nbsp;(${pcD}%)</div>`;
+    }
+    return str;
+  };
+
+  const attSum = {
+    present: 0,
+    absent: 0,
+    annualLeave: 0,
+    sickLeave: 0,
+    halfLeave: 0
+  };
+
+  let reportCount = 0;
+  let sumTotal = 0;
+
+  monthReports.forEach(r => {
+    const att = r.attendanceData;
+    if (att && att.total !== undefined) {
+      reportCount++;
+      sumTotal += Number(att.total) || 0;
+      attSum.present += Number(att.present) || 0;
+      attSum.absent += Number(att.absent) || 0;
+      attSum.annualLeave += Number(att.annualLeave) || 0;
+      attSum.sickLeave += Number(att.sickLeave) || 0;
+      attSum.halfLeave += Number(att.halfLeave) || 0;
+    }
+  });
+
+  const avgTotal = reportCount > 0 ? Math.round(sumTotal / reportCount) : 0;
+
   
   if (!container._reactRoot) {
     container._reactRoot = createRoot(container);
