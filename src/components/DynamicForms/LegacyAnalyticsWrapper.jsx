@@ -702,12 +702,11 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
   const displayWeekTitles = weekTitlesAll.slice(startIdx, endIdx + 1);
 
   const variants = [
-    { id: 'LH', name: 'LH (Table A)', source: 'A' },
-    { id: 'RH', name: 'RH (Table A)', source: 'A' },
-    { id: 'LH3', name: 'LH 3호 (Table B)', source: 'B' },
-    { id: 'LH4', name: 'LH 4호 (Table B)', source: 'B' },
-    { id: 'RH2', name: 'RH 2호 (Table B)', source: 'B' },
-    { id: 'RH4', name: 'RH 4호 (Table B)', source: 'B' }
+    { id: 'A_SEC', name: 'A단면(1호기)', components: [{id: 'LH', source: 'A'}, {id: 'RH', source: 'A'}] },
+    { id: 'LH3', name: 'LH 3호 (Table B)', components: [{id: 'LH3', source: 'B'}] },
+    { id: 'LH4', name: 'LH 4호 (Table B)', components: [{id: 'LH4', source: 'B'}] },
+    { id: 'RH2', name: 'RH 2호 (Table B)', components: [{id: 'RH2', source: 'B'}] },
+    { id: 'RH4', name: 'RH 4호 (Table B)', components: [{id: 'RH4', source: 'B'}] }
   ];
 
   const variantData = variants.map(v => {
@@ -724,20 +723,22 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
       let d1 = 0, d2 = 0, d3 = 0, d4 = 0, d5 = 0, d6 = 0, d7 = 0, d8 = 0;
 
       wReports.forEach(r => {
-        let qtyObj = v.source === 'A' ? r.dtCrewClipQty : r.dtCrewClipQtyB;
-        if (!qtyObj) return;
+        v.components.forEach(comp => {
+          let qtyObj = comp.source === 'A' ? r.dtCrewClipQty : r.dtCrewClipQtyB;
+          if (!qtyObj) return;
 
-        wPacked += Number(qtyObj[`정품수량_${v.id}`]) || 0;
-        wScrapTotal += Number(qtyObj[`불량합계_${v.id}`]) || 0;
-        
-        d1 += Number(qtyObj[`길이미달_${v.id}`]) || 0;
-        d2 += Number(qtyObj[`길이초과_${v.id}`]) || 0;
-        d3 += Number(qtyObj[`끝단부불량_${v.id}`]) || 0;
-        d4 += Number(qtyObj[`클립홀찢어짐_${v.id}`]) || 0;
-        d5 += Number(qtyObj[`클립간격불량_${v.id}`]) || 0;
-        d6 += Number(qtyObj[`드레인홀불량_${v.id}`]) || 0;
-        d7 += Number(qtyObj[`스코치_${v.id}`]) || 0;
-        d8 += Number(qtyObj[`기타_${v.id}`]) || 0;
+          wPacked += Number(qtyObj[`정품수량_${comp.id}`]) || 0;
+          wScrapTotal += Number(qtyObj[`불량합계_${comp.id}`]) || 0;
+          
+          d1 += Number(qtyObj[`길이미달_${comp.id}`]) || 0;
+          d2 += Number(qtyObj[`길이초과_${comp.id}`]) || 0;
+          d3 += Number(qtyObj[`끝단부불량_${comp.id}`]) || 0;
+          d4 += Number(qtyObj[`클립홀찢어짐_${comp.id}`]) || 0;
+          d5 += Number(qtyObj[`클립간격불량_${comp.id}`]) || 0;
+          d6 += Number(qtyObj[`드레인홀불량_${comp.id}`]) || 0;
+          d7 += Number(qtyObj[`스코치_${comp.id}`]) || 0;
+          d8 += Number(qtyObj[`기타_${comp.id}`]) || 0;
+        });
       });
 
       monthPacked += wPacked;
@@ -859,22 +860,23 @@ function exportDtclipMonthlyCsv(reports, selectedMonth) {
   csvContent += `순번,구분,월간 포장완료 수량,월간 폐기 수량,불량률(%)\n`;
 
   const variants = [
-    { id: 'LH', name: 'LH (Table A)', source: 'A' },
-    { id: 'RH', name: 'RH (Table A)', source: 'A' },
-    { id: 'LH3', name: 'LH 3호 (Table B)', source: 'B' },
-    { id: 'LH4', name: 'LH 4호 (Table B)', source: 'B' },
-    { id: 'RH2', name: 'RH 2호 (Table B)', source: 'B' },
-    { id: 'RH4', name: 'RH 4호 (Table B)', source: 'B' }
+    { id: 'A_SEC', name: 'A단면(1호기)', components: [{id: 'LH', source: 'A'}, {id: 'RH', source: 'A'}] },
+    { id: 'LH3', name: 'LH 3호 (Table B)', components: [{id: 'LH3', source: 'B'}] },
+    { id: 'LH4', name: 'LH 4호 (Table B)', components: [{id: 'LH4', source: 'B'}] },
+    { id: 'RH2', name: 'RH 2호 (Table B)', components: [{id: 'RH2', source: 'B'}] },
+    { id: 'RH4', name: 'RH 4호 (Table B)', components: [{id: 'RH4', source: 'B'}] }
   ];
 
   variants.forEach((v, idx) => {
     let packed = 0, scrap = 0;
     monthReports.forEach(r => {
-      let qtyObj = v.source === 'A' ? r.dtCrewClipQty : r.dtCrewClipQtyB;
-      if (qtyObj) {
-        packed += Number(qtyObj[`정품수량_${v.id}`]) || 0;
-        scrap += Number(qtyObj[`불량합계_${v.id}`]) || 0;
-      }
+      v.components.forEach(comp => {
+        let qtyObj = comp.source === 'A' ? r.dtCrewClipQty : r.dtCrewClipQtyB;
+        if (qtyObj) {
+          packed += Number(qtyObj[`정품수량_${comp.id}`]) || 0;
+          scrap += Number(qtyObj[`불량합계_${comp.id}`]) || 0;
+        }
+      });
     });
     const rate = packed > 0 ? ((scrap / packed) * 100).toFixed(2) : '0.00';
     csvContent += `${idx+1},"${v.name}",${packed},${scrap},${rate}%\n`;
