@@ -9,6 +9,7 @@ export function renderQtySection(ctx) {
     if (!qtySection) return;
     const curProc = processValue ? processValue.value : '';
     const formCode = getCurrentFormCode();
+    console.log("QtySectionRenderer running. formCode:", formCode, "curProc:", curProc);
 
   function calcDtCrewSummary() {
     if (!qtySection || !isDtCrewClip()) return;
@@ -415,11 +416,54 @@ export function renderQtySection(ctx) {
     if (actualQtyInput) actualQtyInput.value = totalAct;
     if (defectQtyInput) defectQtyInput.value = overallDefect;
   }
+  
+  function calcJoint1002QtySummary() {
+    const table = container.querySelector('#jointQtyTable');
+    if (!table) return;
+
+    const cols = ['frt_lh', 'frt_rh', 'rr_lh', 'rr_rh'];
+    let totalPlan = 0;
+    let totalAct = 0;
+    let overallDefect = 0;
+
+    cols.forEach(cId => {
+      const plan = Number(table.querySelector(`#jqty_plan_${cId}`)?.value) || 0;
+      const act = Number(table.querySelector(`#jqty_act_${cId}`)?.value) || 0;
+      totalPlan += plan;
+      totalAct += act;
+
+      const defs = [
+        Number(table.querySelector(`#jdef_split_${cId}`)?.value) || 0,
+        Number(table.querySelector(`#jdef_push_${cId}`)?.value) || 0,
+        Number(table.querySelector(`#jdef_lack_${cId}`)?.value) || 0,
+        Number(table.querySelector(`#jdef_over_${cId}`)?.value) || 0,
+        Number(table.querySelector(`#jdef_bubble_${cId}`)?.value) || 0,
+        Number(table.querySelector(`#jdef_scrap_${cId}`)?.value) || 0,
+        Number(table.querySelector(`#jdef_insert_${cId}`)?.value) || 0,
+        Number(table.querySelector(`#jdef_oth_${cId}`)?.value) || 0
+      ];
+
+      const colSum = defs.reduce((a, b) => a + b, 0);
+      overallDefect += colSum;
+
+      const sumElem = table.querySelector(`#jdef_sum_${cId}`);
+      if (sumElem) sumElem.textContent = colSum;
+    });
+
+    const targetQtyInput = container.querySelector('#targetQty');
+    const actualQtyInput = container.querySelector('#actualQty');
+    const defectQtyInput = container.querySelector('#defectQty');
+
+    if (targetQtyInput) targetQtyInput.value = totalPlan;
+    if (actualQtyInput) actualQtyInput.value = totalAct;
+    if (defectQtyInput) defectQtyInput.value = overallDefect;
+  }
+
   function calcJointQtySummary() {
     const table = container.querySelector('#jointQtyTable');
     if (!table) return;
 
-    const cols = ['frt_p', 'frt_q'];
+    const cols = ['frt_p', 'frt_q', 'rr_r', 'rr_s_lh', 'rr_s_rh'];
     let totalPlan = 0;
     let totalAct = 0;
     let overallDefect = 0;
@@ -596,6 +640,14 @@ export function renderQtySection(ctx) {
     }
 
     switch (formCode) {
+
+      // ── 조인트 (#1002) ──
+      case 1002:
+        qtySection.innerHTML = Templates.getJointQty1002HTML(existingData, container);
+        qtySection.addEventListener('input', calcJoint1002QtySummary);
+        calcJoint1002QtySummary();
+        break;
+
       // ── 클립머신 (#2001, #2011) ──
       case 2001:
       case 2011:
@@ -745,15 +797,27 @@ export function renderQtySection(ctx) {
       // ── 타 제조사 / 기본 공정별 양식 ──
       default:
         if (curProc === '조인트') {
-          qtySection.innerHTML = Templates.getJointQtyHTML(existingData, container);
+          if (formCode === 1032) {
+            qtySection.innerHTML = Templates.getJointQty1032HTML(existingData, container);
+          } else {
+            qtySection.innerHTML = Templates.getJointQtyHTML(existingData, container);
+          }
           qtySection.addEventListener('input', calcJointQtySummary);
           calcJointQtySummary();
         } else if (curProc === '후가공') {
-          qtySection.innerHTML = Templates.getPostQtyHTML(existingData, container);
+          if (formCode === 1012) {
+            qtySection.innerHTML = Templates.getPostQty1012HTML(existingData, container);
+          } else {
+            qtySection.innerHTML = Templates.getPostQtyHTML(existingData, container);
+          }
           qtySection.addEventListener('input', calcPostQtySummary);
           calcPostQtySummary();
         } else {
-          qtySection.innerHTML = Templates.getStandardQtyHTML(existingData, container);
+          if (formCode === 1013) {
+            qtySection.innerHTML = Templates.getStandardQty1013HTML(existingData, container);
+          } else {
+            qtySection.innerHTML = Templates.getStandardQtyHTML(existingData, container);
+          }
           qtySection.addEventListener('input', calcJg1QtySummary);
           calcJg1QtySummary();
         }

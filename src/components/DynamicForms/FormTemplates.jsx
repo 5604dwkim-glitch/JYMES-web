@@ -1353,6 +1353,138 @@ import { store } from './LegacyFormWrapper.jsx';
     `;
   }
 
+  export function getStandardQty1013HTML(ed, container) {
+    const q = ed && ed.qtyTable ? ed.qtyTable : {};
+    const processValue = container ? container.querySelector('#processValue') : null;
+    const curProc = processValue ? processValue.value : '';
+    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+
+    return `
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          ${sectionTitleLabel}
+        </label>
+
+        <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
+        <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
+        <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
+
+        <div style="overflow-x: auto;">
+          <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                  구 분(Division)
+                </th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">RH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량(Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                  계획
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  실적
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+
+              <!-- 2. 압출소재불량(Extrusion Badness) -->
+              <tr>
+                <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  압출소재불량<br>(Extrusion Badness)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  스코치(Scortch)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  외면흠 (Scratch)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  후로킹 (Flock,g)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  오염 (Contamination)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+
+              <!-- 3. 공정간불량(Process Badness) -->
+              <tr>
+                <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  공정간불량<br>(Process Badness)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  길이 (Length)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  컷팅 (Cutting)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  기타 (The others)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+
+              <!-- 4. 불량합계(Total) -->
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
+                  불량합계(Total)
+                </td>
+                <td id="def_sum_FL" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="def_sum_FR" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+
   export function getStandardQtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
@@ -1614,7 +1746,114 @@ import { store } from './LegacyFormWrapper.jsx';
     `;
   }
 
-  export function getPostQtyHTML(ed, container) {
+  
+export function getJointQty1032HTML(ed, container) {
+    const q = ed && ed.jointQtyTable ? ed.jointQtyTable : {};
+    const cols = [
+      { id: 'frt_p', label: 'FRT LH' },
+      { id: 'frt_q', label: 'FRT RH' },
+      { id: 'rr_s_lh', label: 'RR LH' },
+      { id: 'rr_s_rh', label: 'RR RH' }
+    ];
+
+    return `
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 (Production Results)
+        </label>
+
+        <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
+        <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
+        <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
+
+        <div style="overflow-x: auto;">
+          <table id="jointQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                ${cols.map(c => `<th style="border: 1px solid #000; padding: 6px; width: 16%;">${c.label}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량 (Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  계획(P)
+                </td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['plan_'+c.id] || ''}" />
+                  </td>
+                `).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  실적(A)
+                </td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_act_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['act_'+c.id] || ''}" />
+                  </td>
+                `).join('')}
+              </tr>
+
+              <!-- 2. 불량 (DEFECT) -->
+              <tr>
+                <td rowspan="9" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  불 량<br>(DEFECT)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  터짐(Split)
+                </td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jdef_split_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['split_'+c.id] || ''}" />
+                  </td>
+                `).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">밀림(Push)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['push_'+c.id] || ''}" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">미성형(Lack)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['lack_'+c.id] || ''}" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">오버(Over)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['over_'+c.id] || ''}" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기포(Bubble)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['bubble_'+c.id] || ''}" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">조각(Scrap)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['scrap_'+c.id] || ''}" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">인서트(Insert)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['insert_'+c.id] || ''}" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기 타(Oth.)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['oth_'+c.id] || ''}" /></td>`).join('')}
+              </tr>
+              <tr style="background: #f8fafc; font-weight: 700;">
+                <td style="border: 1px solid #000; padding: 6px; color: var(--accent-red);">불량계</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 6px; color: var(--accent-red);" id="jdef_sum_${c.id}">0</td>`).join('')}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+}
+
+export function getPostQtyHTML(ed, container) {
     const q = ed && ed.postQtyTable ? ed.postQtyTable : {};
     const cols = [
       { id: 'fl', label: 'FRT LH' },
@@ -2878,3 +3117,262 @@ export function getForm4002QtyHTML(ed, container) {
 
   
   
+
+export function getJointQty1002HTML(ed, container) {
+    const q = ed && ed.jointQtyTable ? ed.jointQtyTable : {};
+    const cols = [
+      { id: 'frt_lh', label: 'FRT LH' },
+      { id: 'frt_rh', label: 'FRT RH' },
+      { id: 'rr_lh', label: 'RR LH' },
+      { id: 'rr_rh', label: 'RR RH' }
+    ];
+
+    return `
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 (Production Results - 조인트)
+        </label>
+
+        <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
+        <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
+        <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
+
+        <div style="overflow-x: auto;">
+          <table id="jointQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                ${cols.map(c => `<th style="border: 1px solid #000; padding: 6px; width: 16%;">${c.label}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량 (Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  계획(P)
+                </td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ''}" placeholder="0" />
+                  </td>
+                `).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  실적(O)
+                </td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                  </td>
+                `).join('')}
+              </tr>
+
+              <!-- 2. 공정간불량 (Process Badness) -->
+              <tr>
+                <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  공정간불량<br>(Process<br>Badness)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  떨어짐(Split)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  밀림(Push)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  양부족<br><span style="font-size: 9px; font-weight: normal;">(lack of quantity)</span>
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  넘침(overflowing)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['over_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  기포 (Air bubbles)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  찌꺼기(worthless)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  삽입불량(Bad insert)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['insert_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  기타(The others)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+
+              <!-- 3. 불량합계 (Total) -->
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
+                  불량합계(Total)
+                </td>
+                ${cols.map(c => `<td id="jdef_sum_${c.id}" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>`).join('')}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+}
+
+export function getPostQty1012HTML(ed, container) {
+    const q = ed && ed.postQtyTable ? ed.postQtyTable : {};
+    const cols = [
+      { id: 'fl', label: 'LH' },
+      { id: 'fr', label: 'RH' }
+    ];
+
+    return `
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 (Production Results - 후가공)
+        </label>
+
+        <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
+        <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
+        <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
+
+        <div style="overflow-x: auto;">
+          <table id="postQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                ${cols.map(c => `<th style="border: 1px solid #000; padding: 6px; width: 16%;">${c.label}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량 (Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  계획(P)
+                </td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ''}" placeholder="0" />
+                  </td>
+                `).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  실적(O)
+                </td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="pqty_act_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                  </td>
+                `).join('')}
+              </tr>
+
+              <!-- 2. 공정간불량 (조인트) -->
+              <tr>
+                <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  공정간불량<br>(조인트)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  떨어짐(Split)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_drop_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_drop_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  양부족(Lack)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_lack_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  단차(Step)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_step_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_step_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  기포(Bubble)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_bubble_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  씹힘(Chew)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_chew_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_chew_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  찌꺼기(Scrap)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_scrap_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  기타(Other)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
+                  소계(Sum)
+                </td>
+                ${cols.map(c => `<td id="pdef_j_sum_${c.id}" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>`).join('')}
+              </tr>
+
+              <!-- 3. 공정간불량 (후가공) -->
+              <tr>
+                <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  공정간불량<br>(후가공)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  사상불량(Trim)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_trim_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_trim_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  오염(Pollution)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_poll_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_poll_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  기타(Other)
+                </td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
+                  소계(Sum)
+                </td>
+                ${cols.map(c => `<td id="pdef_p_sum_${c.id}" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>`).join('')}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }

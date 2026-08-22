@@ -5,7 +5,7 @@ import { DOWNTIME_REASONS } from '../../../constants/masterData.js';
  * ctx: { container, processValue, existingData, getCurrentFormCode }
  */
 export function updateDowntimeSection(ctx) {
-  const { container, processValue, existingData, getCurrentFormCode } = ctx;
+  const { container, processValue, existingData, getCurrentFormCode, carModelValue, currentCarCode } = ctx;
     const curProc = processValue ? processValue.value : '';
     const downtimeCard = container.querySelector('#downtimeCard');
     const formCode = getCurrentFormCode();

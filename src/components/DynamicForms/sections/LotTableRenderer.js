@@ -35,7 +35,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const noLotFormCodes = [1011, 1012]; // RR C PART'G 조인트/후가공 등
     const isStellantisInsp = [2005, 2015, 2027, 2035, 2044].includes(formCode);
     
-    if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 4014 && formCode !== 4004)) {
+    if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 4014 && formCode !== 4004 && formCode !== 1004 && formCode !== 1034)) {
       if (section4Card) section4Card.style.display = 'none';
       return;
     } else {
@@ -44,6 +44,96 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
 
     // [2] 고유번호(formCode)별 독립 LOT 템플릿 렌더러 분기
     switch (formCode) {
+
+      
+      case 1034:
+      case 1033:
+      case 1032:
+      case 1004:
+      case 1002:
+      case 1003: {
+        lotContainer.innerHTML = `
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; margin-bottom: 16px;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 22%; vertical-align: middle; background: #fffde7;">
+                  구분 (FRT)
+                </th>
+                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 26%;">초물</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 26%;">중물</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 26%;">종물</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">LH</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_LH_FRT_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_LH_FRT_초물'] || materialLots['LH_FRT_초물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_LH_FRT_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_LH_FRT_중물'] || materialLots['LH_FRT_중물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_LH_FRT_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_LH_FRT_종물'] || materialLots['LH_FRT_종물'] || ''}" />
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">RH</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_RH_FRT_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_RH_FRT_초물'] || materialLots['RH_FRT_초물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_RH_FRT_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_RH_FRT_중물'] || materialLots['RH_FRT_중물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_RH_FRT_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_RH_FRT_종물'] || materialLots['RH_FRT_종물'] || ''}" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 22%; vertical-align: middle; background: #fffde7;">
+                  구분 (RR)
+                </th>
+                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 26%;">초물</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 26%;">중물</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 26%;">종물</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">LH</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_LH_RR_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_LH_RR_초물'] || materialLots['LH_RR_초물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_LH_RR_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_LH_RR_중물'] || materialLots['LH_RR_중물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_LH_RR_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_LH_RR_종물'] || materialLots['LH_RR_종물'] || ''}" />
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">RH</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_RH_RR_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_RH_RR_초물'] || materialLots['RH_RR_초물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_RH_RR_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_RH_RR_중물'] || materialLots['RH_RR_중물'] || ''}" />
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <input type="text" id="lotNo_RH_RR_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 8px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일시분" value="${curLots['lotNo_RH_RR_종물'] || materialLots['RH_RR_종물'] || ''}" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+        break;
+      }
+
       case 4011:
       case 4012:
       case 4013:
