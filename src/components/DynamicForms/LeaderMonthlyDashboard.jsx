@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { Package, Trash2, FileText, CheckCircle, XCircle, AlertTriangle, Users, CalendarDays, Activity } from 'lucide-react';
+﻿import React from "react";
+import { Package, Trash2, CheckCircle, XCircle, AlertTriangle, Users, CalendarDays, Activity, FileText } from "lucide-react";
 
 export default function LeaderMonthlyDashboard({
   selectedMonth,
@@ -13,145 +12,155 @@ export default function LeaderMonthlyDashboard({
   avgTotal,
   attSum
 }) {
-  const monthNum = parseInt(selectedMonth.split('-')[1], 10);
+  const monthNum = parseInt(selectedMonth.split("-")[1], 10);
 
-  // Parse titles
   const parseTitle = (t) => {
-    const parts = t.split('<br>');
-    return { name: parts[0] || '', dates: parts[1] || '' };
+    const parts = t.split("<br>");
+    return { name: parts[0] || "", dates: parts[1] || "" };
   };
 
-  const getDefectChips = (scrapObj, basePacked, itemName) => {
-    const isHood = itemName && itemName.includes('Hood');
-    const hasD = itemName && itemName.includes('DS CREW');
-
-    const renderChip = (label, count) => {
-      if (!count || count === 0) return null;
-      const rate = basePacked > 0 ? ((count / basePacked) * 100).toFixed(1) : '0.0';
+  const renderDefectRow = (label, count, basePacked) => {
+    if (count === undefined || count === null) return null;
+    const rate = basePacked > 0 ? ((count / basePacked) * 100).toFixed(1) : "0.0";
+    if (count === 0) {
       return (
-        <div key={label} className="flex items-center justify-between text-xs bg-red-50 text-red-700 px-2 py-1 rounded border border-red-100 mb-1">
-          <span className="font-semibold">{label}</span>
-          <span className="flex items-center gap-1">
-            <span>{count}</span>
-            <span className="opacity-75 text-[10px]">({rate}%)</span>
-          </span>
-        </div>
-      );
-    };
-
-    if (isHood) {
-      return (
-        <div className="flex flex-col gap-1 w-full">
-          {renderChip('센터', scrapObj.scrapCenter)}
-          {renderChip('사이드', scrapObj.scrapSide)}
-        </div>
-      );
-    } else {
-      return (
-        <div className="flex flex-col gap-1 w-full">
-          {renderChip('A', scrapObj.scrapA)}
-          {renderChip('B', scrapObj.scrapB)}
-          {renderChip('C', scrapObj.scrapC)}
-          {hasD && renderChip('D', scrapObj.scrapD)}
+        <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 10, color: "#cbd5e1", padding: "1px 3px" }}>
+          <span>{label}</span><span>0</span>
         </div>
       );
     }
+    return (
+      <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 10, background: "#fff1f2", color: "#be123c", border: "1px solid #fecdd3", borderRadius: 3, padding: "2px 5px", marginBottom: 2, fontWeight: 600 }}>
+        <span>{label}</span>
+        <span style={{ display: "flex", gap: 3, alignItems: "center" }}>
+          <span>{count}</span>
+          <span style={{ fontSize: 9, opacity: 0.8 }}>({rate}%)</span>
+        </span>
+      </div>
+    );
+  };
+
+  const getDefectBlock = (scrapObj, basePacked, itemName) => {
+    const isHood = itemName && itemName.includes("Hood");
+    const hasD = itemName && itemName.includes("DS CREW");
+    if (isHood) {
+      return (
+        <div>
+          {renderDefectRow("센터", scrapObj.scrapCenter, basePacked)}
+          {renderDefectRow("사이드", scrapObj.scrapSide, basePacked)}
+        </div>
+      );
+    }
+    return (
+      <div>
+        {renderDefectRow("A", scrapObj.scrapA, basePacked)}
+        {renderDefectRow("B", scrapObj.scrapB, basePacked)}
+        {renderDefectRow("C", scrapObj.scrapC, basePacked)}
+        {hasD && renderDefectRow("D", scrapObj.scrapD, basePacked)}
+      </div>
+    );
+  };
+
+  const thBase = {
+    border: "1px solid #d1d5db",
+    padding: "5px 6px",
+    textAlign: "center",
+    fontWeight: 600,
+    fontSize: 11,
+    background: "#f8fafc",
+    color: "#374151",
+    whiteSpace: "nowrap",
+  };
+  const tdBase = {
+    border: "1px solid #d1d5db",
+    padding: "3px 5px",
+    verticalAlign: "middle",
+    fontSize: 11,
   };
 
   return (
-    <div className="w-full font-sans text-gray-800 space-y-6 max-w-screen-2xl mx-auto pb-8">
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">월간 총 포장완료</p>
-            <h3 className="text-3xl font-bold text-gray-900">{totalMonthlyPacked.toLocaleString()} <span className="text-base font-normal text-gray-500">EA</span></h3>
-          </div>
-          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center">
-            <Package className="w-6 h-6 text-emerald-600" />
-          </div>
-        </div>
+    <div style={{ width: "100%", fontFamily: "'Noto Sans KR', sans-serif", color: "#1f2937", display: "flex", flexDirection: "column", gap: 8 }}>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">월간 총 폐기수량 (불량률)</p>
-            <div className="flex items-end gap-3">
-              <h3 className="text-3xl font-bold text-gray-900">{totalMonthlyScrap.toLocaleString()} <span className="text-base font-normal text-gray-500">EA</span></h3>
-              <span className="text-sm font-semibold bg-red-100 text-red-700 px-2 py-0.5 rounded-full mb-1">{avgDefectRate}%</span>
+      {/* KPI 카드 3개 */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+        {[
+          { label: "월간 총 포장완료", value: `${totalMonthlyPacked.toLocaleString()} EA`, icon: <Package size={16} color="#059669" />, iconBg: "#ecfdf5" },
+          { label: "월간 총 폐기수량", value: `${totalMonthlyScrap.toLocaleString()} EA`, badge: `${avgDefectRate}%`, icon: <Trash2 size={16} color="#dc2626" />, iconBg: "#fff1f2" },
+          { label: "근태 평균 총원", value: `${avgTotal} 명`, icon: <Users size={16} color="#2563eb" />, iconBg: "#eff6ff" },
+        ].map((card, i) => (
+          <div key={i} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "9px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+            <div>
+              <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 2 }}>{card.label}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>{card.value}</span>
+                {card.badge && <span style={{ fontSize: 10, fontWeight: 700, background: "#fee2e2", color: "#b91c1c", borderRadius: 99, padding: "1px 6px" }}>{card.badge}</span>}
+              </div>
             </div>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: card.iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>{card.icon}</div>
           </div>
-          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-            <Trash2 className="w-6 h-6 text-red-600" />
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-500 mb-1">근태 평균 총원</p>
-            <h3 className="text-3xl font-bold text-gray-900">{avgTotal} <span className="text-base font-normal text-gray-500">명</span></h3>
-          </div>
-          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-            <Users className="w-6 h-6 text-blue-600" />
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* 1. Production & Defect Table */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col">
-        <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-          <h4 className="text-base font-bold text-gray-800 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-indigo-600" />
-            1. {monthNum}월 공정별 생산 및 불량 실적
-          </h4>
+      {/* 1. 생산 및 불량 테이블 */}
+      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+        <div style={{ padding: "6px 12px", borderBottom: "1px solid #e5e7eb", background: "#f9fafb", display: "flex", alignItems: "center", gap: 5 }}>
+          <Activity size={13} color="#4f46e5" />
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#1f2937" }}>1. {monthNum}월 공정별 생산 및 불량 실적</span>
         </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left whitespace-nowrap min-w-[1200px]">
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", minWidth: 960 }}>
+            <colgroup>
+              <col style={{ width: 36 }} />
+              <col style={{ width: 80 }} />
+              <col style={{ width: 46 }} />
+              <col style={{ width: 70 }} />
+              {Array.from({ length: displayWeeksCount }).map((_, i) => (
+                <col key={i} style={{ width: `${Math.floor((100 - 8) / displayWeeksCount)}%` }} />
+              ))}
+              <col style={{ width: 120 }} />
+            </colgroup>
             <thead>
-              <tr className="bg-gray-50 text-gray-600 border-b border-gray-200 text-center">
-                <th rowSpan="2" className="py-3 px-4 font-semibold border-r border-gray-200 w-16">순번</th>
-                <th rowSpan="2" className="py-3 px-4 font-semibold border-r border-gray-200 w-32">아이템</th>
-                <th rowSpan="2" className="py-3 px-4 font-semibold border-r border-gray-200 w-24">구분</th>
-                <th rowSpan="2" className="py-3 px-4 font-semibold border-r border-gray-200 w-32 text-emerald-700">포장완료</th>
-                <th colSpan={displayWeeksCount} className="py-2 px-4 font-semibold border-r border-gray-200 border-b">주차별 폐기불량 현황</th>
-                <th rowSpan="2" className="py-3 px-4 font-bold text-red-700 bg-red-50/50 w-40">{monthNum}월 누적 불량</th>
+              <tr>
+                <th rowSpan={2} style={thBase}>순번</th>
+                <th rowSpan={2} style={thBase}>아이템</th>
+                <th rowSpan={2} style={thBase}>구분</th>
+                <th rowSpan={2} style={{ ...thBase, color: "#065f46" }}>포장완료</th>
+                <th colSpan={displayWeeksCount} style={{ ...thBase, borderBottom: "1px solid #d1d5db" }}>주차별 폐기불량 현황</th>
+                <th rowSpan={2} style={{ ...thBase, color: "#991b1b", background: "#fff7f7" }}>{monthNum}월 누적 불량</th>
               </tr>
-              <tr className="bg-gray-50 text-gray-600 border-b border-gray-200 text-center">
+              <tr>
                 {displayWeekTitles.map((t, idx) => {
                   const pt = parseTitle(t);
                   return (
-                    <th key={idx} className="py-2 px-2 font-medium border-r border-gray-200 w-32">
-                      <div className="flex flex-col items-center">
-                        <span className="text-gray-800 font-semibold">{pt.name}</span>
-                        <span className="text-[10px] text-gray-500 font-normal">{pt.dates}</span>
-                      </div>
+                    <th key={idx} style={{ ...thBase, fontWeight: 500 }}>
+                      <div style={{ fontWeight: 700, color: "#1f2937", fontSize: 11 }}>{pt.name}</div>
+                      <div style={{ fontSize: 9, color: "#9ca3af" }}>{pt.dates}</div>
                     </th>
                   );
                 })}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
-              {groupData.map((g, gIdx) => (
+            <tbody>
+              {groupData.map((g) => (
                 <React.Fragment key={g.id}>
                   {g.variants.map((vData, vIdx) => {
                     const isFirst = vIdx === 0;
-                    const isLast = vIdx === g.variants.length - 1;
-                    const itemName = g.name === 'KM/KX Hood' ? g.name : `${g.name} ${vData.variant}`;
-                    
-                    const groupWeeklyScraps = isFirst ? g.variants[0].weeklyScraps.map((_, wIdx) => {
-                       return g.variants.reduce((acc, v) => {
-                         const ws = v.weeklyScraps[wIdx];
-                         return {
-                           wPacked: acc.wPacked + ws.wPacked,
-                           scrapA: acc.scrapA + ws.scrapA,
-                           scrapB: acc.scrapB + ws.scrapB,
-                           scrapC: acc.scrapC + ws.scrapC,
-                           scrapD: acc.scrapD + ws.scrapD,
-                           scrapCenter: acc.scrapCenter + ws.scrapCenter,
-                           scrapSide: acc.scrapSide + ws.scrapSide,
-                         };
-                       }, { wPacked: 0, scrapA: 0, scrapB: 0, scrapC: 0, scrapD: 0, scrapCenter: 0, scrapSide: 0 });
-                    }) : [];
+                    const itemName = g.name === "KM/KX Hood" ? g.name : `${g.name} ${vData.variant}`;
+
+                    const groupWeeklyScraps = isFirst ? g.variants[0].weeklyScraps.map((_, wIdx) =>
+                      g.variants.reduce((acc, v) => {
+                        const ws = v.weeklyScraps[wIdx];
+                        return {
+                          wPacked: acc.wPacked + ws.wPacked,
+                          scrapA: acc.scrapA + ws.scrapA,
+                          scrapB: acc.scrapB + ws.scrapB,
+                          scrapC: acc.scrapC + ws.scrapC,
+                          scrapD: acc.scrapD + ws.scrapD,
+                          scrapCenter: acc.scrapCenter + ws.scrapCenter,
+                          scrapSide: acc.scrapSide + ws.scrapSide,
+                        };
+                      }, { wPacked: 0, scrapA: 0, scrapB: 0, scrapC: 0, scrapD: 0, scrapCenter: 0, scrapSide: 0 })
+                    ) : [];
 
                     const groupTotalScrap = isFirst ? g.variants.reduce((acc, v) => {
                       const ts = v.totalScrap;
@@ -168,64 +177,52 @@ export default function LeaderMonthlyDashboard({
                     const groupMonthPacked = isFirst ? g.variants.reduce((acc, v) => acc + v.monthPacked, 0) : 0;
 
                     return (
-                      <tr key={`${g.id}-${vIdx}`} className="hover:bg-gray-50/50 transition-colors">
+                      <tr key={`${g.id}-${vIdx}`} style={{ background: vIdx % 2 === 0 ? "#fff" : "#f9fafb" }}>
                         {isFirst && (
-                          <td rowSpan={g.variants.length} className="py-3 px-4 border-r border-gray-200 text-center text-gray-500 font-medium">
-                            {g.id}
-                          </td>
+                          <td rowSpan={g.variants.length} style={{ ...tdBase, textAlign: "center", color: "#6b7280", fontWeight: 600 }}>{g.id}</td>
                         )}
                         {isFirst && (
-                          <td rowSpan={g.variants.length} className="py-3 px-4 border-r border-gray-200 text-center font-bold text-gray-800">
-                            {g.name}
-                          </td>
+                          <td rowSpan={g.variants.length} style={{ ...tdBase, textAlign: "center", fontWeight: 700, color: "#111827", fontSize: 11 }}>{g.name}</td>
                         )}
-                        
-                        <td className="py-3 px-4 border-r border-gray-200 text-center">
-                          {vData.variant !== '-' ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
-                              {vData.variant}
-                            </span>
+                        <td style={{ ...tdBase, textAlign: "center" }}>
+                          {vData.variant !== "-" ? (
+                            <span style={{ display: "inline-block", background: "#f1f5f9", color: "#374151", borderRadius: 99, padding: "1px 7px", fontSize: 10, fontWeight: 600 }}>{vData.variant}</span>
                           ) : (
-                            <span className="text-gray-500 text-xs font-medium">전체</span>
+                            <span style={{ color: "#9ca3af", fontSize: 10 }}>전체</span>
                           )}
                         </td>
-                        
-                        <td className="py-3 px-4 border-r border-gray-200 text-center font-bold text-emerald-600">
+                        <td style={{ ...tdBase, textAlign: "center", fontWeight: 800, color: "#059669", fontSize: 12 }}>
                           {vData.monthPacked.toLocaleString()}
                         </td>
 
                         {isFirst && groupWeeklyScraps.slice(0, displayWeeksCount).map((ws, wIdx) => {
                           const totalS = ws.scrapA + ws.scrapB + ws.scrapC + ws.scrapD + ws.scrapCenter + ws.scrapSide;
-                          const chips = getDefectChips(ws, ws.wPacked, itemName);
                           return (
-                            <td key={wIdx} rowSpan={g.variants.length} className="py-2 px-3 border-r border-gray-200 align-top">
+                            <td key={wIdx} rowSpan={g.variants.length} style={{ ...tdBase, verticalAlign: "top", padding: "3px 4px" }}>
                               {totalS === 0 ? (
-                                <div className="h-full w-full flex items-center justify-center text-gray-300 text-xs italic">0</div>
+                                <div style={{ textAlign: "center", color: "#d1d5db", fontSize: 10, fontStyle: "italic" }}>0</div>
                               ) : (
-                                <div className="flex flex-col gap-1 w-full max-w-[110px] mx-auto">
-                                  {chips}
-                                </div>
+                                getDefectBlock(ws, ws.wPacked, itemName)
                               )}
                             </td>
                           );
                         })}
 
-                        {isFirst && (
-                          <td rowSpan={g.variants.length} className="py-2 px-3 border-r border-gray-200 bg-red-50/30 align-top">
-                            {(() => {
-                              const totalS = groupTotalScrap.scrapA + groupTotalScrap.scrapB + groupTotalScrap.scrapC + groupTotalScrap.scrapD + groupTotalScrap.scrapCenter + groupTotalScrap.scrapSide;
-                              if (totalS === 0) return <div className="h-full flex items-center justify-center text-gray-300 text-xs italic">0</div>;
-                              return (
-                                <div className="flex flex-col gap-1 w-full max-w-[130px] mx-auto">
-                                  <div className="text-center font-bold text-red-700 mb-1">
-                                    총 {totalS} EA
-                                  </div>
-                                  {getDefectChips(groupTotalScrap, groupMonthPacked, itemName)}
+                        {isFirst && (() => {
+                          const totalS = groupTotalScrap.scrapA + groupTotalScrap.scrapB + groupTotalScrap.scrapC + groupTotalScrap.scrapD + groupTotalScrap.scrapCenter + groupTotalScrap.scrapSide;
+                          return (
+                            <td rowSpan={g.variants.length} style={{ ...tdBase, verticalAlign: "top", background: "#fff7f7", padding: "3px 5px" }}>
+                              {totalS === 0 ? (
+                                <div style={{ textAlign: "center", color: "#d1d5db", fontSize: 10, fontStyle: "italic" }}>0</div>
+                              ) : (
+                                <div>
+                                  <div style={{ textAlign: "center", fontWeight: 800, color: "#be123c", fontSize: 11, marginBottom: 2 }}>총 {totalS} EA</div>
+                                  {getDefectBlock(groupTotalScrap, groupMonthPacked, itemName)}
                                 </div>
-                              );
-                            })()}
-                          </td>
-                        )}
+                              )}
+                            </td>
+                          );
+                        })()}
                       </tr>
                     );
                   })}
@@ -236,40 +233,26 @@ export default function LeaderMonthlyDashboard({
         </div>
       </div>
 
-      {/* 2. Attendance Status */}
-      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-          <h4 className="text-base font-bold text-gray-800 flex items-center gap-2">
-            <CalendarDays className="w-5 h-5 text-blue-600" />
-            2. {monthNum}월 근태현황 누적 합산 (인일 기준)
-          </h4>
+      {/* 2. 근태현황 */}
+      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+        <div style={{ padding: "6px 12px", borderBottom: "1px solid #e5e7eb", background: "#f9fafb", display: "flex", alignItems: "center", gap: 5 }}>
+          <CalendarDays size={13} color="#2563eb" />
+          <span style={{ fontSize: 12, fontWeight: 700, color: "#1f2937" }}>2. {monthNum}월 근태현황 누적 합산 (인일 기준)</span>
         </div>
-        <div className="p-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            <div className="flex flex-col bg-emerald-50 rounded-lg p-4 border border-emerald-100">
-              <span className="text-sm font-semibold text-emerald-700 mb-1 flex items-center gap-1"><CheckCircle className="w-4 h-4" /> 출근</span>
-              <span className="text-2xl font-bold text-emerald-900">{attSum.present} <span className="text-sm font-normal text-emerald-700">인일</span></span>
-            </div>
-            
-            <div className="flex flex-col bg-red-50 rounded-lg p-4 border border-red-100">
-              <span className="text-sm font-semibold text-red-700 mb-1 flex items-center gap-1"><XCircle className="w-4 h-4" /> 결근</span>
-              <span className="text-2xl font-bold text-red-900">{attSum.absent} <span className="text-sm font-normal text-red-700">인일</span></span>
-            </div>
-
-            <div className="flex flex-col bg-blue-50 rounded-lg p-4 border border-blue-100">
-              <span className="text-sm font-semibold text-blue-700 mb-1 flex items-center gap-1"><FileText className="w-4 h-4" /> 연차</span>
-              <span className="text-2xl font-bold text-blue-900">{attSum.annualLeave} <span className="text-sm font-normal text-blue-700">인일</span></span>
-            </div>
-
-            <div className="flex flex-col bg-amber-50 rounded-lg p-4 border border-amber-100">
-              <span className="text-sm font-semibold text-amber-700 mb-1 flex items-center gap-1"><AlertTriangle className="w-4 h-4" /> 병가</span>
-              <span className="text-2xl font-bold text-amber-900">{attSum.sickLeave} <span className="text-sm font-normal text-amber-700">인일</span></span>
-            </div>
-
-            <div className="flex flex-col bg-purple-50 rounded-lg p-4 border border-purple-100">
-              <span className="text-sm font-semibold text-purple-700 mb-1 flex items-center gap-1"><Activity className="w-4 h-4" /> 반차</span>
-              <span className="text-2xl font-bold text-purple-900">{attSum.halfLeave} <span className="text-sm font-normal text-purple-700">인일</span></span>
-            </div>
+        <div style={{ padding: "8px 12px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 7 }}>
+            {[
+              { label: "출근", value: attSum.present, icon: <CheckCircle size={12} color="#059669" />, bg: "#ecfdf5", border: "#a7f3d0", text: "#065f46" },
+              { label: "결근", value: attSum.absent, icon: <XCircle size={12} color="#dc2626" />, bg: "#fff1f2", border: "#fecdd3", text: "#9f1239" },
+              { label: "연차", value: attSum.annualLeave, icon: <FileText size={12} color="#2563eb" />, bg: "#eff6ff", border: "#bfdbfe", text: "#1e3a8a" },
+              { label: "병가", value: attSum.sickLeave, icon: <AlertTriangle size={12} color="#d97706" />, bg: "#fffbeb", border: "#fde68a", text: "#78350f" },
+              { label: "반차", value: attSum.halfLeave, icon: <Activity size={12} color="#7c3aed" />, bg: "#f5f3ff", border: "#ddd6fe", text: "#4c1d95" },
+            ].map((item, i) => (
+              <div key={i} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 7, padding: "7px 10px" }}>
+                <div style={{ fontSize: 10, fontWeight: 600, color: item.text, display: "flex", alignItems: "center", gap: 3, marginBottom: 2 }}>{item.icon}{item.label}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: item.text }}>{item.value} <span style={{ fontSize: 10, fontWeight: 400 }}>인일</span></div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
