@@ -724,7 +724,7 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
 
       wReports.forEach(r => {
         v.components.forEach(comp => {
-          let qtyObj = comp.source === 'A' ? r.dtCrewClipQty : r.dtCrewClipQtyB;
+          let qtyObj = comp.source === 'A' ? r.dtCrewQty : r.dtCrewQtyB;
           if (!qtyObj) return;
 
           wPacked += Number(qtyObj[`정품수량_${comp.id}`]) || 0;
@@ -871,7 +871,7 @@ function exportDtclipMonthlyCsv(reports, selectedMonth) {
     let packed = 0, scrap = 0;
     monthReports.forEach(r => {
       v.components.forEach(comp => {
-        let qtyObj = comp.source === 'A' ? r.dtCrewClipQty : r.dtCrewClipQtyB;
+        let qtyObj = comp.source === 'A' ? r.dtCrewQty : r.dtCrewQtyB;
         if (qtyObj) {
           packed += Number(qtyObj[`정품수량_${comp.id}`]) || 0;
           scrap += Number(qtyObj[`불량합계_${comp.id}`]) || 0;
