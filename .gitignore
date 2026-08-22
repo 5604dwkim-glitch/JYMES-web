@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Debug/temp scripts archive (not source code)
+scripts/_archive/

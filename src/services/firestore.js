@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 
@@ -41,7 +41,7 @@ export function invalidateWorkersCache() {
 // ② 리포트 인메모리 캐시 (같은 필터 조건 재조회 방지)
 // ─────────────────────────────────────────────
 const reportCache = new Map(); // key: JSON.stringify(serverFilters) → { data, timestamp }
-const REPORT_CACHE_TTL_MS = 3 * 60 * 1000; // 3분
+const REPORT_CACHE_TTL_MS = 10 * 60 * 1000; // 10분
 
 function getReportsFromCache(serverFilters) {
   const key = JSON.stringify(serverFilters);
@@ -172,10 +172,10 @@ export async function fetchAdminDashboardReports(dateStr) {
 
 export async function getReportById(id) {
   try {
-    const q = query(collection(db, REPORTS_COLLECTION), where('id', '==', id));
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      return { id: querySnapshot.docs[0].id, ...querySnapshot.docs[0].data() };
+    const docRef = doc(db, REPORTS_COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
     }
     return null;
   } catch (error) {
