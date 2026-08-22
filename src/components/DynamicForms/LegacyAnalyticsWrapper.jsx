@@ -545,23 +545,22 @@ export default function LegacyAnalyticsWrapper({ reports }) {
 
 
 
-function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
+function renderDtclipMonthlySummaryTable(container, reports, selectedMonth, weeks) {
   const monthReports = reports.filter(r => 
     r.date && r.date.startsWith(selectedMonth) && 
     r.carModel === 'DT CREW' && r.processName === '클립머신'
   );
 
-  const weeks = getWeeksOfMonth(selectedMonth);
-  const weekLabels = ['첫째주', '둘째주', '셋째주', '넷째주', '다섯째주', '여섯째주'];
-  const weekTitlesAll = weeks.map((w, i) => `${weekLabels[i] || (i+1)+'주차'}<br>(${formatDateStr(w.start)}~${formatDateStr(w.end)})`);
+  const monthNum = parseInt(selectedMonth.split('-')[1], 10);
+  const weekTitlesAll = weeks.map(w => {
+    const s = `${w.start.getMonth()+1}/${w.start.getDate()}`;
+    const e = `${w.end.getMonth()+1}/${w.end.getDate()}`;
+    return `${w.weekOfMonth}주차<br>${s}~${e}`;
+  });
 
-  let latestWeekIdx = 0;
-  weeks.forEach((w, i) => {
-    const hasReport = monthReports.some(r => {
-      const d = new Date(r.date);
-      return d >= w.start && d <= w.end;
-    });
-    if (hasReport) latestWeekIdx = i;
+  const latestWeekIdx = weeks.findIndex(w => {
+    const now = new Date();
+    return now >= w.start && now <= w.end;
   });
 
   let endIdx = Math.max(3, latestWeekIdx);
@@ -642,93 +641,166 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
   const totalMonthlyScrap = variantData.reduce((acc, v) => acc + v.monthScrap, 0);
   const avgDefectRate = totalMonthlyPacked > 0 ? ((totalMonthlyScrap / totalMonthlyPacked) * 100).toFixed(2) : '0.00';
 
-  const formatScrapHTML = (obj, basePacked) => {
-    return `
-      <div style="display:flex; flex-wrap: wrap; gap: 4px; font-size: 10px;">
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">미달:${obj.d1}</span>
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">초과:${obj.d2}</span>
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">끝단:${obj.d3}</span>
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">찢어짐:${obj.d4}</span>
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">간격:${obj.d5}</span>
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">드레인:${obj.d6}</span>
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">스코치:${obj.d7}</span>
-        <span style="background:#f1f5f9; padding:2px 4px; border-radius:2px;">기타:${obj.d8}</span>
-      </div>
-    `;
+  const formatScrapChipsHoriz = (obj, basePacked) => {
+    const defects = [
+      { label: '미달', count: obj.d1 },
+      { label: '초과', count: obj.d2 },
+      { label: '끝단', count: obj.d3 },
+      { label: '찢어짐', count: obj.d4 },
+      { label: '간격', count: obj.d5 },
+      { label: '드레인', count: obj.d6 },
+      { label: '스코치', count: obj.d7 },
+      { label: '기타', count: obj.d8 }
+    ];
+
+    let html = '<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; font-size: 13px;">';
+    
+    defects.forEach((def) => {
+      const rate = basePacked > 0 ? ((def.count / basePacked) * 100).toFixed(1) : "0.0";
+      if (def.count === 0) {
+        html += `<div style="display: flex; align-items: center; gap: 4px; color: #cbd5e1; background: #f8fafc; border-radius: 3px; padding: 2px 6px; border: 1px solid #f1f5f9; font-size: 12px;">
+          <span style="font-weight: 600;">${def.label}</span><span>0</span>
+        </div>`;
+      } else {
+        html += `<div style="display: flex; align-items: center; gap: 4px; background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; border-radius: 3px; padding: 2px 6px; font-weight: 700; font-size: 12px;">
+          <span>${def.label}</span>
+          <span style="display: flex; align-items: baseline; gap: 2px;">
+            <span style="font-size: 13px;">${def.count}</span>
+            <span style="font-size: 10px; opacity: 0.8;">(${rate}%)</span>
+          </span>
+        </div>`;
+      }
+    });
+
+    html += '</div>';
+    return html;
+  };
+
+  const parseTitle = (t) => {
+    const parts = t.split("<br>");
+    return { name: parts[0] || "", dates: parts[1] || "" };
   };
 
   container.innerHTML = `
-    <div style="font-size: 15px;">
-      <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
-        <div style="background: #f8fafc; border: 1px solid var(--border-color); padding: 16px 20px; border-radius: var(--radius-md); flex: 1;">
-          <span style="font-size: 14px; color: var(--text-muted); display: block;">월간 총 정품수량</span>
-          <strong style="font-size: 24px; color: var(--accent-blue);">${totalMonthlyPacked.toLocaleString()} EA</strong>
+    <div style="width: 100%; font-family: 'Noto Sans KR', sans-serif; color: #1f2937; display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+      
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 11px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+          <div>
+            <div style="font-size: 13px; color: #6b7280; margin-bottom: 3px;">월간 총 정품수량</div>
+            <div style="font-size: 22px; font-weight: 800; color: #111827;">${totalMonthlyPacked.toLocaleString()} <span style="font-size: 14px; font-weight: normal; color: #6b7280;">EA</span></div>
+          </div>
         </div>
-        <div style="background: #fff1f2; border: 1px solid #fecdd3; padding: 16px 20px; border-radius: var(--radius-md); flex: 1;">
-          <span style="font-size: 14px; color: #f43f5e; display: block;">월간 총 불량수량</span>
-          <strong style="font-size: 24px; color: #e11d48;">${totalMonthlyScrap.toLocaleString()} EA</strong>
+        
+        <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 11px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+          <div>
+            <div style="font-size: 13px; color: #6b7280; margin-bottom: 3px;">월간 총 불량수량</div>
+            <div style="font-size: 22px; font-weight: 800; color: #111827;">${totalMonthlyScrap.toLocaleString()} <span style="font-size: 14px; font-weight: normal; color: #6b7280;">EA</span></div>
+          </div>
         </div>
-        <div style="background: #f8fafc; border: 1px solid var(--border-color); padding: 16px 20px; border-radius: var(--radius-md); flex: 1;">
-          <span style="font-size: 14px; color: var(--text-muted); display: block;">평균 불량률</span>
-          <strong style="font-size: 24px; color: var(--text-main);">${avgDefectRate}%</strong>
+        
+        <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 11px 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.06);">
+          <div>
+            <div style="font-size: 13px; color: #6b7280; margin-bottom: 3px;">평균 불량률</div>
+            <div style="font-size: 22px; font-weight: 800; color: #111827;">${avgDefectRate}%</div>
+          </div>
         </div>
       </div>
 
-      <div class="table-container">
-        <table class="data-table" style="font-size: 13px; text-align: left; border-collapse: collapse; width: 100%; min-width: 1200px;">
-          <thead>
-            <tr style="background: #f8fafc;">
-              <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 50px;">순번</th>
-              <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 120px;">구분</th>
-              <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 120px;">호기</th>
-              <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 120px;">(${parseInt(selectedMonth.split('-')[1], 10)}월) 정품완료</th>
-              <th colspan="${displayWeeksCount}" style="border: 1px solid #000; text-align: left; padding-left: 8px;">주차별 불량 현황</th>
-              <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 180px;">${parseInt(selectedMonth.split('-')[1], 10)}월 누적 불량 세부</th>
-            </tr>
-            <tr style="background: #f8fafc;">
-              ${displayWeekTitles.map(t => `<th style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; background: #f8fafc; font-weight: 600; font-size: 13px;">
-                    <div style="font-weight: 700; color: #1f2937;">${t.split('<br>')[0]||''}</div>
-                    <div style="font-size: 11px; color: #9ca3af; font-weight: 400;">${t.split('<br>')[1]||''}</div>
-                  </th>`).join('')}
-            </tr>
-          </thead>
-          <tbody>
-            ${variantData.map((vData, vIdx) => {
-              let html = `<tr style="background: ${vIdx % 2 === 0 ? '#fff' : '#f9fafb'};">`;
-              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; color: #6b7280; font-weight: 600;">${vIdx + 1}</td>`;
-              
-              if (vIdx === 0) {
-                html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700;">${vData.variant.section}</td>`;
-              } else if (vIdx === 1) {
-                html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700;" rowspan="3">B단면</td>`;
-              }
-              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700; color: #111827;">${vData.variant.name}</td>`;
-  
-              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 14px; font-weight: 800; color: #059669;">${vData.monthPacked.toLocaleString()}</td>`;
-              
-              for (let i = startIdx; i <= endIdx; i++) {
-                const ws = vData.weeklyScraps[i];
-                html += `<td style="border: 1px solid #d1d5db; padding: 4px 5px; vertical-align: top;">
-                  ${ws.wScrapTotal === 0 ? '<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>' : `${formatScrapHTML(ws, ws.wPacked)}`}
+      <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); overflow: hidden;">
+        <div style="padding: 7px 14px; border-bottom: 1px solid #e5e7eb; background: #f9fafb; font-size: 15px; font-weight: 700; color: #1f2937;">
+          1. ${monthNum}월 공정별 실적 현황 (DT 클립머신)
+        </div>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 960px;">
+            <colgroup>
+              <col style="width: 40px;" />
+              <col style="width: 52px;" />
+              <col style="width: 90px;" />
+              ${Array.from({ length: displayWeeksCount }).map(() => '<col />').join('')}
+              <col />
+            </colgroup>
+            <thead>
+              <tr>
+                <th rowspan="2" style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; font-weight: 700; font-size: 14px; background: #f8fafc; color: #374151;">순번</th>
+                <th rowspan="2" style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; font-weight: 700; font-size: 14px; background: #f8fafc; color: #374151;">구분</th>
+                <th rowspan="2" style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; font-weight: 700; font-size: 14px; background: #f8fafc; color: #374151;">호기</th>
+                <th colspan="${displayWeeksCount}" style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; font-weight: 700; font-size: 14px; background: #f8fafc; color: #374151; border-bottom: 1px solid #d1d5db;">주차별 폐기불량 현황</th>
+                <th rowspan="2" style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; font-weight: 700; font-size: 14px; background: #fff7f7; color: #991b1b;">${monthNum}월 누적 불량 세부내역</th>
+              </tr>
+              <tr>
+                ${displayWeekTitles.map(t => {
+                  const pt = parseTitle(t);
+                  return `<th style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; background: #f8fafc; font-weight: 600; font-size: 13px;">
+                    <div style="font-weight: 700; color: #1f2937;">${pt.name}</div>
+                    <div style="font-size: 11px; color: #9ca3af; font-weight: 400;">${pt.dates}</div>
+                  </th>`;
+                }).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${variantData.map((vData, vIdx) => {
+                let rowBg = vIdx % 2 === 0 ? "#fff" : "#f9fafb";
+                let html = `<tr style="background: ${rowBg};">`;
+                html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; color: #6b7280; font-weight: 600;">${vIdx + 1}</td>`;
+                
+                if (vIdx === 0) {
+                  html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700;">${vData.variant.section}</td>`;
+                } else if (vIdx === 1) {
+                  html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700;" rowspan="3">B단면</td>`;
+                }
+                html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700; color: #111827;">${vData.variant.name}</td>`;
+                
+                for (let i = startIdx; i <= endIdx; i++) {
+                  const ws = vData.weeklyScraps[i];
+                  const rate = ws.wPacked > 0 ? ((ws.wScrapTotal / ws.wPacked) * 100).toFixed(1) : "0.0";
+                  
+                  html += `<td style="border: 1px solid #d1d5db; padding: 4px 5px; vertical-align: top;">`;
+                  
+                  if (i === endIdx) {
+                    // Current/Last week: show full detailed chips
+                    if (ws.wScrapTotal === 0 && ws.wPacked === 0) {
+                       html += `<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>`;
+                    } else {
+                       html += `<div style="font-weight: 700; color: #e11d48; margin-bottom: 5px; font-size: 13px; text-align: center;">${ws.wPacked.toLocaleString()} (<span style="color:#be123c;">${ws.wScrapTotal.toLocaleString()}, ${rate}%</span>)</div>
+                                ${formatScrapChipsHoriz(ws, ws.wPacked)}`;
+                    }
+                  } else {
+                    // Previous weeks: Only show Summary text
+                    if (ws.wScrapTotal === 0 && ws.wPacked === 0) {
+                      html += `<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>`;
+                    } else {
+                      html += `<div style="font-weight: 700; color: #1f2937; font-size: 14px; text-align: center; display: flex; justify-content: center; align-items: center; height: 100%;">
+                                 ${ws.wPacked.toLocaleString()} <span style="color: #e11d48; font-size: 12px; margin-left: 4px;">(${ws.wScrapTotal.toLocaleString()}, ${rate}%)</span>
+                               </div>`;
+                    }
+                  }
+                  
+                  html += `</td>`;
+                }
+
+                // Monthly Total
+                const totalRate = vData.monthPacked > 0 ? ((vData.monthScrap / vData.monthPacked) * 100).toFixed(1) : "0.0";
+                html += `<td style="border: 1px solid #d1d5db; padding: 6px 8px; vertical-align: top; background: #fff7f7;">
+                  ${(vData.monthScrap === 0 && vData.monthPacked === 0) ? 
+                    '<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>' 
+                    : `<div style="text-align: left; font-weight: 800; font-size: 15px; margin-bottom: 6px; color: #065f46;">
+                         ${vData.monthPacked.toLocaleString()} <span style="color: #be123c; font-size: 13px;">(${vData.monthScrap.toLocaleString()}, ${totalRate}%)</span>
+                       </div>
+                       ${formatScrapChipsHoriz(vData.totalScrapDetails, vData.monthPacked)}`
+                  }
                 </td>`;
-              }
 
-              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; vertical-align: top; background: #fff7f7;">
-                ${vData.monthScrap === 0 ? '<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>' : `<div style="text-align: center; font-weight: 800; color: #be123c; font-size: 14px; margin-bottom: 3px;">총 ${vData.monthScrap.toLocaleString()} EA</div>${formatScrapHTML(vData.totalScrapDetails, vData.monthPacked)}`}
-              </td>`;
-
-              html += `</tr>`;
-              return html;
-            }).join('')}
-          </tbody>
-        </table>
+                html += `</tr>`;
+                return html;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   `;
 }
-
-
-
 function exportDtclipMonthlyCsv(reports, selectedMonth) {
   const monthReports = reports.filter(r => 
     r.date && r.date.startsWith(selectedMonth) && 
