@@ -574,11 +574,10 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
   const displayWeekTitles = weekTitlesAll.slice(startIdx, endIdx + 1);
 
   const variants = [
-    { id: 'A_SEC', name: 'A단면(1호기)', components: [{id: 'LH', source: 'A'}, {id: 'RH', source: 'A'}] },
-    { id: 'LH3', name: 'LH 3호 (Table B)', components: [{id: 'LH3', source: 'B'}] },
-    { id: 'LH4', name: 'LH 4호 (Table B)', components: [{id: 'LH4', source: 'B'}] },
-    { id: 'RH2', name: 'RH 2호 (Table B)', components: [{id: 'RH2', source: 'B'}] },
-    { id: 'RH4', name: 'RH 4호 (Table B)', components: [{id: 'RH4', source: 'B'}] }
+    { id: '1호기', section: 'A단면', name: '1호기', components: [{id: 'LH', source: 'A'}, {id: 'RH', source: 'A'}] },
+    { id: '2호기', section: 'B단면', name: '2호기', components: [{id: 'RH2', source: 'B'}, {id: 'LH2', source: 'B'}] },
+    { id: '3호기', section: 'B단면', name: '3호기', components: [{id: 'LH3', source: 'B'}, {id: 'RH3', source: 'B'}] },
+    { id: '4호기', section: 'B단면', name: '4호기', components: [{id: 'LH4', source: 'B'}, {id: 'RH4', source: 'B'}] }
   ];
 
   const variantData = variants.map(v => {
@@ -740,11 +739,10 @@ function exportDtclipMonthlyCsv(reports, selectedMonth) {
   csvContent += `순번,구분,호기,월간 포장완료 수량,월간 폐기 수량,불량률(%)\n`;
 
   const variants = [
-    { id: 'A_SEC', name: 'A단면(1호기)', components: [{id: 'LH', source: 'A'}, {id: 'RH', source: 'A'}] },
-    { id: 'LH3', name: 'LH 3호 (Table B)', components: [{id: 'LH3', source: 'B'}] },
-    { id: 'LH4', name: 'LH 4호 (Table B)', components: [{id: 'LH4', source: 'B'}] },
-    { id: 'RH2', name: 'RH 2호 (Table B)', components: [{id: 'RH2', source: 'B'}] },
-    { id: 'RH4', name: 'RH 4호 (Table B)', components: [{id: 'RH4', source: 'B'}] }
+    { id: '1호기', section: 'A단면', name: '1호기', components: [{id: 'LH', source: 'A'}, {id: 'RH', source: 'A'}] },
+    { id: '2호기', section: 'B단면', name: '2호기', components: [{id: 'RH2', source: 'B'}, {id: 'LH2', source: 'B'}] },
+    { id: '3호기', section: 'B단면', name: '3호기', components: [{id: 'LH3', source: 'B'}, {id: 'RH3', source: 'B'}] },
+    { id: '4호기', section: 'B단면', name: '4호기', components: [{id: 'LH4', source: 'B'}, {id: 'RH4', source: 'B'}] }
   ];
 
   variants.forEach((v, idx) => {
