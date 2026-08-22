@@ -686,34 +686,35 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
               <th rowspan="2" style="border: 1px solid #000; text-align: center; width: 180px;">${parseInt(selectedMonth.split('-')[1], 10)}월 누적 불량 세부</th>
             </tr>
             <tr style="background: #f8fafc;">
-              ${displayWeekTitles.map(t => `<th style="border: 1px solid #000; text-align: left; padding: 6px; font-weight: normal; font-size: 12px; width: 140px;">${t}</th>`).join('')}
+              ${displayWeekTitles.map(t => `<th style="border: 1px solid #d1d5db; padding: 6px 7px; text-align: center; background: #f8fafc; font-weight: 600; font-size: 13px;">
+                    <div style="font-weight: 700; color: #1f2937;">${t.split('<br>')[0]||''}</div>
+                    <div style="font-size: 11px; color: #9ca3af; font-weight: 400;">${t.split('<br>')[1]||''}</div>
+                  </th>`).join('')}
             </tr>
           </thead>
           <tbody>
             ${variantData.map((vData, vIdx) => {
-              let html = `<tr>`;
-              html += `<td style="border: 1px solid #000; text-align: center; padding: 6px;">${vIdx + 1}</td>`;
+              let html = `<tr style="background: ${vIdx % 2 === 0 ? '#fff' : '#f9fafb'};">`;
+              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; color: #6b7280; font-weight: 600;">${vIdx + 1}</td>`;
               
               if (vIdx === 0) {
-                html += `<td style="border: 1px solid #000; padding: 6px; font-weight: 700; text-align: center;">${vData.variant.section}</td>`;
+                html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700;">${vData.variant.section}</td>`;
               } else if (vIdx === 1) {
-                html += `<td style="border: 1px solid #000; padding: 6px; font-weight: 700; text-align: center;" rowspan="3">B단면</td>`;
+                html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700;" rowspan="3">B단면</td>`;
               }
-              html += `<td style="border: 1px solid #000; padding: 6px; font-weight: 700; text-align: center; color: var(--accent-blue);">${vData.variant.name}</td>`;
+              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 13px; font-weight: 700; color: #111827;">${vData.variant.name}</td>`;
   
-              html += `<td style="border: 1px solid #000; text-align: center; padding: 6px; font-weight: 800; color: var(--accent-blue);">${vData.monthPacked.toLocaleString()}</td>`;
+              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; text-align: center; vertical-align: middle; font-size: 14px; font-weight: 800; color: #059669;">${vData.monthPacked.toLocaleString()}</td>`;
               
               for (let i = startIdx; i <= endIdx; i++) {
                 const ws = vData.weeklyScraps[i];
-                html += `<td style="border: 1px solid #000; padding: 6px; vertical-align: top;">
-                  <div style="font-weight: 700; color: #e11d48; margin-bottom: 4px;">${ws.wScrapTotal.toLocaleString()} EA (정품: ${ws.wPacked.toLocaleString()})</div>
-                  ${formatScrapHTML(ws, ws.wPacked)}
+                html += `<td style="border: 1px solid #d1d5db; padding: 4px 5px; vertical-align: top;">
+                  ${ws.wScrapTotal === 0 ? '<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>' : `${formatScrapHTML(ws, ws.wPacked)}`}
                 </td>`;
               }
 
-              html += `<td style="border: 1px solid #000; padding: 6px; vertical-align: top; background: #fff1f2;">
-                <div style="font-weight: 800; color: #e11d48; font-size: 14px; margin-bottom: 4px;">총 ${vData.monthScrap.toLocaleString()} EA</div>
-                ${formatScrapHTML(vData.totalScrapDetails, vData.monthPacked)}
+              html += `<td style="border: 1px solid #d1d5db; padding: 4px 6px; vertical-align: top; background: #fff7f7;">
+                ${vData.monthScrap === 0 ? '<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>' : `<div style="text-align: center; font-weight: 800; color: #be123c; font-size: 14px; margin-bottom: 3px;">총 ${vData.monthScrap.toLocaleString()} EA</div>${formatScrapHTML(vData.totalScrapDetails, vData.monthPacked)}`}
               </td>`;
 
               html += `</tr>`;
