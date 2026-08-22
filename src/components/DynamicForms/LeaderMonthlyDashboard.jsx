@@ -19,105 +19,113 @@ export default function LeaderMonthlyDashboard({
     return { name: parts[0] || "", dates: parts[1] || "" };
   };
 
-  const renderDefectRow = (label, count, basePacked) => {
-    if (count === undefined || count === null) return null;
-    const rate = basePacked > 0 ? ((count / basePacked) * 100).toFixed(1) : "0.0";
-    if (count === 0) {
-      return (
-        <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 10, color: "#cbd5e1", padding: "1px 3px" }}>
-          <span>{label}</span><span>0</span>
-        </div>
-      );
-    }
-    return (
-      <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 10, background: "#fff1f2", color: "#be123c", border: "1px solid #fecdd3", borderRadius: 3, padding: "2px 5px", marginBottom: 2, fontWeight: 600 }}>
-        <span>{label}</span>
-        <span style={{ display: "flex", gap: 3, alignItems: "center" }}>
-          <span>{count}</span>
-          <span style={{ fontSize: 9, opacity: 0.8 }}>({rate}%)</span>
-        </span>
+  // 불량 2개씩 한 줄 렌더
+  const renderDefectPairRow = (items, basePacked) => {
+    return items.map((pair, pIdx) => (
+      <div key={pIdx} style={{ display: "flex", gap: 3, marginBottom: 3 }}>
+        {pair.map(({ label, count }) => {
+          const rate = basePacked > 0 ? ((count / basePacked) * 100).toFixed(1) : "0.0";
+          if (count === 0) {
+            return (
+              <div key={label} style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, color: "#cbd5e1", background: "#f8fafc", borderRadius: 3, padding: "2px 5px", border: "1px solid #f1f5f9" }}>
+                <span style={{ fontWeight: 600 }}>{label}</span>
+                <span>0</span>
+              </div>
+            );
+          }
+          return (
+            <div key={label} style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13, background: "#fff1f2", color: "#be123c", border: "1px solid #fecdd3", borderRadius: 3, padding: "2px 5px", fontWeight: 700 }}>
+              <span>{label}</span>
+              <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", lineHeight: 1.1 }}>
+                <span>{count}</span>
+                <span style={{ fontSize: 10, opacity: 0.8 }}>({rate}%)</span>
+              </span>
+            </div>
+          );
+        })}
       </div>
-    );
+    ));
   };
 
   const getDefectBlock = (scrapObj, basePacked, itemName) => {
     const isHood = itemName && itemName.includes("Hood");
     const hasD = itemName && itemName.includes("DS CREW");
+
     if (isHood) {
-      return (
-        <div>
-          {renderDefectRow("센터", scrapObj.scrapCenter, basePacked)}
-          {renderDefectRow("사이드", scrapObj.scrapSide, basePacked)}
-        </div>
-      );
+      const pairs = [
+        [{ label: "센터", count: scrapObj.scrapCenter }, { label: "사이드", count: scrapObj.scrapSide }],
+      ];
+      return renderDefectPairRow(pairs, basePacked);
     }
-    return (
-      <div>
-        {renderDefectRow("A", scrapObj.scrapA, basePacked)}
-        {renderDefectRow("B", scrapObj.scrapB, basePacked)}
-        {renderDefectRow("C", scrapObj.scrapC, basePacked)}
-        {hasD && renderDefectRow("D", scrapObj.scrapD, basePacked)}
-      </div>
-    );
+
+    const rows = [
+      [{ label: "A", count: scrapObj.scrapA }, { label: "B", count: scrapObj.scrapB }],
+    ];
+    if (hasD) {
+      rows.push([{ label: "C", count: scrapObj.scrapC }, { label: "D", count: scrapObj.scrapD }]);
+    } else {
+      rows.push([{ label: "C", count: scrapObj.scrapC }, { label: " ", count: 0 }]);
+    }
+    return renderDefectPairRow(rows, basePacked);
   };
 
   const thBase = {
     border: "1px solid #d1d5db",
-    padding: "5px 6px",
+    padding: "6px 7px",
     textAlign: "center",
-    fontWeight: 600,
-    fontSize: 11,
+    fontWeight: 700,
+    fontSize: 14,
     background: "#f8fafc",
     color: "#374151",
     whiteSpace: "nowrap",
   };
   const tdBase = {
     border: "1px solid #d1d5db",
-    padding: "3px 5px",
+    padding: "4px 6px",
     verticalAlign: "middle",
-    fontSize: 11,
+    fontSize: 13,
   };
 
   return (
-    <div style={{ width: "100%", fontFamily: "'Noto Sans KR', sans-serif", color: "#1f2937", display: "flex", flexDirection: "column", gap: 8 }}>
+    <div style={{ width: "100%", fontFamily: "'Noto Sans KR', sans-serif", color: "#1f2937", display: "flex", flexDirection: "column", gap: 10 }}>
 
       {/* KPI 카드 3개 */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
         {[
-          { label: "월간 총 포장완료", value: `${totalMonthlyPacked.toLocaleString()} EA`, icon: <Package size={16} color="#059669" />, iconBg: "#ecfdf5" },
-          { label: "월간 총 폐기수량", value: `${totalMonthlyScrap.toLocaleString()} EA`, badge: `${avgDefectRate}%`, icon: <Trash2 size={16} color="#dc2626" />, iconBg: "#fff1f2" },
-          { label: "근태 평균 총원", value: `${avgTotal} 명`, icon: <Users size={16} color="#2563eb" />, iconBg: "#eff6ff" },
+          { label: "월간 총 포장완료", value: `${totalMonthlyPacked.toLocaleString()} EA`, icon: <Package size={20} color="#059669" />, iconBg: "#ecfdf5" },
+          { label: "월간 총 폐기수량", value: `${totalMonthlyScrap.toLocaleString()} EA`, badge: `${avgDefectRate}%`, icon: <Trash2 size={20} color="#dc2626" />, iconBg: "#fff1f2" },
+          { label: "근태 평균 총원", value: `${avgTotal} 명`, icon: <Users size={20} color="#2563eb" />, iconBg: "#eff6ff" },
         ].map((card, i) => (
-          <div key={i} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, padding: "9px 12px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
+          <div key={i} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, padding: "11px 15px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}>
             <div>
-              <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 2 }}>{card.label}</div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: "#111827" }}>{card.value}</span>
-                {card.badge && <span style={{ fontSize: 10, fontWeight: 700, background: "#fee2e2", color: "#b91c1c", borderRadius: 99, padding: "1px 6px" }}>{card.badge}</span>}
+              <div style={{ fontSize: 13, color: "#6b7280", marginBottom: 3 }}>{card.label}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: "#111827" }}>{card.value}</span>
+                {card.badge && <span style={{ fontSize: 13, fontWeight: 700, background: "#fee2e2", color: "#b91c1c", borderRadius: 99, padding: "2px 9px" }}>{card.badge}</span>}
               </div>
             </div>
-            <div style={{ width: 32, height: 32, borderRadius: "50%", background: card.iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>{card.icon}</div>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: card.iconBg, display: "flex", alignItems: "center", justifyContent: "center" }}>{card.icon}</div>
           </div>
         ))}
       </div>
 
       {/* 1. 생산 및 불량 테이블 */}
-      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", overflow: "hidden" }}>
-        <div style={{ padding: "6px 12px", borderBottom: "1px solid #e5e7eb", background: "#f9fafb", display: "flex", alignItems: "center", gap: 5 }}>
-          <Activity size={13} color="#4f46e5" />
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#1f2937" }}>1. {monthNum}월 공정별 생산 및 불량 실적</span>
+      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+        <div style={{ padding: "7px 14px", borderBottom: "1px solid #e5e7eb", background: "#f9fafb", display: "flex", alignItems: "center", gap: 6 }}>
+          <Activity size={16} color="#4f46e5" />
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#1f2937" }}>1. {monthNum}월 공정별 생산 및 불량 실적</span>
         </div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed", minWidth: 960 }}>
             <colgroup>
-              <col style={{ width: 36 }} />
+              <col style={{ width: 40 }} />
+              <col style={{ width: 90 }} />
+              <col style={{ width: 52 }} />
               <col style={{ width: 80 }} />
-              <col style={{ width: 46 }} />
-              <col style={{ width: 70 }} />
               {Array.from({ length: displayWeeksCount }).map((_, i) => (
-                <col key={i} style={{ width: `${Math.floor((100 - 8) / displayWeeksCount)}%` }} />
+                <col key={i} />
               ))}
-              <col style={{ width: 120 }} />
+              <col style={{ width: 140 }} />
             </colgroup>
             <thead>
               <tr>
@@ -132,9 +140,9 @@ export default function LeaderMonthlyDashboard({
                 {displayWeekTitles.map((t, idx) => {
                   const pt = parseTitle(t);
                   return (
-                    <th key={idx} style={{ ...thBase, fontWeight: 500 }}>
-                      <div style={{ fontWeight: 700, color: "#1f2937", fontSize: 11 }}>{pt.name}</div>
-                      <div style={{ fontSize: 9, color: "#9ca3af" }}>{pt.dates}</div>
+                    <th key={idx} style={{ ...thBase, fontWeight: 600, fontSize: 13 }}>
+                      <div style={{ fontWeight: 700, color: "#1f2937" }}>{pt.name}</div>
+                      <div style={{ fontSize: 11, color: "#9ca3af", fontWeight: 400 }}>{pt.dates}</div>
                     </th>
                   );
                 })}
@@ -182,25 +190,25 @@ export default function LeaderMonthlyDashboard({
                           <td rowSpan={g.variants.length} style={{ ...tdBase, textAlign: "center", color: "#6b7280", fontWeight: 600 }}>{g.id}</td>
                         )}
                         {isFirst && (
-                          <td rowSpan={g.variants.length} style={{ ...tdBase, textAlign: "center", fontWeight: 700, color: "#111827", fontSize: 11 }}>{g.name}</td>
+                          <td rowSpan={g.variants.length} style={{ ...tdBase, textAlign: "center", fontWeight: 700, color: "#111827", fontSize: 13 }}>{g.name}</td>
                         )}
                         <td style={{ ...tdBase, textAlign: "center" }}>
                           {vData.variant !== "-" ? (
-                            <span style={{ display: "inline-block", background: "#f1f5f9", color: "#374151", borderRadius: 99, padding: "1px 7px", fontSize: 10, fontWeight: 600 }}>{vData.variant}</span>
+                            <span style={{ display: "inline-block", background: "#f1f5f9", color: "#374151", borderRadius: 99, padding: "2px 9px", fontSize: 12, fontWeight: 700 }}>{vData.variant}</span>
                           ) : (
-                            <span style={{ color: "#9ca3af", fontSize: 10 }}>전체</span>
+                            <span style={{ color: "#9ca3af", fontSize: 12 }}>전체</span>
                           )}
                         </td>
-                        <td style={{ ...tdBase, textAlign: "center", fontWeight: 800, color: "#059669", fontSize: 12 }}>
+                        <td style={{ ...tdBase, textAlign: "center", fontWeight: 800, color: "#059669", fontSize: 14 }}>
                           {vData.monthPacked.toLocaleString()}
                         </td>
 
                         {isFirst && groupWeeklyScraps.slice(0, displayWeeksCount).map((ws, wIdx) => {
                           const totalS = ws.scrapA + ws.scrapB + ws.scrapC + ws.scrapD + ws.scrapCenter + ws.scrapSide;
                           return (
-                            <td key={wIdx} rowSpan={g.variants.length} style={{ ...tdBase, verticalAlign: "top", padding: "3px 4px" }}>
+                            <td key={wIdx} rowSpan={g.variants.length} style={{ ...tdBase, verticalAlign: "top", padding: "4px 5px" }}>
                               {totalS === 0 ? (
-                                <div style={{ textAlign: "center", color: "#d1d5db", fontSize: 10, fontStyle: "italic" }}>0</div>
+                                <div style={{ textAlign: "center", color: "#d1d5db", fontSize: 13, fontStyle: "italic" }}>0</div>
                               ) : (
                                 getDefectBlock(ws, ws.wPacked, itemName)
                               )}
@@ -211,12 +219,12 @@ export default function LeaderMonthlyDashboard({
                         {isFirst && (() => {
                           const totalS = groupTotalScrap.scrapA + groupTotalScrap.scrapB + groupTotalScrap.scrapC + groupTotalScrap.scrapD + groupTotalScrap.scrapCenter + groupTotalScrap.scrapSide;
                           return (
-                            <td rowSpan={g.variants.length} style={{ ...tdBase, verticalAlign: "top", background: "#fff7f7", padding: "3px 5px" }}>
+                            <td rowSpan={g.variants.length} style={{ ...tdBase, verticalAlign: "top", background: "#fff7f7", padding: "4px 6px" }}>
                               {totalS === 0 ? (
-                                <div style={{ textAlign: "center", color: "#d1d5db", fontSize: 10, fontStyle: "italic" }}>0</div>
+                                <div style={{ textAlign: "center", color: "#d1d5db", fontSize: 13, fontStyle: "italic" }}>0</div>
                               ) : (
                                 <div>
-                                  <div style={{ textAlign: "center", fontWeight: 800, color: "#be123c", fontSize: 11, marginBottom: 2 }}>총 {totalS} EA</div>
+                                  <div style={{ textAlign: "center", fontWeight: 800, color: "#be123c", fontSize: 14, marginBottom: 3 }}>총 {totalS} EA</div>
                                   {getDefectBlock(groupTotalScrap, groupMonthPacked, itemName)}
                                 </div>
                               )}
@@ -234,23 +242,23 @@ export default function LeaderMonthlyDashboard({
       </div>
 
       {/* 2. 근태현황 */}
-      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", overflow: "hidden" }}>
-        <div style={{ padding: "6px 12px", borderBottom: "1px solid #e5e7eb", background: "#f9fafb", display: "flex", alignItems: "center", gap: 5 }}>
-          <CalendarDays size={13} color="#2563eb" />
-          <span style={{ fontSize: 12, fontWeight: 700, color: "#1f2937" }}>2. {monthNum}월 근태현황 누적 합산 (인일 기준)</span>
+      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+        <div style={{ padding: "7px 14px", borderBottom: "1px solid #e5e7eb", background: "#f9fafb", display: "flex", alignItems: "center", gap: 6 }}>
+          <CalendarDays size={16} color="#2563eb" />
+          <span style={{ fontSize: 15, fontWeight: 700, color: "#1f2937" }}>2. {monthNum}월 근태현황 누적 합산 (인일 기준)</span>
         </div>
-        <div style={{ padding: "8px 12px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 7 }}>
+        <div style={{ padding: "10px 14px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
             {[
-              { label: "출근", value: attSum.present, icon: <CheckCircle size={12} color="#059669" />, bg: "#ecfdf5", border: "#a7f3d0", text: "#065f46" },
-              { label: "결근", value: attSum.absent, icon: <XCircle size={12} color="#dc2626" />, bg: "#fff1f2", border: "#fecdd3", text: "#9f1239" },
-              { label: "연차", value: attSum.annualLeave, icon: <FileText size={12} color="#2563eb" />, bg: "#eff6ff", border: "#bfdbfe", text: "#1e3a8a" },
-              { label: "병가", value: attSum.sickLeave, icon: <AlertTriangle size={12} color="#d97706" />, bg: "#fffbeb", border: "#fde68a", text: "#78350f" },
-              { label: "반차", value: attSum.halfLeave, icon: <Activity size={12} color="#7c3aed" />, bg: "#f5f3ff", border: "#ddd6fe", text: "#4c1d95" },
+              { label: "출근", value: attSum.present, icon: <CheckCircle size={14} color="#059669" />, bg: "#ecfdf5", border: "#a7f3d0", text: "#065f46" },
+              { label: "결근", value: attSum.absent, icon: <XCircle size={14} color="#dc2626" />, bg: "#fff1f2", border: "#fecdd3", text: "#9f1239" },
+              { label: "연차", value: attSum.annualLeave, icon: <FileText size={14} color="#2563eb" />, bg: "#eff6ff", border: "#bfdbfe", text: "#1e3a8a" },
+              { label: "병가", value: attSum.sickLeave, icon: <AlertTriangle size={14} color="#d97706" />, bg: "#fffbeb", border: "#fde68a", text: "#78350f" },
+              { label: "반차", value: attSum.halfLeave, icon: <Activity size={14} color="#7c3aed" />, bg: "#f5f3ff", border: "#ddd6fe", text: "#4c1d95" },
             ].map((item, i) => (
-              <div key={i} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 7, padding: "7px 10px" }}>
-                <div style={{ fontSize: 10, fontWeight: 600, color: item.text, display: "flex", alignItems: "center", gap: 3, marginBottom: 2 }}>{item.icon}{item.label}</div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: item.text }}>{item.value} <span style={{ fontSize: 10, fontWeight: 400 }}>인일</span></div>
+              <div key={i} style={{ background: item.bg, border: `1px solid ${item.border}`, borderRadius: 8, padding: "9px 13px" }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: item.text, display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}>{item.icon}{item.label}</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: item.text }}>{item.value} <span style={{ fontSize: 13, fontWeight: 400 }}>인일</span></div>
               </div>
             ))}
           </div>
