@@ -125,7 +125,7 @@ export default function LeaderMonthlyDashboard({
               {Array.from({ length: displayWeeksCount }).map((_, i) => (
                 <col key={i} />
               ))}
-              <col style={{ width: 140 }} />
+              <col style={{ width: 210 }} />
             </colgroup>
             <thead>
               <tr>
