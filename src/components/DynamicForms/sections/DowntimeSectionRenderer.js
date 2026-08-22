@@ -8,13 +8,14 @@ export function updateDowntimeSection(ctx) {
   const { container, processValue, existingData, getCurrentFormCode } = ctx;
     const curProc = processValue ? processValue.value : '';
     const downtimeCard = container.querySelector('#downtimeCard');
+    const formCode = getCurrentFormCode();
 
     if (!curProc) {
       if (downtimeCard) downtimeCard.style.display = 'none';
       return;
     }
 
-    if (curProc === '후가공' || curProc === '검사포장' || curProc === '검사/포장') {
+    if (formCode === 4013 || formCode === 4014 || formCode === 4004 || (curProc === '후가공' || curProc === '검사포장' || curProc === '검사/포장')) {
       if (downtimeCard) downtimeCard.style.display = 'none';
       return;
     } else {
@@ -31,7 +32,7 @@ export function updateDowntimeSection(ctx) {
 
     // 2. 호기 드롭다운 옵션 변경
     const curCarCode = carModelValue ? carModelValue.value : currentCarCode;
-    const formCode = getCurrentFormCode();
+    
     const dtCrewJointEquipOptions = ['LH R(직각)', 'LH S(둔각)', 'LH T(직선)', 'RH R(직각)', 'RH S(둔각)', 'RH T(직선)'];
     const fourNumEquipOptions = ['1호', '2호', '3호', '4호'];
     const threeNumEquipOptions = ['1호', '2호', '3호'];

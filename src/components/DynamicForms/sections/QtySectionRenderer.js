@@ -5,7 +5,7 @@ import * as Templates from '../FormTemplates.jsx';
  * ctx: { container, qtySection, processValue, existingData, getCurrentFormCode, updateDowntimeSection }
  */
 export function renderQtySection(ctx) {
-  const { container, qtySection, processValue, existingData, getCurrentFormCode, updateDowntimeSection } = ctx;
+  const { container, qtySection, processValue, existingData, getCurrentFormCode, updateDowntimeSection, isDtCrewClip } = ctx;
     if (!qtySection) return;
     const curProc = processValue ? processValue.value : '';
     const formCode = getCurrentFormCode();
@@ -419,7 +419,7 @@ export function renderQtySection(ctx) {
     const table = container.querySelector('#jointQtyTable');
     if (!table) return;
 
-    const cols = ['frt_p', 'frt_q', 'rr_r', 'rr_s_lh', 'rr_s_rh'];
+    const cols = ['frt_p', 'frt_q'];
     let totalPlan = 0;
     let totalAct = 0;
     let overallDefect = 0;
@@ -711,6 +711,36 @@ export function renderQtySection(ctx) {
         qtySection.addEventListener('input', calcJg1QtySummary);
         calcJg1QtySummary();
         break;
+      case 4003:
+        qtySection.innerHTML = Templates.getForm4003QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcJg1QtySummary);
+        calcJg1QtySummary();
+        break;
+      case 4004:
+        qtySection.innerHTML = Templates.getForm4004QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcJg1QtySummary);
+        calcJg1QtySummary();
+        break;
+      case 4012:
+        qtySection.innerHTML = Templates.getForm4012QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcJg1QtySummary);
+        calcJg1QtySummary();
+        break;
+      case 4013:
+        qtySection.innerHTML = Templates.getForm4013QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcJg1QtySummary);
+        calcJg1QtySummary();
+        break;
+      case 4014:
+        qtySection.innerHTML = Templates.getForm4012QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcJg1QtySummary);
+        calcJg1QtySummary();
+        break;
+
+
+
+
+
 
       // ── 타 제조사 / 기본 공정별 양식 ──
       default:

@@ -151,7 +151,7 @@ export function renderSection5(ctx) {
       bindNumberWheelPicker(section5.querySelector('#dim_cut_RR_중'), '정치절단길이 RH 중', 326, 20);
       bindNumberWheelPicker(section5.querySelector('#dim_cut_RR_종'), '정치절단길이 RH 종', 326, 20);
       return;
-    } else if (formCode === 4011) {
+    } else if (formCode === 4011 || formCode === 4014) {
       section5.innerHTML = `
         <div class="card" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
@@ -671,15 +671,14 @@ export function renderSection5(ctx) {
               <tr style="background: #fffde7; font-weight: 700; color: #000;">
                 <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
                 <th colspan="2" style="border: 1px solid #000; padding: 6px;">LH</th>
-                <th colspan="3" style="border: 1px solid #000; padding: 6px;">RH</th>
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">RH</th>
               </tr>
               <tr style="background: #fffde7; font-weight: 700; color: #000;">
                 <th colspan="2" style="border: 1px solid #000; padding: 6px;">부 위(Part)</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">FRT(P)_L/R</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">FRT(Q)_L/R</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">RR(R)_L/R</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">RR(S)_LH</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">RR(S)_RH</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 16%;">X부</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 16%;">Y부</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 16%;">X부</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 16%;">Y부</th>
               </tr>
             </thead>
             <tbody>
@@ -692,7 +691,7 @@ export function renderSection5(ctx) {
                   규격 (Spec)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
@@ -741,16 +740,6 @@ export function renderSection5(ctx) {
       <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하 || '200'}" readonly />
     </div>
   </td>
-                <td style="border: 1px solid #000; padding: 2px;">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-      <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_상 || '200'}" readonly />
-    </div>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-      <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_하 || '200'}" readonly />
-    </div>
-  </td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
@@ -794,16 +783,6 @@ export function renderSection5(ctx) {
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
       <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하 || '200'}" readonly />
-    </div>
-  </td>
-                <td style="border: 1px solid #000; padding: 2px;">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-      <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_상 || '200'}" readonly />
-    </div>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-      <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_하 || '200'}" readonly />
     </div>
   </td>
               </tr>
@@ -851,16 +830,6 @@ export function renderSection5(ctx) {
       <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하 || '200'}" readonly />
     </div>
   </td>
-                <td style="border: 1px solid #000; padding: 2px;">
-    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-      <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_상 || '200'}" readonly />
-    </div>
-    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-      <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_하 || '200'}" readonly />
-    </div>
-  </td>
               </tr>
 
               <!-- 2. 가류시간 영역 -->
@@ -872,7 +841,7 @@ export function renderSection5(ctx) {
                   규격 (Spec)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
@@ -885,7 +854,6 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || '90'}" readonly /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r || '90'}" readonly /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_rh || '90'}" readonly /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
@@ -895,7 +863,6 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || '90'}" readonly /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r || '90'}" readonly /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_rh || '90'}" readonly /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
@@ -905,7 +872,6 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || '90'}" readonly /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r || '90'}" readonly /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_rh || '90'}" readonly /></td>
               </tr>
             </tbody>
           </table>

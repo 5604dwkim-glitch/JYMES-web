@@ -945,7 +945,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
   function _getCtx() {
     return { container, processValue, carModelValue, currentCarCode, partValueInput, existingData,
-             getCurrentFormCode, bindNumberWheelPicker, updateDowntimeSection, qtySection };
+             getCurrentFormCode, bindNumberWheelPicker, updateDowntimeSection, qtySection, isDtCrewClip, currentMakerName };
   }
   function renderSection5() {
     _Sections.renderSection5(_getCtx());

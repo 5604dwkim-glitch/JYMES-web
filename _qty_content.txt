@@ -1,0 +1,155 @@
+  function renderQtySection() {
+    if (!qtySection) return;
+    const curProc = processValue ? processValue.value : '';
+    const formCode = getCurrentFormCode();
+
+    if (!curProc) {
+      qtySection.innerHTML = `
+        <div class="card" style="padding: 24px; text-align: center; background: rgba(2, 132, 199, 0.04); border: 1.5px dashed rgba(2, 132, 199, 0.3); margin-bottom: 16px;">
+          <div style="font-size: 28px; margin-bottom: 8px;">👈</div>
+          <div style="font-size: 15px; font-weight: 800; color: var(--accent-blue);" data-i18n="select_process_guide">상단에서 생산공정을 선택해 주세요</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">공정을 선택하면 해당 공정에 필요한 입력창이 자동으로 나타납니다.</div>
+        </div>
+      `;
+      updateDowntimeSection();
+      return;
+    }
+
+    switch (formCode) {
+      // ── 클립머신 (#2001, #2011) ──
+      case 2001:
+      case 2011:
+        qtySection.innerHTML = Templates.getDtCrewQtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcDtCrewSummary);
+        calcDtCrewSummary();
+        break;
+
+      // ── KM/KX HOOD SURROUND 클립머신 (#2041) ──
+      case 2041:
+        qtySection.innerHTML = Templates.getKmKxClipQtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcKmKxClipSummary);
+        calcKmKxClipSummary();
+        break;
+
+      // ── 스텔란티스 소재준비 (#2002, #2012, #2021~#2023, #2031~#2032) ──
+      case 2002:
+      case 2012:
+      case 2021:
+      case 2022:
+      case 2023:
+      case 2031:
+      case 2032:
+        qtySection.innerHTML = Templates.getDtCrewPrepQtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcDtCrewPrepQtySummary);
+        calcDtCrewPrepQtySummary();
+        break;
+
+      // ── 스텔란티스 DT QUAD 조인트 (#2013) ──
+      case 2013:
+        qtySection.innerHTML = Templates.getDtCrewJointQtyHTML(existingData, 200, true, container);
+        qtySection.addEventListener('input', calcDtCrewJointQtySummary);
+        calcDtCrewJointQtySummary();
+        break;
+
+      // ── 스텔란티스 조인트 (#2003, #2024) ──
+      case 2003:
+      case 2024:
+        qtySection.innerHTML = Templates.getDtCrewJointQtyHTML(existingData, 300, container);
+        qtySection.addEventListener('input', calcDtCrewJointQtySummary);
+        calcDtCrewJointQtySummary();
+        break;
+
+      // ── KM/KX HOOD SURROUND 조인트 (#2042) ──
+      case 2042:
+        qtySection.innerHTML = Templates.getKmKxJointQtyHTML(existingData, 300, container);
+        qtySection.addEventListener('input', calcDtCrewJointQtySummary);
+        calcDtCrewJointQtySummary();
+        break;
+
+      // ── 스텔란티스 DS STD 조인트 (#2033) ──
+      case 2033:
+        qtySection.innerHTML = Templates.getDtCrewJointQtyHTML(existingData, 200, container);
+        qtySection.addEventListener('input', calcDtCrewJointQtySummary);
+        calcDtCrewJointQtySummary();
+        break;
+
+      // ── 스텔란티스 DS CREW 조인트(D) (#2025) ──
+      case 2025:
+        qtySection.innerHTML = Templates.getDtCrewEndJointQtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcDtCrewEndJointQtySummary);
+        calcDtCrewEndJointQtySummary();
+        break;
+
+      // ── 스텔란티스 후가공 (#2004, #2014, #2026, #2034) ──
+      case 2004:
+      case 2014:
+      case 2026:
+      case 2034:
+        qtySection.innerHTML = Templates.getDtCrewPostQtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcDtCrewPostQtySummary);
+        calcDtCrewPostQtySummary();
+        break;
+
+      // ── KM/KX HOOD SURROUND 후가공 (#2043) ──
+      case 2043:
+        qtySection.innerHTML = Templates.getKmKxPostQtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcKmKxPostQtySummary);
+        calcKmKxPostQtySummary();
+        break;
+
+      // ── 스텔란티스 DS STD 검사포장 (#2035) ──
+      case 2035:
+        qtySection.innerHTML = Templates.getInspQtyHTML(existingData, 2, true, container);
+        qtySection.addEventListener('input', calcInspQtySummary);
+        calcInspQtySummary();
+        break;
+
+      // ── 스텔란티스 검사포장 (#2005, #2015, #2027) ──
+      case 2005:
+      case 2015:
+      case 2027:
+        qtySection.innerHTML = Templates.getInspQtyHTML(existingData, 4, container);
+        qtySection.addEventListener('input', calcInspQtySummary);
+        calcInspQtySummary();
+        break;
+
+      // ── KM/KX HOOD SURROUND 검사포장 (#2044) ──
+      case 2044:
+        qtySection.innerHTML = Templates.getKmKxInspQtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcInspQtySummary);
+        calcInspQtySummary();
+        break;
+
+      case 4011:
+        qtySection.innerHTML = Templates.getForm4011QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcJg1QtySummary);
+        calcJg1QtySummary();
+        break;
+
+      case 4001:
+        qtySection.innerHTML = Templates.getForm4001QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calcJg1QtySummary);
+        calcJg1QtySummary();
+        break;
+
+      // ── 타 제조사 / 기본 공정별 양식 ──
+      default:
+        if (curProc === '조인트') {
+          qtySection.innerHTML = Templates.getJointQtyHTML(existingData, container);
+          qtySection.addEventListener('input', calcJointQtySummary);
+          calcJointQtySummary();
+        } else if (curProc === '후가공') {
+          qtySection.innerHTML = Templates.getPostQtyHTML(existingData, container);
+          qtySection.addEventListener('input', calcPostQtySummary);
+          calcPostQtySummary();
+        } else {
+          qtySection.innerHTML = Templates.getStandardQtyHTML(existingData, container);
+          qtySection.addEventListener('input', calcJg1QtySummary);
+          calcJg1QtySummary();
+        }
+        break;
+    }
+
+    updateDowntimeSection();
+    i18n.applyTranslations(qtySection);
+  }
