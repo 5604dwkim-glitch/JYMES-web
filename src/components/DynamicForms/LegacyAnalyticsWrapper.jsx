@@ -545,17 +545,19 @@ export default function LegacyAnalyticsWrapper({ reports }) {
 
 
 
-function renderDtclipMonthlySummaryTable(container, reports, selectedMonth, weeks) {
+function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
+  const weeks = getWeeksOfMonth(selectedMonth);
   const monthReports = reports.filter(r => 
     r.date && r.date.startsWith(selectedMonth) && 
     r.carModel === 'DT CREW' && r.processName === '클립머신'
   );
 
   const monthNum = parseInt(selectedMonth.split('-')[1], 10);
-  const weekTitlesAll = weeks.map(w => {
+  const weekLabels = ['첫째주', '둘째주', '셋째주', '넷째주', '다섯째주', '여섯째주'];
+  const weekTitlesAll = weeks.map((w, i) => {
     const s = `${w.start.getMonth()+1}/${w.start.getDate()}`;
     const e = `${w.end.getMonth()+1}/${w.end.getDate()}`;
-    return `${w.weekOfMonth}주차<br>${s}~${e}`;
+    return `${weekLabels[i] || (i+1)+'주차'}<br>${s}~${e}`;
   });
 
   const latestWeekIdx = weeks.findIndex(w => {
