@@ -18,8 +18,8 @@ export default function Login() {
 
   useEffect(() => {
     const attemptAutoLogin = async () => {
-      const id = searchParams.get('id');
-      const pw = searchParams.get('pw');
+      const id = searchParams.get('id') || searchParams.get('worker') || searchParams.get('name') || searchParams.get('code');
+      const pw = searchParams.get('pw') || '0000'; // fallback for legacy QR codes without pw
       
       if (id && (pw === '0000' || pw === '1111')) {
         setIsLoading(true);
