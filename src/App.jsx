@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -11,8 +11,9 @@ import Login from './components/Login';
 
 function PrivateRoute({ children }) {
   const { userRole } = useAuth();
+  const location = useLocation();
   if (!userRole) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={`/login${location.search}`} replace />;
   }
   return children;
 }
