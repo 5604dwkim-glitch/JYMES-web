@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
@@ -16,7 +16,12 @@ export default function Login() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const autoLoginAttempted = useRef(false);
+
   useEffect(() => {
+    if (autoLoginAttempted.current) return;
+    autoLoginAttempted.current = true;
+
     const attemptAutoLogin = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const id = searchParams.get('id') || urlParams.get('id') || searchParams.get('worker') || urlParams.get('worker') || searchParams.get('name') || urlParams.get('name') || searchParams.get('code') || urlParams.get('code');

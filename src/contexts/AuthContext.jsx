@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
     }
   });
 
-  const login = (role, workerName) => {
+  const login = React.useCallback((role, workerName) => {
     const session = { role, workerName };
     setUserRole(session);
     try {
@@ -23,12 +23,12 @@ export function AuthProvider({ children }) {
     } catch {
       // 무시
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = React.useCallback(() => {
     setUserRole(null);
     sessionStorage.removeItem(SESSION_KEY);
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ userRole, login, logout }}>
