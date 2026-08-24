@@ -6,7 +6,7 @@ export function printWorkerCard(worker) {
 
   // Render QR Code to SVG string
   const qrSvgString = ReactDOMServer.renderToString(
-    <QRCodeSVG value={loginUrl} size={100} level={"L"} />
+    <QRCodeSVG value={loginUrl} size={120} level={"L"} />
   );
 
   const printWindow = window.open('', '_blank');
@@ -24,7 +24,7 @@ export function printWorkerCard(worker) {
         <style>
           @page {
             size: A4 portrait;
-            margin: 0; /* Removing margins helps fit exactly 2 cards */
+            margin: 0;
           }
           body {
             margin: 0;
@@ -38,10 +38,9 @@ export function printWorkerCard(worker) {
             align-items: center;
           }
           
-          /* One card takes exactly half the height of A4 minus some padding */
           .card-wrapper {
             width: 210mm;
-            height: 148.5mm; /* exactly half of A4 height (297mm) */
+            height: 148.5mm;
             padding: 15mm;
             box-sizing: border-box;
             display: flex;
@@ -52,43 +51,39 @@ export function printWorkerCard(worker) {
 
           table.worker-card {
             width: 100%;
+            height: 90%;
             border-collapse: collapse;
-            border: 2px solid #0f172a; /* darker border for outer */
-            font-size: 16px;
+            border: 2px solid #111;
+            font-size: 17px;
             text-align: center;
           }
 
-          table.worker-card td {
-            border: 1px solid #475569; /* slightly softer inner border */
-            padding: 14px 12px;
-            color: #0f172a;
+          table.worker-card td, table.worker-card th {
+            border: 1px solid #111;
+            padding: 12px;
+            color: #111;
           }
 
           .header-td {
             font-weight: 900;
             font-size: 26px;
             letter-spacing: 2px;
-            background-color: #f1f5f9 !important;
+            height: 60px;
           }
 
           .title-td {
-            font-weight: 800;
-            font-size: 15px;
-            background-color: #f8fafc !important;
-            color: #334155;
+            font-weight: 700;
+            font-size: 16px;
           }
           
           .photo-container {
-            width: 240px;
-            height: 320px;
-            background-color: #f8fafc;
+            width: 160px;
+            height: 213px;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             margin: 0 auto;
-            border: 1px dashed #cbd5e1;
-            border-radius: 4px;
           }
           
           .photo-container img {
@@ -98,9 +93,9 @@ export function printWorkerCard(worker) {
           }
           
           .qr-container {
-            margin-top: 10px;
             display: flex;
             justify-content: center;
+            align-items: center;
           }
           .qr-container svg {
             display: block;
@@ -113,16 +108,16 @@ export function printWorkerCard(worker) {
           <table class="worker-card">
             <tbody>
               <tr>
-                <td rowspan="4" style="width: 260px; vertical-align: top; padding: 0;">
-                  <div class="photo-container">
-                    ${worker.photoData ? `<img src="${worker.photoData}" alt="Profile" />` : '<div style="color:#999;">사진 없음</div>'}
-                  </div>
-                </td>
-                <td colspan="4" class="header-td" style="height: 60px;">
+                <td colspan="5" class="header-td">
                   작업자 실명 이력카드
                 </td>
               </tr>
               <tr>
+                <td rowspan="3" style="width: 220px; vertical-align: middle; padding: 10px;">
+                  <div class="photo-container">
+                    ${worker.photoData ? `<img src="${worker.photoData}" alt="Profile" />` : '<div style="color:#666; font-size:15px;">사진<br>(300*400)</div>'}
+                  </div>
+                </td>
                 <td class="title-td" style="width: 100px;">작업자</td>
                 <td colspan="3" style="font-weight: bold; font-size: 20px;">
                   ${worker.name}
@@ -141,14 +136,13 @@ export function printWorkerCard(worker) {
                 <td>${worker.role || '-'}</td>
               </tr>
               <tr>
-                <td style="vertical-align: middle; height: 160px; padding: 16px;">
-                  <div style="font-size: 15px; font-weight: 800; margin-bottom: 12px; color: #1e293b; letter-spacing: 0.5px;">작업일보 작성 QR 코드</div>
+                <td style="vertical-align: middle; height: 160px;">
                   <div class="qr-container">
                     ${qrSvgString}
                   </div>
                 </td>
                 <td class="title-td">사번</td>
-                <td colspan="3" style="font-weight: 900; font-size: 22px; color: #0f172a; letter-spacing: 1px;">
+                <td colspan="3" style="font-weight: 900; font-size: 24px; letter-spacing: 1px;">
                   ${worker.id}
                 </td>
               </tr>
@@ -161,16 +155,16 @@ export function printWorkerCard(worker) {
           <table class="worker-card">
             <tbody>
               <tr>
-                <td rowspan="4" style="width: 260px; vertical-align: top; padding: 0;">
-                  <div class="photo-container">
-                    ${worker.photoData ? `<img src="${worker.photoData}" alt="Profile" />` : '<div style="color:#999;">사진 없음</div>'}
-                  </div>
-                </td>
-                <td colspan="4" class="header-td" style="height: 60px;">
+                <td colspan="5" class="header-td">
                   작업자 실명 이력카드
                 </td>
               </tr>
               <tr>
+                <td rowspan="3" style="width: 220px; vertical-align: middle; padding: 10px;">
+                  <div class="photo-container">
+                    ${worker.photoData ? `<img src="${worker.photoData}" alt="Profile" />` : '<div style="color:#666; font-size:15px;">사진<br>(300*400)</div>'}
+                  </div>
+                </td>
                 <td class="title-td" style="width: 100px;">작업자</td>
                 <td colspan="3" style="font-weight: bold; font-size: 20px;">
                   ${worker.name}
@@ -189,14 +183,13 @@ export function printWorkerCard(worker) {
                 <td>${worker.role || '-'}</td>
               </tr>
               <tr>
-                <td style="vertical-align: middle; height: 160px; padding: 16px;">
-                  <div style="font-size: 15px; font-weight: 800; margin-bottom: 12px; color: #1e293b; letter-spacing: 0.5px;">작업일보 작성 QR 코드</div>
+                <td style="vertical-align: middle; height: 160px;">
                   <div class="qr-container">
                     ${qrSvgString}
                   </div>
                 </td>
                 <td class="title-td">사번</td>
-                <td colspan="3" style="font-weight: 900; font-size: 22px; color: #0f172a; letter-spacing: 1px;">
+                <td colspan="3" style="font-weight: 900; font-size: 24px; letter-spacing: 1px;">
                   ${worker.id}
                 </td>
               </tr>
