@@ -71,7 +71,7 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
     onSave(formData);
   };
 
-  const loginUrl = `https://jy001-eb144.web.app/login?id=${formData.id}&pw=0000`;
+  const loginUrl = `https://jy001-eb144.web.app/login?id=${encodeURIComponent((formData.id || formData.name || '').trim())}&pw=0000`;
 
   return (
     <div style={{

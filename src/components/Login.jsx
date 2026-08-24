@@ -25,7 +25,8 @@ export default function Login() {
         setIsLoading(true);
         try {
           const workers = await fetchWorkers();
-          const matched = workers.find(w => w.id.toUpperCase() === id.toUpperCase() || w.name === id);
+          const idUpper = id.toUpperCase().trim();
+          const matched = workers.find(w => (w.id && w.id.toUpperCase().trim() === idUpper) || (w.name && w.name.toUpperCase().trim() === idUpper));
           if (matched) {
             login('worker', matched.name);
             navigate('/');
@@ -61,7 +62,8 @@ export default function Login() {
       setIsLoading(true);
       try {
         const workers = await fetchWorkers();
-        const matched = workers.find(w => w.name === name || w.id.toUpperCase() === name.toUpperCase());
+        const nameUpper = name.toUpperCase().trim();
+        const matched = workers.find(w => (w.name && w.name.toUpperCase().trim() === nameUpper) || (w.id && w.id.toUpperCase().trim() === nameUpper));
         
         if (!matched) {
           setError(`등록되지 않은 작업자/사번입니다.`);
