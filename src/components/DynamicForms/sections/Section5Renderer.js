@@ -219,7 +219,14 @@ export function renderSection5(ctx) {
 
       const makeDtCrewVulcTable = (pfx, data, tableNum, fixedSide = '') => `
         <div style="overflow-x: auto; ${tableNum > 1 ? 'margin-top: 16px;' : ''}">
-          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; table-layout: fixed;">
+            <colgroup>
+              <col style="width: 15%;" />
+              <col style="width: 10%;" />
+              <col style="width: 25%;" />
+              <col style="width: 25%;" />
+              <col style="width: 25%;" />
+            </colgroup>
             <thead>
               <!-- 구분 및 LH, RH -->
               <tr style="background: #e2e8f0; font-weight: 700; color: #000;">
@@ -331,7 +338,15 @@ export function renderSection5(ctx) {
 
       const makeDtCrewEndVulcTable = (pfx, data, tableNum) => `
         <div style="overflow-x: auto; ${tableNum > 1 ? 'margin-top: 16px;' : ''}">
-          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; table-layout: fixed;">
+            <colgroup>
+              <col style="width: 14%;" />
+              <col style="width: 10%;" />
+              <col style="width: 19%;" />
+              <col style="width: 19%;" />
+              <col style="width: 19%;" />
+              <col style="width: 19%;" />
+            </colgroup>
             <thead>
               <!-- 부위(엔드) -->
               <tr style="background: #f1f5f9; font-weight: 700; color: #000;">
@@ -437,7 +452,15 @@ export function renderSection5(ctx) {
 
       const makeKmKxJointVulcTable = (pfx, data) => `
         <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; table-layout: fixed;">
+            <colgroup>
+              <col style="width: 14%;" />
+              <col style="width: 10%;" />
+              <col style="width: 19%;" />
+              <col style="width: 19%;" />
+              <col style="width: 19%;" />
+              <col style="width: 19%;" />
+            </colgroup>
             <thead>
               <tr style="background: #fffde7; font-weight: 700; color: #000;">
                 <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
