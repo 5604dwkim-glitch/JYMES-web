@@ -2554,7 +2554,7 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
       </div>
 
       <div style="padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 6px; overflow-x: auto;">
-        ${['08:00', '12:00', '13:00', '17:00', '18:00', '20:00'].map(t => `
+        ${['04:30', '06:30', '08:30', '15:10', '17:10', '19:10'].map(t => `
           <button type="button" class="wtp-preset-btn" data-time="${t}" style="padding: 4px 10px; font-size: 12px; font-weight: 700; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 20px; color: #334155; cursor: pointer; white-space: nowrap;">
             ${t}
           </button>
