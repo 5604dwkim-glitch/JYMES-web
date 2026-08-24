@@ -239,7 +239,7 @@ export async function addReport(reportData) {
       attainmentRate,
       defectRate,
       materialLots: reportData.materialLots || {},
-      isLeaderForm: reportData.isLeaderForm || (reportData.workerName === '장수미'),
+      isLeaderForm: reportData.isLeaderForm || false,
       formCode: reportData.formCode || 'HSC-DT-005',
       leaderFormItems: reportData.leaderFormItems || [],
       attendanceData: reportData.attendanceData || {},

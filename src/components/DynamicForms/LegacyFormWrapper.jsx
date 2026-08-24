@@ -1970,6 +1970,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         downtimeEquip3: dt3Equip,
         downtimeReason3: dt3Reason,
         notes: curNotesInput?.value || '',
+        isLeaderForm: false,
         status: targetStatus,
         ...(isCurDtCrewClip && { dtCrewQty: {
           len_LH_초: container.querySelector('#dtc_len_LH_초')?.value||'',
