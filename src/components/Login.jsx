@@ -18,8 +18,9 @@ export default function Login() {
 
   useEffect(() => {
     const attemptAutoLogin = async () => {
-      const id = searchParams.get('id') || searchParams.get('worker') || searchParams.get('name') || searchParams.get('code');
-      const pw = searchParams.get('pw') || '0000'; // fallback for legacy QR codes without pw
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = searchParams.get('id') || urlParams.get('id') || searchParams.get('worker') || urlParams.get('worker') || searchParams.get('name') || urlParams.get('name') || searchParams.get('code') || urlParams.get('code');
+      const pw = searchParams.get('pw') || urlParams.get('pw') || '0000'; // fallback for legacy QR codes without pw
       
       if (id && (pw === '0000' || pw === '1111')) {
         setIsLoading(true);
@@ -29,9 +30,9 @@ export default function Login() {
           const matched = workers.find(w => (w.id && String(w.id).toUpperCase().trim() === idUpper) || (w.name && String(w.name).toUpperCase().trim() === idUpper));
           if (matched) {
             login('worker', matched.name);
-            navigate('/');
+            setTimeout(() => navigate('/', { replace: true }), 150);
           } else {
-            setError('QR 코드 로그인 실패: 등록되지 않은 사번/이름입니다.');
+            setError(`QR 자동로그인 실패: 파라미터=${id}, DB작업자수=${workers.length}, 일치결과=${matched ? 'O' : 'X'}`);
           }
         } catch (e) {
           setError('로그인 처리 중 오류가 발생했습니다.');
