@@ -85,36 +85,36 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
           <button className="btn btn-secondary" onClick={onClose}>✖ 닫기</button>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #0f172a', fontSize: '15px', textAlign: 'center' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', border: '2px solid #111', fontSize: '15px', textAlign: 'center' }}>
           <tbody>
             <tr>
-              <td rowSpan="4" style={{ width: '300px', border: '1px solid #475569', verticalAlign: 'top', padding: '16px' }}>
+              <td colSpan="5" style={{ padding: '16px', fontWeight: '900', fontSize: '24px', letterSpacing: '2px', color: '#111', border: '2px solid #111' }}>
+                작업자 실명 이력카드
+              </td>
+            </tr>
+            <tr>
+              <td rowSpan="3" style={{ width: '220px', border: '1px solid #111', verticalAlign: 'middle', padding: '10px' }}>
                 <div 
-                  style={{ width: '100%', height: '360px', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', position: 'relative', border: '1px dashed #cbd5e1', borderRadius: '4px', overflow: 'hidden' }}
+                  style={{ width: '160px', height: '213px', margin: '0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
                   onClick={() => fileInputRef.current.click()}
                 >
                   {formData.photoData ? (
-                    <img src={formData.photoData} alt="Profile" style={{ width: '300px', height: '400px', objectFit: 'cover' }} />
+                    <img src={formData.photoData} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <div style={{ color: 'var(--text-muted)' }}>
+                    <div style={{ color: '#666' }}>
                       <div style={{ fontWeight: 800 }}>📷 사진 등록</div>
-                      <div style={{ fontSize: '11px', marginTop: '4px' }}>(300*400 픽셀 자동조절)</div>
+                      <div style={{ fontSize: '11px', marginTop: '4px' }}>(300*400)</div>
                     </div>
                   )}
                   <input type="file" accept="image/*" style={{ display: 'none' }} ref={fileInputRef} onChange={handlePhotoUpload} />
                 </div>
               </td>
-              <td colSpan="4" style={{ border: '1px solid #475569', padding: '16px', fontWeight: '900', fontSize: '20px', backgroundColor: '#f1f5f9', letterSpacing: '2px', color: '#0f172a' }}>
-                작업자 실명 이력카드
-              </td>
-            </tr>
-            <tr>
-              <td style={{ border: '1px solid #475569', padding: '12px', fontWeight: '800', width: '100px', backgroundColor: '#f8fafc', color: '#334155' }}>작업자</td>
-              <td style={{ border: '1px solid #475569', padding: '12px', width: '140px' }}>
+              <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', width: '100px', color: '#111' }}>작업자</td>
+              <td style={{ border: '1px solid #111', padding: '12px', width: '140px' }}>
                 <input type="text" name="name" className="form-control" placeholder="이름 입력" value={formData.name} onChange={handleChange} style={{ width: '100%', textAlign: 'center', fontWeight: 'bold', fontSize: '16px' }} />
               </td>
-              <td style={{ border: '1px solid #475569', padding: '12px', fontWeight: '800', width: '100px', backgroundColor: '#f8fafc', color: '#334155' }}>상태</td>
-              <td style={{ border: '1px solid #475569', padding: '12px', width: '140px' }}>
+              <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', width: '100px', color: '#111' }}>상태</td>
+              <td style={{ border: '1px solid #111', padding: '12px', width: '140px' }}>
                 <select name="status" className="form-control" value={formData.status} onChange={handleChange} style={{ width: '100%', fontWeight: 'bold' }}>
                   <option value="근무중">근무중</option>
                   <option value="휴가">휴가</option>
@@ -123,16 +123,16 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
               </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #475569', padding: '12px', fontWeight: '800', backgroundColor: '#f8fafc', color: '#334155' }}>소속부서</td>
-              <td style={{ border: '1px solid #475569', padding: '12px', width: '140px' }}>
+              <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', color: '#111' }}>소속부서</td>
+              <td style={{ border: '1px solid #111', padding: '12px', width: '140px' }}>
                 <select name="dept" className="form-control" value={formData.dept} onChange={handleChange} style={{ width: '100%' }}>
                   <option value="생산팀">생산팀</option>
                   <option value="관리팀">관리팀</option>
                   <option value="품질팀">품질팀</option>
                 </select>
               </td>
-              <td style={{ border: '1px solid #475569', padding: '12px', fontWeight: '800', width: '100px', backgroundColor: '#f8fafc', color: '#334155' }}>공정</td>
-              <td style={{ border: '1px solid #475569', padding: '12px', width: '140px' }}>
+              <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', width: '100px', color: '#111' }}>공정</td>
+              <td style={{ border: '1px solid #111', padding: '12px', width: '140px' }}>
                 <select name="process" className="form-control" value={formData.process} onChange={handleChange} style={{ width: '100%' }}>
                   <option value="소재준비">소재준비</option>
                   <option value="조인트">조인트</option>
@@ -144,12 +144,12 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
               </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #475569', padding: '12px', fontWeight: '800', backgroundColor: '#f8fafc', color: '#334155' }}>입사일자</td>
-              <td style={{ border: '1px solid #475569', padding: '12px' }}>
+              <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', color: '#111' }}>입사일자</td>
+              <td style={{ border: '1px solid #111', padding: '12px' }}>
                 <input type="date" name="hireDate" className="form-control" value={formData.hireDate} onChange={handleChange} style={{ width: '100%', textAlign: 'center' }} />
               </td>
-              <td style={{ border: '1px solid #475569', padding: '12px', fontWeight: '800', backgroundColor: '#f8fafc', color: '#334155' }}>직급</td>
-              <td style={{ border: '1px solid #475569', padding: '12px' }}>
+              <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', color: '#111' }}>직급</td>
+              <td style={{ border: '1px solid #111', padding: '12px' }}>
                 <select name="role" className="form-control" value={formData.role} onChange={handleChange} style={{ width: '100%' }}>
                   <option value="사원">사원</option>
                   <option value="반장">반장</option>
@@ -159,17 +159,18 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
               </td>
             </tr>
             <tr>
-              <td style={{ border: '1px solid #475569', padding: '16px', verticalAlign: 'middle', backgroundColor: '#f8fafc' }}>
-                <div style={{ fontSize: '14px', fontWeight: 800, marginBottom: '12px', color: '#1e293b', letterSpacing: '0.5px' }}>작업일보 작성 QR 코드</div>
-                {formData.name && formData.id ? (
-                  <QRCodeSVG value={loginUrl} size={100} level={"L"} style={{ display: 'block', margin: '0 auto' }} />
-                ) : (
-                  <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#64748b', fontWeight: 'bold' }}>이름/사번 입력 시 자동생성</div>
-                )}
+              <td style={{ border: '1px solid #111', padding: '16px', verticalAlign: 'middle', height: '180px' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  {formData.name && formData.id ? (
+                    <QRCodeSVG value={loginUrl} size={120} level={"L"} style={{ display: 'block' }} />
+                  ) : (
+                    <div style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>이름/사번 기입시<br/>QR 생성됨</div>
+                  )}
+                </div>
               </td>
-              <td style={{ border: '1px solid #475569', padding: '12px', fontWeight: 800, backgroundColor: '#f8fafc', color: '#334155' }}>사번</td>
-              <td colSpan="3" style={{ border: '1px solid #475569', padding: '12px' }}>
-                <input type="text" name="id" className="form-control" placeholder="문자 입력 (예: EMP001)" value={formData.id} onChange={handleChange} style={{ width: '100%', textAlign: 'center', textTransform: 'uppercase', fontWeight: 900, fontSize: '18px', color: '#0f172a', letterSpacing: '1px' }} />
+              <td style={{ border: '1px solid #111', padding: '12px', fontWeight: 800, color: '#111' }}>사번</td>
+              <td colSpan="3" style={{ border: '1px solid #111', padding: '12px' }}>
+                <input type="text" name="id" className="form-control" placeholder="문자 입력 (예: EMP001)" value={formData.id} onChange={handleChange} style={{ width: '100%', textAlign: 'center', textTransform: 'uppercase', fontWeight: 900, fontSize: '18px', color: '#111', letterSpacing: '1px' }} />
               </td>
             </tr>
           </tbody>
