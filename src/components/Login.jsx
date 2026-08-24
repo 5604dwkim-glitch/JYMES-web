@@ -85,6 +85,19 @@ export default function Login() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="login-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f8fafc' }}>
+        <div style={{ width: '40px', height: '40px', border: '4px solid #cbd5e1', borderTop: '4px solid #2563eb', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <p style={{ marginTop: '20px', fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>QR 자동 로그인 처리 중...</p>
+        <p style={{ marginTop: '8px', fontSize: '14px', color: '#64748b' }}>네트워크 상태에 따라 1~3초 정도 소요될 수 있습니다.</p>
+        <style>
+          {`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}
+        </style>
+      </div>
+    );
+  }
+
   return (
     <div className="modal-backdrop active" style={{ display: 'flex' }}>
       <div className="modal-content" style={{ maxWidth: '440px', position: 'relative' }}>
