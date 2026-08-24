@@ -53,15 +53,15 @@ export function renderSection5(ctx) {
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || '1870'}"  readonly />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || '326'}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || '1870'}"  readonly />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || '326'}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || '1870'}"  readonly />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || '326'}"  readonly />
                       </div>
                     </div>
                   </td>
@@ -71,9 +71,9 @@ export function renderSection5(ctx) {
           </div>
         </div>
       `;
-      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_초'), '정치절단길이 LH 초', 326, 20);
-      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_중'), '정치절단길이 LH 중', 326, 20);
-      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_종'), '정치절단길이 LH 종', 326, 20);
+      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_초'), '정치절단길이 PTG 초', 326, 20);
+      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_중'), '정치절단길이 PTG 중', 326, 20);
+      bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_종'), '정치절단길이 PTG 종', 326, 20);
       return;
     } else if (formCode === 4004) {
       section5.innerHTML = `
