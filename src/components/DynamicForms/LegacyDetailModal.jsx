@@ -236,7 +236,7 @@ export default function LegacyDetailModal({ report, onClose }) {
     try {
       const r = report;
 
-      if (r.isLeaderForm || r.workerName === '장수미') {
+      if (r.isLeaderForm) {
         const leaderItems = r.leaderFormItems && r.leaderFormItems.length > 0 ? r.leaderFormItems : DEFAULT_LEADER_ITEMS;
         const att = r.attendanceData || DEFAULT_ATTENDANCE;
         let attTotal = 50;
