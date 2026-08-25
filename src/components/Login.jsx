@@ -27,15 +27,20 @@ export default function Login() {
       const id = searchParams.get('id') || urlParams.get('id') || searchParams.get('worker') || urlParams.get('worker') || searchParams.get('name') || urlParams.get('name') || searchParams.get('code') || urlParams.get('code');
       const pw = searchParams.get('pw') || urlParams.get('pw') || '0000'; // fallback for legacy QR codes without pw
       
-      if (id && (pw === '0000' || pw === '1111')) {
+      if (id) {
         setIsLoading(true);
         try {
           const workers = await fetchWorkers();
           const idUpper = id.toUpperCase().trim();
           const matched = workers.find(w => (w.id && String(w.id).toUpperCase().trim() === idUpper) || (w.name && String(w.name).toUpperCase().trim() === idUpper));
           if (matched) {
-            login('worker', matched.name);
-            setTimeout(() => navigate('/', { replace: true }), 150);
+            const expectedPin = matched.pin || '0000';
+            if (pw === expectedPin || pw === '1111') {
+              login('worker', matched.name);
+              setTimeout(() => navigate('/', { replace: true }), 150);
+            } else {
+              setError('QR 자동로그인 실패: 비밀번호 불일치');
+            }
           } else {
             setError(`QR 자동로그인 실패: 파라미터=${id}, DB작업자수=${workers.length}, 일치결과=${matched ? 'O' : 'X'}`);
           }
@@ -53,11 +58,6 @@ export default function Login() {
     e.preventDefault();
     setError('');
 
-    if (password !== '1111' && password !== '0000') {
-      setError(t('toast_auth_failed') || '비밀번호가 올바르지 않습니다. (기본: 1111)');
-      return;
-    }
-
     if (role === 'worker') {
       const name = workerName.trim();
       if (!name) {
@@ -72,7 +72,14 @@ export default function Login() {
         const matched = workers.find(w => (w.name && String(w.name).toUpperCase().trim() === nameUpper) || (w.id && String(w.id).toUpperCase().trim() === nameUpper));
         
         if (!matched) {
-          setError(`등록되지 않은 작업자/사번입니다.`);
+          setError('등록되지 않은 작업자/사번입니다.');
+          setIsLoading(false);
+          return;
+        }
+
+        const expectedPin = matched.pin || '0000';
+        if (password !== expectedPin && password !== '1111') {
+          setError('비밀번호가 올바르지 않습니다.');
           setIsLoading(false);
           return;
         }
@@ -85,6 +92,10 @@ export default function Login() {
         return;
       }
     } else {
+      if (password !== '1111') {
+        setError('관리자 비밀번호가 올바르지 않습니다.');
+        return;
+      }
       login('admin', '관리자');
       navigate('/');
     }

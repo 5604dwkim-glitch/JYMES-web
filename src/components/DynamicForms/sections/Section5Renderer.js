@@ -12,7 +12,7 @@ export function renderSection5(ctx) {
 
     const curProc = processValue ? processValue.value : '';
     const formCode = getCurrentFormCode();
-    const d = existingData?.dimensionCheck || {};
+    const d = existingData?.dimData || {};
 
     if (!curProc || curProc === '클립머신') {
       section5.innerHTML = '';
@@ -210,6 +210,56 @@ export function renderSection5(ctx) {
     }
 
     if (curProc === '조인트' || curProc === '조인트(D)') {
+
+      if (formCode === 1022 || formCode === 1042) {
+        const jointLotVal = existingData?.jointRubberLotNo || '';
+        const v = existingData?.vulcData || {};
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              🔢 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+            </label>
+            <input type="text" id="jointRubberLotNo" class="form-control" style="width: 100%; border: 1px solid var(--border-color); text-align: center; font-size: 12px; padding: 10px; border-radius: 6px; box-sizing: border-box;" placeholder="조인트 고무 LOT 입력" value="${jointLotVal}" />
+          </div>
+
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              🌡️ <span class="sec-num"></span> 사출온도 입력
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #cfd8dc; font-weight: 700; color: #000;">
+                    <th style="border: 1px solid #000; padding: 8px;">구분</th>
+                    <th style="border: 1px solid #000; padding: 8px;">노즐<br>(Nozzle)</th>
+                    <th style="border: 1px solid #000; padding: 8px;">실린더 1<br>(H1)</th>
+                    <th style="border: 1px solid #000; padding: 8px;">실린더 2<br>(H2)</th>
+                    <th style="border: 1px solid #000; padding: 8px;">실린더 3<br>(H1)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; border-bottom: 1px dotted #000;">설정값(set)</td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_nozzle" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.set_nozzle || ''}" /></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_h1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.set_h1 || ''}" /></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_h2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.set_h2 || ''}" /></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_h3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.set_h3 || ''}" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; border-top: 1px dotted #000;">실측치(act)</td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_nozzle" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.act_nozzle || ''}" /></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_h1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.act_h1 || ''}" /></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_h2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.act_h2 || ''}" /></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_h3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value="${v.act_h3 || ''}" /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
       // 조인트 공정: 조인트 고무 LOT 번호 입력 + 7. 설비 가류온도 & 가류시간 입력
       const jointLotVal = existingData?.jointRubberLotNo || '';
       const v = existingData?.vulcData || {};
@@ -1495,6 +1545,61 @@ export function renderSection5(ctx) {
           });
         });
       }
+    } else if (formCode === 1021) {
+      const d = existingData?.dimData || {};
+      section5.innerHTML = `
+        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+            📐 <span class="sec-num"></span> 치수확인
+          </label>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <thead>
+                <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                  <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 60%;">PTG</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    정치절단길이<br>(Spec Cutt,g )
+                  </td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px; background: #ffffff;">326 ± 2mm</td>
+                </tr>
+                <tr>
+                  <td rowspan="3" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    실측(Act) (초/중/종)
+                  </td>
+                  <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                      <span style="font-weight: 700; width: 24px; text-align: center;">(초)</span>
+                      <input type="text" id="dim_ptg_act_초" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_초'] || ''}" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                      <span style="font-weight: 700; width: 24px; text-align: center;">(중)</span>
+                      <input type="text" id="dim_ptg_act_중" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_중'] || ''}" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                      <span style="font-weight: 700; width: 24px; text-align: center;">(종)</span>
+                      <input type="text" id="dim_ptg_act_종" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_종'] || ''}" />
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
     } else if (curProc === '소재준비' || curProc.startsWith('소재준비')) {
       // 소재준비 공정: 치수확인 입력 양식 (사진 표준 동일 양식 적용)
       const d = existingData?.dimData || {};

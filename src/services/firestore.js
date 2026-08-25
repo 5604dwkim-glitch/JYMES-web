@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit, runTransaction } from 'firebase/firestore';
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 
@@ -188,76 +188,93 @@ export async function addReport(reportData) {
   try {
     const todayStr = new Date().toISOString().split('T')[0];
     const prefix = `RPT-${todayStr.replace(/-/g, '')}-`;
+    const counterRef = doc(db, 'counters', prefix);
 
-    // Optimize ID generation: fetch only the latest 1 record for today
-    const q = query(
-      collection(db, REPORTS_COLLECTION),
-      where('id', '>=', prefix),
-      where('id', '<=', prefix + '\uf8ff'),
-      orderBy('id', 'desc'),
-      limit(1)
-    );
-    const snapshot = await getDocs(q);
-    let currentCount = 0;
-    if (!snapshot.empty) {
-      const lastId = snapshot.docs[0].id;
-      const lastSeq = parseInt(lastId.slice(-3), 10);
-      currentCount = lastSeq - 100;
+    // Migration check: If counter doesn't exist, check existing reports to initialize properly
+    let startCount = 100; // Legacy started from 101
+    const counterSnap = await getDoc(counterRef);
+    if (!counterSnap.exists()) {
+      const q = query(
+        collection(db, REPORTS_COLLECTION),
+        where('id', '>=', prefix),
+        where('id', '<=', prefix + '\uf8ff'),
+        orderBy('id', 'desc'),
+        limit(1)
+      );
+      const snapshot = await getDocs(q);
+      if (!snapshot.empty) {
+        const lastId = snapshot.docs[0].id;
+        startCount = parseInt(lastId.slice(-3), 10);
+      }
     }
 
-    const seq = String(currentCount + 101).slice(-3);
-    const newId = `${prefix}${seq}`;
+    const newReport = await runTransaction(db, async (transaction) => {
+      const counterDoc = await transaction.get(counterRef);
+      let seq = startCount + 1;
+      if (counterDoc.exists()) {
+        seq = counterDoc.data().count + 1;
+      }
+      
+      const seqStr = String(seq).padStart(3, '0');
+      const newId = `${prefix}${seqStr}`;
+      
+      // Update the counter
+      transaction.set(counterRef, { count: seq }, { merge: true });
 
-    const targetQty = Number(reportData.targetQty) || 0;
-    const actualQty = Number(reportData.actualQty) || 0;
-    const defectQty = Number(reportData.defectQty) || 0;
+      const targetQty = Number(reportData.targetQty) || 0;
+      const actualQty = Number(reportData.actualQty) || 0;
+      const defectQty = Number(reportData.defectQty) || 0;
 
-    const attainmentRate = targetQty > 0 ? Number(((actualQty / targetQty) * 100).toFixed(1)) : 0;
-    const defectRate = actualQty > 0 ? Number(((defectQty / actualQty) * 100).toFixed(2)) : 0;
+      const attainmentRate = targetQty > 0 ? Number(((actualQty / targetQty) * 100).toFixed(1)) : 0;
+      const defectRate = actualQty > 0 ? Number(((defectQty / actualQty) * 100).toFixed(2)) : 0;
 
-    const carModel = reportData.carModel || 'JG1';
-    const carObj = CAR_MODELS.find(c => c.code === carModel);
+      const carModel = reportData.carModel || 'JG1';
+      const carObj = CAR_MODELS.find(c => c.code === carModel);
 
-    const newReport = {
-      ...reportData,
-      id: newId,
-      date: reportData.date || todayStr,
-      workHours: reportData.workHours || '08:00 ~ 17:00',
-      shift: reportData.shift || '주간',
-      carModel: carModel,
-      carModelName: carObj ? carObj.name : carModel,
-      processId: reportData.processId || '',
-      processName: reportData.processName || '검사포장',
-      line: reportData.line || '1라인',
-      workerId: reportData.workerId || 'EMP001',
-      workerName: reportData.workerName || '장수미',
-      itemCode: reportData.itemCode || '인벨트',
-      itemName: reportData.itemName || '인벨트',
-      targetQty,
-      actualQty,
-      defectQty,
-      attainmentRate,
-      defectRate,
-      materialLots: reportData.materialLots || {},
-      isLeaderForm: reportData.isLeaderForm || false,
-      formCode: reportData.formCode || 'HSC-DT-005',
-      leaderFormItems: reportData.leaderFormItems || [],
-      attendanceData: reportData.attendanceData || {},
-      downtimeMinutes: Number(reportData.downtimeMinutes) || 0,
-      downtimeReason: reportData.downtimeReason || '',
-      notes: reportData.notes || '',
-      status: reportData.status || '승인 대기',
-      approver: reportData.approver || '',
-      approvedAt: reportData.approvedAt || '',
-      createdAt: new Date().toLocaleString('ko-KR')
-    };
+      const reportObj = {
+        ...reportData,
+        id: newId,
+        date: reportData.date || todayStr,
+        workHours: reportData.workHours || '08:00 ~ 17:00',
+        shift: reportData.shift || '주간',
+        carModel: carModel,
+        carModelName: carObj ? carObj.name : carModel,
+        processId: reportData.processId || '',
+        processName: reportData.processName || '검사포장',
+        line: reportData.line || '1라인',
+        workerId: reportData.workerId || 'EMP001',
+        workerName: reportData.workerName || '장수미',
+        itemCode: reportData.itemCode || '인벨트',
+        itemName: reportData.itemName || '인벨트',
+        targetQty,
+        actualQty,
+        defectQty,
+        attainmentRate,
+        defectRate,
+        materialLots: reportData.materialLots || {},
+        isLeaderForm: reportData.isLeaderForm || false,
+        formCode: reportData.formCode || 'HSC-DT-005',
+        leaderFormItems: reportData.leaderFormItems || [],
+        attendanceData: reportData.attendanceData || {},
+        downtimeMinutes: Number(reportData.downtimeMinutes) || 0,
+        downtimeReason: reportData.downtimeReason || '',
+        notes: reportData.notes || '',
+        status: reportData.status || '승인 대기',
+        approver: reportData.approver || '',
+        approvedAt: reportData.approvedAt || '',
+        createdAt: new Date().toLocaleString('ko-KR')
+      };
 
-    Object.keys(newReport).forEach(key => {
-      if (newReport[key] === undefined) delete newReport[key];
+      Object.keys(reportObj).forEach(key => {
+        if (reportObj[key] === undefined) delete reportObj[key];
+      });
+
+      const docRef = doc(collection(db, REPORTS_COLLECTION), newId);
+      transaction.set(docRef, reportObj);
+
+      return reportObj;
     });
 
-    const docRef = doc(collection(db, REPORTS_COLLECTION), newId);
-    await setDoc(docRef, newReport);
     invalidateReportsCache();
     return newReport;
   } catch (error) {

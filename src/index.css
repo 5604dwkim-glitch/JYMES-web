@@ -989,3 +989,172 @@ input, select, textarea, button {
     border-bottom: 1px solid #e2e8f0 !important;
   }
 }
+
+
+
+/* --- Auto-generated Mobile Preview Mode --- */
+
+body.mobile-preview-mode{
+    font-size: 110% !important; /* 모바일 기준 폰트 10% 확대 */
+  }
+
+body.mobile-preview-mode{
+    font-size: 15.4px !important; /* 기본 14px의 110% */
+  }
+
+body.mobile-preview-mode,body.mobile-preview-mode,body.mobile-preview-mode #app,body.mobile-preview-mode .main-wrapper,body.mobile-preview-mode .content-body{
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+  }
+
+body.mobile-preview-mode #app{
+    flex-direction: column;
+  }
+
+body.mobile-preview-mode .sidebar{
+    width: 100%;
+    max-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #1e293b;
+    box-sizing: border-box;
+  }
+
+body.mobile-preview-mode .sidebar-header{
+    padding: 12px;
+    box-sizing: border-box;
+  }
+
+body.mobile-preview-mode .top-header{
+    padding: 10px 12px;
+    height: auto;
+    min-height: 50px;
+    flex-wrap: wrap;
+  }
+
+body.mobile-preview-mode .content-body{
+    padding: 10px;
+  }
+
+body.mobile-preview-mode .card{
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+body.mobile-preview-mode .filter-group .form-group{
+    flex: 1 1 calc(50% - 6px);
+    min-width: 120px;
+  }
+
+  /* [요청 반영] 모바일 화면에서도 메뉴 항목을 세로(column) 정렬하고 아이콘 옆 설명 텍스트 선명히 노출 (폰트 10% 확대) */
+body.mobile-preview-mode .sidebar-nav{
+    flex-direction: column !important;
+    overflow-x: visible;
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+body.mobile-preview-mode .nav-item{
+    width: 100%;
+    padding: 11px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+    border-radius: 8px;
+  }
+
+body.mobile-preview-mode .nav-item[style*="display: none"]{
+    display: none !important;
+  }
+
+body.mobile-preview-mode .nav-item span:last-child{
+    display: inline-block !important; /* 설명 텍스트 강제 노출 */
+    font-size: 14.5px !important; /* 13px * 1.1 = 14.3px -> 14.5px */
+    font-weight: 700;
+  }
+
+body.mobile-preview-mode .kpi-grid{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+body.mobile-preview-mode .grid-2{
+    grid-template-columns: 1fr;
+  }
+
+body.mobile-preview-mode .car-chart-grid-12{
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+body.mobile-preview-mode .role-selection-grid{
+    grid-template-columns: 1fr;
+  }
+
+body.mobile-preview-mode #leaderPaperForm{
+    padding: 12px !important;
+  }
+
+body.mobile-preview-mode #leaderPaperForm h2{
+    font-size: 22px !important; /* 20px * 1.1 = 22px */
+  }
+
+body.mobile-preview-mode .touch-chip{
+    padding: 7px 11px;
+    font-size: 13.5px !important; /* 12px * 1.1 = 13.2px -> 13.5px */
+  }
+
+body.mobile-preview-mode .form-control,body.mobile-preview-mode input,body.mobile-preview-mode select,body.mobile-preview-mode textarea,body.mobile-preview-mode button{
+    font-size: 13.5px !important;
+  }
+
+body.mobile-preview-mode .data-table,body.mobile-preview-mode .data-table th,body.mobile-preview-mode .data-table td{
+    font-size: 13px !important;
+  }
+
+body.mobile-preview-mode .modal-content{
+    width: 94%;
+    max-width: 94vw;
+    padding: 14px;
+    margin: 0 auto;
+  }
+
+body.mobile-preview-mode .toast-container{
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    max-width: calc(100% - 20px);
+  }
+
+body.mobile-preview-mode {
+  background-color: #333 !important;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px 0;
+  min-height: 100vh;
+}
+body.mobile-preview-mode #app {
+  width: 414px !important; /* iPhone Pro Max width */
+  min-height: 800px;
+  height: auto !important;
+  margin: 0 auto;
+  box-shadow: 0 0 40px rgba(0,0,0,0.8);
+  background: var(--bg-main);
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  border-radius: 12px;
+}
+body.mobile-preview-mode .main-wrapper {
+  overflow-y: visible !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+body.mobile-preview-mode .content-body {
+  width: 100% !important;
+  max-width: 100% !important;
+}

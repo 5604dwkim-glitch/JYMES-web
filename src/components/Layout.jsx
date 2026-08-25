@@ -7,7 +7,18 @@ export default function Layout() {
   const { userRole, logout } = useAuth();
   const { t, lang, setLang } = useI18n();
   const [time, setTime] = useState(new Date());
+  const [isMobilePreview, setIsMobilePreview] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    if (isMobilePreview) {
+      document.body.classList.add('mobile-preview-mode');
+    } else {
+      document.body.classList.remove('mobile-preview-mode');
+    }
+    // Cleanup on unmount
+    return () => document.body.classList.remove('mobile-preview-mode');
+  }, [isMobilePreview]);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -47,13 +58,25 @@ export default function Layout() {
               {time.toLocaleTimeString('ko-KR', { hour12: false })}
             </span>
           </div>
-          <button 
-            className="btn btn-secondary btn-sm" 
-            style={{ width: '100%', fontSize: '11px', padding: '4px 8px', marginTop: '2px' }}
-            onClick={logout}
-          >
-            {t('role_switch')}
-          </button>
+          <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
+            <button 
+              className="btn btn-secondary btn-sm" 
+              style={{ flex: 1, fontSize: '11px', padding: '4px 8px' }}
+              onClick={logout}
+            >
+              {t('role_switch')}
+            </button>
+            {userRole?.role === 'admin' && (
+              <button
+                className="btn btn-primary btn-sm"
+                style={{ flex: 1, fontSize: '11px', padding: '4px 8px', background: isMobilePreview ? 'var(--accent-emerald)' : 'var(--accent-blue)', color: 'white' }}
+                onClick={() => setIsMobilePreview(!isMobilePreview)}
+                title="PC 화면에서도 모바일 크기로 미리 봅니다"
+              >
+                {isMobilePreview ? '🖥️ PC 모드' : '📱 모바일 모드'}
+              </button>
+            )}
+          </div>
         </div>
 
         <nav className="sidebar-nav">

@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { addReport, updateReport, fetchWorkers } from '../../services/firestore';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { useI18n } from '../../contexts/I18nContext';
+import FormCodeBadge from './FormCodeBadge';
 
 export default function LegacyFormReactWrapper({ existingData }) {
   const containerRef = useRef(null);
@@ -13,6 +15,10 @@ export default function LegacyFormReactWrapper({ existingData }) {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
   const [isReady, setIsReady] = useState(false);
+  
+  // Step 1: Hybrid State to bridge Vanilla JS and React JSX
+  const [formSelections, setFormSelections] = useState({ carModel: '', part: '', process: '' });
+  const [badgeContainerElement, setBadgeContainerElement] = useState(null);
 
   useEffect(() => {
     async function initForm() {
@@ -53,6 +59,10 @@ export default function LegacyFormReactWrapper({ existingData }) {
           showToast: (msg, type) => {
             if (type === 'error') alert(msg);
             else console.log(`Toast (${type}):`, msg);
+          },
+          // Triggered by vanilla JS when dropdowns/chips change
+          onFormSelectionChange: (selections) => {
+            setFormSelections(prev => ({ ...prev, ...selections }));
           }
         });
 
@@ -70,13 +80,18 @@ export default function LegacyFormReactWrapper({ existingData }) {
       containerRef.current.innerHTML = '';
       try {
         renderReportForm(containerRef.current, existingData?.id || null);
+        
+        // Find the placeholder container for the badge portal
+        setTimeout(() => {
+          const badgeEl = containerRef.current.querySelector('#formCodeBadgeContainer');
+          if (badgeEl) setBadgeContainerElement(badgeEl);
+        }, 50);
       } catch (e) {
         console.error('Legacy Form Render Error:', e);
         setErrorMsg(e.toString() + '\\n' + e.stack);
       }
     }
     
-    // Cleanup fixed action bars on unmount so they don't leak to other pages (Dashboard/List)
     return () => {
       const sf = document.getElementById('standardFixedActionBar');
       if (sf) sf.style.display = 'none';
@@ -94,7 +109,18 @@ export default function LegacyFormReactWrapper({ existingData }) {
         </div>
       )}
       {!isReady && !errorMsg && <div style={{ padding: '40px', textAlign: 'center' }}>로딩 중...</div>}
+      
       <div ref={containerRef} className="legacy-form-container" style={{ display: isReady ? 'block' : 'none' }}></div>
+
+      {/* Step 2: Render React component into Vanilla JS DOM via Portal */}
+      {badgeContainerElement && createPortal(
+        <FormCodeBadge 
+          carModel={formSelections.carModel} 
+          part={formSelections.part} 
+          process={formSelections.process} 
+        />,
+        badgeContainerElement
+      )}
     </div>
   );
 }
