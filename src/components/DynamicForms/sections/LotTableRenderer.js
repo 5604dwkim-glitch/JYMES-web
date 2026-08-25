@@ -32,7 +32,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const section4Card = container.querySelector('#section4Card') || lotContainer.closest('.card');
 
     // [1] 소재 LOT 영역 표시 여부 판단 (공정 미선택 또는 LOT 입력이 불필요한 고유 양식)
-    const noLotFormCodes = [1011, 1012]; // RR C PART'G 조인트/후가공 등
+    const noLotFormCodes = [1011, 1012, 1013]; // RR C PART'G 조인트/후가공 등
     const isStellantisInsp = [2005, 2015, 2027, 2035, 2044].includes(formCode);
     
     if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 4014 && formCode !== 4004 && formCode !== 1004 && formCode !== 1034)) {

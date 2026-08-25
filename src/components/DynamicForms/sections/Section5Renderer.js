@@ -1545,62 +1545,65 @@ export function renderSection5(ctx) {
           });
         });
       }
-    } else if (formCode === 1021) {
-      const d = existingData?.dimData || {};
-      section5.innerHTML = `
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
-          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-            📐 <span class="sec-num"></span> 치수확인
-          </label>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-              <thead>
-                <tr style="background: #fffde7; font-weight: 700; color: #000;">
-                  <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 60%;">PTG</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    정치절단길이<br>(Spec Cutt,g )
-                  </td>
-                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px; background: #ffffff;">326 ± 2mm</td>
-                </tr>
-                <tr>
-                  <td rowspan="3" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    실측(Act) (초/중/종)
-                  </td>
-                  <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                      <span style="font-weight: 700; width: 24px; text-align: center;">(초)</span>
-                      <input type="text" id="dim_ptg_act_초" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_초'] || ''}" />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                      <span style="font-weight: 700; width: 24px; text-align: center;">(중)</span>
-                      <input type="text" id="dim_ptg_act_중" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_중'] || ''}" />
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                      <span style="font-weight: 700; width: 24px; text-align: center;">(종)</span>
-                      <input type="text" id="dim_ptg_act_종" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_종'] || ''}" />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
     } else if (curProc === '소재준비' || curProc.startsWith('소재준비')) {
+      if (formCode === 1021) {
+        const d = existingData?.dimData || {};
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                    <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 60%;">PTG</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                      정치절단길이<br>(Spec Cutt,g )
+                    </td>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
+                    <td style="border: 1px solid #000; font-weight: 700; padding: 4px; background: #ffffff;">326 ± 2mm</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="3" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                      실측(Act) (초/중/종)
+                    </td>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
+                      <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span style="font-weight: 700; width: 24px; text-align: center;">(초)</span>
+                        <input type="text" id="dim_ptg_act_초" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_초'] || ''}" />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
+                      <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span style="font-weight: 700; width: 24px; text-align: center;">(중)</span>
+                        <input type="text" id="dim_ptg_act_중" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_중'] || ''}" />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
+                      <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span style="font-weight: 700; width: 24px; text-align: center;">(종)</span>
+                        <input type="text" id="dim_ptg_act_종" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_종'] || ''}" />
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
       // 소재준비 공정: 치수확인 입력 양식 (사진 표준 동일 양식 적용)
       const d = existingData?.dimData || {};
       const curCarCode = carModelValue ? carModelValue.value : currentCarCode;
@@ -2438,127 +2441,7 @@ ${renderDtRow4('종')}
           </div>
         `;
 
-        if (formCode === 1001) {
-        section5.innerHTML = `
-          <div class="card" style="padding: 16px; margin-bottom: 16px;">
-            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-              📏 <span class="sec-num"></span> 치수확인 (전장 길이 측정 - ${curCarCode}${curPart ? ' ' + curPart : ''})
-            </label>
-
-            ${diagramHTML}
-
-            <div style="overflow-x: auto; margin-bottom: 24px;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-                <thead>
-                  <!-- FRT 헤더 -->
-                  <tr style="background: #fffde7; font-weight: 700; color: #000; border-bottom: 1px solid #000;">
-                    <th colspan="2" style="border: 1px solid #000; padding: 6px;">구분 (FRT)</th>
-                    <th colspan="3" style="border: 1px solid #000; padding: 6px; width: 38%;">FRT LH</th>
-                    <th colspan="3" style="border: 1px solid #000; padding: 6px; width: 38%;">FRT RH</th>
-                  </tr>
-                  <tr style="background: #fffde7; font-weight: 700; color: #000; border-bottom: 2px solid #000;">
-                    <td colspan="2" style="border: 1px solid #000; padding: 4px;">측정(mm)</td>
-                    <td style="border: 1px solid #000; padding: 4px; width: 12.6%;">초</td>
-                    <td style="border: 1px solid #000; padding: 4px; width: 12.6%;">중</td>
-                    <td style="border: 1px solid #000; padding: 4px; width: 12.6%;">종</td>
-                    <td style="border: 1px solid #000; padding: 4px; width: 12.6%;">초</td>
-                    <td style="border: 1px solid #000; padding: 4px; width: 12.6%;">중</td>
-                    <td style="border: 1px solid #000; padding: 4px; width: 12.6%;">종</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- 1. FRT ￠ to ￠ -->
-                  <tr>
-                    <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle; width: 14%;">
-                      전장 길이<br>측정 (FRT)<br>단위 : mm
-                    </td>
-                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; width: 10%;">
-                      ￠ to ￠
-                    </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_frt_lh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_frt_lh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_frt_lh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_frt_lh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_frt_lh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_frt_lh_종'] || ''}" /></td>
-
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_frt_rh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_frt_rh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_frt_rh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_frt_rh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_frt_rh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_frt_rh_종'] || ''}" /></td>
-                  </tr>
-
-                  <!-- 2. FRT LIP to LIP -->
-                  <tr>
-                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      LIP to LIP
-                    </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_frt_lh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_frt_lh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_frt_lh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_frt_lh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_frt_lh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_frt_lh_종'] || ''}" /></td>
-
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_frt_rh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_frt_rh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_frt_rh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_frt_rh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_frt_rh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_frt_rh_종'] || ''}" /></td>
-                  </tr>
-
-                  </tbody>
-              </table>
-            </div>
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-                <thead>
-
-                  <!-- RR 헤더 -->
-                  <tr style="background: #fffde7; font-weight: 700; color: #000; border-top: 2px solid #000; border-bottom: 1px solid #000;">
-                    <th colspan="2" style="border: 1px solid #000; padding: 6px;">구분 (RR)</th>
-                    <th colspan="3" style="border: 1px solid #000; padding: 6px;">RR LH</th>
-                    <th colspan="3" style="border: 1px solid #000; padding: 6px;">RR RH</th>
-                  </tr>
-                  <tr style="background: #fffde7; font-weight: 700; color: #000; border-bottom: 2px solid #000;">
-                    <td colspan="2" style="border: 1px solid #000; padding: 4px;">측정(mm)</td>
-                    <td style="border: 1px solid #000; padding: 4px;">초</td>
-                    <td style="border: 1px solid #000; padding: 4px;">중</td>
-                    <td style="border: 1px solid #000; padding: 4px;">종</td>
-                    <td style="border: 1px solid #000; padding: 4px;">초</td>
-                    <td style="border: 1px solid #000; padding: 4px;">중</td>
-                    <td style="border: 1px solid #000; padding: 4px;">종</td>
-                  </tr>
-
-                  </thead>
-                <tbody>
-                  <!-- 3. RR ￠ to ￠ -->
-                  <tr>
-                    <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle; width: 14%;">
-                      전장 길이<br>측정 (RR)<br>단위 : mm
-                    </td>
-                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; width: 10%;">
-                      ￠ to ￠
-                    </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_종'] || ''}" /></td>
-
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_종'] || ''}" /></td>
-                  </tr>
-
-                  <!-- 4. RR LIP to LIP -->
-                  <tr>
-                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      LIP to LIP
-                    </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_종'] || ''}" /></td>
-
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_종'] || ''}" /></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      } else if (formCode === 1004 || formCode === 1034) {
+        if (formCode === 1004 || formCode === 1034) {
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
