@@ -869,6 +869,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
       const materialLots = {
 
+        'GRUNE_초물': autoFormatDateTimeString(container.querySelector('#lotNo_GRUNE_초물')?.value || ''),
+        'GRUNE_중물': autoFormatDateTimeString(container.querySelector('#lotNo_GRUNE_중물')?.value || ''),
+        'GRUNE_종물': autoFormatDateTimeString(container.querySelector('#lotNo_GRUNE_종물')?.value || ''),
         '초물': autoFormatDateTimeString(container.querySelector('#lotNo_초물')?.value || ''),
         '중물': autoFormatDateTimeString(container.querySelector('#lotNo_중물')?.value || ''),
         '종물': autoFormatDateTimeString(container.querySelector('#lotNo_종물')?.value || ''),

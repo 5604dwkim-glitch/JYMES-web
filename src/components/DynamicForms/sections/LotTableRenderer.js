@@ -657,7 +657,11 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       // #1022, #1042 : JG1 / JG1S G/RUN 'E' 조인트 전용 양식
       // ────────────────────────────────────────────────────────
       case 1022:
-      case 1042: {
+      case 1023:
+      case 1024:
+      case 1042:
+      case 1043:
+      case 1044: {
         lotContainer.innerHTML = `
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; margin-bottom: 16px;">
             <thead>
