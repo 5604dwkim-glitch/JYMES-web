@@ -1585,6 +1585,11 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         });
       });
 
+      const injSetData = Array.from(container.querySelectorAll('[id^="inj_"]')).reduce((acc, el) => {
+        acc[el.id] = el.value;
+        return acc;
+      }, {});
+
       const reportData = {
         date: container.querySelector('#reportDate')?.value || new Date().toISOString().split('T')[0],
         workHours: workHours,
@@ -1605,6 +1610,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         dim2005Data: dim2005Data,
         vulcData: vulcData,
         vulcData2: vulcData2,
+        injSetData: injSetData,
         qtyTable: qtyTable,
         jointQtyTable: jointQtyTable,
         postQtyTable: postQtyTable,
