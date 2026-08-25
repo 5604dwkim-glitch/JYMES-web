@@ -814,7 +814,7 @@ export function renderQtySection(ctx) {
           if (formCode === 1012) {
             qtySection.innerHTML = Templates.getPostQty1012HTML(existingData, container);
           } else {
-            qtySection.innerHTML = Templates.getPostQtyHTML(existingData, container);
+            qtySection.innerHTML = Templates.getPostQtyHTML(existingData, container, formCode);
           }
           qtySection.addEventListener('input', calcPostQtySummary);
           calcPostQtySummary();

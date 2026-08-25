@@ -1975,13 +1975,17 @@ export function getJointQty1032HTML(ed, container) {
     `;
 }
 
-export function getPostQtyHTML(ed, container) {
+export function getPostQtyHTML(ed, container, formCode) {
     const q = ed && ed.postQtyTable ? ed.postQtyTable : {};
-    const cols = [
-      { id: 'fl', label: 'FRT LH' },
-      { id: 'fr', label: 'FRT RH' },
-      { id: 'rl', label: 'RR LH' },
-      { id: 'rr', label: 'RR RH' }
+    const is2Col = (formCode === 1023 || formCode === 1043 || formCode === 1012);
+    const cols = is2Col ? [
+      { id: 'fl', label: 'LH', width: '38%' },
+      { id: 'fr', label: 'RH', width: '38%' }
+    ] : [
+      { id: 'fl', label: 'FRT LH', width: '20%' },
+      { id: 'fr', label: 'FRT RH', width: '20%' },
+      { id: 'rl', label: 'RR LH', width: '20%' },
+      { id: 'rr', label: 'RR RH', width: '20%' }
     ];
 
     return `
@@ -1999,7 +2003,7 @@ export function getPostQtyHTML(ed, container) {
             <thead>
               <tr style="background: #fffde7; font-weight: 700; color: #000;">
                 <th colspan="2" style="border: 1px solid #000; padding: 6px;">구분</th>
-                ${cols.map(c => `<th style="border: 1px solid #000; padding: 6px; width: 20%;">${c.label}</th>`).join('')}
+                ${cols.map(c => `<th style="border: 1px solid #000; padding: 6px; width: ${c.width || "20%"};">${c.label}</th>`).join('')}
               </tr>
             </thead>
             <tbody>
