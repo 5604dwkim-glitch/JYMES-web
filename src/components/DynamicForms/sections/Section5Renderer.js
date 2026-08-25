@@ -771,7 +771,7 @@ export function renderSection5(ctx) {
         </div>
       `;
 
-      const formCode = getCurrentFormCode();
+      
       let vulcTableHTML = '';
       if (formCode === 4012) {
         vulcTableHTML = `
@@ -1745,7 +1745,7 @@ export function renderSection5(ctx) {
       const curCarCode = carModelValue ? carModelValue.value : currentCarCode;
       const curPart = partValueInput ? partValueInput.value : '';
 
-      const formCode = getCurrentFormCode();
+      
       const isDtCrew = (curCarCode === 'DT CREW' || curCarCode === 'DT QUAD' || curCarCode === 'DS CREW' || curCarCode === 'DS STD');
       const dtLenSpec = (formCode === 2023) ? '475 ± 5' : ((curCarCode === 'DT QUAD') ? '509 ± 5' : '779 ± 5');
       const dtStep2Spec = (formCode === 2023) ? '40 ± 1' : '28 ± 1';
@@ -2345,7 +2345,7 @@ ${renderDtRow4('종')}
       }
 
     } else if (curProc === '검사포장' || curProc === '검사/포장') {
-      const formCode = getCurrentFormCode();
+      
       if (formCode === 1013) {
         section5.innerHTML = '';
         return;

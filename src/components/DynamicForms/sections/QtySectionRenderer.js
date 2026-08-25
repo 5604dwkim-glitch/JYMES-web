@@ -594,7 +594,7 @@ export function renderQtySection(ctx) {
       const totDefElem = container.querySelector(`#insp_total_defect_${c}`);
       if (totDefElem) totDefElem.value = totalDefect || '';
 
-      const formCode = getCurrentFormCode();
+      
       if (formCode === 2035 || formCode === 2044) {
         // #2035, #2044: 검사수 = 정품수 + 불량합계
         const goodQty = Number(container.querySelector(`#insp_good_qty_${c}`)?.value) || 0;
