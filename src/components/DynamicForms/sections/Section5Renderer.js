@@ -53,15 +53,15 @@ export function renderSection5(ctx) {
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || '326'}"  readonly />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || '326'}"  readonly />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || '326'}"  readonly />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종']  || ''}"  readonly />
                       </div>
                     </div>
                   </td>
@@ -126,15 +126,15 @@ export function renderSection5(ctx) {
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                        <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초'] || '326'}"  readonly />
+                        <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                        <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중'] || '326'}"  readonly />
+                        <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                        <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종'] || '326'}"  readonly />
+                        <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종']  || ''}"  readonly />
                       </div>
                     </div>
                   </td>
@@ -912,41 +912,41 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하  || ''}" readonly />
     </div>
   </td>
               </tr>
@@ -957,41 +957,41 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하  || ''}" readonly />
     </div>
   </td>
               </tr>
@@ -1002,41 +1002,41 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하 || '200'}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하  || ''}" readonly />
     </div>
   </td>
               </tr>
@@ -1059,28 +1059,28 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh || '90'}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh  || ''}" readonly /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh || '90'}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh  || ''}" readonly /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r || '90'}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh || '90'}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh  || ''}" readonly /></td>
               </tr>
             </tbody>
           </table>
@@ -1115,21 +1115,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1138,21 +1138,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1161,21 +1161,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1238,31 +1238,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1271,31 +1271,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1304,31 +1304,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_상 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_하 || '200'}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -2380,15 +2380,15 @@ ${renderDtRow4('종')}
                       <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                          <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || '326'}" readonly />
+                          <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                          <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || '326'}" readonly />
+                          <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                          <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || '326'}" readonly />
+                          <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종']  || ''}" readonly />
                         </div>
                       </div>
                     </td>
@@ -2396,15 +2396,15 @@ ${renderDtRow4('종')}
                       <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                          <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초'] || '326'}" readonly />
+                          <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                          <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중'] || '326'}" readonly />
+                          <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                          <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종'] || '326'}" readonly />
+                          <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종']  || ''}" readonly />
                         </div>
                       </div>
                     </td>
