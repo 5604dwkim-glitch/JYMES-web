@@ -2138,13 +2138,18 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
         </div>
       </div>
 
-      <div style="padding: 14px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: flex-end;">
-        <button type="button" id="wnpCancelBtn" style="padding: 10px 18px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+      <div style="padding: 14px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" id="wnpDeleteBtn" style="padding: 10px 18px; border: 1px solid #ef4444; background: #fef2f2; color: #ef4444; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+          삭제
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="wnpCancelBtn" style="padding: 10px 18px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
           취소
         </button>
         <button type="button" id="wnpConfirmBtn" style="padding: 10px 24px; border: none; background: #0284c7; color: #ffffff; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
           확인
         </button>
+        </div>
       </div>
     </div>
   `;
@@ -2227,6 +2232,10 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
   const closeModal = () => modal.remove();
 
   modal.querySelector('#wnpCloseBtn').addEventListener('click', closeModal);
+  modal.querySelector('#wnpDeleteBtn').addEventListener('click', () => {
+    if (callback) callback('');
+    closeModal();
+  });
   modal.querySelector('#wnpCancelBtn').addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
@@ -2302,13 +2311,18 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
         </div>
       </div>
 
-      <div style="padding: 14px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; justify-content: flex-end;">
-        <button type="button" id="wtpCancelBtn" style="padding: 10px 18px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+      <div style="padding: 14px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" id="wtpDeleteBtn" style="padding: 10px 18px; border: 1px solid #ef4444; background: #fef2f2; color: #ef4444; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+          삭제
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="wtpCancelBtn" style="padding: 10px 18px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
           취소
         </button>
         <button type="button" id="wtpConfirmBtn" style="padding: 10px 24px; border: none; background: #0284c7; color: #ffffff; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
           확인
         </button>
+        </div>
       </div>
     </div>
   `;
@@ -2412,6 +2426,10 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
   const closeModal = () => modal.remove();
 
   modal.querySelector('#wtpCloseBtn').addEventListener('click', closeModal);
+  modal.querySelector('#wtpDeleteBtn').addEventListener('click', () => {
+    if (callback) callback('');
+    closeModal();
+  });
   modal.querySelector('#wtpCancelBtn').addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
