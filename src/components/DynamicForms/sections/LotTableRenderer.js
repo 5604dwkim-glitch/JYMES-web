@@ -35,7 +35,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const noLotFormCodes = [1011, 1012, 1013]; // RR C PART'G 조인트/후가공 등
     const isStellantisInsp = [2005, 2015, 2027, 2035, 2044].includes(formCode);
     
-    if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 4014 && formCode !== 4004 && formCode !== 1004 && formCode !== 1034)) {
+    if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 4014 && formCode !== 4004 && formCode !== 1004 && formCode !== 1034 && formCode !== 1024 && formCode !== 1044)) {
       if (section4Card) section4Card.style.display = 'none';
       return;
     } else {
