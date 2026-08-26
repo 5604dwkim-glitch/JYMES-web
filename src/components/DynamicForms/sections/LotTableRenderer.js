@@ -5,7 +5,7 @@ import { autoFormatDateTimeString } from './formUtils.js';
  * ctx: { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode }
  */
 export function renderSection4LotTable(materialLots = {}, ctx) {
-  const { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode } = ctx;
+  const { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode, bindLotDateWheelPicker } = ctx;
     const lotContainer = container.querySelector('#section4LotTableContainer');
     if (!lotContainer) return;
 
@@ -1002,7 +1002,14 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       }
     }
 
-    // blur / keydown 이벤트 리스너 바인딩
+    // 터치 스크롤 휠 피커 바인딩
+    if (bindLotDateWheelPicker) {
+      lotContainer.querySelectorAll('input[type="text"].lot-datetime-input, input[type="text"][id^="lotNo_"]').forEach(input => {
+        bindLotDateWheelPicker(input, '소재 LOT 번호 (일자/시간)');
+      });
+    }
+
+    // blur / keydown 이벤트 리스너 바인딩 (수동 입력 대비)
     lotContainer.querySelectorAll('.lot-datetime-input').forEach(input => {
       input.addEventListener('blur', () => {
         if (input.value) {

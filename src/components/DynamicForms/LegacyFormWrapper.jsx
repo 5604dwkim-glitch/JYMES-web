@@ -570,7 +570,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
   function _getCtx() {
     return { container, processValue, carModelValue, currentCarCode, partValueInput, existingData,
-             getCurrentFormCode, bindNumberWheelPicker, updateDowntimeSection, qtySection, isDtCrewClip, currentMakerName };
+             getCurrentFormCode, bindNumberWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, qtySection, isDtCrewClip, currentMakerName };
   }
   function renderSection5() {
     _Sections.renderSection5(_getCtx());
@@ -701,6 +701,14 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   // [4단계] 소재 LOT 번호 입력 테이블 동적 렌더링 함수
   function renderSection4LotTable(materialLots = {}) {
     _Sections.renderSection4LotTable(materialLots, _getCtx());
+
+    const lotContainer = container.querySelector('#section4LotTableContainer');
+    if (!lotContainer) return;
+
+    const lotInputs = lotContainer.querySelectorAll('input[type="text"].lot-datetime-input, input[type="text"][id^="lotNo_"]');
+    lotInputs.forEach(input => {
+      bindLotDateWheelPicker(input, '소재 LOT 번호 (일자/시간)');
+    });
   }
 
 
@@ -2440,6 +2448,325 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
     const formattedM = String(selectedMinute).padStart(2, '0');
     const timeStr = `${formattedH}:${formattedM}`;
     if (callback) callback(timeStr);
+    closeModal();
+  });
+}
+
+export function bindLotDateWheelPicker(inputElem, titleText = '소재 LOT 날짜 선택') {
+  if (!inputElem) return;
+  inputElem.readOnly = true;
+  inputElem.style.cursor = 'pointer';
+  inputElem.addEventListener('click', () => {
+    openLotDateWheelPicker(inputElem.value, titleText, (selectedVal) => {
+      inputElem.value = selectedVal;
+      inputElem.dispatchEvent(new Event('input', { bubbles: true }));
+      inputElem.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+}
+
+function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/시간 선택', callback) {
+  const now = new Date();
+  const curYY = now.getFullYear() % 100;
+  const curMM = now.getMonth() + 1;
+  const curDD = now.getDate();
+  const curHH = now.getHours();
+  const curMin = now.getMinutes();
+
+  let initYear = curYY;
+  let initMonth = curMM;
+  let initDay = curDD;
+  let initHour = curHH;
+  let initMin = Math.floor(curMin / 10) * 10;
+
+  const digits = (initialValue || '').replace(/\D/g, '');
+  if (digits.length >= 2) {
+    const y = parseInt(digits.substring(0, 2), 10);
+    if (!isNaN(y)) initYear = y;
+  }
+  if (digits.length >= 4) {
+    const m = parseInt(digits.substring(2, 4), 10);
+    if (!isNaN(m) && m >= 1 && m <= 12) initMonth = m;
+  }
+  if (digits.length >= 6) {
+    const d = parseInt(digits.substring(4, 6), 10);
+    if (!isNaN(d) && d >= 1 && d <= 31) initDay = d;
+  }
+  if (digits.length >= 8) {
+    const h = parseInt(digits.substring(6, 8), 10);
+    if (!isNaN(h) && h >= 0 && h <= 23) initHour = h;
+  }
+  if (digits.length >= 10) {
+    const min = parseInt(digits.substring(8, 10), 10);
+    if (!isNaN(min) && min >= 0 && min <= 59) initMin = min;
+  }
+
+  let modal = document.getElementById('wheelLotDatePickerModal');
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = 'wheelLotDatePickerModal';
+  modal.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 10000; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; padding: 12px;
+  `;
+
+  const yearsList = [24, 25, 26, 27, 28, 29, 30].map(y => String(y).padStart(2, '0'));
+  const monthsList = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+  const daysList = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+  const hoursList = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+  const minutesList = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+
+  let selectedYear = String(initYear).padStart(2, '0');
+  let selectedMonth = String(initMonth).padStart(2, '0');
+  let selectedDay = String(initDay).padStart(2, '0');
+  let selectedHour = String(initHour).padStart(2, '0');
+  let selectedMinute = String(initMin).padStart(2, '0');
+
+  modal.innerHTML = `
+    <div style="background: #ffffff; width: 100%; max-width: 440px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; font-family: 'Noto Sans KR', sans-serif;">
+      <div style="padding: 14px 18px; background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
+        <h4 style="margin: 0; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          🧪 ${title}
+        </h4>
+        <button type="button" id="wlpCloseBtn" style="background: none; border: none; color: #ffffff; font-size: 24px; cursor: pointer; line-height: 1;">&times;</button>
+      </div>
+
+      <div style="padding: 10px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; gap: 6px; overflow-x: auto; align-items: center;">
+        <button type="button" id="wlpPresetToday" style="padding: 5px 10px; font-size: 12px; font-weight: 700; border: 1px solid #0284c7; background: #e0f2fe; border-radius: 20px; color: #0369a1; cursor: pointer; white-space: nowrap;">
+          📅 오늘 (${String(curYY).padStart(2, '0')}.${String(curMM).padStart(2, '0')}.${String(curDD).padStart(2, '0')})
+        </button>
+        <button type="button" id="wlpPresetNow" style="padding: 5px 10px; font-size: 12px; font-weight: 700; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 20px; color: #334155; cursor: pointer; white-space: nowrap;">
+          🕒 지금 (${String(curHH).padStart(2, '0')}:${String(curMin).padStart(2, '0')})
+        </button>
+        ${['08:30', '13:30', '17:30'].map(t => `
+          <button type="button" class="wlp-preset-time" data-time="${t}" style="padding: 5px 8px; font-size: 11px; font-weight: 600; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 20px; color: #475569; cursor: pointer; white-space: nowrap;">
+            ${t}
+          </button>
+        `).join('')}
+      </div>
+
+      <div style="position: relative; height: 200px; background: #ffffff; display: flex; justify-content: center; align-items: center; overflow: hidden; user-select: none;">
+        <div style="position: absolute; top: 80px; left: 8px; right: 8px; height: 40px; background: rgba(2, 132, 199, 0.08); border-top: 2px solid #0284c7; border-bottom: 2px solid #0284c7; border-radius: 8px; pointer-events: none; z-index: 1;"></div>
+
+        <div id="wlpYearWheel" style="flex: 1.1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
+          <div style="height: 80px;"></div>
+          ${yearsList.map(y => `
+            <div class="wlp-item wlp-year-item" data-val="${y}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+              ${y}년
+            </div>
+          `).join('')}
+          <div style="height: 80px;"></div>
+        </div>
+
+        <div id="wlpMonthWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
+          <div style="height: 80px;"></div>
+          ${monthsList.map(m => `
+            <div class="wlp-item wlp-month-item" data-val="${m}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+              ${m}월
+            </div>
+          `).join('')}
+          <div style="height: 80px;"></div>
+        </div>
+
+        <div id="wlpDayWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
+          <div style="height: 80px;"></div>
+          ${daysList.map(d => `
+            <div class="wlp-item wlp-day-item" data-val="${d}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+              ${d}일
+            </div>
+          `).join('')}
+          <div style="height: 80px;"></div>
+        </div>
+
+        <div style="width: 1px; height: 160px; background: #e2e8f0; margin: 0 1px;"></div>
+
+        <div id="wlpHourWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
+          <div style="height: 80px;"></div>
+          ${hoursList.map(h => `
+            <div class="wlp-item wlp-hour-item" data-val="${h}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+              ${h}시
+            </div>
+          `).join('')}
+          <div style="height: 80px;"></div>
+        </div>
+
+        <div id="wlpMinWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
+          <div style="height: 80px;"></div>
+          ${minutesList.map(m => `
+            <div class="wlp-item wlp-min-item" data-val="${m}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+              ${m}분
+            </div>
+          `).join('')}
+          <div style="height: 80px;"></div>
+        </div>
+      </div>
+
+      <div style="padding: 14px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" id="wlpDeleteBtn" style="padding: 10px 18px; border: 1px solid #ef4444; background: #fef2f2; color: #ef4444; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+          삭제
+        </button>
+        <div style="display: flex; gap: 10px;">
+          <button type="button" id="wlpCancelBtn" style="padding: 10px 18px; border: 1px solid #cbd5e1; background: #ffffff; color: #475569; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+            취소
+          </button>
+          <button type="button" id="wlpConfirmBtn" style="padding: 10px 24px; border: none; background: #0284c7; color: #ffffff; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);">
+            확인
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const ITEM_HEIGHT = 40;
+  const yearWheel = modal.querySelector('#wlpYearWheel');
+  const monthWheel = modal.querySelector('#wlpMonthWheel');
+  const dayWheel = modal.querySelector('#wlpDayWheel');
+  const hourWheel = modal.querySelector('#wlpHourWheel');
+  const minWheel = modal.querySelector('#wlpMinWheel');
+
+  const scrollToYear = (valStr, smooth = true) => {
+    const idx = yearsList.indexOf(String(valStr).padStart(2, '0'));
+    if (idx !== -1) yearWheel.scrollTo({ top: idx * ITEM_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
+  };
+  const scrollToMonth = (valStr, smooth = true) => {
+    const idx = monthsList.indexOf(String(valStr).padStart(2, '0'));
+    if (idx !== -1) monthWheel.scrollTo({ top: idx * ITEM_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
+  };
+  const scrollToDay = (valStr, smooth = true) => {
+    const idx = daysList.indexOf(String(valStr).padStart(2, '0'));
+    if (idx !== -1) dayWheel.scrollTo({ top: idx * ITEM_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
+  };
+  const scrollToHour = (valStr, smooth = true) => {
+    const idx = hoursList.indexOf(String(valStr).padStart(2, '0'));
+    if (idx !== -1) hourWheel.scrollTo({ top: idx * ITEM_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
+  };
+  const scrollToMin = (valStr, smooth = true) => {
+    const idx = minutesList.indexOf(String(valStr).padStart(2, '0'));
+    if (idx !== -1) minWheel.scrollTo({ top: idx * ITEM_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
+  };
+
+  requestAnimationFrame(() => {
+    scrollToYear(selectedYear, false);
+    scrollToMonth(selectedMonth, false);
+    scrollToDay(selectedDay, false);
+    scrollToHour(selectedHour, false);
+    scrollToMin(selectedMinute, false);
+  });
+
+  const updateSelection = (wheel, list, itemClass, onSelect) => {
+    const idx = Math.round(wheel.scrollTop / ITEM_HEIGHT);
+    const clampedIdx = Math.max(0, Math.min(list.length - 1, idx));
+    onSelect(list[clampedIdx]);
+    wheel.querySelectorAll(itemClass).forEach((item, i) => {
+      if (i === clampedIdx) {
+        item.style.color = '#0284c7';
+        item.style.fontSize = '17px';
+        item.style.fontWeight = '800';
+      } else {
+        item.style.color = '#94a3b8';
+        item.style.fontSize = '14px';
+        item.style.fontWeight = '600';
+      }
+    });
+  };
+
+  yearWheel.addEventListener('scroll', () => updateSelection(yearWheel, yearsList, '.wlp-year-item', v => selectedYear = v));
+  monthWheel.addEventListener('scroll', () => updateSelection(monthWheel, monthsList, '.wlp-month-item', v => selectedMonth = v));
+  dayWheel.addEventListener('scroll', () => updateSelection(dayWheel, daysList, '.wlp-day-item', v => selectedDay = v));
+  hourWheel.addEventListener('scroll', () => updateSelection(hourWheel, hoursList, '.wlp-hour-item', v => selectedHour = v));
+  minWheel.addEventListener('scroll', () => updateSelection(minWheel, minutesList, '.wlp-min-item', v => selectedMinute = v));
+
+  updateSelection(yearWheel, yearsList, '.wlp-year-item', v => selectedYear = v);
+  updateSelection(monthWheel, monthsList, '.wlp-month-item', v => selectedMonth = v);
+  updateSelection(dayWheel, daysList, '.wlp-day-item', v => selectedDay = v);
+  updateSelection(hourWheel, hoursList, '.wlp-hour-item', v => selectedHour = v);
+  updateSelection(minWheel, minutesList, '.wlp-min-item', v => selectedMinute = v);
+
+  yearWheel.querySelectorAll('.wlp-year-item').forEach((item, idx) => item.addEventListener('click', () => scrollToYear(yearsList[idx])));
+  monthWheel.querySelectorAll('.wlp-month-item').forEach((item, idx) => item.addEventListener('click', () => scrollToMonth(monthsList[idx])));
+  dayWheel.querySelectorAll('.wlp-day-item').forEach((item, idx) => item.addEventListener('click', () => scrollToDay(daysList[idx])));
+  hourWheel.querySelectorAll('.wlp-hour-item').forEach((item, idx) => item.addEventListener('click', () => scrollToHour(hoursList[idx])));
+  minWheel.querySelectorAll('.wlp-min-item').forEach((item, idx) => item.addEventListener('click', () => scrollToMin(minutesList[idx])));
+
+  const btnToday = modal.querySelector('#wlpPresetToday');
+  if (btnToday) {
+    btnToday.addEventListener('click', () => {
+      scrollToYear(curYY);
+      scrollToMonth(curMM);
+      scrollToDay(curDD);
+    });
+  }
+  const btnNow = modal.querySelector('#wlpPresetNow');
+  if (btnNow) {
+    btnNow.addEventListener('click', () => {
+      const live = new Date();
+      scrollToHour(live.getHours());
+      scrollToMin(live.getMinutes());
+    });
+  }
+  modal.querySelectorAll('.wlp-preset-time').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const [h, m] = btn.dataset.time.split(':');
+      scrollToHour(h);
+      scrollToMin(m);
+    });
+  });
+
+  const enableMouseDrag = (wheelElem) => {
+    let isDragging = false;
+    let startY = 0;
+    let startScrollTop = 0;
+
+    wheelElem.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startY = e.pageY;
+      startScrollTop = wheelElem.scrollTop;
+      wheelElem.style.scrollSnapType = 'none';
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const walk = (e.pageY - startY) * 1.5;
+      wheelElem.scrollTop = startScrollTop - walk;
+    });
+    window.addEventListener('mouseup', () => {
+      if (!isDragging) return;
+      isDragging = false;
+      wheelElem.style.scrollSnapType = 'y mandatory';
+      const nearest = Math.round(wheelElem.scrollTop / ITEM_HEIGHT) * ITEM_HEIGHT;
+      wheelElem.scrollTo({ top: nearest, behavior: 'smooth' });
+    });
+  };
+
+  enableMouseDrag(yearWheel);
+  enableMouseDrag(monthWheel);
+  enableMouseDrag(dayWheel);
+  enableMouseDrag(hourWheel);
+  enableMouseDrag(minWheel);
+
+  const closeModal = () => modal.remove();
+
+  modal.querySelector('#wlpCloseBtn').addEventListener('click', closeModal);
+  modal.querySelector('#wlpDeleteBtn').addEventListener('click', () => {
+    if (callback) callback('');
+    closeModal();
+  });
+  modal.querySelector('#wlpCancelBtn').addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  modal.querySelector('#wlpConfirmBtn').addEventListener('click', () => {
+    const formattedY = String(selectedYear).padStart(2, '0');
+    const formattedM = String(selectedMonth).padStart(2, '0');
+    const formattedD = String(selectedDay).padStart(2, '0');
+    const formattedH = String(selectedHour).padStart(2, '0');
+    const formattedMin = String(selectedMinute).padStart(2, '0');
+    const dateStr = `${formattedY}년 ${formattedM}월 ${formattedD}일 ${formattedH}시 ${formattedMin}분`;
+    if (callback) callback(dateStr);
     closeModal();
   });
 }
