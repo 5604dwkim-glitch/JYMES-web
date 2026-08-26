@@ -2356,7 +2356,8 @@ ${renderDtRow4('종')}
                 <thead>
                   <tr style="background: #fffde7; font-weight: 700; color: #000;">
                     <th colspan="3" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                    <th style="border: 1px solid #000; padding: 6px; width: 72%;">PTG</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 36%;">LH</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 36%;">RH</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2367,7 +2368,7 @@ ${renderDtRow4('종')}
                     <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                       규격 (Spec)
                     </td>
-                    <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">
+                    <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                       326 ± 2mm
                     </td>
                   </tr>
@@ -2391,15 +2392,34 @@ ${renderDtRow4('종')}
                         </div>
                       </div>
                     </td>
+                    <td style="border: 1px solid #000; padding: 3px 2px;">
+                      <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                          <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
+                          <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초'] || '326'}" readonly />
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                          <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
+                          <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중'] || '326'}" readonly />
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                          <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
+                          <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종'] || '326'}" readonly />
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
         `;
-        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_초'), '정치절단길이 PTG 초', 326, 20);
-        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_중'), '정치절단길이 PTG 중', 326, 20);
-        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_종'), '정치절단길이 PTG 종', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_초'), '정치절단길이 LH 초', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_중'), '정치절단길이 LH 중', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_종'), '정치절단길이 LH 종', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_RR_초'), '정치절단길이 RH 초', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_RR_중'), '정치절단길이 RH 중', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_RR_종'), '정치절단길이 RH 종', 326, 20);
         return;
       }
 
