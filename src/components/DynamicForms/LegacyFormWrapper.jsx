@@ -573,61 +573,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   }
   function renderSection5() {
     _Sections.renderSection5(_getCtx());
-
-    const section5 = container.querySelector('#section5DynamicContainer');
-    if (!section5) return;
-
-    const dimInputs = section5.querySelectorAll('input[type="text"][id^="dim_"], input[type="number"][id^="dim_"]');
-    dimInputs.forEach(input => {
-      if (input.readOnly) return;
-      
-      input.readOnly = true;
-      input.style.cursor = 'pointer';
-      
-      let defVal = 0;
-      let foundSpec = false;
-      
-      if (input.placeholder && !isNaN(parseFloat(input.placeholder))) {
-        defVal = parseFloat(input.placeholder);
-        foundSpec = true;
-      }
-      
-      if (!foundSpec) {
-        const tr = input.closest('tr');
-        if (tr) {
-          const tds = Array.from(tr.querySelectorAll('td'));
-          
-          for (let td of tds) {
-            const text = td.textContent;
-            if (text.includes('±')) {
-              const match = text.match(/([\d\.]+)\s*±/);
-              if (match && !isNaN(parseFloat(match[1]))) {
-                defVal = parseFloat(match[1]);
-                foundSpec = true;
-                break;
-              }
-            }
-          }
-          
-          if (!foundSpec) {
-            const inputTd = input.closest('td');
-            const cellIdx = tds.indexOf(inputTd);
-            if (cellIdx > 0) {
-              for (let i = cellIdx - 1; i >= 0; i--) {
-                const text = tds[i].textContent.trim();
-                if (text && !isNaN(parseFloat(text))) {
-                  defVal = parseFloat(text);
-                  foundSpec = true;
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
-      
-      bindNumberWheelPicker(input, '치수 실측(Act)', defVal, 20);
-    });
+    autoBindAllDimensionInputs(container);
   }
 
 
@@ -654,6 +600,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   // 6. 수량 실적 섹션 렌더링 (고유번호 formCode 기반 분기)
   function renderQtySection() {
     _Sections.renderQtySection(_getCtx());
+    autoBindAllDimensionInputs(container);
   }
 
 
@@ -2069,8 +2016,10 @@ export function bindTimeWheelPicker(inputElem, titleText = '시간 선택') {
 
 function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCenter = 100, range = 30, unit = '') {
   if (!inputElem) return;
+  inputElem.readOnly = true;
   inputElem.style.cursor = 'pointer';
-  inputElem.addEventListener('click', () => {
+  inputElem.onclick = (e) => {
+    if (e) e.stopPropagation();
     const rawVal = parseFloat(inputElem.value);
     const initialVal = !isNaN(rawVal) ? rawVal : defaultCenter;
     openNumberWheelPicker(initialVal, titleText, defaultCenter, range, unit, (selectedVal) => {
@@ -2078,7 +2027,7 @@ function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCe
       inputElem.dispatchEvent(new Event('input', { bubbles: true }));
       inputElem.dispatchEvent(new Event('change', { bubbles: true }));
     });
-  });
+  };
 }
 
 function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defaultCenter = 100, range = 30, unit = '', callback) {
@@ -2735,5 +2684,178 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
     const dateStr = `${formattedY}년 ${formattedM}월 ${formattedD}일 ${formattedH}시`;
     if (callback) callback(dateStr);
     closeModal();
+  });
+}
+
+
+export function autoBindAllDimensionInputs(container) {
+  if (!container) return;
+
+  const selector = [
+    '#section5DynamicContainer input[type="text"]',
+    '#section5DynamicContainer input[type="number"]',
+    '#qtySection input[id^="dtc_len"]',
+    '#qtySection input[id^="dtcb_len"]',
+    '#qtySection input[id^="kmkx_cut_len"]',
+    '#qtySection input[id^="kmkx_hole_gap"]',
+    'input[id^="dim_"]',
+    'input[id^="dim2005"]',
+    'input[id^="kmkx_cut_len"]',
+    'input[id^="kmkx_hole_gap"]',
+    'input[id^="dtc_len"]',
+    'input[id^="dtcb_len"]'
+  ].join(', ');
+
+  const inputs = container.querySelectorAll(selector);
+
+  inputs.forEach(input => {
+    if (input.type === 'checkbox' || input.type === 'radio' || input.type === 'hidden') return;
+    if (input.classList.contains('lot-datetime-input') || (input.id && input.id.startsWith('lotNo_'))) return;
+
+    let defVal = 0;
+    let foundSpec = false;
+
+    // A. Check placeholder
+    if (input.placeholder && !isNaN(parseFloat(input.placeholder)) && parseFloat(input.placeholder) > 0) {
+      defVal = parseFloat(input.placeholder);
+      foundSpec = true;
+    }
+
+    const tr = input.closest('tr');
+    const table = input.closest('table');
+
+    // B. Check same row
+    if (!foundSpec && tr) {
+      const tds = Array.from(tr.querySelectorAll('td, th'));
+      for (let td of tds) {
+        const match = td.textContent.match(/([\d\.]+)\s*±/);
+        if (match && !isNaN(parseFloat(match[1]))) {
+          defVal = parseFloat(match[1]);
+          foundSpec = true;
+          break;
+        }
+      }
+    }
+
+    // C. Check previous rows (within 3 rows up)
+    if (!foundSpec && tr) {
+      let prevTr = tr.previousElementSibling;
+      let lookback = 3;
+      const inputTd = input.closest('td, th');
+      const cellIdx = tr.children ? Array.from(tr.children).indexOf(inputTd) : -1;
+
+      while (prevTr && lookback > 0 && !foundSpec) {
+        const prevCells = Array.from(prevTr.querySelectorAll('td, th'));
+        
+        if (cellIdx >= 0 && cellIdx < prevCells.length) {
+          const match = prevCells[cellIdx].textContent.match(/([\d\.]+)\s*±/);
+          if (match && !isNaN(parseFloat(match[1]))) {
+            defVal = parseFloat(match[1]);
+            foundSpec = true;
+            break;
+          }
+          const pureNum = parseFloat(prevCells[cellIdx].textContent.trim());
+          if (!isNaN(pureNum) && pureNum > 0) {
+            defVal = pureNum;
+            foundSpec = true;
+            break;
+          }
+        }
+
+        for (let cell of prevCells) {
+          const match = cell.textContent.match(/([\d\.]+)\s*±/);
+          if (match && !isNaN(parseFloat(match[1]))) {
+            defVal = parseFloat(match[1]);
+            foundSpec = true;
+            break;
+          }
+        }
+
+        prevTr = prevTr.previousElementSibling;
+        lookback--;
+      }
+    }
+
+    // D. Check thead
+    if (!foundSpec && table) {
+      const theadCells = Array.from(table.querySelectorAll('thead td, thead th'));
+      const inputTd = input.closest('td, th');
+      const cellIdx = tr && tr.children ? Array.from(tr.children).indexOf(inputTd) : -1;
+      
+      if (cellIdx >= 0 && cellIdx < theadCells.length) {
+        const match = theadCells[cellIdx].textContent.match(/([\d\.]+)\s*±/);
+        if (match && !isNaN(parseFloat(match[1]))) {
+          defVal = parseFloat(match[1]);
+          foundSpec = true;
+        }
+      }
+
+      if (!foundSpec) {
+        for (let cell of theadCells) {
+          const match = cell.textContent.match(/([\d\.]+)\s*±/);
+          if (match && !isNaN(parseFloat(match[1]))) {
+            defVal = parseFloat(match[1]);
+            foundSpec = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // E. Check card / section text
+    if (!foundSpec && table) {
+      const card = table.closest('.card') || table.parentElement;
+      if (card) {
+        const cardText = card.textContent;
+        const match = cardText.match(/([\d\.]+)\s*±/);
+        if (match && !isNaN(parseFloat(match[1]))) {
+          defVal = parseFloat(match[1]);
+          foundSpec = true;
+        }
+      }
+    }
+
+    // F. Fallbacks and styling by type
+    let titleText = '치수 실측(Act)';
+    let unit = '';
+    let range = 20;
+
+    if (input.id && (input.id.includes('temp') || input.id.includes('vulc_temp') || input.id.includes('inj_temp') || input.id.includes('nozzle') || input.id.includes('h1') || input.id.includes('h2') || input.id.includes('h3'))) {
+      if (!foundSpec) defVal = 200;
+      titleText = '온도 설정/측정값';
+      unit = '℃';
+      range = 30;
+    } else if (input.id && (input.id.includes('time') || input.id.includes('vulc_time'))) {
+      if (!foundSpec) defVal = 90;
+      titleText = '가류 시간';
+      unit = '초';
+      range = 30;
+    } else if (input.id && input.id.includes('press')) {
+      if (!foundSpec) defVal = 100;
+      titleText = '사출 압력';
+      unit = '';
+      range = 40;
+    } else if (input.id && input.id.includes('speed')) {
+      if (!foundSpec) defVal = 50;
+      titleText = '사출 속도';
+      unit = '';
+      range = 30;
+    } else if (input.id && input.id.includes('pos')) {
+      if (!foundSpec) defVal = 30;
+      titleText = '사출 위치';
+      unit = 'mm';
+      range = 25;
+    } else {
+      if (defVal > 100) {
+        range = Math.max(30, Math.round(defVal * 0.1));
+      } else if (defVal > 0) {
+        range = Math.max(15, Math.round(defVal * 0.3));
+      } else {
+        defVal = 100;
+        range = 30;
+      }
+    }
+
+    bindNumberWheelPicker(input, titleText, defVal, range, unit);
   });
 }
