@@ -575,7 +575,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   function renderSection5() {
     _Sections.renderSection5(_getCtx());
 
-    const section5 = container.querySelector('#section5');
+    const section5 = container.querySelector('#section5DynamicContainer');
     if (!section5) return;
 
     const dimInputs = section5.querySelectorAll('input[type="text"][id^="dim_"], input[type="number"][id^="dim_"]');
