@@ -2717,7 +2717,13 @@ export function autoBindAllDimensionInputs(container) {
 
     // Explicit check by input ID patterns (1001, 1031, etc.)
     const inputId = input.id || '';
-    if (inputId.startsWith('dim_step_f_')) {
+    if (inputId.startsWith('dim_cut_FRT')) {
+      defVal = 745;
+      foundSpec = true;
+    } else if (inputId.startsWith('dim_cut_RR')) {
+      defVal = 687;
+      foundSpec = true;
+    } else if (inputId.startsWith('dim_step_f_')) {
       defVal = 36;
       foundSpec = true;
     } else if (inputId.startsWith('dim_step_r_')) {
