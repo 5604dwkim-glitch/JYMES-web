@@ -2345,7 +2345,64 @@ ${renderDtRow4('종')}
       }
 
     } else if (curProc === '검사포장' || curProc === '검사/포장') {
-      
+      if (formCode === 1024 || formCode === 1044) {
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                    <th colspan="3" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 72%;">PTG</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                      정치절단길이<br>(Spec Cutt,g )
+                    </td>
+                    <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                      규격 (Spec)
+                    </td>
+                    <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">
+                      326 ± 2mm
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                      실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
+                    </td>
+                    <td style="border: 1px solid #000; padding: 3px 2px;">
+                      <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                          <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
+                          <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || '326'}" readonly />
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                          <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
+                          <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || '326'}" readonly />
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                          <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
+                          <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || '326'}" readonly />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_초'), '정치절단길이 PTG 초', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_중'), '정치절단길이 PTG 중', 326, 20);
+        bindNumberWheelPicker(section5.querySelector('#dim_cut_FRT_종'), '정치절단길이 PTG 종', 326, 20);
+        return;
+      }
+
       if (formCode === 1013) {
         section5.innerHTML = '';
         return;
