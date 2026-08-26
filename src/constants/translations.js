@@ -160,7 +160,7 @@ export const TRANSLATIONS = {
     label_worker_name_req: "작업자 성함 *",
     label_item_select: "차종 품목 선택",
     step4_1_lot: "🧪 소재 LOT 번호 입력",
-    lot_help: "숫자를 입력하면 (예: 2607251330) 자동으로 '26년 07월 25일 13시 30분' 형태로 변환됩니다.",
+    lot_help: "숫자를 입력하면 (예: 26072513) 자동으로 '26년 07월 25일 13시' 형태로 변환됩니다.",
     frt_material: "🔹 DT A Roll 소재",
     rr_material: "🔹 DT B Roll 소재",
     lot_first: "초물 LOT",

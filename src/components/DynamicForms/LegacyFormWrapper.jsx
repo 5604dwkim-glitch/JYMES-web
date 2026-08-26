@@ -225,7 +225,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;" data-i18n="step4_1_lot">
           🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
         </label>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="lot_help">숫자를 입력하면 (예: 2607251330) 자동으로 '26년 07월 25일 13시 30분' 형태로 변환됩니다.</p>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="lot_help">숫자를 입력하면 (예: 26072513) 자동으로 '26년 07월 25일 13시' 형태로 변환됩니다.</p>
 
         <div id="section4LotTableContainer" style="overflow-x: auto;">
           <!-- Dynamic Render -->
@@ -338,8 +338,7 @@ function autoFormatDateTimeString(inputStr) {
   if (digits.length >= 2) formatted += digits.substring(0, 2) + '년 ';
   if (digits.length >= 4) formatted += digits.substring(2, 4) + '월 ';
   if (digits.length >= 6) formatted += digits.substring(4, 6) + '일 ';
-  if (digits.length >= 8) formatted += digits.substring(6, 8) + '시 ';
-  if (digits.length >= 10) formatted += digits.substring(8, 10) + '분';
+  if (digits.length >= 8) formatted += digits.substring(6, 8) + '시';
   if (digits.length < 2) formatted = digits;
 
   return formatted.trim();
@@ -2471,13 +2470,11 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
   const curMM = now.getMonth() + 1;
   const curDD = now.getDate();
   const curHH = now.getHours();
-  const curMin = now.getMinutes();
 
   let initYear = curYY;
   let initMonth = curMM;
   let initDay = curDD;
   let initHour = curHH;
-  let initMin = Math.floor(curMin / 10) * 10;
 
   const digits = (initialValue || '').replace(/\D/g, '');
   if (digits.length >= 2) {
@@ -2496,10 +2493,6 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
     const h = parseInt(digits.substring(6, 8), 10);
     if (!isNaN(h) && h >= 0 && h <= 23) initHour = h;
   }
-  if (digits.length >= 10) {
-    const min = parseInt(digits.substring(8, 10), 10);
-    if (!isNaN(min) && min >= 0 && min <= 59) initMin = min;
-  }
 
   let modal = document.getElementById('wheelLotDatePickerModal');
   if (modal) modal.remove();
@@ -2516,16 +2509,14 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
   const monthsList = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
   const daysList = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
   const hoursList = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
-  const minutesList = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
   let selectedYear = String(initYear).padStart(2, '0');
   let selectedMonth = String(initMonth).padStart(2, '0');
   let selectedDay = String(initDay).padStart(2, '0');
   let selectedHour = String(initHour).padStart(2, '0');
-  let selectedMinute = String(initMin).padStart(2, '0');
 
   modal.innerHTML = `
-    <div style="background: #ffffff; width: 100%; max-width: 440px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; font-family: 'Noto Sans KR', sans-serif;">
+    <div style="background: #ffffff; width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; font-family: 'Noto Sans KR', sans-serif;">
       <div style="padding: 14px 18px; background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; display: flex; justify-content: space-between; align-items: center;">
         <h4 style="margin: 0; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
           🧪 ${title}
@@ -2538,10 +2529,10 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
           📅 오늘 (${String(curYY).padStart(2, '0')}.${String(curMM).padStart(2, '0')}.${String(curDD).padStart(2, '0')})
         </button>
         <button type="button" id="wlpPresetNow" style="padding: 5px 10px; font-size: 12px; font-weight: 700; border: 1px solid #cbd5e1; background: #ffffff; border-radius: 20px; color: #334155; cursor: pointer; white-space: nowrap;">
-          🕒 지금 (${String(curHH).padStart(2, '0')}:${String(curMin).padStart(2, '0')})
+          🕒 현재 (${String(curHH).padStart(2, '0')}시)
         </button>
-        ${['08:30', '13:30', '17:30'].map(t => `
-          <button type="button" class="wlp-preset-time" data-time="${t}" style="padding: 5px 8px; font-size: 11px; font-weight: 600; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 20px; color: #475569; cursor: pointer; white-space: nowrap;">
+        ${['06시', '08시', '13시', '17시', '20시'].map(t => `
+          <button type="button" class="wlp-preset-time" data-hour="${t.replace('시', '')}" style="padding: 5px 8px; font-size: 11px; font-weight: 600; border: 1px solid #e2e8f0; background: #ffffff; border-radius: 20px; color: #475569; cursor: pointer; white-space: nowrap;">
             ${t}
           </button>
         `).join('')}
@@ -2553,7 +2544,7 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
         <div id="wlpYearWheel" style="flex: 1.1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
           <div style="height: 80px;"></div>
           ${yearsList.map(y => `
-            <div class="wlp-item wlp-year-item" data-val="${y}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+            <div class="wlp-item wlp-year-item" data-val="${y}" style="height: 40px; line-height: 40px; font-size: 16px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
               ${y}년
             </div>
           `).join('')}
@@ -2563,7 +2554,7 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
         <div id="wlpMonthWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
           <div style="height: 80px;"></div>
           ${monthsList.map(m => `
-            <div class="wlp-item wlp-month-item" data-val="${m}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+            <div class="wlp-item wlp-month-item" data-val="${m}" style="height: 40px; line-height: 40px; font-size: 16px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
               ${m}월
             </div>
           `).join('')}
@@ -2573,30 +2564,20 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
         <div id="wlpDayWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
           <div style="height: 80px;"></div>
           ${daysList.map(d => `
-            <div class="wlp-item wlp-day-item" data-val="${d}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+            <div class="wlp-item wlp-day-item" data-val="${d}" style="height: 40px; line-height: 40px; font-size: 16px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
               ${d}일
             </div>
           `).join('')}
           <div style="height: 80px;"></div>
         </div>
 
-        <div style="width: 1px; height: 160px; background: #e2e8f0; margin: 0 1px;"></div>
+        <div style="width: 1px; height: 160px; background: #e2e8f0; margin: 0 4px;"></div>
 
-        <div id="wlpHourWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
+        <div id="wlpHourWheel" style="flex: 1.1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
           <div style="height: 80px;"></div>
           ${hoursList.map(h => `
-            <div class="wlp-item wlp-hour-item" data-val="${h}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
+            <div class="wlp-item wlp-hour-item" data-val="${h}" style="height: 40px; line-height: 40px; font-size: 16px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
               ${h}시
-            </div>
-          `).join('')}
-          <div style="height: 80px;"></div>
-        </div>
-
-        <div id="wlpMinWheel" style="flex: 1; height: 200px; overflow-y: scroll; scroll-snap-type: y mandatory; text-align: center;">
-          <div style="height: 80px;"></div>
-          ${minutesList.map(m => `
-            <div class="wlp-item wlp-min-item" data-val="${m}" style="height: 40px; line-height: 40px; font-size: 15px; font-weight: 700; color: #475569; scroll-snap-align: center; cursor: pointer;">
-              ${m}분
             </div>
           `).join('')}
           <div style="height: 80px;"></div>
@@ -2626,7 +2607,6 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
   const monthWheel = modal.querySelector('#wlpMonthWheel');
   const dayWheel = modal.querySelector('#wlpDayWheel');
   const hourWheel = modal.querySelector('#wlpHourWheel');
-  const minWheel = modal.querySelector('#wlpMinWheel');
 
   const scrollToYear = (valStr, smooth = true) => {
     const idx = yearsList.indexOf(String(valStr).padStart(2, '0'));
@@ -2644,17 +2624,12 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
     const idx = hoursList.indexOf(String(valStr).padStart(2, '0'));
     if (idx !== -1) hourWheel.scrollTo({ top: idx * ITEM_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
   };
-  const scrollToMin = (valStr, smooth = true) => {
-    const idx = minutesList.indexOf(String(valStr).padStart(2, '0'));
-    if (idx !== -1) minWheel.scrollTo({ top: idx * ITEM_HEIGHT, behavior: smooth ? 'smooth' : 'auto' });
-  };
 
   requestAnimationFrame(() => {
     scrollToYear(selectedYear, false);
     scrollToMonth(selectedMonth, false);
     scrollToDay(selectedDay, false);
     scrollToHour(selectedHour, false);
-    scrollToMin(selectedMinute, false);
   });
 
   const updateSelection = (wheel, list, itemClass, onSelect) => {
@@ -2664,11 +2639,11 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
     wheel.querySelectorAll(itemClass).forEach((item, i) => {
       if (i === clampedIdx) {
         item.style.color = '#0284c7';
-        item.style.fontSize = '17px';
+        item.style.fontSize = '18px';
         item.style.fontWeight = '800';
       } else {
         item.style.color = '#94a3b8';
-        item.style.fontSize = '14px';
+        item.style.fontSize = '15px';
         item.style.fontWeight = '600';
       }
     });
@@ -2678,19 +2653,16 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
   monthWheel.addEventListener('scroll', () => updateSelection(monthWheel, monthsList, '.wlp-month-item', v => selectedMonth = v));
   dayWheel.addEventListener('scroll', () => updateSelection(dayWheel, daysList, '.wlp-day-item', v => selectedDay = v));
   hourWheel.addEventListener('scroll', () => updateSelection(hourWheel, hoursList, '.wlp-hour-item', v => selectedHour = v));
-  minWheel.addEventListener('scroll', () => updateSelection(minWheel, minutesList, '.wlp-min-item', v => selectedMinute = v));
 
   updateSelection(yearWheel, yearsList, '.wlp-year-item', v => selectedYear = v);
   updateSelection(monthWheel, monthsList, '.wlp-month-item', v => selectedMonth = v);
   updateSelection(dayWheel, daysList, '.wlp-day-item', v => selectedDay = v);
   updateSelection(hourWheel, hoursList, '.wlp-hour-item', v => selectedHour = v);
-  updateSelection(minWheel, minutesList, '.wlp-min-item', v => selectedMinute = v);
 
   yearWheel.querySelectorAll('.wlp-year-item').forEach((item, idx) => item.addEventListener('click', () => scrollToYear(yearsList[idx])));
   monthWheel.querySelectorAll('.wlp-month-item').forEach((item, idx) => item.addEventListener('click', () => scrollToMonth(monthsList[idx])));
   dayWheel.querySelectorAll('.wlp-day-item').forEach((item, idx) => item.addEventListener('click', () => scrollToDay(daysList[idx])));
   hourWheel.querySelectorAll('.wlp-hour-item').forEach((item, idx) => item.addEventListener('click', () => scrollToHour(hoursList[idx])));
-  minWheel.querySelectorAll('.wlp-min-item').forEach((item, idx) => item.addEventListener('click', () => scrollToMin(minutesList[idx])));
 
   const btnToday = modal.querySelector('#wlpPresetToday');
   if (btnToday) {
@@ -2705,14 +2677,11 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
     btnNow.addEventListener('click', () => {
       const live = new Date();
       scrollToHour(live.getHours());
-      scrollToMin(live.getMinutes());
     });
   }
   modal.querySelectorAll('.wlp-preset-time').forEach(btn => {
     btn.addEventListener('click', () => {
-      const [h, m] = btn.dataset.time.split(':');
-      scrollToHour(h);
-      scrollToMin(m);
+      scrollToHour(btn.dataset.hour);
     });
   });
 
@@ -2745,7 +2714,6 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
   enableMouseDrag(monthWheel);
   enableMouseDrag(dayWheel);
   enableMouseDrag(hourWheel);
-  enableMouseDrag(minWheel);
 
   const closeModal = () => modal.remove();
 
@@ -2764,8 +2732,7 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
     const formattedM = String(selectedMonth).padStart(2, '0');
     const formattedD = String(selectedDay).padStart(2, '0');
     const formattedH = String(selectedHour).padStart(2, '0');
-    const formattedMin = String(selectedMinute).padStart(2, '0');
-    const dateStr = `${formattedY}년 ${formattedM}월 ${formattedD}일 ${formattedH}시 ${formattedMin}분`;
+    const dateStr = `${formattedY}년 ${formattedM}월 ${formattedD}일 ${formattedH}시`;
     if (callback) callback(dateStr);
     closeModal();
   });
