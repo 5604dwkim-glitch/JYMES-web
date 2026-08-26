@@ -1902,11 +1902,11 @@ ${renderDtRow4('종')}
                     <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
                       <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" placeholder="745" value="${d['cut_FRT_초'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" placeholder="745" value="${d['cut_FRT_중'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" placeholder="745" value="${d['cut_FRT_종'] || ''}" />
                       </div>
                     </td>
                   </tr>
@@ -1932,33 +1932,33 @@ ${renderDtRow4('종')}
                     <td style="border: 1px solid #000; padding: 2px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                         <span style="font-size: 9px; color: #555; font-weight: 700;">(초)</span>
-                        <input type="text" id="dim_step_f_초_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_초_FL'] || ''}" />
+                        <input type="text" id="dim_step_f_초_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_초_FL'] || ''}" />
                       </div>
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_초_FR'] || ''}" />
+                      <input type="text" id="dim_step_f_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_초_FR'] || ''}" />
                     </td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; padding: 2px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                         <span style="font-size: 9px; color: #555; font-weight: 700;">(중)</span>
-                        <input type="text" id="dim_step_f_중_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_중_FL'] || ''}" />
+                        <input type="text" id="dim_step_f_중_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_중_FL'] || ''}" />
                       </div>
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_중_FR'] || ''}" />
+                      <input type="text" id="dim_step_f_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_중_FR'] || ''}" />
                     </td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; padding: 2px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                         <span style="font-size: 9px; color: #555; font-weight: 700;">(종)</span>
-                        <input type="text" id="dim_step_f_종_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_종_FL'] || ''}" />
+                        <input type="text" id="dim_step_f_종_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_종_FL'] || ''}" />
                       </div>
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_종_FR'] || ''}" />
+                      <input type="text" id="dim_step_f_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_종_FR'] || ''}" />
                     </td>
                   </tr>
                   
@@ -1980,33 +1980,33 @@ ${renderDtRow4('종')}
                     <td style="border: 1px solid #000; padding: 2px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                         <span style="font-size: 9px; color: #555; font-weight: 700;">(초)</span>
-                        <input type="text" id="dim_step_r_초_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_초_FL'] || ''}" />
+                        <input type="text" id="dim_step_r_초_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="28" value="${d['step_r_초_FL'] || ''}" />
                       </div>
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_초_FR'] || ''}" />
+                      <input type="text" id="dim_step_r_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="28" value="${d['step_r_초_FR'] || ''}" />
                     </td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; padding: 2px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                         <span style="font-size: 9px; color: #555; font-weight: 700;">(중)</span>
-                        <input type="text" id="dim_step_r_중_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_중_FL'] || ''}" />
+                        <input type="text" id="dim_step_r_중_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="28" value="${d['step_r_중_FL'] || ''}" />
                       </div>
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_중_FR'] || ''}" />
+                      <input type="text" id="dim_step_r_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="28" value="${d['step_r_중_FR'] || ''}" />
                     </td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; padding: 2px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                         <span style="font-size: 9px; color: #555; font-weight: 700;">(종)</span>
-                        <input type="text" id="dim_step_r_종_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_종_FL'] || ''}" />
+                        <input type="text" id="dim_step_r_종_FL" class="form-control" style="width: 70%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="28" value="${d['step_r_종_FL'] || ''}" />
                       </div>
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_종_FR'] || ''}" />
+                      <input type="text" id="dim_step_r_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="28" value="${d['step_r_종_FR'] || ''}" />
                     </td>
                   </tr>
                 </tbody>
@@ -2045,11 +2045,11 @@ ${renderDtRow4('종')}
                     <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
                       <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(초)</span>
-                        <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초'] || ''}" />
+                        <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" placeholder="687" value="${d['cut_RR_초'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(중)</span>
-                        <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중'] || ''}" />
+                        <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" placeholder="687" value="${d['cut_RR_중'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(종)</span>
-                        <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종'] || ''}" />
+                        <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" placeholder="687" value="${d['cut_RR_종'] || ''}" />
                       </div>
                     </td>
                   </tr>
@@ -2073,26 +2073,26 @@ ${renderDtRow4('종')}
                       실측(Act)
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_초_RL'] || ''}" />
+                      <input type="text" id="dim_step_f_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_초_RL'] || ''}" />
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_초_RR'] || ''}" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_중_RL'] || ''}" />
-                    </td>
-                    <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_중_RR'] || ''}" />
+                      <input type="text" id="dim_step_f_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_초_RR'] || ''}" />
                     </td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_종_RL'] || ''}" />
+                      <input type="text" id="dim_step_f_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_중_RL'] || ''}" />
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_f_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_f_종_RR'] || ''}" />
+                      <input type="text" id="dim_step_f_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_중_RR'] || ''}" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">
+                      <input type="text" id="dim_step_f_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_종_RL'] || ''}" />
+                    </td>
+                    <td style="border: 1px solid #000; padding: 2px;">
+                      <input type="text" id="dim_step_f_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="36" value="${d['step_f_종_RR'] || ''}" />
                     </td>
                   </tr>
                   
@@ -2112,26 +2112,26 @@ ${renderDtRow4('종')}
                       실측(Act)
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_초_RL'] || ''}" />
+                      <input type="text" id="dim_step_r_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="29" value="${d['step_r_초_RL'] || ''}" />
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_초_RR'] || ''}" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_중_RL'] || ''}" />
-                    </td>
-                    <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_중_RR'] || ''}" />
+                      <input type="text" id="dim_step_r_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="29" value="${d['step_r_초_RR'] || ''}" />
                     </td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_종_RL'] || ''}" />
+                      <input type="text" id="dim_step_r_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="29" value="${d['step_r_중_RL'] || ''}" />
                     </td>
                     <td style="border: 1px solid #000; padding: 2px;">
-                      <input type="text" id="dim_step_r_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="${d['step_r_종_RR'] || ''}" />
+                      <input type="text" id="dim_step_r_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="29" value="${d['step_r_중_RR'] || ''}" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">
+                      <input type="text" id="dim_step_r_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="29" value="${d['step_r_종_RL'] || ''}" />
+                    </td>
+                    <td style="border: 1px solid #000; padding: 2px;">
+                      <input type="text" id="dim_step_r_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" placeholder="29" value="${d['step_r_종_RR'] || ''}" />
                     </td>
                   </tr>
                 </tbody>

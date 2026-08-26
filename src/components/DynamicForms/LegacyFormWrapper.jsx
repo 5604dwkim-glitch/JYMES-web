@@ -2715,8 +2715,22 @@ export function autoBindAllDimensionInputs(container) {
     let defVal = 0;
     let foundSpec = false;
 
+    // Explicit check by input ID patterns (1001, 1031, etc.)
+    const inputId = input.id || '';
+    if (inputId.startsWith('dim_step_f_')) {
+      defVal = 36;
+      foundSpec = true;
+    } else if (inputId.startsWith('dim_step_r_')) {
+      if (inputId.includes('_RL') || inputId.includes('_RR')) {
+        defVal = 29;
+      } else {
+        defVal = 28;
+      }
+      foundSpec = true;
+    }
+
     // A. Check placeholder
-    if (input.placeholder && !isNaN(parseFloat(input.placeholder)) && parseFloat(input.placeholder) > 0) {
+    if (!foundSpec && input.placeholder && !isNaN(parseFloat(input.placeholder)) && parseFloat(input.placeholder) > 0) {
       defVal = parseFloat(input.placeholder);
       foundSpec = true;
     }
@@ -2724,51 +2738,79 @@ export function autoBindAllDimensionInputs(container) {
     const tr = input.closest('tr');
     const table = input.closest('table');
 
-    // B. Check same row
+    // B. Check same row for 규격 / Spec / ±
     if (!foundSpec && tr) {
+      const isSpecRow = tr.textContent.includes('규격') || tr.textContent.includes('Spec');
       const tds = Array.from(tr.querySelectorAll('td, th'));
       for (let td of tds) {
-        const match = td.textContent.match(/([\d\.]+)\s*±/);
-        if (match && !isNaN(parseFloat(match[1]))) {
-          defVal = parseFloat(match[1]);
-          foundSpec = true;
-          break;
+        const text = td.textContent;
+        if (text.includes('±')) {
+          const match = text.match(/([\d\.]+)\s*±/);
+          if (match && !isNaN(parseFloat(match[1]))) {
+            defVal = parseFloat(match[1]);
+            foundSpec = true;
+            break;
+          }
+        } else if (isSpecRow) {
+          const match = text.match(/([\d\.]+)/);
+          if (match && !isNaN(parseFloat(match[1])) && parseFloat(match[1]) > 0) {
+            defVal = parseFloat(match[1]);
+            foundSpec = true;
+            break;
+          }
         }
       }
     }
 
-    // C. Check previous rows (within 3 rows up)
+    // C. Check previous rows upwards (looking for the CLOSEST governing 규격/Spec row)
     if (!foundSpec && tr) {
       let prevTr = tr.previousElementSibling;
-      let lookback = 3;
+      let lookback = 8;
       const inputTd = input.closest('td, th');
       const cellIdx = tr.children ? Array.from(tr.children).indexOf(inputTd) : -1;
 
       while (prevTr && lookback > 0 && !foundSpec) {
+        const rowText = prevTr.textContent;
+        const isSpecRow = rowText.includes('규격') || rowText.includes('Spec');
         const prevCells = Array.from(prevTr.querySelectorAll('td, th'));
-        
-        if (cellIdx >= 0 && cellIdx < prevCells.length) {
-          const match = prevCells[cellIdx].textContent.match(/([\d\.]+)\s*±/);
-          if (match && !isNaN(parseFloat(match[1]))) {
-            defVal = parseFloat(match[1]);
-            foundSpec = true;
-            break;
-          }
-          const pureNum = parseFloat(prevCells[cellIdx].textContent.trim());
-          if (!isNaN(pureNum) && pureNum > 0) {
-            defVal = pureNum;
-            foundSpec = true;
-            break;
-          }
-        }
 
-        for (let cell of prevCells) {
-          const match = cell.textContent.match(/([\d\.]+)\s*±/);
-          if (match && !isNaN(parseFloat(match[1]))) {
-            defVal = parseFloat(match[1]);
-            foundSpec = true;
-            break;
+        if (isSpecRow) {
+          // 1) Match cell index
+          if (cellIdx >= 0 && cellIdx < prevCells.length) {
+            const cText = prevCells[cellIdx].textContent;
+            const pmMatch = cText.match(/([\d\.]+)\s*±/);
+            if (pmMatch && !isNaN(parseFloat(pmMatch[1]))) {
+              defVal = parseFloat(pmMatch[1]);
+              foundSpec = true;
+              break;
+            }
+            const pureMatch = cText.match(/([\d\.]+)/);
+            if (pureMatch && !isNaN(parseFloat(pureMatch[1])) && parseFloat(pureMatch[1]) > 0) {
+              defVal = parseFloat(pureMatch[1]);
+              foundSpec = true;
+              break;
+            }
           }
+
+          // 2) Any cell in this spec row with ± or number
+          for (let cell of prevCells) {
+            const cText = cell.textContent;
+            if (cText.includes('규격') || cText.includes('Spec') || cText.includes('구분') || cText.includes('단컷팅') || cText.includes('전방') || cText.includes('후방')) continue;
+            const pmMatch = cText.match(/([\d\.]+)\s*±/);
+            if (pmMatch && !isNaN(parseFloat(pmMatch[1]))) {
+              defVal = parseFloat(pmMatch[1]);
+              foundSpec = true;
+              break;
+            }
+            const numMatch = cText.match(/([\d\.]+)/);
+            if (numMatch && !isNaN(parseFloat(numMatch[1])) && parseFloat(numMatch[1]) > 0) {
+              defVal = parseFloat(numMatch[1]);
+              foundSpec = true;
+              break;
+            }
+          }
+
+          if (foundSpec) break;
         }
 
         prevTr = prevTr.previousElementSibling;
@@ -2817,30 +2859,39 @@ export function autoBindAllDimensionInputs(container) {
 
     // F. Fallbacks and styling by type
     let titleText = '치수 실측(Act)';
-    let unit = '';
+    let unit = 'mm';
     let range = 20;
 
-    if (input.id && (input.id.includes('temp') || input.id.includes('vulc_temp') || input.id.includes('inj_temp') || input.id.includes('nozzle') || input.id.includes('h1') || input.id.includes('h2') || input.id.includes('h3'))) {
+    if (inputId.startsWith('dim_step_f_')) {
+      titleText = '단컷팅 (전방)';
+      range = 15;
+    } else if (inputId.startsWith('dim_step_r_')) {
+      titleText = '단컷팅 (후방)';
+      range = 15;
+    } else if (inputId.startsWith('dim_cut_FRT') || inputId.startsWith('dim_cut_RR') || inputId.includes('cut_len')) {
+      titleText = '정치절단길이';
+      range = Math.max(20, Math.round(defVal * 0.08));
+    } else if (inputId.includes('temp') || inputId.includes('vulc_temp') || inputId.includes('inj_temp') || inputId.includes('nozzle') || inputId.includes('h1') || inputId.includes('h2') || inputId.includes('h3')) {
       if (!foundSpec) defVal = 200;
       titleText = '온도 설정/측정값';
       unit = '℃';
       range = 30;
-    } else if (input.id && (input.id.includes('time') || input.id.includes('vulc_time'))) {
+    } else if (inputId.includes('time') || inputId.includes('vulc_time')) {
       if (!foundSpec) defVal = 90;
       titleText = '가류 시간';
       unit = '초';
       range = 30;
-    } else if (input.id && input.id.includes('press')) {
+    } else if (inputId.includes('press')) {
       if (!foundSpec) defVal = 100;
       titleText = '사출 압력';
       unit = '';
       range = 40;
-    } else if (input.id && input.id.includes('speed')) {
+    } else if (inputId.includes('speed')) {
       if (!foundSpec) defVal = 50;
       titleText = '사출 속도';
       unit = '';
       range = 30;
-    } else if (input.id && input.id.includes('pos')) {
+    } else if (inputId.includes('pos')) {
       if (!foundSpec) defVal = 30;
       titleText = '사출 위치';
       unit = 'mm';
