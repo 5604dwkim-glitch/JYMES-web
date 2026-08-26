@@ -574,6 +574,61 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   }
   function renderSection5() {
     _Sections.renderSection5(_getCtx());
+
+    const section5 = container.querySelector('#section5');
+    if (!section5) return;
+
+    const dimInputs = section5.querySelectorAll('input[type="text"][id^="dim_"], input[type="number"][id^="dim_"]');
+    dimInputs.forEach(input => {
+      if (input.readOnly) return;
+      
+      input.readOnly = true;
+      input.style.cursor = 'pointer';
+      
+      let defVal = 0;
+      let foundSpec = false;
+      
+      if (input.placeholder && !isNaN(parseFloat(input.placeholder))) {
+        defVal = parseFloat(input.placeholder);
+        foundSpec = true;
+      }
+      
+      if (!foundSpec) {
+        const tr = input.closest('tr');
+        if (tr) {
+          const tds = Array.from(tr.querySelectorAll('td'));
+          
+          for (let td of tds) {
+            const text = td.textContent;
+            if (text.includes('±')) {
+              const match = text.match(/([\d\.]+)\s*±/);
+              if (match && !isNaN(parseFloat(match[1]))) {
+                defVal = parseFloat(match[1]);
+                foundSpec = true;
+                break;
+              }
+            }
+          }
+          
+          if (!foundSpec) {
+            const inputTd = input.closest('td');
+            const cellIdx = tds.indexOf(inputTd);
+            if (cellIdx > 0) {
+              for (let i = cellIdx - 1; i >= 0; i--) {
+                const text = tds[i].textContent.trim();
+                if (text && !isNaN(parseFloat(text))) {
+                  defVal = parseFloat(text);
+                  foundSpec = true;
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      bindNumberWheelPicker(input, '치수 실측(Act)', defVal, 20);
+    });
   }
 
 
