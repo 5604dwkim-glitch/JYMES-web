@@ -15,7 +15,7 @@ export function updateDowntimeSection(ctx) {
       return;
     }
 
-    if (formCode === 1021 || formCode === 4013 || formCode === 4014 || formCode === 4004 || (curProc === '후가공' || curProc === '검사포장' || curProc === '검사/포장')) {
+    if (formCode === 1021 || formCode === 1041 || formCode === 4013 || formCode === 4014 || formCode === 4004 || (curProc === '후가공' || curProc === '검사포장' || curProc === '검사/포장')) {
       if (downtimeCard) downtimeCard.style.display = 'none';
       return;
     } else {

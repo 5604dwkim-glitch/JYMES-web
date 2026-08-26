@@ -1682,7 +1682,7 @@ export function renderSection5(ctx) {
         });
       }
     } else if (curProc === '소재준비' || curProc.startsWith('소재준비')) {
-      if (formCode === 1021) {
+      if (formCode === 1021 || formCode === 1041) {
         const d = existingData?.dimData || {};
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">

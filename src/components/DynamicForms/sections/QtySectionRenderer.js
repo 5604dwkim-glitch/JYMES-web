@@ -797,6 +797,7 @@ export function renderQtySection(ctx) {
       // ── 타 제조사 / 기본 공정별 양식 ──
       
       case 1021:
+      case 1041:
         qtySection.innerHTML = Templates.getQty1021HTML(existingData, container);
         qtySection.addEventListener('input', calcJg1QtySummary);
         calcJg1QtySummary();

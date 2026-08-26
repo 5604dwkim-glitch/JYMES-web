@@ -890,7 +890,8 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
         break;
       }
       
-      case 1021: {
+      case 1021:
+      case 1041: {
         lotContainer.innerHTML = `
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; margin-bottom: 16px;">
             <thead>
