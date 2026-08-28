@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import MoldHistoryCardModal from './MoldHistoryCardModal';
+import MoldRepairRequestModal from './MoldRepairRequestModal';
 import { Navigate } from 'react-router-dom';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -38,6 +39,7 @@ export default function MoldManagement() {
   const [activeTab, setActiveTab] = useState('list');
   const [molds, setMolds] = useState([]);
   const [historyMold, setHistoryMold] = useState(null);
+  const [repairMold, setRepairMold] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Form State
@@ -166,7 +168,8 @@ export default function MoldManagement() {
                         </td>
                         <td>{Number(m.currentStrokes).toLocaleString()} / {Number(m.maxStrokes).toLocaleString()}</td>
                         <td>
-                          <button className="btn btn-sm" style={{ background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', marginRight: '4px' }} onClick={(e) => { e.stopPropagation(); setHistoryMold(m); }}>이력카드(상세/수정)</button>
+                          <button className="btn btn-sm" style={{ background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', marginRight: '4px', marginBottom: '4px' }} onClick={(e) => { e.stopPropagation(); setHistoryMold(m); }}>이력카드(상세/수정)</button>
+                            <button className="btn btn-sm" style={{ background: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', marginRight: '4px', marginBottom: '4px' }} onClick={(e) => { e.stopPropagation(); setRepairMold(m); }}>수리의뢰서</button>
                           <button className="btn btn-secondary btn-sm" style={{ background: '#fee2e2', color: '#991b1b', border: 'none' }} onClick={() => handleDelete(m.id)}>삭제</button>
                         </td>
                       </tr>
@@ -183,6 +186,13 @@ export default function MoldManagement() {
           </div>
       </div>
 
+      {repairMold && (
+        <MoldRepairRequestModal 
+          mold={repairMold} 
+          onClose={() => setRepairMold(null)}
+        />
+      )}
+      
       {historyMold && (
         <MoldHistoryCardModal 
           mold={historyMold} 
