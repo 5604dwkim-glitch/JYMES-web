@@ -162,12 +162,31 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                         <input type="text" style={tableInputStyle} value={row.action} onChange={e => updateHistory(i, 'action', e.target.value)} placeholder="조치 내용..." />
                       </td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
-                        <button 
-                          onClick={() => setEditingRepairIndex(i)}
-                          style={{ width: '100%', padding: '4px', background: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
-                        >
-                          📄 {row.repairDetails ? '의뢰서 상세' : '의뢰서 작성'}
-                        </button>
+                        {row.repairDetails ? (
+                          <button 
+                            onClick={() => setEditingRepairIndex(i)}
+                            style={{ 
+                              width: '100%', 
+                              padding: '6px', 
+                              background: row.repairDetails.repairStatus === '완료' ? '#2563eb' : '#f59e0b', 
+                              color: '#fff', 
+                              border: 'none', 
+                              borderRadius: '4px', 
+                              cursor: 'pointer', 
+                              fontSize: '12px',
+                              fontWeight: 'bold'
+                            }}
+                          >
+                            {row.repairDetails.repairStatus === '완료' ? '수리완료' : '수리의뢰요청'}
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => setEditingRepairIndex(i)}
+                            style={{ width: '100%', padding: '6px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}
+                          >
+                            수리의뢰 작성
+                          </button>
+                        )}
                       </td>
                       <td style={{ padding: '4px' }}>
                         <input type="checkbox" style={{ width: '16px', height: '16px', cursor: 'pointer' }} checked={row.confirmed} onChange={e => updateHistory(i, 'confirmed', e.target.checked)} />
