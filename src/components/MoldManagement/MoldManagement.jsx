@@ -104,6 +104,31 @@ export default function MoldManagement() {
     }
   };
 
+  
+  const handleSaveRepairRequest = async (repairData) => {
+    try {
+      const newHistoryRow = {
+        date: repairData.requestDate || new Date().toISOString().split('T')[0],
+        issue: repairData.requestContent || '',
+        action: repairData.actionContent || '',
+        attachment: '수리의뢰서',
+        confirmed: false,
+        repairDetails: repairData
+      };
+      
+      const updatedHistory = [...(repairMold.history || []), newHistoryRow];
+      
+      const moldRef = doc(db, 'molds', repairMold.id);
+      await updateDoc(moldRef, { history: updatedHistory });
+      
+      setMolds(molds.map(m => m.id === repairMold.id ? { ...m, history: updatedHistory } : m));
+      setRepairMold(null);
+    } catch (e) {
+      console.error('Failed to save repair request:', e);
+      alert('저장 실패!');
+    }
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
@@ -190,6 +215,7 @@ export default function MoldManagement() {
         <MoldRepairRequestModal 
           mold={repairMold} 
           onClose={() => setRepairMold(null)}
+          onSave={handleSaveRepairRequest}
         />
       )}
       

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
+import MoldRepairRequestModal from './MoldRepairRequestModal';
 
 export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
   const [formData, setFormData] = useState({
@@ -9,6 +10,20 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
     manufacturer: mold.manufacturer || '',
     history: mold.history || []
   });
+
+  const [editingRepairIndex, setEditingRepairIndex] = useState(null);
+
+  const handleSaveRepairFromHistory = (index, repairData) => {
+    const newHistory = [...formData.history];
+    newHistory[index] = {
+      ...newHistory[index],
+      issue: repairData.requestContent,
+      action: repairData.actionContent,
+      repairDetails: repairData
+    };
+    setFormData({ ...formData, history: newHistory });
+    setEditingRepairIndex(null);
+  };
 
   const handleSave = async () => {
     try {
@@ -147,7 +162,12 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                         <input type="text" style={tableInputStyle} value={row.action} onChange={e => updateHistory(i, 'action', e.target.value)} placeholder="조치 내용..." />
                       </td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
-                        <input type="text" style={{...tableInputStyle, textAlign: 'center'}} placeholder="파일명" value={row.attachment} onChange={e => updateHistory(i, 'attachment', e.target.value)} />
+                        <button 
+                          onClick={() => setEditingRepairIndex(i)}
+                          style={{ width: '100%', padding: '4px', background: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' }}
+                        >
+                          📄 {row.repairDetails ? '의뢰서 상세' : '의뢰서 작성'}
+                        </button>
                       </td>
                       <td style={{ padding: '4px' }}>
                         <input type="checkbox" style={{ width: '16px', height: '16px', cursor: 'pointer' }} checked={row.confirmed} onChange={e => updateHistory(i, 'confirmed', e.target.checked)} />
@@ -183,6 +203,14 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
         </div>
         
       </div>
+      {editingRepairIndex !== null && (
+        <MoldRepairRequestModal
+          mold={mold}
+          initialData={formData.history[editingRepairIndex].repairDetails}
+          onClose={() => setEditingRepairIndex(null)}
+          onSave={(data) => handleSaveRepairFromHistory(editingRepairIndex, data)}
+        />
+      )}
     </div>
   );
 }
