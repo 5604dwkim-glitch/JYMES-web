@@ -53,16 +53,16 @@ export default function MoldRepairRequestModal({ mold, onClose }) {
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #94a3b8', tableLayout: 'fixed' }}>
             <thead>
               <tr>
-                <th style={{...thStyle, width: '6%'}}>차 종</th>
+                <th style={{...thStyle, width: '5%'}}>차 종</th>
                 <th style={{...thStyle, width: '12%'}}>품 명</th>
-                <th style={{...thStyle, width: '8%'}}>호 기</th>
-                <th style={{...thStyle, width: '10%'}}>부 위</th>
-                <th style={{...thStyle, width: '16%'}}>의뢰부서 및 협력업체</th>
-                <th style={{...thStyle, width: '10%'}}>의뢰일자</th>
-                <th style={{...thStyle, width: '16%'}}>의뢰구분</th>
-                <th style={{...thStyle, width: '8%'}}>수리담당</th>
-                <th style={{...thStyle, width: '10%'}}>완료일</th>
-                <th style={{...thStyle, width: '4%'}}>비 고</th>
+                <th style={{...thStyle, width: '5%'}}>호 기</th>
+                <th style={{...thStyle, width: '8%'}}>부 위</th>
+                <th style={{...thStyle, width: '13%'}}>의뢰부서 및 협력업체</th>
+                <th style={{...thStyle, width: '11%'}}>의뢰일자</th>
+                <th style={{...thStyle, width: '11%'}}>의뢰구분</th>
+                <th style={{...thStyle, width: '7%'}}>수리담당</th>
+                <th style={{...thStyle, width: '11%'}}>완료일</th>
+                <th style={{...thStyle, width: '17%'}}>비 고</th>
               </tr>
             </thead>
             <tbody>
