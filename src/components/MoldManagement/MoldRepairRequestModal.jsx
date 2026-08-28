@@ -159,7 +159,8 @@ export default function MoldRepairRequestModal({ mold, onClose }) {
         {/* Modal Footer */}
         <div className="modal-footer" style={{ padding: '16px 24px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
           <button className="btn btn-secondary" onClick={onClose} style={{ padding: '8px 24px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>닫기</button>
-          <button className="btn btn-primary" onClick={handleSave} style={{ padding: '8px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>저장 / 인쇄</button>
+          <button className="btn" onClick={() => { onSave({ ...formData, repairStatus: '요청' }) }} style={{ padding: '8px 24px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>수리요청</button>
+          <button className="btn btn-primary" onClick={() => { onSave({ ...formData, repairStatus: '완료' }) }} style={{ padding: '8px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>수리완료</button>
         </div>
         
       </div>
