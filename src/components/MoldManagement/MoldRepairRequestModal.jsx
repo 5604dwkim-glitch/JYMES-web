@@ -50,109 +50,109 @@ export default function MoldRepairRequestModal({ mold, onClose }) {
             <span style={{ fontSize: '18px' }}>▣</span> 양산 금형 수리 의뢰서
           </h2>
 
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #94a3b8', tableLayout: 'fixed' }}>
-            <thead>
-              <tr>
-                <th style={{...thStyle, width: '5%'}}>차 종</th>
-                <th style={{...thStyle, width: '12%'}}>품 명</th>
-                <th style={{...thStyle, width: '5%'}}>호 기</th>
-                <th style={{...thStyle, width: '8%'}}>부 위</th>
-                <th style={{...thStyle, width: '13%'}}>의뢰부서 및 협력업체</th>
-                <th style={{...thStyle, width: '11%'}}>의뢰일자</th>
-                <th style={{...thStyle, width: '11%'}}>의뢰구분</th>
-                <th style={{...thStyle, width: '7%'}}>수리담당</th>
-                <th style={{...thStyle, width: '11%'}}>완료일</th>
-                <th style={{...thStyle, width: '17%'}}>비 고</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={tdStyle}>{mold.carModel || ''}</td>
-                <td style={tdStyle}>{mold.partName || ''}</td>
-                <td style={tdStyle}>{mold.moldNumber || ''}</td>
-                <td style={tdStyle}>{mold.moldType || ''}</td>
-                <td style={tdStyle}>
-                  <input type="text" style={inputStyle} value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} />
-                </td>
-                <td style={tdStyle}>
-                  <input type="date" style={inputStyle} value={formData.requestDate} onChange={e => setFormData({...formData, requestDate: e.target.value})} />
-                </td>
-                <td style={tdStyle}>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      {['수리', '설변'].map(type => (
-                        <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
-                          <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
-                          {type}
-                        </label>
-                      ))}
+          <div style={{ border: '1px solid #94a3b8', width: '100%' }}>
+            {/* Top Table */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+              <thead>
+                <tr>
+                  <th style={{...thStyle, width: '5%', borderTop: 'none', borderLeft: 'none'}}>차 종</th>
+                  <th style={{...thStyle, width: '12%', borderTop: 'none'}}>품 명</th>
+                  <th style={{...thStyle, width: '5%', borderTop: 'none'}}>호 기</th>
+                  <th style={{...thStyle, width: '8%', borderTop: 'none'}}>부 위</th>
+                  <th style={{...thStyle, width: '13%', borderTop: 'none'}}>의뢰부서 및 협력업체</th>
+                  <th style={{...thStyle, width: '11%', borderTop: 'none'}}>의뢰일자</th>
+                  <th style={{...thStyle, width: '11%', borderTop: 'none'}}>의뢰구분</th>
+                  <th style={{...thStyle, width: '7%', borderTop: 'none'}}>수리담당</th>
+                  <th style={{...thStyle, width: '11%', borderTop: 'none'}}>완료일</th>
+                  <th style={{...thStyle, width: '17%', borderTop: 'none', borderRight: 'none'}}>비 고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{...tdStyle, borderLeft: 'none'}}>{mold?.carModel || ''}</td>
+                  <td style={tdStyle}>{mold?.partName || ''}</td>
+                  <td style={tdStyle}>{mold?.moldNumber || ''}</td>
+                  <td style={tdStyle}>{mold?.moldType || ''}</td>
+                  <td style={tdStyle}>
+                    <input type="text" style={inputStyle} value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} />
+                  </td>
+                  <td style={tdStyle}>
+                    <input type="date" style={inputStyle} value={formData.requestDate} onChange={e => setFormData({...formData, requestDate: e.target.value})} />
+                  </td>
+                  <td style={tdStyle}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        {['수리', '설변'].map(type => (
+                          <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
+                            <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
+                            {type}
+                          </label>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        {['파손', '습합'].map(type => (
+                          <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
+                            <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
+                            {type}
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      {['파손', '습합'].map(type => (
-                        <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
-                          <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
-                          {type}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                </td>
-                <td style={tdStyle}>
-                  <input type="text" style={inputStyle} value={formData.pic} onChange={e => setFormData({...formData, pic: e.target.value})} />
-                </td>
-                <td style={tdStyle}>
-                  <input type="date" style={inputStyle} value={formData.completionDate} onChange={e => setFormData({...formData, completionDate: e.target.value})} />
-                </td>
-                <td style={tdStyle}>
-                  <input type="text" style={inputStyle} value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} />
-                </td>
-              </tr>
-              
-              {/* Content Row 1 */}
-              <tr>
-                <td colSpan="5" style={{ border: '1px solid #94a3b8', padding: '8px', verticalAlign: 'top', height: '100px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>(의뢰 내용)</div>
-                  <textarea style={{ width: '100%', height: '70px', border: 'none', outline: 'none', resize: 'none', fontSize: '13px' }} placeholder="수지노출 등 상세 의뢰 내용 입력..." value={formData.requestContent} onChange={e => setFormData({...formData, requestContent: e.target.value})}></textarea>
-                </td>
-                <td colSpan="5" style={{ border: '1px solid #94a3b8', padding: '8px', verticalAlign: 'top', height: '100px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>(조치 내용)</div>
-                  <textarea style={{ width: '100%', height: '70px', border: 'none', outline: 'none', resize: 'none', fontSize: '13px' }} placeholder="조치 내용 입력..." value={formData.actionContent} onChange={e => setFormData({...formData, actionContent: e.target.value})}></textarea>
-                </td>
-              </tr>
+                  </td>
+                  <td style={tdStyle}>
+                    <input type="text" style={inputStyle} value={formData.pic} onChange={e => setFormData({...formData, pic: e.target.value})} />
+                  </td>
+                  <td style={tdStyle}>
+                    <input type="date" style={inputStyle} value={formData.completionDate} onChange={e => setFormData({...formData, completionDate: e.target.value})} />
+                  </td>
+                  <td style={{...tdStyle, borderRight: 'none'}}>
+                    <input type="text" style={inputStyle} value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-              {/* Content Row 2 (Photos) */}
-              <tr>
-                <td colSpan="5" style={{ border: '1px solid #94a3b8', padding: '8px', verticalAlign: 'top', height: '350px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리전 사진</div>
-                  <div style={{ width: '100%', height: '300px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
-                    <span style={{ color: '#94a3b8', fontSize: '13px' }}>사진 업로드 (준비중)</span>
-                  </div>
-                </td>
-                <td colSpan="5" style={{ border: '1px solid #94a3b8', padding: '8px', verticalAlign: 'top', height: '350px' }}>
-                  <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리후 사진</div>
-                  <div style={{ width: '100%', height: '300px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
-                    <span style={{ color: '#94a3b8', fontSize: '13px' }}>사진 업로드 (준비중)</span>
-                  </div>
-                </td>
-              </tr>
+            {/* Middle Sections (Exactly 50/50 split) */}
+            <div style={{ display: 'flex', borderTop: '1px solid #94a3b8' }}>
+              <div style={{ flex: 1, padding: '8px', borderRight: '1px solid #94a3b8', minHeight: '100px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>(의뢰 내용)</div>
+                <textarea style={{ width: '100%', height: '70px', border: 'none', outline: 'none', resize: 'none', fontSize: '13px' }} placeholder="수지노출 등 상세 의뢰 내용 입력..." value={formData.requestContent} onChange={e => setFormData({...formData, requestContent: e.target.value})}></textarea>
+              </div>
+              <div style={{ flex: 1, padding: '8px', minHeight: '100px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>(조치 내용)</div>
+                <textarea style={{ width: '100%', height: '70px', border: 'none', outline: 'none', resize: 'none', fontSize: '13px' }} placeholder="조치 내용 입력..." value={formData.actionContent} onChange={e => setFormData({...formData, actionContent: e.target.value})}></textarea>
+              </div>
+            </div>
 
-              {/* Footer Row */}
-              <tr>
-                <td colSpan="7" style={{ background: '#fce7f3', border: '1px solid #94a3b8', padding: '16px 8px', textAlign: 'left' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-                    <span>■ 검증 결과 :</span>
-                    <input type="text" style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', borderBottom: '1px solid #fbcfe8' }} value={formData.verificationResult} onChange={e => setFormData({...formData, verificationResult: e.target.value})} />
-                  </div>
-                </td>
-                <td colSpan="2" style={{ background: '#fce7f3', border: '1px solid #94a3b8', padding: '8px', fontWeight: 'bold', textAlign: 'center' }}>
-                  협력업체<br/>품질 담당
-                </td>
-                <td colSpan="1" style={{ background: '#fce7f3', border: '1px solid #94a3b8', padding: '8px', textAlign: 'center' }}>
-                  <input type="text" style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', outline: 'none', fontWeight: 'bold' }} placeholder="담당자명" value={formData.qualityPic} onChange={e => setFormData({...formData, qualityPic: e.target.value})} />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <div style={{ display: 'flex', borderTop: '1px solid #94a3b8' }}>
+              <div style={{ flex: 1, padding: '8px', borderRight: '1px solid #94a3b8', minHeight: '300px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리전 사진</div>
+                <div style={{ width: '100%', height: '280px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
+                  <span style={{ color: '#94a3b8', fontSize: '13px' }}>사진 업로드 (준비중)</span>
+                </div>
+              </div>
+              <div style={{ flex: 1, padding: '8px', minHeight: '300px' }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리후 사진</div>
+                <div style={{ width: '100%', height: '280px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
+                  <span style={{ color: '#94a3b8', fontSize: '13px' }}>사진 업로드 (준비중)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Section */}
+            <div style={{ display: 'flex', borderTop: '1px solid #94a3b8', background: '#fce7f3' }}>
+              <div style={{ flex: 1, padding: '16px 8px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                <span>■ 검증 결과 :</span>
+                <input type="text" style={{ flex: 1, border: 'none', background: 'transparent', outline: 'none', borderBottom: '1px solid #fbcfe8' }} value={formData.verificationResult} onChange={e => setFormData({...formData, verificationResult: e.target.value})} />
+              </div>
+              <div style={{ width: '120px', borderLeft: '1px solid #94a3b8', padding: '8px', fontWeight: 'bold', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
+                협력업체<br/>품질 담당
+              </div>
+              <div style={{ width: '150px', borderLeft: '1px solid #94a3b8', padding: '8px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <input type="text" style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', outline: 'none', fontWeight: 'bold' }} placeholder="담당자명" value={formData.qualityPic} onChange={e => setFormData({...formData, qualityPic: e.target.value})} />
+              </div>
+            </div>
+          </div>
 
         </div>
 
