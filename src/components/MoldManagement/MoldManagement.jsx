@@ -142,7 +142,7 @@ export default function MoldManagement() {
                 <thead>
                   <tr>
                     <th>관리번호</th>
-                    <th>제작일자</th>
+                    <th>금형입고 일자</th>
                     <th>품명</th>
                     <th>품번</th>
                     <th>상태</th>
@@ -156,7 +156,7 @@ export default function MoldManagement() {
                     return (
                       <tr key={m.id}>
                         <td>{m.code}</td>
-                        <td>{m.manufactureDate || '-'}</td>
+                        <td>{m.receiptDate || '-'}</td>
                         <td style={{ fontWeight: 'bold' }}>{m.name}</td>
                         <td>{m.itemNo || '-'}</td>
                         <td>
