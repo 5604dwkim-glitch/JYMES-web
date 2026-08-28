@@ -417,6 +417,48 @@ export function renderQtySection(ctx) {
     if (defectQtyInput) defectQtyInput.value = overallDefect;
   }
   
+  
+  function calc3001QtySummary() {
+    const table = container.querySelector('#form3001QtyTable');
+    if (!table) return;
+
+    const positions = ['FL_A', 'FR_A', 'RL_A', 'RR_A', 'RL_C', 'RR_C', 'RL_D', 'RR_D'];
+    let totalPlan = 0;
+    let totalAct = 0;
+    let overallDefect = 0;
+
+    positions.forEach(pos => {
+      const plan = Number(table.querySelector(`#qtyd_plan_${pos}`)?.value) || 0;
+      const act = Number(table.querySelector(`#qtyd_act_${pos}`)?.value) || 0;
+      totalPlan += plan;
+      totalAct += act;
+
+      const defs = [
+        Number(table.querySelector(`#qtyd_ext_scorch_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_ext_scratch_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_ext_flock_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_ext_contam_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_proc_len_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_proc_cut_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_proc_oth_${pos}`)?.value) || 0
+      ];
+
+      const posDefectSum = defs.reduce((a, b) => a + b, 0);
+      overallDefect += posDefectSum;
+
+      const sumElem = table.querySelector(`#qtyd_def_sum_${pos}`);
+      if (sumElem) sumElem.textContent = posDefectSum;
+    });
+
+    const targetQtyInput = container.querySelector('#targetQty');
+    const actualQtyInput = container.querySelector('#actualQty');
+    const defectQtyInput = container.querySelector('#defectQty');
+
+    if (targetQtyInput) targetQtyInput.value = totalPlan;
+    if (actualQtyInput) actualQtyInput.value = totalAct;
+    if (defectQtyInput) defectQtyInput.value = overallDefect;
+  }
+
   function calcJoint1002QtySummary() {
     const table = container.querySelector('#jointQtyTable');
     if (!table) return;
@@ -463,7 +505,7 @@ export function renderQtySection(ctx) {
     const table = container.querySelector('#jointQtyTable');
     if (!table) return;
 
-    const cols = ['frt_p', 'frt_q', 'rr_r', 'rr_s_lh', 'rr_s_rh'];
+    const cols = formCode === 3002 ? ['frt_lh', 'frt_rh', 'rr_lh', 'rr_rh'] : ['frt_p', 'frt_q', 'rr_r', 'rr_s_lh', 'rr_s_rh'];
     let totalPlan = 0;
     let totalAct = 0;
     let overallDefect = 0;
@@ -752,6 +794,13 @@ export function renderQtySection(ctx) {
         calcInspQtySummary();
         break;
 
+
+      case 3001:
+        qtySection.innerHTML = Templates.getForm3001QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calc3001QtySummary);
+        calc3001QtySummary();
+        break;
+
       case 4011:
         qtySection.innerHTML = Templates.getForm4011QtyHTML(existingData, container);
         qtySection.addEventListener('input', calcJg1QtySummary);
@@ -804,7 +853,9 @@ export function renderQtySection(ctx) {
         break;
       default:
         if (curProc === '조인트') {
-          if (formCode === 1032) {
+          if (formCode === 3002) {
+            qtySection.innerHTML = Templates.getJointQty3002HTML(existingData, container);
+          } else if (formCode === 1032) {
             qtySection.innerHTML = Templates.getJointQty1032HTML(existingData, container);
           } else {
             qtySection.innerHTML = Templates.getJointQtyHTML(existingData, container);

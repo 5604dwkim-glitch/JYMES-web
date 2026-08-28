@@ -103,6 +103,10 @@ export const FORM_CODE_MAP = {
 
 export const getCurrentFormCode = (carModel, part, process) => {
   if (!carModel || !process) return 0;
-  const lookupKey = `${carModel}_${part || ''}_${process}`.replace('__', '_');
+  let p = part || '';
+  if (p && p.startsWith(carModel + ' ')) {
+    p = p.replace(carModel + ' ', '').trim();
+  }
+  const lookupKey = `${carModel}_${p}_${process}`.replace('__', '_');
   return FORM_CODE_MAP[lookupKey] || 9999;
 };

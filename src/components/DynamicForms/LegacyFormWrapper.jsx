@@ -20,6 +20,7 @@ export const store = {
   getUserRole: () => _ctx.userRoleInfo,
   getReportById: (id) => _ctx.existingData,
   getWorkers: () => _ctx.workers || [],
+  getMolds: () => _ctx.molds || [],
   getProcesses: () => _ctx.processes || [],
   getItems: (code) => _ctx.getItems(code),
   updateReport: (id, data) => _ctx.onSave(id, data),
@@ -569,7 +570,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
   function _getCtx() {
     return { container, processValue, carModelValue, currentCarCode, partValueInput, existingData,
-             getCurrentFormCode, bindNumberWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, qtySection, isDtCrewClip, currentMakerName };
+             getCurrentFormCode, bindNumberWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, qtySection, isDtCrewClip, currentMakerName, molds: store.getMolds() };
   }
   function renderSection5() {
     _Sections.renderSection5(_getCtx());
@@ -2696,6 +2697,8 @@ export function autoBindAllDimensionInputs(container) {
     '#section5DynamicContainer input[type="number"]',
     '#qtySection input[id^="dtc_len"]',
     '#qtySection input[id^="dtcb_len"]',
+    '#qtySection input[id^="dtc_clip"]',
+    '#qtySection input[id^="dtcb_clip"]',
     '#qtySection input[id^="kmkx_cut_len"]',
     '#qtySection input[id^="kmkx_hole_gap"]',
     'input[id^="dim_"]',
@@ -2703,7 +2706,9 @@ export function autoBindAllDimensionInputs(container) {
     'input[id^="kmkx_cut_len"]',
     'input[id^="kmkx_hole_gap"]',
     'input[id^="dtc_len"]',
-    'input[id^="dtcb_len"]'
+    'input[id^="dtcb_len"]',
+    'input[id^="dtc_clip"]',
+    'input[id^="dtcb_clip"]'
   ].join(', ');
 
   const inputs = container.querySelectorAll(selector);
@@ -2732,6 +2737,23 @@ export function autoBindAllDimensionInputs(container) {
       } else {
         defVal = 28;
       }
+      foundSpec = true;
+    } else if (inputId.startsWith('dtc_len_')) {
+      const carName = document.getElementById('carModelValue')?.value || '';
+      defVal = (carName === 'DT QUAD') ? 509 : 779;
+      foundSpec = true;
+    } else if (inputId.startsWith('dtcb_len_')) {
+      const carName = document.getElementById('carModelValue')?.value || '';
+      defVal = (carName === 'DT QUAD') ? 2463 : 2699;
+      foundSpec = true;
+    } else if (inputId.startsWith('dtc_clip_LH1') || inputId.startsWith('dtc_clip_RH2')) {
+      defVal = 121;
+      foundSpec = true;
+    } else if (inputId.startsWith('dtc_clip_LH2') || inputId.startsWith('dtc_clip_RH1')) {
+      defVal = 28;
+      foundSpec = true;
+    } else if (inputId.startsWith('dtcb_clip_')) {
+      defVal = 28;
       foundSpec = true;
     }
 

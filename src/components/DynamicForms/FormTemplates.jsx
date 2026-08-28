@@ -246,8 +246,8 @@ import { store } from './LegacyFormWrapper.jsx';
                 ].map(row => `
                 <tr>
                   <td style="border:1px solid var(--border-color); background:${row.bg}; color:${row.color}; font-weight:${row.bold ? '800' : '600'}; text-align:center; padding:6px 4px; font-size:11px;">${row.label}</td>
-                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_LH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="LH" value="${g(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
-                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_RH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="RH" value="${g(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_LH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : 'LH'}" value="${g(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_RH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : 'RH'}" value="${g(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
                 </tr>`).join('')}
               </tbody>
             </table>
@@ -304,10 +304,10 @@ import { store } from './LegacyFormWrapper.jsx';
                 ].map(row => `
                 <tr>
                   <td style="border:1px solid var(--border-color); background:${row.bg}; color:${row.color}; font-weight:${row.bold ? '800' : '600'}; text-align:center; padding:6px 4px; font-size:11px;">${row.label}</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH3" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${isQuad ? '2호' : '3호'}" value="${gb(row.id+'_LH3') || gb(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH4" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="4호" value="${gb(row.id+'_LH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH2" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${isQuad ? '3호' : '2호'}" value="${gb(row.id+'_RH2') || gb(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH4" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="4호" value="${gb(row.id+'_RH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH3" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : (isQuad ? '2호' : '3호')}" value="${gb(row.id+'_LH3') || gb(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH4" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : '4호'}" value="${gb(row.id+'_LH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH2" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : (isQuad ? '3호' : '2호')}" value="${gb(row.id+'_RH2') || gb(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH4" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : '4호'}" value="${gb(row.id+'_RH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
                 </tr>`).join('')}
               </tbody>
             </table>
@@ -478,9 +478,9 @@ import { store } from './LegacyFormWrapper.jsx';
               ].map(row => `
               <tr>
                 <td style="border:1px solid var(--border-color); background:${row.bg}; color:${row.color}; font-weight:${row.bold ? '800' : '600'}; text-align:center; padding:6px 4px; font-size:11px;">${row.label}</td>
-                <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_LH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="LH" value="${g(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
-                <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_MID" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="MID" value="${g(row.id+'_MID')}" ${row.readonly ? 'readonly' : ''}></td>
-                <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_RH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="RH" value="${g(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
+                <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_LH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : 'LH'}" value="${g(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
+                <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_MID" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : 'MID'}" value="${g(row.id+'_MID')}" ${row.readonly ? 'readonly' : ''}></td>
+                <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_${row.id}_RH" class="form-control" style="font-size:12px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : 'RH'}" value="${g(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
               </tr>`).join('')}
             </tbody>
           </table>
@@ -559,19 +559,19 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td rowspan="3" colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; width: 24%;">제품수량</td>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; width: 46%;">작 업 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="자동계산" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_work_RH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_RH ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_pqty_work_RH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_RH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">정 품 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="자동계산" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_good_RH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_RH ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_pqty_good_RH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_RH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
@@ -744,13 +744,13 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td rowspan="3" colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; width: 24%;">제품수량</td>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; width: 51%;">작 업 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">정 품 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
@@ -1750,6 +1750,105 @@ export function getStandardQtyHTML(ed, container) {
     `;
   }
 
+  
+  export function getJointQty3002HTML(ed, container) {
+    const q = ed && ed.jointQtyTable ? ed.jointQtyTable : {};
+    const cols = [
+      { id: 'frt_lh', label: 'FRT LH' },
+      { id: 'frt_rh', label: 'FRT RH' },
+      { id: 'rr_lh', label: 'RR LH' },
+      { id: 'rr_rh', label: 'RR RH' }
+    ];
+
+    return `
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 (Production Results)
+        </label>
+
+        <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
+        <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
+        <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
+
+        <div style="overflow-x: auto;">
+          <table id="jointQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                ${cols.map(c => `<th style="border: 1px solid #000; padding: 6px; width: 20%;">${c.label}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량 (Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">계획(P)</td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ''}" placeholder="0" />
+                  </td>
+                `).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">실적(O)</td>
+                ${cols.map(c => `
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                  </td>
+                `).join('')}
+              </tr>
+
+              <!-- 2. 공정간불량 (Process Badness) -->
+              <tr>
+                <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  공정간불량<br>(Process<br>Badness)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">떨어짐(Split)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">밀림(Push)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">양부족(lack)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">넘침(overflowing)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['over_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기포 (Air bubbles)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">찌꺼기(scrap)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">삽입불량(insert)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['insert_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기타(oth)</td>
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+              </tr>
+
+              <!-- 3. 불량합계 (Total) -->
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">불량합계(Total)</td>
+                ${cols.map(c => `<td id="jdef_sum_${c.id}" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">0</td>`).join('')}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
   export function getJointQtyHTML(ed, container) {
     const q = ed && ed.jointQtyTable ? ed.jointQtyTable : {};
     const cols = [
@@ -2185,7 +2284,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #ffffff; text-align: center; width: 16%;">검 사 수</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="insp_inspect_qty_${c}" min="0" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; color: var(--accent-blue);" value="${inspData[`inspect_qty_${c}`] || ''}" placeholder="자동합산" />
+                    <input type="number" id="insp_inspect_qty_${c}" min="0" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; color: var(--accent-blue);" value="${inspData[`inspect_qty_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2201,7 +2300,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #e2e8f0; text-align: center;">불량합계</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #e2e8f0;">
-                    <input type="number" id="insp_total_defect_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; color: var(--accent-rose);" value="${inspData[`total_defect_${c}`] || ''}" />
+                    <input type="number" id="insp_total_defect_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; color: var(--accent-rose);" value="${inspData[`total_defect_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2229,7 +2328,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #f1f5f9; text-align: center;">소 계</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #f1f5f9;">
-                    <input type="number" id="insp_ext_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`ext_subtotal_${c}`] || ''}" />
+                    <input type="number" id="insp_ext_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`ext_subtotal_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2261,7 +2360,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #f1f5f9; text-align: center;">불 량 수</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #f1f5f9;">
-                    <input type="number" id="insp_j_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`j_subtotal_${c}`] || ''}" />
+                    <input type="number" id="insp_j_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`j_subtotal_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2296,7 +2395,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #f1f5f9; text-align: center;">불 량 수</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #f1f5f9;">
-                    <input type="number" id="insp_p_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`p_subtotal_${c}`] || ''}" />
+                    <input type="number" id="insp_p_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`p_subtotal_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2372,7 +2471,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #ffffff; text-align: center; width: 16%;">검 사 수</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="insp_inspect_qty_${c}" min="0" ${autoInspectQty ? 'readonly' : ''} class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; ${autoInspectQty ? 'color: var(--accent-blue);' : ''}" value="${inspData[`inspect_qty_${c}`] || ''}" placeholder="${autoInspectQty ? '자동합산' : ''}" />
+                    <input type="number" id="insp_inspect_qty_${c}" min="0" ${autoInspectQty ? 'readonly' : ''} class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; ${autoInspectQty ? 'color: var(--accent-blue);' : ''}" value="${inspData[`inspect_qty_${c}`] || ''}" placeholder="${autoInspectQty ? '자동계산' : ''}" />
                   </td>
                 `).join('')}
               </tr>
@@ -2388,7 +2487,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #e2e8f0; text-align: center;">불량합계</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #e2e8f0;">
-                    <input type="number" id="insp_total_defect_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; color: var(--accent-rose);" value="${inspData[`total_defect_${c}`] || ''}" />
+                    <input type="number" id="insp_total_defect_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent; color: var(--accent-rose);" value="${inspData[`total_defect_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2416,7 +2515,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #f1f5f9; text-align: center;">소 계</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #f1f5f9;">
-                    <input type="number" id="insp_ext_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`ext_subtotal_${c}`] || ''}" />
+                    <input type="number" id="insp_ext_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`ext_subtotal_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2448,7 +2547,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #f1f5f9; text-align: center;">불 량 수</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #f1f5f9;">
-                    <input type="number" id="insp_j_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`j_subtotal_${c}`] || ''}" />
+                    <input type="number" id="insp_j_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`j_subtotal_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -2483,7 +2582,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 4px 2px; font-weight: 700; background: #f1f5f9; text-align: center;">불 량 수</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px; background: #f1f5f9;">
-                    <input type="number" id="insp_p_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`p_subtotal_${c}`] || ''}" />
+                    <input type="number" id="insp_p_subtotal_${c}" readonly class="form-control" style="width:100%; border:none; text-align:center; font-size:11px; font-weight:700; padding:4px 2px; background:transparent;" value="${inspData[`p_subtotal_${c}`] || ''}" placeholder="자동계산" />
                   </td>
                 `).join('')}
               </tr>
@@ -3502,3 +3601,143 @@ export function getPostQty1012HTML(ed, container) {
       </div>
     `;
   }
+
+
+export function getForm3001QtyHTML(ed, container) {
+    const q = ed && ed.qtyTable ? ed.qtyTable : {};
+    
+    // 헬퍼: input 태그 생성
+    const inp = (prefix, pos) => `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q[`${prefix}_${pos}`] ?? ''}" placeholder="0" />`;
+    const sum = (pos) => `<span id="qtyd_def_sum_${pos}">0</span>`;
+
+    const getTable = (title, cols) => `
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; margin-bottom: 16px;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                  구 분(Division)
+                </th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">${cols[0].label}</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">${cols[1].label}</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">${cols[2].label}</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">${cols[3].label}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량(Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">계획</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('plan', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('plan', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('plan', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('plan', cols[3].key)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">실적</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('act', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('act', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('act', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('act', cols[3].key)}</td>
+              </tr>
+              <!-- 2. 압출소재불량(Extrusion Badness) -->
+              <tr>
+                <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  압출소재불량<br>(Extrusion Badness)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">스코치(Scortch)</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[3].key)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">외면흠 (Scratch)</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[3].key)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">플로킹 (Flock)</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[3].key)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">오염/이물 (Contam)</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[3].key)}</td>
+              </tr>
+              <!-- 3. 공정불량(Process Badness) -->
+              <tr>
+                <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  공정불량<br>(Process Badness)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">길이불량(Len)</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[3].key)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">단면컷팅(Cut)</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[3].key)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타(Oth)</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[3].key)}</td>
+              </tr>
+              <!-- 4. 불량합계 -->
+              <tr>
+                <td colspan="2" style="border: 1px solid #000; padding: 8px 4px; background: #fee2e2; font-weight: 700; color: #991b1b;">
+                  불량 합계 (Defect Total)
+                </td>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fee2e2; font-weight: 700; color: #991b1b;">${sum(cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fee2e2; font-weight: 700; color: #991b1b;">${sum(cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fee2e2; font-weight: 700; color: #991b1b;">${sum(cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 8px 4px; background: #fee2e2; font-weight: 700; color: #991b1b;">${sum(cols[3].key)}</td>
+              </tr>
+            </tbody>
+          </table>
+    `;
+
+    return `
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 (Production Results)
+        </label>
+
+        <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
+        <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
+        <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
+
+        <div id="form3001QtyTable" style="overflow-x: auto;">
+          ${getTable('1', [
+            {label: 'FRT LH A', key: 'FL_A'},
+            {label: 'FRT RH A', key: 'FR_A'},
+            {label: 'RR LH A', key: 'RL_A'},
+            {label: 'RR RH A', key: 'RR_A'}
+          ])}
+          
+          ${getTable('2', [
+            {label: 'RR LH C', key: 'RL_C'},
+            {label: 'RR RH C', key: 'RR_C'},
+            {label: 'RR LH D', key: 'RL_D'},
+            {label: 'RR RH D', key: 'RR_D'}
+          ])}
+        </div>
+      </div>
+    `;
+}

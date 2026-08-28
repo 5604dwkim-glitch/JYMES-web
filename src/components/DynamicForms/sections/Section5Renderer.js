@@ -12,10 +12,198 @@ export function renderSection5(ctx) {
 
     const curProc = processValue ? processValue.value : '';
     const formCode = getCurrentFormCode();
+
+    const _carModel = carModelValue ? carModelValue.value : '';
+    const _partName = partValueInput ? partValueInput.value : '';
+    const getMoldOptions = (moldType, selectedVal) => {
+      if (!moldType) return '<option value="">선택</option>';
+      const filtered = molds.filter(m => m.carModel === _carModel && m.partName === _partName && (m.moldType === moldType || (m.moldType && m.moldType.includes(moldType))));
+      let options = '<option value="">선택</option>';
+      filtered.forEach(m => {
+        const moldNo = m.moldNumber || m.code;
+        options += `<option value="${moldNo}" ${selectedVal === moldNo ? 'selected' : ''}>${moldNo}</option>`;
+      });
+      return options;
+    };
+    const renderMoldSelect = (id, moldType, selVal) => {
+      return `<select id="${id}" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;">${getMoldOptions(moldType, selVal)}</select>`;
+    };
+    const molds = ctx.molds || [];
     const d = existingData?.dimData || {};
 
     if (!curProc || curProc === '클립머신') {
       section5.innerHTML = '';
+      return;
+    }
+
+    if (formCode === 3002) {
+      const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};
+
+      const inp = (prefix, suffix) => {
+        const id = `vulc_${prefix}${suffix}`;
+        const vval = v[`${prefix}${suffix}`] || '';
+        return `<input type="text" id="${id}" class="form-control vulc-input-dynamic" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${vval}" />`;
+      };
+
+      const tempCell = (stage, part, suffix) => `
+        <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+          <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
+          ${inp(`temp_${stage}_${part}_상`, suffix)}
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+          <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
+          ${inp(`temp_${stage}_${part}_하`, suffix)}
+        </div>
+      `;
+
+      const timeCell = (stage, part, suffix) => `
+        ${inp(`time_${stage}_${part}`, suffix)}
+      `;
+
+      const jointLotVal = (existingData && existingData.materialLots && existingData.materialLots['jointRubber'])
+        ? existingData.materialLots['jointRubber'] : '';
+
+      const makeTable = (suffix) => {
+        const val = v[`side${suffix}`] || '';
+        const isFirst = suffix === '';
+        const sideText = isFirst ? 'LH' : 'RH';
+        
+        
+        const carModel = carModelValue ? carModelValue.value : '';
+        const partName = partValueInput ? partValueInput.value : '';
+
+    
+
+        return `
+          <div style="overflow-x: auto; margin-bottom: 16px;">
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <thead>
+                <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                  <th colspan="2" rowspan="2" style="border: 1px solid #000; padding: 6px; vertical-align: middle;">구분 (Division)</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 20%;">FRT ${sideText}(P)</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 20%;">FRT ${sideText}(Q)</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 20%;">RR ${sideText}(R)</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 20%;">RR ${sideText}(S)</th>
+                </tr>
+                <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_frt_p' + suffix, 'FRT ' + sideText + '(P)', v['mold_frt_p' + suffix] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_frt_q' + suffix, 'FRT ' + sideText + '(Q)', v['mold_frt_q' + suffix] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rr_r' + suffix, 'RR ' + sideText + '(R)', v['mold_rr_r' + suffix] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rr_s' + suffix, 'RR ' + sideText + '(S)', v['mold_rr_s' + suffix] || '')}</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
+                  </td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">초물(Start)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'frt_p', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'frt_q', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'rr_r', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'rr_s', suffix)}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">중물(Harf)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'frt_p', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'frt_q', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'rr_r', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'rr_s', suffix)}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">종물(Finish)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'frt_p', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'frt_q', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'rr_r', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'rr_s', suffix)}</td>
+                </tr>
+                <tr>
+                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    가류시간(Time) - 초<br>(Sec)
+                  </td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">초물(Start)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'frt_p', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'frt_q', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'rr_r', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'rr_s', suffix)}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">중물(Harf)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'frt_p', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'frt_q', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'rr_r', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'rr_s', suffix)}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">종물(Finish)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'frt_p', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'frt_q', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'rr_r', suffix)}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'rr_s', suffix)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      };
+
+      section5.innerHTML = `
+        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
+            🔗 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+          </label>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
+          <input type="text" id="lotNo_jointRubber" class="form-control lot-datetime-input"
+            style="max-width: 280px; font-family: monospace;"
+            placeholder="년월일시분 (예: 2607251330)"
+            value="${jointLotVal}" />
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+            ♨️ <span class="sec-num"></span> 설비 가류온도 & 가류시간 입력
+          </label>
+          ${makeTable('')}
+          ${makeTable('_2')}
+        </div>
+      `;
+
+      setTimeout(() => {
+        section5.querySelectorAll('.vulc-input-dynamic').forEach(input => {
+          if (input.type === 'hidden' || input.tagName === 'SELECT') return;
+          const isTime = input.id.includes('time_');
+          const isUpper = input.id.includes('_상');
+          let defVal = isTime ? 90 : 200;
+          if (input.dataset.wheelParsedSpec !== undefined) {
+            defVal = parseFloat(input.dataset.wheelParsedSpec);
+          }
+          const labelSuffix = isTime ? '가류시간' : `가류온도 ${isUpper ? '(상)' : '(하)'}`;
+          
+          let stageLabel = '';
+          if (input.id.includes('start_')) stageLabel = '초물';
+          else if (input.id.includes('harf_')) stageLabel = '중물';
+          else if (input.id.includes('finish_')) stageLabel = '종물';
+
+          if (bindNumberWheelPicker) {
+            bindNumberWheelPicker(input, `${stageLabel} ${labelSuffix}`, defVal, 30, isTime ? '초' : '℃');
+          }
+        });
+      }, 0);
+
       return;
     }
 
@@ -443,9 +631,9 @@ export function renderSection5(ctx) {
               <!-- 금형 No. -->
               <tr style="background: #ffffff; font-weight: 700; color: #000;">
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700;">금형 No. [ 호기 ]</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_mold_R" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.mold_R || ''}" placeholder="호기 입력" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_mold_S" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.mold_S || ''}" placeholder="호기 입력" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_mold_T" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.mold_T || ''}" placeholder="호기 입력" /></td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_R', 'R[직각]', data.mold_R || '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_S', 'S[둔각]', data.mold_S || '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_T', 'T[직선]', data.mold_T || '')}</td>
               </tr>
             </thead>
             <tbody>
@@ -545,10 +733,10 @@ export function renderSection5(ctx) {
               <!-- 금형 No. -->
               <tr style="background: #ffffff; font-weight: 700; color: #000;">
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700;">금형 No. [ 호기 ]</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_mold_1" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.mold_1 ?? data.mold_R ?? ''}" placeholder="호기 입력" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_mold_2" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.mold_2 ?? data.mold_S ?? ''}" placeholder="호기 입력" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_mold_3" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.mold_3 ?? data.mold_T ?? ''}" placeholder="호기 입력" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_mold_4" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.mold_4 ?? ''}" placeholder="호기 입력" /></td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_1', '1', data.mold_1 ?? data.mold_R ?? '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_2', '2', data.mold_2 ?? data.mold_S ?? '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_3', '3', data.mold_3 ?? data.mold_T ?? '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_4', '4', data.mold_4 ?? '')}</td>
               </tr>
             </thead>
             <tbody>

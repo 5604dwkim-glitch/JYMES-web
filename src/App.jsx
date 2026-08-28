@@ -10,6 +10,9 @@ const ReportForm = lazy(() => import('./components/ReportForm'));
 const ReportList = lazy(() => import('./components/ReportList'));
 const Analytics = lazy(() => import('./components/Analytics'));
 const MasterData = lazy(() => import('./components/MasterData'));
+const TpmManagement = lazy(() => import('./components/EquipmentManagement/TpmManagement'));
+const EquipmentManagement = lazy(() => import('./components/EquipmentManagement/EquipmentManagement'));
+const MoldManagement = lazy(() => import('./components/MoldManagement/MoldManagement'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -63,6 +66,21 @@ export default function App() {
           <Route path="master" element={
             <Suspense fallback={<PageLoader />}>
               <MasterData />
+            </Suspense>
+          } />
+          <Route path="tpm" element={
+            <Suspense fallback={<PageLoader />}>
+              <TpmManagement />
+            </Suspense>
+          } />
+          <Route path="equipment" element={
+            <Suspense fallback={<PageLoader />}>
+              <EquipmentManagement />
+            </Suspense>
+          } />
+          <Route path="mold" element={
+            <Suspense fallback={<PageLoader />}>
+              <MoldManagement />
             </Suspense>
           } />
         </Route>

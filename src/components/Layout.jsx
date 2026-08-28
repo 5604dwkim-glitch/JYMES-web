@@ -30,6 +30,9 @@ export default function Layout() {
       case '/': return { title: t('title_dashboard'), sub: t('subtitle_dashboard') };
       case '/form': return { title: t('title_form'), sub: t('subtitle_form') };
       case '/drafts': return { title: t('title_drafts') || '작성중인 작업일보', sub: '' };
+      case '/tpm': return { title: t('title_tpm') || 'TPM 일지', sub: '설비 점검 및 관리' };
+      case '/equipment': return { title: '설비 관리', sub: '설비 리스트 및 이력 관리' };
+      case '/mold': return { title: '금형 리스트', sub: '' };
       case '/reports': return { title: t('title_reports'), sub: t('subtitle_reports') };
       case '/analytics': return { title: t('title_analytics'), sub: t('subtitle_analytics') };
       case '/master': return { title: t('title_master'), sub: t('subtitle_master') };
@@ -101,6 +104,22 @@ export default function Layout() {
               <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>📈</span>
                 <span>{t('nav_analytics')}</span>
+              </NavLink>
+            </>
+          )}
+          <NavLink to="/tpm" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <span>🛠️</span>
+            <span>{t('nav_tpm') || 'TPM 일지'}</span>
+          </NavLink>
+          {userRole?.role !== 'worker' && (
+            <>
+              <NavLink to="/equipment" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>⚙️</span>
+                <span>{t('nav_equipment') || '설비 관리'}</span>
+              </NavLink>
+              <NavLink to="/mold" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>🗜️</span>
+                <span>{t('nav_mold') || '금형 관리'}</span>
               </NavLink>
               <NavLink to="/master" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>👥</span>

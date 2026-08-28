@@ -7,6 +7,8 @@ import { addReport, updateReport, fetchWorkers } from '../../services/firestore'
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { useI18n } from '../../contexts/I18nContext';
 import FormCodeBadge from './FormCodeBadge';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 export default function LegacyFormReactWrapper({ existingData }) {
   const containerRef = useRef(null);
@@ -28,10 +30,19 @@ export default function LegacyFormReactWrapper({ existingData }) {
           workers = generate50Workers();
         }
         
+        let molds = [];
+        try {
+          const snapshot = await getDocs(collection(db, 'molds'));
+          molds = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e) {
+          console.error("Failed to fetch molds", e);
+        }
+        
         setLegacyFormContext({
           userRoleInfo: userRole,
           existingData: existingData,
           workers: workers,
+          molds: molds,
           processes: DEFAULT_PROCESSES,
           getItems: (code) => {
             return DEFAULT_ITEMS.filter(item => item.carModel === code);
