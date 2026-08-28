@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import MoldHistoryCardModal from './MoldHistoryCardModal';
 import { Navigate } from 'react-router-dom';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
@@ -36,6 +37,7 @@ export default function MoldManagement() {
   const { userRole } = useAuth();
   const [activeTab, setActiveTab] = useState('list');
   const [molds, setMolds] = useState([]);
+  const [historyMold, setHistoryMold] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Form State
@@ -180,6 +182,16 @@ export default function MoldManagement() {
             )}
           </div>
       </div>
+
+      {historyMold && (
+        <MoldHistoryCardModal 
+          mold={historyMold} 
+          onClose={() => setHistoryMold(null)}
+          onUpdate={(updatedMold) => {
+            setMolds(molds.map(m => m.id === updatedMold.id ? updatedMold : m));
+          }}
+        />
+      )}
 
       {showModal && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
