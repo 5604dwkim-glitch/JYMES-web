@@ -78,13 +78,23 @@ export default function MoldRepairRequestModal({ mold, onClose }) {
                   <input type="date" style={inputStyle} value={formData.requestDate} onChange={e => setFormData({...formData, requestDate: e.target.value})} />
                 </td>
                 <td style={tdStyle}>
-                  <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', flexWrap: 'wrap', fontSize: '11px' }}>
-                    {['수리', '설변', '파손', '습합'].map(type => (
-                      <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                        <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
-                        {type}
-                      </label>
-                    ))}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {['수리', '설변'].map(type => (
+                        <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
+                          <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
+                          {type}
+                        </label>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {['파손', '습합'].map(type => (
+                        <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
+                          <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
+                          {type}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </td>
                 <td style={tdStyle}>
