@@ -44,12 +44,12 @@ export default function MoldManagement() {
 
   // Form State
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ id: '', code: '', manufactureDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 300000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
+  const [formData, setFormData] = useState({ id: '', code: '', receiptDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 300000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
 
-  const generateAutoCode = (carModel, manufactureDate, moldsList, currentId) => {
-    if (!carModel || !manufactureDate) return '';
+  const generateAutoCode = (carModel, receiptDate, moldsList, currentId) => {
+    if (!carModel || !receiptDate) return '';
     const prefix1 = carModel.substring(0, 2).toUpperCase();
-    const dateStr = manufactureDate.replace(/-/g, '');
+    const dateStr = receiptDate.replace(/-/g, '');
     const prefix = `${prefix1}${dateStr}`;
     
     let maxSeq = 0;
@@ -142,9 +142,9 @@ export default function MoldManagement() {
 
   const openModal = (mold = null) => {
     if (mold) {
-      setFormData(mold);
+      setFormData({...mold, receiptDate: mold.receiptDate || mold.manufactureDate || ''});
     } else {
-      setFormData({ id: '', code: '', manufactureDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 300000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
+      setFormData({ id: '', code: '', receiptDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 300000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
     }
     setShowModal(true);
   };
@@ -183,7 +183,7 @@ export default function MoldManagement() {
                     return (
                       <tr key={m.id}>
                         <td>{m.code}</td>
-                        <td>{m.receiptDate || '-'}</td>
+                        <td>{m.receiptDate || m.manufactureDate || '-'}</td>
                         <td style={{ fontWeight: 'bold' }}>{m.name}</td>
                         <td>{m.itemNo || '-'}</td>
                         <td>
@@ -239,11 +239,11 @@ export default function MoldManagement() {
                 <input type="text" className="form-control" value={formData.code || ''} onChange={(e) => setFormData({...formData, code: e.target.value})} required />
               </div>
               <div style={{ gridColumn: 'span 2' }}>
-                <label style={labelStyle}>제작일자</label>
-                <input type="date" max="9999-12-31" className="form-control" value={formData.manufactureDate || ''} onChange={(e) => {
+                <label style={labelStyle}>금형입고 일자</label>
+                <input type="date" max="9999-12-31" className="form-control" value={formData.receiptDate || ''} onChange={(e) => {
                   const newDate = e.target.value;
                   const newCode = (!formData.id && formData.carModel && newDate) ? generateAutoCode(formData.carModel, newDate, molds, formData.id) : formData.code;
-                  setFormData({...formData, manufactureDate: newDate, code: newCode});
+                  setFormData({...formData, receiptDate: newDate, code: newCode});
                 }} />
               </div>
               <div style={{ gridColumn: 'span 2' }}>
@@ -255,7 +255,7 @@ export default function MoldManagement() {
                     onChange={(e) => {
                       const newCarModel = e.target.value;
                       const newName = `${newCarModel} ${formData.partName || ''} ${formData.moldType || ''} ${formData.moldNumber ? `#${formData.moldNumber}` : ''}`.replace(/\s+/g, ' ').trim();
-                      const newCode = (!formData.id && newCarModel && formData.manufactureDate) ? generateAutoCode(newCarModel, formData.manufactureDate, molds, formData.id) : formData.code;
+                      const newCode = (!formData.id && newCarModel && formData.receiptDate) ? generateAutoCode(newCarModel, formData.receiptDate, molds, formData.id) : formData.code;
                       setFormData({...formData, carModel: newCarModel, partName: '', name: newName, code: newCode});
                     }}
                   >

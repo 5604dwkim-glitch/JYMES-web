@@ -13,7 +13,7 @@ const addThreeMonths = (dateStr) => {
 
 export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
   const [formData, setFormData] = useState({
-    receiptDate: mold.receiptDate || '',
+    receiptDate: mold.receiptDate || mold.manufactureDate || '',
     productionStartDate: mold.productionStartDate || addThreeMonths(mold.receiptDate || mold.manufactureDate) || '',
     manufacturer: mold.manufacturer || '',
     history: mold.history || [],
