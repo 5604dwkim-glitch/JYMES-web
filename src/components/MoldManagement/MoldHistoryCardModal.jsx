@@ -33,15 +33,24 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
     }
   };
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (selectedIndices.length === 0) {
       alert("삭제할 항목을 선택해주세요.");
       return;
     }
     if (!window.confirm("선택한 이력을 삭제하시겠습니까?")) return;
     const newHistory = formData.history.filter((_, i) => !selectedIndices.includes(i));
-    setFormData({ ...formData, history: newHistory });
-    setSelectedIndices([]);
+    
+    try {
+      const moldRef = doc(db, 'molds', mold.id);
+      await updateDoc(moldRef, { history: newHistory });
+      setFormData({ ...formData, history: newHistory });
+      setSelectedIndices([]);
+      onUpdate({ ...mold, history: newHistory });
+    } catch (e) {
+      console.error(e);
+      alert("삭제 실패!");
+    }
   };
 
   const handleSaveRepairFromHistory = (index, repairData) => {
