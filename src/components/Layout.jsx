@@ -9,6 +9,7 @@ export default function Layout() {
   const [time, setTime] = useState(new Date());
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const location = useLocation();
+  const [isReportMenuOpen, setIsReportMenuOpen] = useState(true);
 
   useEffect(() => {
     if (isMobilePreview) {
@@ -93,22 +94,40 @@ export default function Layout() {
               <span>{t('nav_analytics')}</span>
             </NavLink>
           )}
-          <NavLink to="/form" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span>✍️</span>
-            <span>{t('nav_form')}</span>
-          </NavLink>
-          <NavLink to="/drafts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span>📝</span>
-            <span>{t('nav_drafts') || '작성중인 작업일보'}</span>
-          </NavLink>
-          {userRole?.role !== 'worker' && (
-            <>
-              <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>📋</span>
-                <span>{t('nav_reports')}</span>
-              </NavLink>
-            </>
-          )}
+          
+          <div className="nav-group" style={{ margin: '4px 0' }}>
+            <div 
+              className="nav-item nav-group-header" 
+              onClick={() => setIsReportMenuOpen(!isReportMenuOpen)}
+              style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', paddingRight: '16px', background: 'rgba(255,255,255,0.03)', fontWeight: 'bold' }}
+            >
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <span>📁</span>
+                <span>작업일보</span>
+              </div>
+              <span style={{ fontSize: '10px', transform: isReportMenuOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', marginTop: '4px' }}>▶</span>
+            </div>
+            
+            {isReportMenuOpen && (
+              <div className="nav-group-children" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.15)', borderLeft: '2px solid rgba(255,255,255,0.1)', marginLeft: '12px' }}>
+                <NavLink to="/form" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
+                  <span>신규작성</span>
+                </NavLink>
+                <NavLink to="/drafts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
+                  <span>이어작성</span>
+                </NavLink>
+                {userRole?.role !== 'worker' && (
+                  <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
+                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
+                    <span>조회 및 승인</span>
+                  </NavLink>
+                )}
+              </div>
+            )}
+          </div>
+
           <NavLink to="/tpm" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <span>🛠️</span>
             <span>{t('nav_tpm') || 'TPM 일지'}</span>
