@@ -129,59 +129,135 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
         {/* Body */}
         <div className="modal-body" style={{ overflowY: 'auto', flex: 1, padding: '24px', background: '#ffffff' }}>
           
-          <h2 style={{ textAlign: 'center', fontSize: '28px', fontWeight: '900', margin: '0 0 24px 0', letterSpacing: '8px', color: '#0f172a' }}>금 형 이 력 카 드</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '28px', fontWeight: '900', margin: '0 0 0 40px', letterSpacing: '4px', color: '#000' }}>(제조) 설비이력카드</h2>
+            <table style={{ borderCollapse: 'collapse', border: '1px solid #000', fontSize: '14px', width: '200px', textAlign: 'center' }}>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '4px', fontWeight: 'bold' }}>작성</td>
+                  <td style={{ border: '1px solid #000', padding: '4px', fontWeight: 'bold' }}>검토</td>
+                  <td style={{ border: '1px solid #000', padding: '4px', fontWeight: 'bold' }}>승인</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #000', height: '40px' }}></td>
+                  <td style={{ border: '1px solid #000', height: '40px' }}></td>
+                  <td style={{ border: '1px solid #000', height: '40px' }}></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-          {/* Section 1 */}
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: '#2563eb', fontWeight: 'bold', fontSize: '14px' }}>
-              <span>📌</span> 1. 설비 기본 정보
-            </div>
+          <div style={{ border: '2px solid #000', marginBottom: '24px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '14px' }}>
+              <tbody>
+                <tr>
+                  <th style={{ border: '1px solid #000', padding: '8px', width: '15%', background: '#fff' }}>설 비 명</th>
+                  <td style={{ border: '1px solid #000', padding: '8px', width: '35%' }}>{equipment.name}</td>
+                  <th style={{ border: '1px solid #000', padding: '8px', width: '15%', background: '#fff' }}>설 비 번 호</th>
+                  <td style={{ border: '1px solid #000', padding: '8px', width: '35%' }}>{equipment.code}</td>
+                </tr>
+                <tr>
+                  <th style={{ border: '1px solid #000', padding: '8px', background: '#fff' }}>형 식</th>
+                  <td style={{ border: '1px solid #000', padding: '8px' }}>{equipment.type}</td>
+                  <th style={{ border: '1px solid #000', padding: '8px', background: '#fff' }}>능 력</th>
+                  <td style={{ border: '1px solid #000', padding: '8px' }}>{equipment.spec}</td>
+                </tr>
+                <tr>
+                  <th style={{ border: '1px solid #000', padding: '8px', background: '#fff' }}>설 치 일</th>
+                  <td style={{ border: '1px solid #000', padding: '8px' }}>{equipment.installDate}</td>
+                  <th style={{ border: '1px solid #000', padding: '8px', background: '#fff' }}>제 작 일</th>
+                  <td style={{ border: '1px solid #000', padding: '8px' }}>
+                    <input type="date" style={{ width: '100%', border: 'none', textAlign: 'center', outline: 'none', background: 'transparent' }} value={formData.manufacturingDate} onChange={e => setFormData({...formData, manufacturingDate: e.target.value})} />
+                  </td>
+                </tr>
+                <tr>
+                  <th style={{ border: '1px solid #000', padding: '8px', background: '#fff' }}>제 작 처</th>
+                  <td colSpan="3" style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', paddingLeft: '16px' }}>
+                    <input type="text" style={{ width: '100%', border: 'none', textAlign: 'left', outline: 'none', background: 'transparent' }} value={formData.manufacturer} onChange={e => setFormData({...formData, manufacturer: e.target.value})} />
+                  </td>
+                </tr>
+                <tr>
+                  <th colSpan="4" style={{ border: '1px solid #000', padding: '12px', background: '#fff', letterSpacing: '16px' }}>부 대 설 비</th>
+                </tr>
+              </tbody>
+            </table>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px', marginTop: '-1px' }}>
+              <thead>
+                <tr>
+                  <th style={{ border: '1px solid #000', padding: '8px', width: '20%', background: '#fff' }}>설 비 명</th>
+                  <th style={{ border: '1px solid #000', padding: '8px', width: '30%', background: '#fff' }}>형식 및 규격</th>
+                  <th style={{ border: '1px solid #000', padding: '8px', width: '10%', background: '#fff' }}>수 량</th>
+                  <th style={{ border: '1px solid #000', padding: '8px', width: '20%', background: '#fff' }}>제 작 처</th>
+                  <th style={{ border: '1px solid #000', padding: '8px', width: '20%', background: '#fff' }}>비 고</th>
+                </tr>
+              </thead>
+              <tbody>
+                {formData.ancillaryEquipments.map((eq, i) => (
+                  <tr key={i}>
+                    <td style={{ border: '1px solid #000', padding: '4px' }}>
+                      <input type="text" style={tableInputStyle} value={eq.name} onChange={e => {
+                        const newAnc = [...formData.ancillaryEquipments];
+                        newAnc[i].name = e.target.value;
+                        setFormData({...formData, ancillaryEquipments: newAnc});
+                      }} />
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '4px' }}>
+                      <input type="text" style={tableInputStyle} value={eq.spec} onChange={e => {
+                        const newAnc = [...formData.ancillaryEquipments];
+                        newAnc[i].spec = e.target.value;
+                        setFormData({...formData, ancillaryEquipments: newAnc});
+                      }} />
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '4px' }}>
+                      <input type="text" style={tableInputStyle} value={eq.qty} onChange={e => {
+                        const newAnc = [...formData.ancillaryEquipments];
+                        newAnc[i].qty = e.target.value;
+                        setFormData({...formData, ancillaryEquipments: newAnc});
+                      }} />
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '4px' }}>
+                      <input type="text" style={tableInputStyle} value={eq.manufacturer} onChange={e => {
+                        const newAnc = [...formData.ancillaryEquipments];
+                        newAnc[i].manufacturer = e.target.value;
+                        setFormData({...formData, ancillaryEquipments: newAnc});
+                      }} />
+                    </td>
+                    <td style={{ border: '1px solid #000', padding: '4px' }}>
+                      <input type="text" style={tableInputStyle} value={eq.note} onChange={e => {
+                        const newAnc = [...formData.ancillaryEquipments];
+                        newAnc[i].note = e.target.value;
+                        setFormData({...formData, ancillaryEquipments: newAnc});
+                      }} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             
-            <div style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden' }}>
-              <div style={{ width: '350px', minWidth: '350px', borderRight: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ background: '#f1f5f9', padding: '10px 16px', fontWeight: 'bold', color: '#334155', textAlign: 'center', borderBottom: '1px solid #cbd5e1', fontSize: '13px' }}>사진</div>
-                <div style={{ width: '350px', height: '350px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
-                  {formData.equipmentPhoto ? (
-                    <img src={formData.equipmentPhoto} alt="설비 사진" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  ) : (
-                    <span style={{ color: '#94a3b8', fontSize: '13px' }}>클릭하여 350x350 사진 업로드</span>
-                  )}
-                  <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
-                </div>
-              </div>
-              <div style={{ flex: 1 }}>
-                <table style={{ width: '100%', height: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                  <tbody>
-                    <tr>
-                      <td style={{...labelStyle, height: '20%'}}>설비입고</td>
-                      <td style={{...valStyle, height: '20%'}}>
-                        <input type="date" max="9999-12-31" style={inputStyle} value={formData.receiptDate || equipment.installDate || ''} onChange={e => { const newDate = e.target.value; setFormData({...formData, receiptDate: newDate, productionStartDate: addThreeMonths(newDate)}); }} />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{...labelStyle, height: '20%'}}>품 명</td>
-                      <td style={{...valStyle, height: '20%'}}>{equipment.name || '-'}</td>
-                    </tr>
-                    <tr>
-                      <td style={{...labelStyle, height: '20%'}}>품 번</td>
-                      <td style={{...valStyle, height: '20%'}}>{equipment.location || '-'}</td>
-                    </tr>
-                    <tr>
-                      <td style={{...labelStyle, height: '20%'}}>생산시점</td>
-                      <td style={{...valStyle, height: '20%'}}>
-                        <input type="date" max="9999-12-31" style={inputStyle} value={formData.productionStartDate} onChange={e => setFormData({...formData, productionStartDate: e.target.value})} />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ ...labelStyle, borderBottom: 'none', height: '20%' }}>설비제작처</td>
-                      <td style={{ ...valStyle, borderBottom: 'none', height: '20%' }}>
-                        <input type="text" style={inputStyle} placeholder="㈜화승R&A" value={formData.manufacturer} onChange={e => setFormData({...formData, manufacturer: e.target.value})} />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px', marginTop: '-1px' }}>
+              <tbody>
+                <tr>
+                  <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', background: '#fff' }}>설비사진</th>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '16px', position: 'relative' }}>
+                    <div style={{ width: '100%', minHeight: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#f8fafc', position: 'relative' }}>
+                      {formData.equipmentPhoto ? (
+                        <img src={formData.equipmentPhoto} alt="설비 사진" style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'contain' }} />
+                      ) : (
+                        <span style={{ color: '#94a3b8' }}>클릭하여 사진 업로드</span>
+                      )}
+                      <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid #000', padding: '8px', textAlign: 'left' }}>
+                    ※ 특 기 사 항
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           {/* Section 2 */}
