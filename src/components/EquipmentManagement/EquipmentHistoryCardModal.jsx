@@ -13,9 +13,14 @@ const addThreeMonths = (dateStr) => {
 
 export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate }) {
   const [formData, setFormData] = useState({
-    receiptDate: equipment.installDate || equipment.installDate || '',
-    productionStartDate: equipment.productionStartDate || addThreeMonths(equipment.installDate || equipment.installDate) || '',
+    manufacturingDate: equipment.manufacturingDate || '',
     manufacturer: equipment.manufacturer || '',
+    ancillaryEquipments: equipment.ancillaryEquipments || [
+      { name: '', spec: '', qty: '', manufacturer: '', note: '' },
+      { name: '', spec: '', qty: '', manufacturer: '', note: '' },
+      { name: '', spec: '', qty: '', manufacturer: '', note: '' },
+      { name: '', spec: '', qty: '', manufacturer: '', note: '' }
+    ],
     history: equipment.history || [],
     equipmentPhoto: equipment.equipmentPhoto || ''
   });
@@ -77,10 +82,11 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
     try {
       const equipmentRef = doc(db, 'equipments', equipment.id);
       await updateDoc(equipmentRef, {
-        receiptDate: formData.receiptDate,
-        productionStartDate: formData.productionStartDate,
+        manufacturingDate: formData.manufacturingDate,
         manufacturer: formData.manufacturer,
-        history: formData.history, equipmentPhoto: formData.equipmentPhoto
+        ancillaryEquipments: formData.ancillaryEquipments,
+        history: formData.history, 
+        equipmentPhoto: formData.equipmentPhoto
       });
       onUpdate({ ...equipment, ...formData });
       onClose();
