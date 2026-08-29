@@ -127,11 +127,6 @@ export default function Layout() {
               </div>
             )}
           </div>
-
-          <NavLink to="/tpm" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-            <span>🛠️</span>
-            <span>{t('nav_tpm') || 'TPM 일지'}</span>
-          </NavLink>
           {userRole?.role !== 'worker' && (
             <>
               <NavLink to="/equipment" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
