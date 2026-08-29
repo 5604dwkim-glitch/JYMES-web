@@ -87,6 +87,12 @@ export default function Layout() {
             <span>📊</span>
             <span>{t('nav_dashboard')}</span>
           </NavLink>
+          {userRole?.role !== 'worker' && (
+            <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+              <span>📈</span>
+              <span>{t('nav_analytics')}</span>
+            </NavLink>
+          )}
           <NavLink to="/form" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <span>✍️</span>
             <span>{t('nav_form')}</span>
@@ -100,10 +106,6 @@ export default function Layout() {
               <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>📋</span>
                 <span>{t('nav_reports')}</span>
-              </NavLink>
-              <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>📈</span>
-                <span>{t('nav_analytics')}</span>
               </NavLink>
             </>
           )}
