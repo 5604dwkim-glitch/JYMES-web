@@ -31,6 +31,11 @@ export default function LegacyFormReactWrapper({ existingData }) {
         }
         
         let molds = [];
+        let equipments = [];
+        try {
+          const eqSnapshot = await getDocs(collection(db, 'equipments'));
+          equipments = eqSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (e) { console.error(e); }
         try {
           const snapshot = await getDocs(collection(db, 'molds'));
           molds = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -43,6 +48,7 @@ export default function LegacyFormReactWrapper({ existingData }) {
           existingData: existingData,
           workers: workers,
           molds: molds,
+          equipments: equipments,
           processes: DEFAULT_PROCESSES,
           getItems: (code) => {
             return DEFAULT_ITEMS.filter(item => item.carModel === code);
