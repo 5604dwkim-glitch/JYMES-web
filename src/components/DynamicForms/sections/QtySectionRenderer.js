@@ -782,7 +782,7 @@ export function renderQtySection(ctx) {
       case 2005:
       case 2015:
       case 2027:
-        qtySection.innerHTML = Templates.getInspQtyHTML(existingData, 4, container);
+        qtySection.innerHTML = Templates.getInspQtyHTML(existingData, 4, false, container);
         qtySection.addEventListener('input', calcInspQtySummary);
         calcInspQtySummary();
         break;
