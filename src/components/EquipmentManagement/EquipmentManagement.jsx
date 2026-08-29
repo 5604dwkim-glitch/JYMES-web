@@ -13,7 +13,7 @@ export default function EquipmentManagement() {
 
   // Form State
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ id: '', code: '', name: '', type: '기타', location: '', status: '정상', installDate: '' });
+  const [formData, setFormData] = useState({ id: '', code: '', name: '', type: '유압', location: '', status: '정상', installDate: '', spec: '', manufacturer: '극동기계', ownership: '대여', assetNo: '' });
 
   useEffect(() => {
     fetchEquipments();
@@ -64,7 +64,7 @@ export default function EquipmentManagement() {
     if (equip) {
       setFormData(equip);
     } else {
-      setFormData({ id: '', code: '', name: '', type: '사출기', location: '조인트장', status: '정상', installDate: '' });
+      setFormData({ id: '', code: '', name: '', type: '유압', location: '', status: '정상', installDate: '', spec: '', manufacturer: '극동기계', ownership: '대여', assetNo: '' });
     }
     setShowModal(true);
   };
@@ -100,6 +100,9 @@ export default function EquipmentManagement() {
                     <th>관리번호</th>
                     <th>설비명</th>
                     <th>분류</th>
+                    <th>사양</th>
+                    <th>제작처</th>
+                    <th>소유</th>
                     <th>위치</th>
                     <th>상태</th>
                     <th>도입일자</th>
@@ -112,6 +115,9 @@ export default function EquipmentManagement() {
                       <td>{eq.code}</td>
                       <td style={{ fontWeight: 'bold' }}>{eq.name}</td>
                       <td>{eq.type}</td>
+                      <td>{eq.spec || '-'}</td>
+                      <td>{eq.manufacturer || '-'}</td>
+                      <td>{eq.ownership || '-'}</td>
                       <td>{eq.location}</td>
                       <td>
                         <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', background: eq.status === '정상' ? '#dcfce3' : '#fee2e2', color: eq.status === '정상' ? '#166534' : '#991b1b' }}>
@@ -163,6 +169,25 @@ export default function EquipmentManagement() {
                   <option value="컨베이어">컨베이어</option>
                   <option value="기타">기타</option>
                 </select>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>사양</label>
+                <input type="text" className="form-control" value={formData.spec || ''} onChange={(e) => setFormData({...formData, spec: e.target.value})} />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>제작처</label>
+                <input type="text" className="form-control" value={formData.manufacturer || ''} onChange={(e) => setFormData({...formData, manufacturer: e.target.value})} />
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>소유</label>
+                <select className="form-control" value={formData.ownership || ''} onChange={(e) => setFormData({...formData, ownership: e.target.value})}>
+                  <option value="대여">대여</option>
+                  <option value="자가">자가</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>자산 No.</label>
+                <input type="text" className="form-control" value={formData.assetNo || ''} onChange={(e) => setFormData({...formData, assetNo: e.target.value})} />
               </div>
               <div style={{ marginBottom: '12px' }}>
                 <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>위치</label>
