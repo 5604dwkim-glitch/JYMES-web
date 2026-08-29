@@ -18,9 +18,12 @@ export default function EquipmentRepairRequestModal({ equipment, initialData, on
 
   const handleSave = async () => {
     try {
-      // For now, we just close. You can add a subcollection for repair requests later.
-      alert('저장 기능은 아직 백엔드와 연결되지 않았습니다. (프론트 UI 구현 완료)');
-      onClose();
+      if (onSave) {
+        onSave(formData);
+      } else {
+        alert('저장되었습니다.');
+        onClose();
+      }
     } catch (e) {
       console.error('Failed to save repair request:', e);
       alert('저장 실패!');

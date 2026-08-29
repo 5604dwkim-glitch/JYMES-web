@@ -164,7 +164,7 @@ export default function EquipmentManagement() {
         <EquipmentRepairRequestModal
           equipment={selectedEquipment}
           onClose={() => { setShowRepairModal(false); setSelectedEquipment(null); }}
-          onSave={() => { fetchEquipments(); }}
+          onSave={(data) => handleSaveRepairRequest(selectedEquipment, data)}
         />
       )}
       {showModal && (
