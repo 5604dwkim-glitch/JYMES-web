@@ -108,7 +108,7 @@ export default function EquipmentManagement() {
                 </thead>
                 <tbody>
                   {equipments.map(eq => (
-                    <tr key={eq.id}>
+                    <tr key={eq.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                       <td>{eq.code}</td>
                       <td style={{ fontWeight: 'bold' }}>{eq.name}</td>
                       <td>{eq.type}</td>

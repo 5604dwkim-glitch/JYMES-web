@@ -181,7 +181,7 @@ export default function MoldManagement() {
                   {molds.map(m => {
                     const strokePercent = Math.min(100, Math.round((m.currentStrokes / (m.maxStrokes || 1)) * 100));
                     return (
-                      <tr key={m.id}>
+                      <tr key={m.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
                         <td>{m.code}</td>
                         <td>{m.receiptDate || m.manufactureDate || '-'}</td>
                         <td style={{ fontWeight: 'bold' }}>{m.name}</td>
