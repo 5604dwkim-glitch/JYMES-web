@@ -4,6 +4,8 @@ import { Navigate } from 'react-router-dom';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
 import TpmManagement from './TpmManagement';
+import EquipmentHistoryCardModal from './EquipmentHistoryCardModal';
+import EquipmentRepairRequestModal from './EquipmentRepairRequestModal';
 
 export default function EquipmentManagement() {
   const { userRole } = useAuth();
@@ -13,6 +15,9 @@ export default function EquipmentManagement() {
 
   // Form State
   const [showModal, setShowModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showRepairModal, setShowRepairModal] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [formData, setFormData] = useState({ id: '', code: '', name: '', type: '유압', location: '', status: '정상', installDate: '', spec: '', manufacturer: '극동기계', ownership: '대여', assetNo: '' });
 
   useEffect(() => {
@@ -106,7 +111,7 @@ export default function EquipmentManagement() {
                     <th>위치</th>
                     <th>상태</th>
                     <th>도입일자</th>
-                    <th>관리</th>
+                    <th>설비이력카드</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -126,8 +131,15 @@ export default function EquipmentManagement() {
                       </td>
                       <td>{eq.installDate}</td>
                       <td>
-                        <button className="btn btn-secondary btn-sm" style={{ marginRight: '8px' }} onClick={() => openModal(eq)}>수정</button>
-                        <button className="btn btn-secondary btn-sm" style={{ background: '#fee2e2', color: '#991b1b', border: 'none' }} onClick={() => handleDelete(eq.id)}>삭제</button>
+                        <button className="btn btn-secondary btn-sm" style={{ marginRight: '4px', background: '#e2e8f0', color: '#0f172a', border: 'none', fontWeight: 'bold' }} onClick={() => { setSelectedEquipment(eq); setShowHistoryModal(true); }}>
+                          이력카드(상세/수정)
+                        </button>
+                        <button className="btn btn-primary btn-sm" style={{ marginRight: '4px', background: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe', fontWeight: 'bold' }} onClick={() => { setSelectedEquipment(eq); setShowRepairModal(true); }}>
+                          수리의뢰서 작성
+                        </button>
+                        <button className="btn btn-secondary btn-sm" style={{ background: '#fee2e2', color: '#991b1b', border: 'none', fontWeight: 'bold' }} onClick={() => handleDelete(eq.id)}>
+                          삭제
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -147,6 +159,21 @@ export default function EquipmentManagement() {
         {activeTab === 'tpm' && <TpmManagement />}
       </div>
 
+
+      {showHistoryModal && selectedEquipment && (
+        <EquipmentHistoryCardModal
+          equipment={selectedEquipment}
+          onClose={() => { setShowHistoryModal(false); setSelectedEquipment(null); }}
+          onUpdate={() => { fetchEquipments(); }}
+        />
+      )}
+      {showRepairModal && selectedEquipment && (
+        <EquipmentRepairRequestModal
+          equipment={selectedEquipment}
+          onClose={() => { setShowRepairModal(false); setSelectedEquipment(null); }}
+          onSave={() => { fetchEquipments(); }}
+        />
+      )}
       {showModal && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
           <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', width: '400px' }}>
