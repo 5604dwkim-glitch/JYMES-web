@@ -11,7 +11,27 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
     history: mold.history || []
   });
 
-  const [editingRepairIndex, setEditingRepairIndex] = useState(null);
+    const [editingRepairIndex, setEditingRepairIndex] = useState(null);
+  const [selectedIndices, setSelectedIndices] = useState([]);
+
+  const toggleSelection = (index) => {
+    if (selectedIndices.includes(index)) {
+      setSelectedIndices(selectedIndices.filter(i => i !== index));
+    } else {
+      setSelectedIndices([...selectedIndices, index]);
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIndices.length === 0) {
+      alert("삭제할 항목을 선택해주세요.");
+      return;
+    }
+    if (!window.confirm("선택한 이력을 삭제하시겠습니까?")) return;
+    const newHistory = formData.history.filter((_, i) => !selectedIndices.includes(i));
+    setFormData({ ...formData, history: newHistory });
+    setSelectedIndices([]);
+  };
 
   const handleSaveRepairFromHistory = (index, repairData) => {
     const newHistory = [...formData.history];
@@ -139,9 +159,15 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: '#f1f5f9', color: '#334155' }}>
-                    <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '12px 8px', width: '15%', fontWeight: 'bold' }}>일 자</th>
+                    <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '12px 4px', width: '4%' }}>
+                      <input type="checkbox" onChange={(e) => {
+                        if (e.target.checked) setSelectedIndices(formData.history.map((_, i) => i));
+                        else setSelectedIndices([]);
+                      }} checked={formData.history.length > 0 && selectedIndices.length === formData.history.length} />
+                    </th>
+                    <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '12px 8px', width: '13%', fontWeight: 'bold' }}>일 자</th>
                     <th colSpan="3" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '8px', letterSpacing: '4px', fontWeight: 'bold' }}>금 형 이 력</th>
-                    <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', padding: '12px 8px', width: '10%', fontWeight: 'bold' }}>확인</th>
+                    <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', padding: '12px 8px', width: '8%', fontWeight: 'bold' }}>확인</th>
                   </tr>
                   <tr style={{ background: '#f8fafc', color: '#334155' }}>
                     <th style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '8px', width: '30%', fontWeight: '600' }}>문제점 및 내용</th>
@@ -152,6 +178,9 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                 <tbody>
                   {formData.history.map((row, i) => (
                     <tr key={i} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
+                        <input type="checkbox" checked={selectedIndices.includes(i)} onChange={() => toggleSelection(i)} />
+                      </td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
                         <input type="date" style={{...tableInputStyle, textAlign: 'center'}} value={row.date} onChange={e => updateHistory(i, 'date', e.target.value)} />
                       </td>
@@ -188,13 +217,14 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                           </button>
                         )}
                       </td>
-                      <td style={{ padding: '4px' }}>
-                        <input type="checkbox" style={{ width: '16px', height: '16px', cursor: 'pointer' }} checked={row.confirmed} onChange={e => updateHistory(i, 'confirmed', e.target.checked)} />
+                      <td style={{ padding: '4px', fontWeight: 'bold', color: '#2563eb' }}>
+                        {(row.issue || row.repairDetails) ? '승인' : ''}
                       </td>
                     </tr>
                   ))}
                   {Array.from({ length: Math.max(1, 10 - formData.history.length) }).map((_, i) => (
                     <tr key={`empty-${i}`} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
