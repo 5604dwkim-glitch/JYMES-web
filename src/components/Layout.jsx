@@ -31,7 +31,7 @@ export default function Layout() {
       case '/': return { title: t('title_dashboard'), sub: t('subtitle_dashboard') };
       case '/form': return { title: t('title_form'), sub: t('subtitle_form') };
       case '/drafts': return { title: t('title_drafts') || '작성중인 작업일보', sub: '' };
-      case '/tpm': return { title: t('title_tpm') || 'TPM 일지', sub: '설비 점검 및 관리' };
+      
       case '/equipment': return { title: '설비 관리', sub: '설비 리스트 및 이력 관리' };
       case '/mold': return { title: '금형 리스트', sub: '' };
       case '/reports': return { title: t('title_reports'), sub: t('subtitle_reports') };

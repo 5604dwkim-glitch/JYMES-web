@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
+import TpmManagement from './TpmManagement';
 
 export default function EquipmentManagement() {
   const { userRole } = useAuth();
@@ -80,6 +81,7 @@ export default function EquipmentManagement() {
           <button style={tabStyle(activeTab === 'list')} onClick={() => setActiveTab('list')}>설비 리스트</button>
           <button style={tabStyle(activeTab === 'history')} onClick={() => setActiveTab('history')}>설비 이력 카드</button>
           <button style={tabStyle(activeTab === 'config')} onClick={() => setActiveTab('config')}>설비 셋트 구성</button>
+          <button style={tabStyle(activeTab === 'tpm')} onClick={() => setActiveTab('tpm')}>TPM 일지</button>
         </div>
       </div>
       
@@ -136,6 +138,7 @@ export default function EquipmentManagement() {
         
         {activeTab === 'history' && <div><p>준비 중입니다...</p></div>}
         {activeTab === 'config' && <div><p>준비 중입니다...</p></div>}
+        {activeTab === 'tpm' && <TpmManagement />}
       </div>
 
       {showModal && (
