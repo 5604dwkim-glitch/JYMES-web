@@ -3,10 +3,18 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import MoldRepairRequestModal from './MoldRepairRequestModal';
 
+const addThreeMonths = (dateStr) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return "";
+  d.setMonth(d.getMonth() + 3);
+  return d.toISOString().split("T")[0];
+};
+
 export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
   const [formData, setFormData] = useState({
     receiptDate: mold.receiptDate || '',
-    productionStartDate: mold.productionStartDate || '',
+    productionStartDate: mold.productionStartDate || addThreeMonths(mold.receiptDate || mold.manufactureDate) || '',
     manufacturer: mold.manufacturer || '',
     history: mold.history || [],
     moldPhoto: mold.moldPhoto || ''
@@ -97,7 +105,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
 
   const labelStyle = { background: '#f1f5f9', fontWeight: 'bold', color: '#334155', borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '10px 16px', textAlign: 'center', width: '25%' };
   const valStyle = { borderBottom: '1px solid #cbd5e1', padding: '10px 16px', textAlign: 'center', color: '#0f172a' };
-  const inputStyle = { width: '100%', border: '1px solid #e2e8f0', padding: '6px', textAlign: 'center', borderRadius: '4px', outline: 'none', color: '#0f172a' };
+  const inputStyle = { width: '100%', border: '1px solid #cbd5e1', padding: '6px', textAlign: 'center', borderRadius: '4px', outline: 'none', color: '#0f172a' };
   const tableInputStyle = { width: '100%', border: '1px solid transparent', padding: '6px', outline: 'none', background: 'transparent', color: '#0f172a' };
 
   return (
@@ -105,7 +113,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
       <div className="modal-content" style={{ maxWidth: '900px', maxHeight: '95vh', display: 'flex', flexDirection: 'column', padding: '0', borderRadius: '12px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="modal-header" style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="modal-header" style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="modal-title" style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span>📄</span> 금형 이력 카드 상세 정보
           </div>
@@ -141,7 +149,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                     <tr>
                       <td style={{...labelStyle, height: '20%'}}>금형입고</td>
                       <td style={{...valStyle, height: '20%'}}>
-                        <input type="date" max="9999-12-31" style={inputStyle} value={formData.receiptDate || mold.manufactureDate || ''} onChange={e => setFormData({...formData, receiptDate: e.target.value})} />
+                        <input type="date" max="9999-12-31" style={inputStyle} value={formData.receiptDate || mold.manufactureDate || ''} onChange={e => { const newDate = e.target.value; setFormData({...formData, receiptDate: newDate, productionStartDate: addThreeMonths(newDate)}); }} />
                       </td>
                     </tr>
                     <tr>
@@ -198,20 +206,20 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                 </thead>
                 <tbody>
                   {formData.history.map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
+                    <tr key={i} style={{ borderBottom: '1px solid #cbd5e1' }}>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         <input type="checkbox" checked={selectedIndices.includes(i)} onChange={() => toggleSelection(i)} />
                       </td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         <input type="date" max="9999-12-31" style={{...tableInputStyle, textAlign: 'center'}} value={row.date} onChange={e => updateHistory(i, 'date', e.target.value)} />
                       </td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         <input type="text" style={tableInputStyle} value={row.issue} onChange={e => updateHistory(i, 'issue', e.target.value)} placeholder="내용 입력..." />
                       </td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         <input type="text" style={tableInputStyle} value={row.action} onChange={e => updateHistory(i, 'action', e.target.value)} placeholder="조치 내용..." />
                       </td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         {row.repairDetails ? (
                           <button 
                             onClick={() => setEditingRepairIndex(i)}
@@ -244,12 +252,12 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                     </tr>
                   ))}
                   {Array.from({ length: Math.max(1, 10 - formData.history.length) }).map((_, i) => (
-                    <tr key={`empty-${i}`} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
-                      <td style={{ borderRight: '1px solid #e2e8f0', padding: '16px' }}></td>
+                    <tr key={`empty-${i}`} style={{ borderBottom: '1px solid #cbd5e1' }}>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
+                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
                       <td style={{ padding: '16px' }}></td>
                     </tr>
                   ))}
