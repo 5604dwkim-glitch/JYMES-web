@@ -59,7 +59,7 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
                   <th style={{...thStyle, width: '12%', borderTop: 'none'}}>품 명</th>
                   <th style={{...thStyle, width: '5%', borderTop: 'none'}}>호 기</th>
                   <th style={{...thStyle, width: '8%', borderTop: 'none'}}>부 위</th>
-                  <th style={{...thStyle, width: '13%', borderTop: 'none'}}>의뢰부서 및 협력업체</th>
+                  <th style={{...thStyle, width: '13%', borderTop: 'none'}}>의뢰부서 및<br/>협력업체</th>
                   <th style={{...thStyle, width: '11%', borderTop: 'none'}}>의뢰일자</th>
                   <th style={{...thStyle, width: '11%', borderTop: 'none'}}>의뢰구분</th>
                   <th style={{...thStyle, width: '7%', borderTop: 'none'}}>수리담당</th>
