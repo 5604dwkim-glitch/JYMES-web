@@ -84,7 +84,6 @@ export default function EquipmentManagement() {
       <div className="card-header" style={{ borderBottom: '1px solid #cbd5e1', paddingBottom: '0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '16px', marginBottom: '-1px' }}>
           <button style={tabStyle(activeTab === 'list')} onClick={() => setActiveTab('list')}>설비 리스트</button>
-          <button style={tabStyle(activeTab === 'history')} onClick={() => setActiveTab('history')}>설비 이력 카드</button>
           <button style={tabStyle(activeTab === 'config')} onClick={() => setActiveTab('config')}>설비 셋트 구성</button>
           <button style={tabStyle(activeTab === 'tpm')} onClick={() => setActiveTab('tpm')}>TPM 일지</button>
         </div>
@@ -154,7 +153,7 @@ export default function EquipmentManagement() {
           </div>
         )}
         
-        {activeTab === 'history' && <div><p>준비 중입니다...</p></div>}
+
         {activeTab === 'config' && <div><p>준비 중입니다...</p></div>}
         {activeTab === 'tpm' && <TpmManagement />}
       </div>
