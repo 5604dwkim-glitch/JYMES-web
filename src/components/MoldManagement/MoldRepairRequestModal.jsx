@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
-export default function MoldRepairRequestModal({ mold, onClose }) {
-  const [formData, setFormData] = useState({
+export default function MoldRepairRequestModal({ mold, initialData, onClose, onSave }) {
+  const [formData, setFormData] = useState(initialData || {
     department: '오록 신천',
     requestDate: new Date().toISOString().split('T')[0],
     requestType: '수리', // 수리, 설변, 파손, 습합
