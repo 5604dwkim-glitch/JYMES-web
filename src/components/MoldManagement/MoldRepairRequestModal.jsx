@@ -77,7 +77,7 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
                     <input type="text" style={inputStyle} value={formData.department} onChange={e => setFormData({...formData, department: e.target.value})} />
                   </td>
                   <td style={tdStyle}>
-                    <input type="date" style={inputStyle} value={formData.requestDate} onChange={e => setFormData({...formData, requestDate: e.target.value})} />
+                    <input type="date" max="9999-12-31" style={inputStyle} value={formData.requestDate} onChange={e => setFormData({...formData, requestDate: e.target.value})} />
                   </td>
                   <td style={tdStyle}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
@@ -103,7 +103,7 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
                     <input type="text" style={inputStyle} value={formData.pic} onChange={e => setFormData({...formData, pic: e.target.value})} />
                   </td>
                   <td style={tdStyle}>
-                    <input type="date" style={inputStyle} value={formData.completionDate} onChange={e => setFormData({...formData, completionDate: e.target.value})} />
+                    <input type="date" max="9999-12-31" style={inputStyle} value={formData.completionDate} onChange={e => setFormData({...formData, completionDate: e.target.value})} />
                   </td>
                   <td style={{...tdStyle, borderRight: 'none'}}>
                     <input type="text" style={inputStyle} value={formData.remarks} onChange={e => setFormData({...formData, remarks: e.target.value})} />

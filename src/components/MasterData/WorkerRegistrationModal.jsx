@@ -146,7 +146,7 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
             <tr>
               <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', color: '#111' }}>입사일자</td>
               <td style={{ border: '1px solid #111', padding: '12px' }}>
-                <input type="date" name="hireDate" className="form-control" value={formData.hireDate} onChange={handleChange} style={{ width: '100%', textAlign: 'center' }} />
+                <input type="date" max="9999-12-31" name="hireDate" className="form-control" value={formData.hireDate} onChange={handleChange} style={{ width: '100%', textAlign: 'center' }} />
               </td>
               <td style={{ border: '1px solid #111', padding: '12px', fontWeight: '800', color: '#111' }}>직급</td>
               <td style={{ border: '1px solid #111', padding: '12px' }}>

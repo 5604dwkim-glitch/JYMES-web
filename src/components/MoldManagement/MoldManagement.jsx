@@ -240,7 +240,7 @@ export default function MoldManagement() {
               </div>
               <div style={{ gridColumn: 'span 2' }}>
                 <label style={labelStyle}>제작일자</label>
-                <input type="date" className="form-control" value={formData.manufactureDate || ''} onChange={(e) => {
+                <input type="date" max="9999-12-31" className="form-control" value={formData.manufactureDate || ''} onChange={(e) => {
                   const newDate = e.target.value;
                   const newCode = (!formData.id && formData.carModel && newDate) ? generateAutoCode(formData.carModel, newDate, molds, formData.id) : formData.code;
                   setFormData({...formData, manufactureDate: newDate, code: newCode});

@@ -417,11 +417,11 @@ export default function ReportList({ initialStatus = 'ALL' }) {
         <div className="filter-group">
           <div className="form-group" style={{ minWidth: '120px' }}>
             <label style={{ fontSize: '11px' }}>시작일</label>
-            <input type="date" className="form-control" value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <input type="date" max="9999-12-31" className="form-control" value={startDate} onChange={e => setStartDate(e.target.value)} />
           </div>
           <div className="form-group" style={{ minWidth: '120px' }}>
             <label style={{ fontSize: '11px' }}>종료일</label>
-            <input type="date" className="form-control" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            <input type="date" max="9999-12-31" className="form-control" value={endDate} onChange={e => setEndDate(e.target.value)} />
           </div>
           <div className="form-group" style={{ minWidth: '110px' }}>
             <label style={{ fontSize: '11px', color: 'var(--accent-emerald)' }}>차종</label>

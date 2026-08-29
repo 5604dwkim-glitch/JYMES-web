@@ -150,7 +150,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
         <div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
           <div style="flex: 2; min-width: 140px;">
             <label style="font-size: 11px; color: var(--text-muted);" data-i18n="form_work_date">작업 일자</label>
-            <input type="date" id="reportDate" class="form-control" value="${existingData ? existingData.date : todayStr}" required />
+            <input type="date" max="9999-12-31" id="reportDate" class="form-control" value="${existingData ? existingData.date : todayStr}" required />
           </div>
           <div style="flex: 1; min-width: 100px;">
             <label style="font-size: 11px; color: var(--accent-blue); font-weight: 700;" data-i18n="start_time">시작시간 (드래그 선택)</label>

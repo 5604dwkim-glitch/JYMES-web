@@ -141,7 +141,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                     <tr>
                       <td style={{...labelStyle, height: '20%'}}>금형입고</td>
                       <td style={{...valStyle, height: '20%'}}>
-                        <input type="date" style={inputStyle} value={formData.receiptDate || mold.manufactureDate || ''} onChange={e => setFormData({...formData, receiptDate: e.target.value})} />
+                        <input type="date" max="9999-12-31" style={inputStyle} value={formData.receiptDate || mold.manufactureDate || ''} onChange={e => setFormData({...formData, receiptDate: e.target.value})} />
                       </td>
                     </tr>
                     <tr>
@@ -155,7 +155,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                     <tr>
                       <td style={{...labelStyle, height: '20%'}}>생산시점</td>
                       <td style={{...valStyle, height: '20%'}}>
-                        <input type="date" style={inputStyle} value={formData.productionStartDate} onChange={e => setFormData({...formData, productionStartDate: e.target.value})} />
+                        <input type="date" max="9999-12-31" style={inputStyle} value={formData.productionStartDate} onChange={e => setFormData({...formData, productionStartDate: e.target.value})} />
                       </td>
                     </tr>
                     <tr>
@@ -203,7 +203,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                         <input type="checkbox" checked={selectedIndices.includes(i)} onChange={() => toggleSelection(i)} />
                       </td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
-                        <input type="date" style={{...tableInputStyle, textAlign: 'center'}} value={row.date} onChange={e => updateHistory(i, 'date', e.target.value)} />
+                        <input type="date" max="9999-12-31" style={{...tableInputStyle, textAlign: 'center'}} value={row.date} onChange={e => updateHistory(i, 'date', e.target.value)} />
                       </td>
                       <td style={{ borderRight: '1px solid #e2e8f0', padding: '4px' }}>
                         <input type="text" style={tableInputStyle} value={row.issue} onChange={e => updateHistory(i, 'issue', e.target.value)} placeholder="내용 입력..." />

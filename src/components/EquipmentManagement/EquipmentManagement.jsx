@@ -176,7 +176,7 @@ export default function EquipmentManagement() {
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>도입일자</label>
-                <input type="date" className="form-control" value={formData.installDate} onChange={(e) => setFormData({...formData, installDate: e.target.value})} />
+                <input type="date" max="9999-12-31" className="form-control" value={formData.installDate} onChange={(e) => setFormData({...formData, installDate: e.target.value})} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>취소</button>
