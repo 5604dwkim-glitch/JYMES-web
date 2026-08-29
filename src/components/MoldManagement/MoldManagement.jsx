@@ -44,7 +44,7 @@ export default function MoldManagement() {
 
   // Form State
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ id: '', code: '', manufactureDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 100000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
+  const [formData, setFormData] = useState({ id: '', code: '', manufactureDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 300000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
 
   const generateAutoCode = (carModel, manufactureDate, moldsList, currentId) => {
     if (!carModel || !manufactureDate) return '';
@@ -144,7 +144,7 @@ export default function MoldManagement() {
     if (mold) {
       setFormData(mold);
     } else {
-      setFormData({ id: '', code: '', manufactureDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 100000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
+      setFormData({ id: '', code: '', manufactureDate: '', name: '', itemNo: '', currentStrokes: 0, maxStrokes: 300000, status: '양산중', carModel: '', partName: '', moldType: '', moldNumber: '' });
     }
     setShowModal(true);
   };
