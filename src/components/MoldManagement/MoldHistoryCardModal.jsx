@@ -8,10 +8,21 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
     receiptDate: mold.receiptDate || '',
     productionStartDate: mold.productionStartDate || '',
     manufacturer: mold.manufacturer || '',
-    history: mold.history || []
+    history: mold.history || [],
+    moldPhoto: mold.moldPhoto || ''
   });
 
-    const [editingRepairIndex, setEditingRepairIndex] = useState(null);
+      const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, moldPhoto: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const [editingRepairIndex, setEditingRepairIndex] = useState(null);
   const [selectedIndices, setSelectedIndices] = useState([]);
 
   const toggleSelection = (index) => {
@@ -52,7 +63,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
         receiptDate: formData.receiptDate,
         productionStartDate: formData.productionStartDate,
         manufacturer: formData.manufacturer,
-        history: formData.history
+        history: formData.history, moldPhoto: formData.moldPhoto
       });
       onUpdate({ ...mold, ...formData });
       onClose();
@@ -104,42 +115,43 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
             </div>
             
             <div style={{ display: 'flex', border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden' }}>
-              <div style={{ width: '35%', borderRight: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ width: '350px', minWidth: '350px', borderRight: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ background: '#f1f5f9', padding: '10px 16px', fontWeight: 'bold', color: '#334155', textAlign: 'center', borderBottom: '1px solid #cbd5e1', fontSize: '13px' }}>사진</div>
-                <div style={{ flex: 1, background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '220px' }}>
-                  <span style={{ color: '#94a3b8', fontSize: '13px' }}>사진 업로드 (준비중)</span>
+                <div style={{ width: '350px', height: '350px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+                  {formData.moldPhoto ? (
+                    <img src={formData.moldPhoto} alt="금형 사진" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <span style={{ color: '#94a3b8', fontSize: '13px' }}>클릭하여 350x350 사진 업로드</span>
+                  )}
+                  <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
                 </div>
               </div>
-              <div style={{ width: '65%' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+              <div style={{ flex: 1 }}>
+                <table style={{ width: '100%', height: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                   <tbody>
                     <tr>
-                      <td style={labelStyle}>제작일자</td>
-                      <td style={valStyle}>{mold.manufactureDate || '-'}</td>
-                    </tr>
-                    <tr>
-                      <td style={labelStyle}>품 명</td>
-                      <td style={valStyle}>{mold.name || '-'}</td>
-                    </tr>
-                    <tr>
-                      <td style={labelStyle}>품 번</td>
-                      <td style={valStyle}>{mold.itemNo || '-'}</td>
-                    </tr>
-                    <tr>
-                      <td style={labelStyle}>금형입고</td>
-                      <td style={valStyle}>
-                        <input type="date" style={inputStyle} value={formData.receiptDate} onChange={e => setFormData({...formData, receiptDate: e.target.value})} />
+                      <td style={{...labelStyle, height: '20%'}}>금형입고</td>
+                      <td style={{...valStyle, height: '20%'}}>
+                        <input type="date" style={inputStyle} value={formData.receiptDate || mold.manufactureDate || ''} onChange={e => setFormData({...formData, receiptDate: e.target.value})} />
                       </td>
                     </tr>
                     <tr>
-                      <td style={labelStyle}>생산시점</td>
-                      <td style={valStyle}>
+                      <td style={{...labelStyle, height: '20%'}}>품 명</td>
+                      <td style={{...valStyle, height: '20%'}}>{mold.name || '-'}</td>
+                    </tr>
+                    <tr>
+                      <td style={{...labelStyle, height: '20%'}}>품 번</td>
+                      <td style={{...valStyle, height: '20%'}}>{mold.itemNo || '-'}</td>
+                    </tr>
+                    <tr>
+                      <td style={{...labelStyle, height: '20%'}}>생산시점</td>
+                      <td style={{...valStyle, height: '20%'}}>
                         <input type="date" style={inputStyle} value={formData.productionStartDate} onChange={e => setFormData({...formData, productionStartDate: e.target.value})} />
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ ...labelStyle, borderBottom: 'none' }}>금형제작처</td>
-                      <td style={{ ...valStyle, borderBottom: 'none' }}>
+                      <td style={{ ...labelStyle, borderBottom: 'none', height: '20%' }}>금형제작처</td>
+                      <td style={{ ...valStyle, borderBottom: 'none', height: '20%' }}>
                         <input type="text" style={inputStyle} placeholder="㈜화승R&A" value={formData.manufacturer} onChange={e => setFormData({...formData, manufacturer: e.target.value})} />
                       </td>
                     </tr>
