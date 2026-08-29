@@ -621,20 +621,25 @@ export function renderSection5(ctx) {
                   `}
                 </th>
               </tr>
-              <!-- 부위 -->
-              <tr style="background: #f1f5f9; font-weight: 700; color: #000;">
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">부위 [직각/둔각/직선/엔드]</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 25%;">R[직각]</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 25%;">S[둔각]</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 25%;">T[직선]</th>
-              </tr>
-              <!-- 금형 No. -->
-              <tr style="background: #ffffff; font-weight: 700; color: #000;">
-                <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700;">금형 No. [ 호기 ]</td>
-                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_R', 'R[직각]', data.mold_R || '')}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_S', 'S[둔각]', data.mold_S || '')}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_T', 'T[직선]', data.mold_T || '')}</td>
-              </tr>
+                            <!-- 부위 -->
+              ${(function() {
+                const sidePrefix = fixedSide ? (fixedSide + ' ') : (data.lh_check && data.rh_check ? 'LH/RH ' : (data.lh_check ? 'LH ' : (data.rh_check ? 'RH ' : '')));
+                return `
+                  <tr style="background: #f1f5f9; font-weight: 700; color: #000;">
+                    <th colspan="2" style="border: 1px solid #000; padding: 6px;">부위 [직각/둔각/직선/엔드]</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}R[직각]</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}S[둔각]</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}T[직선]</th>
+                  </tr>
+                  <!-- 금형 No. -->
+                  <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                    <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700;">금형 No. [ 호기 ]</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_R', sidePrefix + 'R[직각]', data.mold_R || '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_S', sidePrefix + 'S[둔각]', data.mold_S || '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_T', sidePrefix + 'T[직선]', data.mold_T || '')}</td>
+                  </tr>
+                `;
+              })()}
             </thead>
             <tbody>
               <!-- 가류 온도 (상/하, ℃) -->
