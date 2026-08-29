@@ -76,7 +76,7 @@ export default function EquipmentManagement() {
 
   return (
     <div className="card" style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
-      <div className="card-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="card-header" style={{ borderBottom: '1px solid #cbd5e1', paddingBottom: '0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '16px', marginBottom: '-1px' }}>
           <button style={tabStyle(activeTab === 'list')} onClick={() => setActiveTab('list')}>설비 리스트</button>
           <button style={tabStyle(activeTab === 'history')} onClick={() => setActiveTab('history')}>설비 이력 카드</button>
@@ -94,9 +94,9 @@ export default function EquipmentManagement() {
             </div>
             
             {loading ? <p>로딩 중...</p> : (
-              <table className="table" style={{ width: '100%' }}>
+              <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr>
+                  <tr style={{ borderBottom: '1px solid #cbd5e1' }}>
                     <th>관리번호</th>
                     <th>설비명</th>
                     <th>분류</th>
@@ -108,7 +108,7 @@ export default function EquipmentManagement() {
                 </thead>
                 <tbody>
                   {equipments.map(eq => (
-                    <tr key={eq.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                    <tr key={eq.id} style={{ borderBottom: '1px solid #cbd5e1' }}>
                       <td>{eq.code}</td>
                       <td style={{ fontWeight: 'bold' }}>{eq.name}</td>
                       <td>{eq.type}</td>

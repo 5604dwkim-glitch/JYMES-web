@@ -165,9 +165,9 @@ export default function MoldManagement() {
             </div>
             
             {loading ? <p>로딩 중...</p> : (
-              <table className="table" style={{ width: '100%' }}>
+              <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr>
+                  <tr style={{ borderBottom: '1px solid #cbd5e1' }}>
                     <th>관리번호</th>
                     <th>금형입고 일자</th>
                     <th>품명</th>
@@ -181,7 +181,7 @@ export default function MoldManagement() {
                   {molds.map(m => {
                     const strokePercent = Math.min(100, Math.round((m.currentStrokes / (m.maxStrokes || 1)) * 100));
                     return (
-                      <tr key={m.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <tr key={m.id} style={{ borderBottom: '1px solid #cbd5e1' }}>
                         <td>{m.code}</td>
                         <td>{m.receiptDate || m.manufactureDate || '-'}</td>
                         <td style={{ fontWeight: 'bold' }}>{m.name}</td>
