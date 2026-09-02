@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 
 export default function Layout() {
   const { userRole, logout } = useAuth();
   const { t, lang, setLang } = useI18n();
+  const navigate = useNavigate();
   const [time, setTime] = useState(new Date());
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const location = useLocation();
@@ -137,6 +138,10 @@ export default function Layout() {
                 <span>🗜️</span>
                 <span>{t('nav_mold') || '금형 관리'}</span>
               </NavLink>
+              <NavLink to="/change-point" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>🔍</span>
+                <span>변동점 관리</span>
+              </NavLink>
               <NavLink to="/master" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
                 <span>👥</span>
                 <span>{t('nav_master')}</span>
@@ -176,7 +181,7 @@ export default function Layout() {
                 <option value="vi">🇻🇳 {t('lang_vi') || 'Tiếng Việt'}</option>
               </select>
             </div>
-            <button className="btn btn-primary btn-sm">
+            <button className="btn btn-primary btn-sm" onClick={() => navigate('/form')}>
               <span>➕</span> <span>{t('quick_report')}</span>
             </button>
           </div>

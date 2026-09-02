@@ -1,0 +1,78 @@
+
+> temp-react@0.0.0 lint
+> oxlint src
+
+src/components/DynamicForms/sections/DowntimeSectionRenderer.js:1:10: warning eslint(no-unused-vars): Identifier 'DOWNTIME_REASONS' is imported but never used. help: Consider removing this import.
+src/components/DynamicForms/LegacyDetailModal.jsx:5:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/contexts/I18nContext.jsx:35:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/constants/translations.js:1362:3: warning eslint(no-dupe-keys): Duplicate key '치수확인' help: Consider removing the duplicated key
+src/constants/translations.js:1379:3: warning eslint(no-dupe-keys): Duplicate key '생산실적' help: Consider removing the duplicated key
+src/components/MasterData.jsx:131:16: warning eslint(no-unused-vars): Catch parameter 'e' is caught but never used. help: Consider handling this error.
+src/components/MasterData.jsx:157:16: warning eslint(no-unused-vars): Catch parameter 'e' is caught but never used. help: Consider handling this error.
+src/contexts/AuthContext.jsx:40:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/components/Login.jsx:42:18: warning eslint(no-unused-vars): Catch parameter 'e' is caught but never used. help: Consider handling this error.
+src/components/Login.jsx:82:16: warning eslint(no-unused-vars): Catch parameter 'e' is caught but never used. help: Consider handling this error.
+src/components/DynamicForms/LegacyDashboardWrapper.jsx:47:9: warning eslint(no-unused-vars): Variable 'workerBadgeText' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyDashboardWrapper.jsx:48:9: warning eslint(no-unused-vars): Variable 'adminBadgeText' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyDashboardWrapper.jsx:10:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/components/DynamicForms/LegacyDashboardWrapper.jsx:36:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/components/DynamicForms/LegacyDashboardWrapper.jsx:775:65: warning react-hooks(exhaustive-deps): React Hook useEffect has a missing dependency: 'onNavigate' help: Either include it or remove the dependency array.
+src/components/Dashboard.jsx:4:10: warning eslint(no-unused-vars): Identifier 'fetchReports' is imported but never used. help: Consider removing this import.
+src/components/Dashboard.jsx:5:10: warning eslint(no-unused-vars): Identifier 'MANUFACTURERS' is imported but never used. help: Consider removing this import.
+src/components/Dashboard.jsx:5:25: warning eslint(no-unused-vars): Identifier 'CAR_MODELS' is imported but never used. help: Consider removing this import.
+src/components/Dashboard.jsx:5:37: warning eslint(no-unused-vars): Identifier 'CAR_MODEL_PARTS' is imported but never used. help: Consider removing this import.
+src/components/Dashboard.jsx:19:10: warning eslint(no-unused-vars): Identifier 'Bar' is imported but never used. help: Consider removing this import.
+src/components/Dashboard.jsx:19:15: warning eslint(no-unused-vars): Identifier 'Chart' is imported but never used. help: Consider removing this import.
+src/components/Dashboard.jsx:145:36: warning eslint(no-unused-vars): Parameter 't' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/ReportList.jsx:11:11: warning eslint(no-unused-vars): Variable 't' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/ReportList.jsx:124:15: warning eslint(no-unused-vars): Variable 'thickBorderTop' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/ReportList.jsx:31:5: warning react-hooks(exhaustive-deps): React Hook useEffect has a missing dependency: 'loadReports' help: Either include it or remove the dependency array.
+src/constants/masterData.js:183:9: warning eslint(no-unused-vars): Variable 'lastNames' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/constants/masterData.js:184:9: warning eslint(no-unused-vars): Variable 'firstNames' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/constants/masterData.js:186:9: warning eslint(no-unused-vars): Variable 'processes' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/constants/masterData.js:187:9: warning eslint(no-unused-vars): Variable 'roles' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/sections/LotTableRenderer.js:27:11: warning eslint(no-unused-vars): Variable 'curCarCode' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/sections/LotTableRenderer.js:28:11: warning eslint(no-unused-vars): Variable 'curPart' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyAnalyticsWrapper.jsx:367:9: warning eslint(no-unused-vars): Variable 'totalMonthlyRework' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyAnalyticsWrapper.jsx:371:9: warning eslint(no-unused-vars): Variable 'formatScrap' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyAnalyticsWrapper.jsx:472:34: warning eslint(no-unused-vars): Parameter 'reports' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/LegacyAnalyticsWrapper.jsx:498:33: warning eslint(no-unused-vars): Parameter 'reports' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/LegacyAnalyticsWrapper.jsx:13:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/components/DynamicForms/LegacyAnalyticsWrapper.jsx:38:17: warning react(only-export-components): Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components.
+src/components/DynamicForms/sections/QtySectionRenderer.js:129:11: warning eslint(no-unused-vars): Variable 'workLH' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/sections/QtySectionRenderer.js:130:11: warning eslint(no-unused-vars): Variable 'workRH' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/sections/Section5Renderer.js:1:13: warning eslint(no-unused-vars): Identifier 'Templates' is imported but never used. help: Consider removing this import.
+src/components/DynamicForms/sections/Section5Renderer.js:1615:13: warning eslint(no-unused-vars): Variable 'isJg1Inbelt' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/FormTemplates.jsx:325:42: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:497:44: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:683:42: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:845:85: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:976:62: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:1085:48: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:1192:44: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:1278:42: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:1631:39: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:1750:41: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:1856:36: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:2001:42: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:2184:76: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:3121:41: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:3241:40: warning eslint(no-unused-vars): Parameter 'container' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/FormTemplates.jsx:20:34: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/FormTemplates.jsx:20:37: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/FormTemplates.jsx:101:34: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/FormTemplates.jsx:101:37: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/FormTemplates.jsx:219:34: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/FormTemplates.jsx:219:37: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/FormTemplates.jsx:261:34: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/FormTemplates.jsx:261:37: warning eslint(no-useless-escape): Unnecessary escape character '\'' help: Replace `\'` with `'`.
+src/components/DynamicForms/LegacyFormWrapper.jsx:6:13: warning eslint(no-unused-vars): Identifier 'Templates' is imported but never used. help: Consider removing this import.
+src/components/DynamicForms/LegacyFormWrapper.jsx:8:25: warning eslint(no-unused-vars): Identifier 'CAR_MODELS' is imported but never used. help: Consider removing this import.
+src/components/DynamicForms/LegacyFormWrapper.jsx:8:76: warning eslint(no-unused-vars): Identifier 'DEFAULT_ATTENDANCE' is imported but never used. help: Consider removing this import.
+src/components/DynamicForms/LegacyFormWrapper.jsx:20:19: warning eslint(no-unused-vars): Parameter 'id' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/LegacyFormWrapper.jsx:479:9: warning eslint(no-unused-vars): Variable 'processes' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyFormWrapper.jsx:495:9: warning eslint(no-unused-vars): Variable 'itemsForCarModel' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyFormWrapper.jsx:497:9: warning eslint(no-unused-vars): Variable 'existingDim' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyFormWrapper.jsx:498:9: warning eslint(no-unused-vars): Variable 'defaultWorkerName' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.
+src/components/DynamicForms/LegacyFormWrapper.jsx:710:120: warning eslint(no-unused-vars): Parameter 'materialLots' is declared but never used. Unused parameters should start with a '_'. help: Consider removing this parameter.
+src/components/DynamicForms/LegacyFormWrapper.jsx:717:9: warning eslint(no-unused-vars): Variable 'notesInput' is declared but never used. Unused variables should start with a '_'. help: Consider removing this declaration.

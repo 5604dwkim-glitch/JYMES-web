@@ -226,7 +226,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;" data-i18n="step4_1_lot">
           🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
         </label>
-        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="lot_help">숫자를 입력하면 (예: 26072513) 자동으로 '26년 07월 25일 13시' 형태로 변환됩니다.</p>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="lot_help">숫자를 입력하면 (예: 2609021833) 자동으로 '26년 09월 02일 18시 33분' 형태로 변환됩니다.</p>
 
         <div id="section4LotTableContainer" style="overflow-x: auto;">
           <!-- Dynamic Render -->
@@ -244,7 +244,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
       <!-- 8/9. 비가동 시간 및 특이사항 (3개 라인 지원) -->
       <div id="downtimeCard" class="card">
         <label id="downtimeTitleLabel" style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; display: block;" data-i18n="step6_downtime">
-          📝 <span class="sec-num"></span> 비가동 시간 & 원터치 특이사항 작성 (최대 3건 입력 가능)
+          📝 <span class="sec-num"></span> 작업 특이사항
         </label>
 
         <!-- 1차 비가동 -->
@@ -339,7 +339,8 @@ function autoFormatDateTimeString(inputStr) {
   if (digits.length >= 2) formatted += digits.substring(0, 2) + '년 ';
   if (digits.length >= 4) formatted += digits.substring(2, 4) + '월 ';
   if (digits.length >= 6) formatted += digits.substring(4, 6) + '일 ';
-  if (digits.length >= 8) formatted += digits.substring(6, 8) + '시';
+  if (digits.length >= 8) formatted += digits.substring(6, 8) + '시 ';
+  if (digits.length >= 10) formatted += digits.substring(8, 10) + '분';
   if (digits.length < 2) formatted = digits;
 
   return formatted.trim();
@@ -983,15 +984,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         'RHA_초물': autoFormatDateTimeString(container.querySelector('#lotNo_RHA_초물')?.value || ''),
         'RHA_중물': autoFormatDateTimeString(container.querySelector('#lotNo_RHA_중물')?.value || ''),
         'RHA_종물': autoFormatDateTimeString(container.querySelector('#lotNo_RHA_종물')?.value || ''),
-        'LH_초물': autoFormatDateTimeString(container.querySelector('#lotNo_LH_초물')?.value || ''),
-        'LH_중물': autoFormatDateTimeString(container.querySelector('#lotNo_LH_중물')?.value || ''),
-        'LH_종물': autoFormatDateTimeString(container.querySelector('#lotNo_LH_종물')?.value || ''),
         'MIDDLE_초물': autoFormatDateTimeString(container.querySelector('#lotNo_MIDDLE_초물')?.value || ''),
         'MIDDLE_중물': autoFormatDateTimeString(container.querySelector('#lotNo_MIDDLE_중물')?.value || ''),
         'MIDDLE_종물': autoFormatDateTimeString(container.querySelector('#lotNo_MIDDLE_종물')?.value || ''),
-        'RH_초물': autoFormatDateTimeString(container.querySelector('#lotNo_RH_초물')?.value || ''),
-        'RH_중물': autoFormatDateTimeString(container.querySelector('#lotNo_RH_중물')?.value || ''),
-        'RH_종물': autoFormatDateTimeString(container.querySelector('#lotNo_RH_종물')?.value || ''),
         '2004_lh_2': container.querySelector('#lotNo_2004_lh_2')?.checked || false,
         '2004_rh_2': container.querySelector('#lotNo_2004_rh_2')?.checked || false
       };
@@ -2403,14 +2398,53 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
 
 export function bindLotDateWheelPicker(inputElem, titleText = '소재 LOT 날짜 선택') {
   if (!inputElem) return;
-  inputElem.readOnly = true;
-  inputElem.style.cursor = 'pointer';
-  inputElem.addEventListener('click', () => {
-    openLotDateWheelPicker(inputElem.value, titleText, (selectedVal) => {
-      inputElem.value = selectedVal;
-      inputElem.dispatchEvent(new Event('input', { bubbles: true }));
-      inputElem.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+  
+  // Remove readonly and click listener if they were set
+  inputElem.readOnly = false;
+  inputElem.style.cursor = 'text';
+  inputElem.placeholder = '숫자 10자리 입력';
+  
+  // Create a clean clone to remove the old click event listener
+  const newElem = inputElem.cloneNode(true);
+  inputElem.parentNode.replaceChild(newElem, inputElem);
+  
+  // Re-format initial value if it already exists
+  let initial = newElem.value.replace(/\D/g, '');
+  if (initial.length === 10) {
+    const yy = initial.substring(0, 2);
+    const mm = initial.substring(2, 4);
+    const dd = initial.substring(4, 6);
+    const hh = initial.substring(6, 8);
+    const min = initial.substring(8, 10);
+    newElem.value = `${yy}년 ${mm}월 ${dd}일 ${hh}시 ${min}분`;
+  } else if (initial.length === 8) {
+    // Handling legacy 8 digit data (YYMMDDHH)
+    const yy = initial.substring(0, 2);
+    const mm = initial.substring(2, 4);
+    const dd = initial.substring(4, 6);
+    const hh = initial.substring(6, 8);
+    newElem.value = `${yy}년 ${mm}월 ${dd}일 ${hh}시 00분`;
+  } else {
+    newElem.value = initial;
+  }
+
+  newElem.addEventListener('input', (e) => {
+    let digits = e.target.value.replace(/\D/g, '');
+    if (digits.length > 10) {
+      digits = digits.substring(0, 10);
+    }
+    
+    if (digits.length === 10) {
+      const yy = digits.substring(0, 2);
+      const mm = digits.substring(2, 4);
+      const dd = digits.substring(4, 6);
+      const hh = digits.substring(6, 8);
+      const min = digits.substring(8, 10);
+      e.target.value = `${yy}년 ${mm}월 ${dd}일 ${hh}시 ${min}분`;
+      newElem.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      e.target.value = digits;
+    }
   });
 }
 
@@ -2720,15 +2754,14 @@ export function autoBindAllDimensionInputs(container) {
     let defVal = 0;
     let foundSpec = false;
 
+    if (input.dataset.wheelParsedSpec !== undefined) {
+      defVal = parseFloat(input.dataset.wheelParsedSpec);
+      foundSpec = true;
+    }
+
     // Explicit check by input ID patterns (1001, 1031, etc.)
     const inputId = input.id || '';
-    if (inputId.startsWith('dim_cut_FRT')) {
-      defVal = 745;
-      foundSpec = true;
-    } else if (inputId.startsWith('dim_cut_RR')) {
-      defVal = 687;
-      foundSpec = true;
-    } else if (inputId.startsWith('dim_step_f_')) {
+    if (inputId.startsWith('dim_step_f_')) {
       defVal = 36;
       foundSpec = true;
     } else if (inputId.startsWith('dim_step_r_')) {
@@ -2773,14 +2806,14 @@ export function autoBindAllDimensionInputs(container) {
       for (let td of tds) {
         const text = td.textContent;
         if (text.includes('±')) {
-          const match = text.match(/([\d\.]+)\s*±/);
+          const match = text.match(/([\d.]+)\s*±/);
           if (match && !isNaN(parseFloat(match[1]))) {
             defVal = parseFloat(match[1]);
             foundSpec = true;
             break;
           }
         } else if (isSpecRow) {
-          const match = text.match(/([\d\.]+)/);
+          const match = text.match(/([\d.]+)/);
           if (match && !isNaN(parseFloat(match[1])) && parseFloat(match[1]) > 0) {
             defVal = parseFloat(match[1]);
             foundSpec = true;
@@ -2806,13 +2839,13 @@ export function autoBindAllDimensionInputs(container) {
           // 1) Match cell index
           if (cellIdx >= 0 && cellIdx < prevCells.length) {
             const cText = prevCells[cellIdx].textContent;
-            const pmMatch = cText.match(/([\d\.]+)\s*±/);
+            const pmMatch = cText.match(/([\d.]+)\s*±/);
             if (pmMatch && !isNaN(parseFloat(pmMatch[1]))) {
               defVal = parseFloat(pmMatch[1]);
               foundSpec = true;
               break;
             }
-            const pureMatch = cText.match(/([\d\.]+)/);
+            const pureMatch = cText.match(/([\d.]+)/);
             if (pureMatch && !isNaN(parseFloat(pureMatch[1])) && parseFloat(pureMatch[1]) > 0) {
               defVal = parseFloat(pureMatch[1]);
               foundSpec = true;
@@ -2824,13 +2857,13 @@ export function autoBindAllDimensionInputs(container) {
           for (let cell of prevCells) {
             const cText = cell.textContent;
             if (cText.includes('규격') || cText.includes('Spec') || cText.includes('구분') || cText.includes('단컷팅') || cText.includes('전방') || cText.includes('후방')) continue;
-            const pmMatch = cText.match(/([\d\.]+)\s*±/);
+            const pmMatch = cText.match(/([\d.]+)\s*±/);
             if (pmMatch && !isNaN(parseFloat(pmMatch[1]))) {
               defVal = parseFloat(pmMatch[1]);
               foundSpec = true;
               break;
             }
-            const numMatch = cText.match(/([\d\.]+)/);
+            const numMatch = cText.match(/([\d.]+)/);
             if (numMatch && !isNaN(parseFloat(numMatch[1])) && parseFloat(numMatch[1]) > 0) {
               defVal = parseFloat(numMatch[1]);
               foundSpec = true;
@@ -2853,7 +2886,7 @@ export function autoBindAllDimensionInputs(container) {
       const cellIdx = tr && tr.children ? Array.from(tr.children).indexOf(inputTd) : -1;
       
       if (cellIdx >= 0 && cellIdx < theadCells.length) {
-        const match = theadCells[cellIdx].textContent.match(/([\d\.]+)\s*±/);
+        const match = theadCells[cellIdx].textContent.match(/([\d.]+)\s*±/);
         if (match && !isNaN(parseFloat(match[1]))) {
           defVal = parseFloat(match[1]);
           foundSpec = true;
@@ -2862,7 +2895,7 @@ export function autoBindAllDimensionInputs(container) {
 
       if (!foundSpec) {
         for (let cell of theadCells) {
-          const match = cell.textContent.match(/([\d\.]+)\s*±/);
+          const match = cell.textContent.match(/([\d.]+)\s*±/);
           if (match && !isNaN(parseFloat(match[1]))) {
             defVal = parseFloat(match[1]);
             foundSpec = true;
@@ -2877,7 +2910,7 @@ export function autoBindAllDimensionInputs(container) {
       const card = table.closest('.card') || table.parentElement;
       if (card) {
         const cardText = card.textContent;
-        const match = cardText.match(/([\d\.]+)\s*±/);
+        const match = cardText.match(/([\d.]+)\s*±/);
         if (match && !isNaN(parseFloat(match[1]))) {
           defVal = parseFloat(match[1]);
           foundSpec = true;

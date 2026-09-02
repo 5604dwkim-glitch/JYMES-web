@@ -140,7 +140,6 @@ export async function fetchMyRecentReports(workerName) {
     const q = query(
       collection(db, REPORTS_COLLECTION),
       where('workerName', '==', workerName),
-      orderBy('date', 'desc'),
       limit(20)
     );
     const querySnapshot = await getDocs(q);
@@ -484,3 +483,48 @@ export async function deleteWorker(id) {
   }
 }
 
+
+// ==================== CHANGE POINTS (변동점 관리) ====================
+export const addChangePoint = async (data) => {
+  try {
+    const docRef = await addDoc(collection(db, 'changePoints'), {
+      ...data,
+      createdAt: serverTimestamp(),
+    });
+    return docRef.id;
+  } catch (error) {
+    console.error('Error adding change point:', error);
+    throw error;
+  }
+};
+
+export const fetchChangePoints = async () => {
+  try {
+    const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error fetching change points:', error);
+    throw error;
+  }
+};
+
+export const updateChangePoint = async (id, data) => {
+  try {
+    const docRef = doc(db, 'changePoints', id);
+    await updateDoc(docRef, data);
+  } catch (error) {
+    console.error('Error updating change point:', error);
+    throw error;
+  }
+};
+
+export const deleteChangePoint = async (id) => {
+  try {
+    const docRef = doc(db, 'changePoints', id);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error('Error deleting change point:', error);
+    throw error;
+  }
+};

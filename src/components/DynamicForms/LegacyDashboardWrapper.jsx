@@ -795,7 +795,7 @@ export default function LegacyDashboardWrapper({ reports, summary, userRoleInfo,
         Object.values(miniChartInstances).forEach(c => c && c.destroy());
       }
     };
-  }, [reports, summary, userRoleInfo, lang]);
+  }, [reports, summary, userRoleInfo, onNavigate, lang]);
 
   return <div ref={containerRef} className="legacy-dashboard-container"></div>;
 }

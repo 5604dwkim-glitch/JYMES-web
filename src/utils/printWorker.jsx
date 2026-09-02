@@ -2,7 +2,7 @@ import ReactDOMServer from 'react-dom/server';
 import { QRCodeSVG } from 'qrcode.react';
 
 export function printWorkerCard(worker) {
-  const loginUrl = `https://jy001-eb144.web.app/login?id=${encodeURIComponent((worker.id || worker.name || '').trim())}&pw=0000&_t=${Date.now()}`; // cache buster
+  const loginUrl = `${window.location.origin}/login?id=${encodeURIComponent((worker.id || worker.name || '').trim())}&pw=0000&_t=${Date.now()}`; // cache buster
 
   // Render QR Code to SVG string
   const qrSvgString = ReactDOMServer.renderToString(

@@ -209,7 +209,7 @@ import { store } from './LegacyFormWrapper.jsx';
       <!-- 8. 생산실적 카드 (A, B 분리 입력) -->
       <div class="card" style="margin-top: 16px;">
         <label style="font-size: 14px; font-weight: 800; color: var(--accent-blue); margin-bottom: 14px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (${carName} 'A' / 'B' 분리 입력)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <!-- <span class="sec-num"></span> ${carName} 'A' 클립머신 생산실적 (1호기) -->
@@ -451,7 +451,7 @@ import { store } from './LegacyFormWrapper.jsx';
       <!-- 8. 생산실적 카드 -->
       <div class="card" style="margin-top: 16px;">
         <label style="font-size: 14px; font-weight: 800; color: var(--accent-blue); margin-bottom: 14px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
         <div style="overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; background: #ffffff;">
           <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
@@ -867,7 +867,7 @@ import { store } from './LegacyFormWrapper.jsx';
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 및 폐기 불량현황 입력
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
         <div style="overflow-x: auto;">
           <table id="dtCrewJointQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
@@ -998,7 +998,7 @@ import { store } from './LegacyFormWrapper.jsx';
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 및 폐기 불량현황 입력
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
         <div style="overflow-x: auto;">
           <table id="dtCrewJointQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
@@ -1103,7 +1103,7 @@ import { store } from './LegacyFormWrapper.jsx';
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 및 폐기 불량현황 입력
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
         <div style="overflow-x: auto;">
           <table id="dtCrewJointEndQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
@@ -1197,7 +1197,7 @@ import { store } from './LegacyFormWrapper.jsx';
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
         <div style="overflow-x: auto;">
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
@@ -1280,7 +1280,7 @@ import { store } from './LegacyFormWrapper.jsx';
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
         <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
@@ -1357,7 +1357,7 @@ import { store } from './LegacyFormWrapper.jsx';
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -1490,7 +1490,7 @@ import { store } from './LegacyFormWrapper.jsx';
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -1611,7 +1611,7 @@ export function getStandardQtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -1763,7 +1763,7 @@ export function getStandardQtyHTML(ed, container) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -1849,6 +1849,7 @@ export function getStandardQtyHTML(ed, container) {
     `;
   }
 
+
   export function getJointQtyHTML(ed, container) {
     const q = ed && ed.jointQtyTable ? ed.jointQtyTable : {};
     const cols = [
@@ -1859,7 +1860,7 @@ export function getStandardQtyHTML(ed, container) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results - 조인트)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -1980,7 +1981,7 @@ export function getJointQty1032HTML(ed, container) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -2090,7 +2091,7 @@ export function getPostQtyHTML(ed, container, formCode) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results - 후가공)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -2238,7 +2239,7 @@ export function getPostQtyHTML(ed, container, formCode) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
-          📊 <span class="sec-num"></span> 검사실적
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -2421,7 +2422,7 @@ export function getPostQtyHTML(ed, container, formCode) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
-          📊 <span class="sec-num"></span> 검사실적
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -2598,7 +2599,7 @@ export function getPostQtyHTML(ed, container, formCode) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -2729,7 +2730,7 @@ export function getForm4004QtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -2861,7 +2862,7 @@ export function getForm4012QtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -2971,7 +2972,7 @@ export function getForm4013QtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -3082,7 +3083,7 @@ export function getForm4003QtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -3214,7 +3215,7 @@ export function getForm4002QtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
-    const sectionTitleLabel = curProc === '검사포장' ? '📊 <span class="sec-num"></span> 생산실적(검사)' : '📊 <span class="sec-num"></span> 생산실적 (Production Results)';
+    const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -3355,7 +3356,7 @@ export function getJointQty1002HTML(ed, container) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results - 조인트)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -3473,7 +3474,7 @@ export function getPostQty1012HTML(ed, container) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results - 후가공)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
@@ -3716,7 +3717,7 @@ export function getForm3001QtyHTML(ed, container) {
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 (Production Results)
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
         <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />

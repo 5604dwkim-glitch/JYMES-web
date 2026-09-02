@@ -164,7 +164,7 @@ export function renderSection5(ctx) {
       section5.innerHTML = `
         <div class="card" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
-            🔗 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+            🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
           </label>
           <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
           <input type="text" id="lotNo_jointRubber" class="form-control lot-datetime-input"
@@ -241,15 +241,15 @@ export function renderSection5(ctx) {
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초']  || ''}"  readonly />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_초']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중']  || ''}"  readonly />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_중']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종']  || ''}"  readonly />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_종']  || ''}"  readonly />
                       </div>
                     </div>
                   </td>
@@ -298,15 +298,15 @@ export function renderSection5(ctx) {
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_초'] || ''}" />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_중'] || ''}" />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_종'] || ''}" />
                       </div>
                     </div>
                   </td>
@@ -314,15 +314,15 @@ export function renderSection5(ctx) {
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                        <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초']  || ''}"  readonly />
+                        <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_RR_초']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                        <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중']  || ''}"  readonly />
+                        <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_RR_중']  || ''}"  readonly />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                        <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종']  || ''}"  readonly />
+                        <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_RR_종']  || ''}"  readonly />
                       </div>
                     </div>
                   </td>
@@ -373,15 +373,15 @@ export function renderSection5(ctx) {
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="1870" value="${d['cut_FRT_초'] || ''}" />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="1870" value="${d['cut_FRT_중'] || ''}" />
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="1870" value="${d['cut_FRT_종'] || ''}" />
                       </div>
                     </div>
                   </td>
@@ -445,14 +445,14 @@ export function renderSection5(ctx) {
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-              🔢 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+              🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
             </label>
             <input type="text" id="jointRubberLotNo" class="form-control" style="width: 100%; border: 1px solid var(--border-color); text-align: center; font-size: 12px; padding: 10px; border-radius: 6px; box-sizing: border-box;" placeholder="조인트 고무 LOT 입력" value="${jointLotVal}" />
           </div>
 
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-              🌡️ <span class="sec-num"></span> 사출온도
+              ♨️ <span class="sec-num"></span> 설비 사출온도 입력
             </label>
             <div style="overflow-x: auto;">
               <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
@@ -488,7 +488,7 @@ export function renderSection5(ctx) {
 
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-              ⚙️ <span class="sec-num"></span> 사출설정값
+              ♨️ <span class="sec-num"></span> 설비 사출설정값 입력
             </label>
             <div style="overflow-x: auto;">
               <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
@@ -1821,7 +1821,7 @@ export function renderSection5(ctx) {
         ${dimCardForQuad}
         <div class="card" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
-            🔗 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+            🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
           </label>
           <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
           <input type="text" id="jointRubberLotNo" class="form-control lot-datetime-input"
@@ -2095,11 +2095,11 @@ ${renderDtRow4('종')}
                     <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
                       <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_초'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_중'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_종'] || ''}" />
                       </div>
                     </td>
                   </tr>
@@ -2372,21 +2372,21 @@ ${renderDtRow4('종')}
                   <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
                     <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
                       <span style="font-size: 10px; color: #333; font-weight: 700;">(초)</span>
-                      <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초'] || ''}" />
+                      <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_초'] || ''}" />
                       <span style="font-size: 10px; color: #333; font-weight: 700;">(중)</span>
-                      <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중'] || ''}" />
+                      <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_중'] || ''}" />
                       <span style="font-size: 10px; color: #333; font-weight: 700;">(종)</span>
-                      <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종'] || ''}" />
+                      <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_종'] || ''}" />
                     </div>
                   </td>
                   <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
                     <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
                       <span style="font-size: 10px; color: #333; font-weight: 700;">(초)</span>
-                      <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초'] || ''}" />
+                      <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="${d['cut_RR_초'] || ''}" />
                       <span style="font-size: 10px; color: #333; font-weight: 700;">(중)</span>
-                      <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중'] || ''}" />
+                      <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="${d['cut_RR_중'] || ''}" />
                       <span style="font-size: 10px; color: #333; font-weight: 700;">(종)</span>
-                      <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종'] || ''}" />
+                      <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="${d['cut_RR_종'] || ''}" />
                     </div>
                   </td>
                 </tr>
@@ -2573,15 +2573,15 @@ ${renderDtRow4('종')}
                       <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                          <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_초']  || ''}" readonly />
+                          <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_초']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                          <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_중']  || ''}" readonly />
+                          <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_중']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                          <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_FRT_종']  || ''}" readonly />
+                          <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_FRT_종']  || ''}" readonly />
                         </div>
                       </div>
                     </td>
@@ -2589,15 +2589,15 @@ ${renderDtRow4('종')}
                       <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(초)</span>
-                          <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초']  || ''}" readonly />
+                          <input type="text" id="dim_cut_RR_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_RR_초']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(중)</span>
-                          <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중']  || ''}" readonly />
+                          <input type="text" id="dim_cut_RR_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_RR_중']  || ''}" readonly />
                         </div>
                         <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                           <span style="font-size: 10px; color: #333; font-weight: 700; width: 20px;">(종)</span>
-                          <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종']  || ''}" readonly />
+                          <input type="text" id="dim_cut_RR_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="326" value="${d['cut_RR_종']  || ''}" readonly />
                         </div>
                       </div>
                     </td>
@@ -2628,7 +2628,7 @@ ${renderDtRow4('종')}
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 800; color: var(--accent-blue); margin-bottom: 14px; display: block;">
-              📐 <span class="sec-num"></span> 치수확인 (KM/KX HOOD SURROUND - #2044)
+              📐 <span class="sec-num"></span> 치수확인
             </label>
 
             <!-- 1. 단면 길이(mm) -->
@@ -2799,7 +2799,7 @@ ${renderDtRow4('종')}
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
-              📏 <span class="sec-num"></span> 치수확인 (${curCarCode} D/SIDE - #${formCode})
+              📐 <span class="sec-num"></span> 치수확인
             </label>
 
             <div style="overflow-x: auto;">
@@ -2851,7 +2851,7 @@ ${renderDtRow4('종')}
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-              📏 <span class="sec-num"></span> 치수확인 (전장 길이 측정 - ${curCarCode}${curPart ? ' ' + curPart : ''})
+              📐 <span class="sec-num"></span> 치수확인
             </label>
 
             ${diagramHTML}
@@ -3017,7 +3017,7 @@ ${renderDtRow4('종')}
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-              📏 <span class="sec-num"></span> 치수확인 (전장 길이 측정 - ${curCarCode}${curPart ? ' ' + curPart : ''})
+              📐 <span class="sec-num"></span> 치수확인
             </label>
 
             ${diagramHTML}

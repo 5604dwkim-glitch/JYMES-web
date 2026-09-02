@@ -1,33 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { fetchReports, fetchMyRecentReports, fetchAdminDashboardReports } from '../services/firestore';
-import { MANUFACTURERS, CAR_MODELS, CAR_MODEL_PARTS } from '../constants/masterData';
+import { fetchMyRecentReports, fetchAdminDashboardReports } from '../services/firestore';
 import { useNavigate } from 'react-router-dom';
 import LegacyDashboardWrapper from './DynamicForms/LegacyDashboardWrapper';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Bar, Chart } from 'react-chartjs-2';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 export default function Dashboard() {
   const { userRole } = useAuth();
@@ -177,13 +154,14 @@ function AdminDashboard({ reports, t }) {
 
   const { userRole } = useAuth();
   const navigate = useNavigate();
+  const onNavigate = useCallback((path) => navigate(`/${path}`), [navigate]);
 
   return (
     <LegacyDashboardWrapper 
       reports={reports} 
       summary={summary} 
       userRoleInfo={userRole} 
-      onNavigate={(path) => navigate(`/${path}`)} 
+      onNavigate={onNavigate} 
     />
   );
 }

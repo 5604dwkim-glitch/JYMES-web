@@ -10,7 +10,7 @@ function encodeSession(session) {
   try {
     const str = JSON.stringify(session);
     return btoa(encodeURIComponent(str + '|' + SALT));
-  } catch (e) {
+  } catch (_e) {
     return '';
   }
 }
@@ -23,7 +23,7 @@ function decodeSession(token) {
       return JSON.parse(jsonStr);
     }
     return null;
-  } catch (e) {
+  } catch (_e) {
     return null;
   }
 }

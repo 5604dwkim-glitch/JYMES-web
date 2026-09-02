@@ -12,6 +12,8 @@ const Analytics = lazy(() => import('./components/Analytics'));
 const MasterData = lazy(() => import('./components/MasterData'));
 const EquipmentManagement = lazy(() => import('./components/EquipmentManagement/EquipmentManagement'));
 const MoldManagement = lazy(() => import('./components/MoldManagement/MoldManagement'));
+const TpmCheckFlow = lazy(() => import('./components/TpmCheckFlow'));
+const ChangePointManagement = lazy(() => import('./components/ChangePointManagement'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -72,9 +74,19 @@ export default function App() {
               <EquipmentManagement />
             </Suspense>
           } />
+          <Route path="change-point" element={
+            <Suspense fallback={<PageLoader />}>
+              <ChangePointManagement />
+            </Suspense>
+          } />
           <Route path="mold" element={
             <Suspense fallback={<PageLoader />}>
               <MoldManagement />
+            </Suspense>
+          } />
+          <Route path="tpm-check/:setId" element={
+            <Suspense fallback={<PageLoader />}>
+              <TpmCheckFlow />
             </Suspense>
           } />
         </Route>

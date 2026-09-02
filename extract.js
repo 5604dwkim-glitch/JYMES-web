@@ -1,0 +1,1 @@
+const fs = require('fs'); const code = fs.readFileSync('src/components/DynamicForms/sections/Section5Renderer.js', 'utf8'); let m, re = /formCode === (\d+)/g; let codes = new Set(); while(m=re.exec(code)) codes.add(m[1]); console.log(Array.from(codes).join(', '));

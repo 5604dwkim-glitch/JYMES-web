@@ -277,7 +277,7 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                       }} checked={formData.history.length > 0 && selectedIndices.length === formData.history.length} />
                     </th>
                     <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '12px 8px', width: '13%', fontWeight: 'bold' }}>일 자</th>
-                    <th colSpan="3" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '8px', letterSpacing: '4px', fontWeight: 'bold' }}>금 형 이 력</th>
+                    <th colSpan="3" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '8px', letterSpacing: '4px', fontWeight: 'bold' }}>설 비 이 력</th>
                     <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', padding: '12px 8px', width: '8%', fontWeight: 'bold' }}>확인</th>
                   </tr>
                   <tr style={{ background: '#f8fafc', color: '#334155' }}>

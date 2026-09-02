@@ -71,7 +71,7 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
     onSave(formData);
   };
 
-  const loginUrl = `https://jy001-eb144.web.app/login?id=${encodeURIComponent((formData.id || formData.name || '').trim())}&pw=0000&_t=${Date.now()}`; // cache buster
+  const loginUrl = `${window.location.origin}/login?id=${encodeURIComponent((formData.id || formData.name || '').trim())}&pw=0000&_t=${Date.now()}`; // cache buster
 
   return (
     <div style={{

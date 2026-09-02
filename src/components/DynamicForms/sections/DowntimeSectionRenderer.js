@@ -27,7 +27,7 @@ export function updateDowntimeSection(ctx) {
     // 1. 비가동 라벨 타이틀 렌더링
     const titleLabel = container.querySelector('#downtimeTitleLabel');
     if (titleLabel) {
-      titleLabel.innerHTML = '📝 <span class="sec-num"></span> 비가동 시간 & 원터치 특이사항 작성 (최대 3건 입력 가능)';
+      titleLabel.innerHTML = '📝 <span class="sec-num"></span> 작업 특이사항';
     }
 
     // 2. 호기 드롭다운 옵션 변경

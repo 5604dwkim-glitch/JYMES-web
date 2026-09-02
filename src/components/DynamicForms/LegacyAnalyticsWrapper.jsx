@@ -554,22 +554,22 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
 
   const monthNum = parseInt(selectedMonth.split('-')[1], 10);
   const weekLabels = ['첫째주', '둘째주', '셋째주', '넷째주', '다섯째주', '여섯째주'];
-  const weekTitlesAll = weeks.map((w, i) => {
-    const s = `${w.start.getMonth()+1}/${w.start.getDate()}`;
-    const e = `${w.end.getMonth()+1}/${w.end.getDate()}`;
-    return `${weekLabels[i] || (i+1)+'주차'}<br>${s}~${e}`;
-  });
+  const weekTitlesAll = weeks.map((w, i) => `${weekLabels[i] || (i+1)+'주차'}<br>(${formatDateStr(w.start)}~${formatDateStr(w.end)})`);
 
-  const latestWeekIdx = weeks.findIndex(w => {
-    const now = new Date();
-    return now >= w.start && now <= w.end;
+  let latestWeekIdx = 0;
+  weeks.forEach((w, i) => {
+    const hasReport = monthReports.some(r => {
+      const d = new Date(r.date);
+      return d >= w.start && d <= w.end;
+    });
+    if (hasReport) latestWeekIdx = i;
   });
 
   let endIdx = Math.max(3, latestWeekIdx);
   if (endIdx >= weeks.length) endIdx = weeks.length - 1;
   let startIdx = endIdx - 3;
   if (startIdx < 0) startIdx = 0;
-  if (endIdx - startIdx > 3) startIdx = endIdx - 3;
+  if (endIdx - startIdx > 3) startIdx = endIdx - 3; // Ensure exactly 4 max if possible
 
   const displayWeeksCount = endIdx - startIdx + 1;
   const displayWeekTitles = weekTitlesAll.slice(startIdx, endIdx + 1);
@@ -759,23 +759,12 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
                   
                   html += `<td style="border: 1px solid #d1d5db; padding: 4px 5px; vertical-align: top;">`;
                   
-                  if (i === endIdx) {
-                    // Current/Last week: show full detailed chips
-                    if (ws.wScrapTotal === 0 && ws.wPacked === 0) {
-                       html += `<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>`;
-                    } else {
-                       html += `<div style="font-weight: 700; color: #e11d48; margin-bottom: 5px; font-size: 13px; text-align: center;">${ws.wPacked.toLocaleString()} (<span style="color:#be123c;">${ws.wScrapTotal.toLocaleString()}, ${rate}%</span>)</div>
-                                ${formatScrapChipsHoriz(ws, ws.wPacked)}`;
-                    }
+                  // Show full detailed chips for all weeks
+                  if (ws.wScrapTotal === 0 && ws.wPacked === 0) {
+                     html += `<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>`;
                   } else {
-                    // Previous weeks: Only show Summary text
-                    if (ws.wScrapTotal === 0 && ws.wPacked === 0) {
-                      html += `<div style="text-align: center; color: #d1d5db; font-size: 13px; font-style: italic;">0</div>`;
-                    } else {
-                      html += `<div style="font-weight: 700; color: #1f2937; font-size: 14px; text-align: center; display: flex; justify-content: center; align-items: center; height: 100%;">
-                                 ${ws.wPacked.toLocaleString()} <span style="color: #e11d48; font-size: 12px; margin-left: 4px;">(${ws.wScrapTotal.toLocaleString()}, ${rate}%)</span>
-                               </div>`;
-                    }
+                     html += `<div style="font-weight: 700; color: #e11d48; margin-bottom: 5px; font-size: 13px; text-align: center;">${ws.wPacked.toLocaleString()} (<span style="color:#be123c;">${ws.wScrapTotal.toLocaleString()}, ${rate}%</span>)</div>
+                              ${formatScrapChipsHoriz(ws, ws.wPacked)}`;
                   }
                   
                   html += `</td>`;

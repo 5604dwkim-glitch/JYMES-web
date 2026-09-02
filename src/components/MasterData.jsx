@@ -31,7 +31,6 @@ export default function MasterData() {
           try {
             await firestoreUpdateWorker(w.id, { hireDate: matchingInit.hireDate });
             updatedCount++;
-            console.log(`Updated hireDate for ${w.name} to ${matchingInit.hireDate}`);
           } catch (e) {
             console.error(e);
           }
@@ -128,7 +127,7 @@ export default function MasterData() {
         await firestoreDeleteWorker(id);
         setWorkers(workers.filter(w => w.id !== id));
         alert('작업자가 삭제되었습니다.');
-      } catch (e) {
+      } catch (_e) {
         alert("삭제 실패");
       }
     }
@@ -154,7 +153,7 @@ export default function MasterData() {
         }
         setWorkers(initial.sort((a, b) => a.id.localeCompare(b.id)));
         alert('데이터가 리셋되었습니다.');
-      } catch (e) {
+      } catch (_e) {
         alert("초기화 중 오류 발생");
       } finally {
         setLoading(false);
@@ -178,18 +177,8 @@ export default function MasterData() {
           >
             👷 현장 작업자 명부 ({workers.length}명)
           </button>
-          <button 
-            className={`btn ${activeTab === 'processes' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveTab('processes')}
-          >
-            🏭 7대 제조 공정 마스터 ({DEFAULT_PROCESSES.length}개)
-          </button>
-          <button 
-            className={`btn ${activeTab === 'items' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setActiveTab('items')}
-          >
-            🚗 납품 품목 마스터 ({DEFAULT_ITEMS.length}개)
-          </button>
+          
+          
         </div>
 
         <button className="btn btn-danger btn-sm" onClick={handleReset} disabled={loading}>

@@ -30,6 +30,46 @@ export default function EquipmentRepairRequestModal({ equipment, initialData, on
     }
   };
 
+  const handleImageUpload = (e, field) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          const MAX_SIZE = 400;
+          
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          setFormData(prev => ({ ...prev, [field]: dataUrl }));
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const thStyle = { background: '#dbeafe', border: '1px solid #94a3b8', padding: '8px 4px', fontWeight: 'bold', textAlign: 'center', fontSize: '13px', color: '#1e293b' };
   const tdStyle = { background: '#eff6ff', border: '1px solid #94a3b8', padding: '4px', textAlign: 'center', fontSize: '13px' };
   const inputStyle = { width: '100%', border: 'none', background: 'transparent', textAlign: 'center', outline: 'none' };
@@ -130,18 +170,31 @@ export default function EquipmentRepairRequestModal({ equipment, initialData, on
             <div style={{ display: 'flex', borderTop: '1px solid #94a3b8' }}>
               <div style={{ flex: 1, padding: '8px', borderRight: '1px solid #94a3b8', minHeight: '300px' }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리전 사진</div>
-                <div style={{ width: '100%', height: '280px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
-                  <span style={{ color: '#94a3b8', fontSize: '13px' }}>사진 업로드 (준비중)</span>
-                </div>
+                <label style={{ display: 'block', width: '100%', height: '280px', background: '#f8fafc', border: '1px dashed #cbd5e1', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+                  {formData.beforeImage ? (
+                    <img src={formData.beforeImage} alt="수리전 사진" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  ) : (
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>클릭하여 수리전 사진 업로드</span>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'beforeImage')} />
+                </label>
               </div>
               <div style={{ flex: 1, padding: '8px', minHeight: '300px' }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리후 사진</div>
-                <div style={{ width: '100%', height: '280px', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed #cbd5e1' }}>
-                  <span style={{ color: '#94a3b8', fontSize: '13px' }}>사진 업로드 (준비중)</span>
-                </div>
+                <label style={{ display: 'block', width: '100%', height: '280px', background: '#f8fafc', border: '1px dashed #cbd5e1', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+                  {formData.afterImage ? (
+                    <img src={formData.afterImage} alt="수리후 사진" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  ) : (
+                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>클릭하여 수리후 사진 업로드</span>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'afterImage')} />
+                </label>
               </div>
             </div>
-
             {/* Footer Section */}
             <div style={{ display: 'flex', borderTop: '1px solid #94a3b8', background: '#fce7f3' }}>
               <div style={{ flex: 1, padding: '16px 8px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>

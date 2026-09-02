@@ -9,7 +9,6 @@ export function renderQtySection(ctx) {
     if (!qtySection) return;
     const curProc = processValue ? processValue.value : '';
     const formCode = getCurrentFormCode();
-    console.log("QtySectionRenderer running. formCode:", formCode, "curProc:", curProc);
 
   function calcDtCrewSummary() {
     if (!qtySection || !isDtCrewClip()) return;
@@ -637,7 +636,7 @@ export function renderQtySection(ctx) {
       if (totDefElem) totDefElem.value = totalDefect || '';
 
       
-      if (formCode === 2035 || formCode === 2044) {
+      if ([2005, 2015, 2027, 2035, 2044].includes(formCode)) {
         // #2035, #2044: 검사수 = 정품수 + 불량합계
         const goodQty = Number(container.querySelector(`#insp_good_qty_${c}`)?.value) || 0;
         const inspectQty = goodQty + totalDefect;
@@ -782,7 +781,7 @@ export function renderQtySection(ctx) {
       case 2005:
       case 2015:
       case 2027:
-        qtySection.innerHTML = Templates.getInspQtyHTML(existingData, 4, false, container);
+        qtySection.innerHTML = Templates.getInspQtyHTML(existingData, 4, true, container);
         qtySection.addEventListener('input', calcInspQtySummary);
         calcInspQtySummary();
         break;
@@ -854,6 +853,8 @@ export function renderQtySection(ctx) {
       default:
         if (curProc === '조인트') {
           if (formCode === 3002) {
+            qtySection.innerHTML = Templates.getJointQty3002HTML(existingData, container);
+          } else if (formCode === 3002) {
             qtySection.innerHTML = Templates.getJointQty3002HTML(existingData, container);
           } else if (formCode === 1032) {
             qtySection.innerHTML = Templates.getJointQty1032HTML(existingData, container);

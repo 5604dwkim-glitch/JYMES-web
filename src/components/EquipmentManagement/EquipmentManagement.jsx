@@ -6,6 +6,7 @@ import { db } from '../../firebase';
 import TpmManagement from './TpmManagement';
 import EquipmentHistoryCardModal from './EquipmentHistoryCardModal';
 import EquipmentRepairRequestModal from './EquipmentRepairRequestModal';
+import EquipmentSetConfig from './EquipmentSetConfig';
 
 export default function EquipmentManagement() {
   const { userRole } = useAuth();
@@ -27,9 +28,22 @@ export default function EquipmentManagement() {
   const fetchEquipments = async () => {
     setLoading(true);
     try {
-      const q = query(collection(db, 'equipments'), orderBy('code'));
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(collection(db, 'equipments'));
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      data.sort((a, b) => {
+        const locA = a.location || '';
+        const locB = b.location || '';
+        if (locA < locB) return -1;
+        if (locA > locB) return 1;
+        
+        const codeA = a.code || '';
+        const codeB = b.code || '';
+        if (codeA < codeB) return -1;
+        if (codeA > codeB) return 1;
+        return 0;
+      });
+      
       setEquipments(data);
     } catch (err) {
       console.error(err);
@@ -62,6 +76,32 @@ export default function EquipmentManagement() {
       } catch (err) {
         alert('삭제 중 오류가 발생했습니다.');
       }
+    }
+  };
+
+  const handleSaveRepairRequest = async (equipment, repairData) => {
+    try {
+      const newHistoryRow = {
+        date: repairData.requestDate || new Date().toISOString().split('T')[0],
+        issue: repairData.requestContent || '',
+        action: repairData.actionContent || '',
+        attachment: '수리의뢰서',
+        confirmed: false,
+        repairDetails: repairData
+      };
+      
+      const updatedHistory = [...(equipment.history || []), newHistoryRow];
+      
+      const equipRef = doc(db, 'equipments', equipment.id);
+      await updateDoc(equipRef, { history: updatedHistory });
+      
+      setEquipments(equipments.map(eq => eq.id === equipment.id ? { ...eq, history: updatedHistory } : eq));
+      setShowRepairModal(false);
+      setSelectedEquipment(null);
+      alert('수리 요청이 저장되었습니다.');
+    } catch (e) {
+      console.error(e);
+      alert('수리 요청 저장 중 오류가 발생했습니다.');
     }
   };
 
@@ -101,13 +141,13 @@ export default function EquipmentManagement() {
               <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #cbd5e1' }}>
+                    <th>위치</th>
                     <th>관리번호</th>
                     <th>설비명</th>
                     <th>분류</th>
                     <th>사양</th>
                     <th>제작처</th>
                     <th>소유</th>
-                    <th>위치</th>
                     <th>상태</th>
                     <th>도입일자</th>
                     <th>설비이력카드</th>
@@ -116,13 +156,13 @@ export default function EquipmentManagement() {
                 <tbody>
                   {equipments.map(eq => (
                     <tr key={eq.id} style={{ borderBottom: '1px solid #cbd5e1' }}>
+                      <td>{eq.location}</td>
                       <td>{eq.code}</td>
                       <td style={{ fontWeight: 'bold' }}>{eq.name}</td>
                       <td>{eq.type}</td>
                       <td>{eq.spec || '-'}</td>
                       <td>{eq.manufacturer || '-'}</td>
                       <td>{eq.ownership || '-'}</td>
-                      <td>{eq.location}</td>
                       <td>
                         <span style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '12px', background: eq.status === '정상' ? '#dcfce3' : '#fee2e2', color: eq.status === '정상' ? '#166534' : '#991b1b' }}>
                           {eq.status}
@@ -148,7 +188,7 @@ export default function EquipmentManagement() {
         )}
         
 
-        {activeTab === 'config' && <div><p>준비 중입니다...</p></div>}
+        {activeTab === 'config' && <EquipmentSetConfig />}
         {activeTab === 'tpm' && <TpmManagement />}
       </div>
 
