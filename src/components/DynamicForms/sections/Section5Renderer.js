@@ -30,6 +30,59 @@ export function renderSection5(ctx) {
       registeredMolds.push({ id, label: moldType });
       return `<select id="${id}" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;">${getMoldOptions(moldType, selVal)}</select>`;
     };
+    
+    setTimeout(() => {
+      if (curProc === '조인트' && registeredMolds.length > 0) {
+        const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};
+        let strokeTableHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              🔄 <span class="sec-num"></span> 금일 금형 타수
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #e2e8f0; font-weight: 700; color: #000;">
+                    <th style="border: 1px solid #000; padding: 6px; width: 50%;">금형 부위</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 50%;">금일 타수 (Stroke)</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        const uniqueMolds = [];
+        const seenIds = new Set();
+        for (const m of registeredMolds) {
+          if (!seenIds.has(m.id)) {
+            seenIds.add(m.id);
+            uniqueMolds.push(m);
+          }
+        }
+
+        uniqueMolds.forEach(m => {
+          const strokeId = m.id.replace('vulc_mold_', 'vulc_stroke_').replace('vulc2_mold_', 'vulc2_stroke_');
+          const strokeVal = v[strokeId.replace('vulc_', '').replace('vulc2_', '')] || '';
+          strokeTableHTML += `
+            <tr>
+              <td id="stroke_label_${strokeId}" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">${m.label}</td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <input type="number" id="${strokeId}" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="${strokeVal}" placeholder="금일 타수 입력" />
+              </td>
+            </tr>
+          `;
+        });
+
+        strokeTableHTML += `
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        section5.insertAdjacentHTML('beforeend', strokeTableHTML);
+      }
+    }, 0);
+
     const molds = ctx.molds || [];
     const d = existingData?.dimData || {};
 
@@ -3641,53 +3694,5 @@ ${renderDtRow4('종')}
       section5.innerHTML = '';
     }
 
-    if (curProc === '조인트' && registeredMolds.length > 0) {
-      const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};
-      let strokeTableHTML = `
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
-          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-            🔄 <span class="sec-num"></span> 금일 금형 타수
-          </label>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-              <thead>
-                <tr style="background: #e2e8f0; font-weight: 700; color: #000;">
-                  <th style="border: 1px solid #000; padding: 6px; width: 50%;">금형 부위</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 50%;">금일 타수 (Stroke)</th>
-                </tr>
-              </thead>
-              <tbody>
-      `;
-      
-      const uniqueMolds = [];
-      const seenIds = new Set();
-      for (const m of registeredMolds) {
-        if (!seenIds.has(m.id)) {
-          seenIds.add(m.id);
-          uniqueMolds.push(m);
-        }
-      }
 
-      uniqueMolds.forEach(m => {
-        const strokeId = m.id.replace('vulc_mold_', 'vulc_stroke_').replace('vulc2_mold_', 'vulc2_stroke_');
-        const strokeVal = v[strokeId.replace('vulc_', '').replace('vulc2_', '')] || '';
-        strokeTableHTML += `
-          <tr>
-            <td id="stroke_label_${strokeId}" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">${m.label}</td>
-            <td style="border: 1px solid #000; padding: 4px;">
-              <input type="number" id="${strokeId}" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="${strokeVal}" placeholder="금일 타수 입력" />
-            </td>
-          </tr>
-        `;
-      });
-
-      strokeTableHTML += `
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `;
-
-      section5.insertAdjacentHTML('beforeend', strokeTableHTML);
-    }
 }
