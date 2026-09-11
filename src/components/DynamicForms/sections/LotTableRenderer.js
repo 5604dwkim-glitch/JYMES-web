@@ -1035,7 +1035,8 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
         `;
         break;
       }
-      // #3012 : ME1a PART'G 조인트 전용 양식
+      // #4022, #3012 : PART'G 조인트 전용 양식
+      case 4022:
       case 3012: {
         lotContainer.innerHTML = `
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
