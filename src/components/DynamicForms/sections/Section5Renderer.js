@@ -2095,6 +2095,13 @@ export function renderSection5(ctx) {
               const curVal = moldT.value;
               moldT.innerHTML = getMoldOptions(sidePrefix + 'T[직선]', curVal);
             }
+            
+            const strokeLabelR = section5.querySelector(`#stroke_label_${pfx}_stroke_R`);
+            if (strokeLabelR) strokeLabelR.innerText = sidePrefix + 'R[직각]';
+            const strokeLabelS = section5.querySelector(`#stroke_label_${pfx}_stroke_S`);
+            if (strokeLabelS) strokeLabelS.innerText = sidePrefix + 'S[둔각]';
+            const strokeLabelT = section5.querySelector(`#stroke_label_${pfx}_stroke_T`);
+            if (strokeLabelT) strokeLabelT.innerText = sidePrefix + 'T[직선]';
           };
   
           lhEl.addEventListener('change', updateTable);
@@ -3657,11 +3664,11 @@ ${renderDtRow4('종')}
       }
 
       uniqueMolds.forEach(m => {
-        const strokeId = m.id.replace('vulc_mold_', 'vulc_stroke_');
-        const strokeVal = v[strokeId.replace('vulc_', '')] || '';
+        const strokeId = m.id.replace('vulc_mold_', 'vulc_stroke_').replace('vulc2_mold_', 'vulc2_stroke_');
+        const strokeVal = v[strokeId.replace('vulc_', '').replace('vulc2_', '')] || '';
         strokeTableHTML += `
           <tr>
-            <td style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">${m.label}</td>
+            <td id="stroke_label_${strokeId}" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">${m.label}</td>
             <td style="border: 1px solid #000; padding: 4px;">
               <input type="number" id="${strokeId}" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="${strokeVal}" placeholder="금일 타수 입력" />
             </td>
