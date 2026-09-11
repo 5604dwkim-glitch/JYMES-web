@@ -24,7 +24,7 @@ const MOLD_TYPE_MAP = {
   3012: ["LH X부", "LH Y부", "RH X부", "RH Y부"],
   4002: ["LH X부", "LH Y부", "RH X부", "RH Y부"],
   4012: ["Frunk", "LH", "RH"],
-  4022: ["LH", "RH"],
+  4022: ["X부(L/R)", "LH Y부", "RH Y부"],
   4032: ["X부(L/R)", "Y부(L/R)"],
   5002: ["LH", "RH"],
   6002: ["LH", "RH"]
