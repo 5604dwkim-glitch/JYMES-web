@@ -875,7 +875,7 @@ export function renderQtySection(ctx) {
           if (formCode === 1013 || formCode === 1024 || formCode === 1044) {
             qtySection.innerHTML = Templates.getStandardQty1013HTML(existingData, container);
           } else {
-            qtySection.innerHTML = Templates.getStandardQtyHTML(existingData, container);
+            qtySection.innerHTML = Templates.getStandardQtyHTML(existingData, container, formCode);
           }
           qtySection.addEventListener('input', calcJg1QtySummary);
           calcJg1QtySummary();

@@ -1636,11 +1636,12 @@ import { store } from './LegacyFormWrapper.jsx';
     `;
   }
 
-export function getStandardQtyHTML(ed, container) {
+export function getStandardQtyHTML(ed, container, formCode = null) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
     const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
+    const defaultPlan = formCode === 1001 ? 100 : '';
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -1674,10 +1675,10 @@ export function getStandardQtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? defaultPlan}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? defaultPlan}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_RL ?? defaultPlan}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_RR ?? defaultPlan}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
