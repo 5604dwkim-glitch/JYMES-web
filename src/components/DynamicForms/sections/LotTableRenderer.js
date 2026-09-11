@@ -695,7 +695,6 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       // ────────────────────────────────────────────────────────
       case 1023:
       case 1024:
-      case 1042:
       case 1043:
       case 1044: {
         lotContainer.innerHTML = `
@@ -1036,6 +1035,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       }
       // #1022, #4022, #3012 : 조인트 전용 양식
       case 1022:
+      case 1042:
       case 4022:
       case 3012: {
         lotContainer.innerHTML = `
