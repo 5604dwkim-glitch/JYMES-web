@@ -85,7 +85,7 @@ export const CAR_MODEL_PARTS = {
     { code: 'HOOD SIDE', name: 'HOOD SIDE' }
   ],
   'MV1a': [
-    { code: 'PTG', name: 'PTG' }
+    { code: 'PTG', name: 'SIDE TALE GATE' }
   ],
   'DT CREW': [
     { code: 'D/SIDE', name: 'D/SIDE' }

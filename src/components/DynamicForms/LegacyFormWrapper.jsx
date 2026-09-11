@@ -1460,6 +1460,15 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         time_4_종: container.querySelector('#vulc2_time_4_종')?.value || ''
       };
 
+      container.querySelectorAll('input[id^="vulc_"], select[id^="vulc_"]').forEach(el => {
+        const key = el.id.replace('vulc_', '');
+        vulcData[key] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+      container.querySelectorAll('input[id^="vulc2_"], select[id^="vulc2_"]').forEach(el => {
+        const key = el.id.replace('vulc2_', '');
+        vulcData2[key] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+
       const jointQtyTable = {
         plan_frt_p: container.querySelector('#jqty_plan_frt_p')?.value || '',
         plan_frt_q: container.querySelector('#jqty_plan_frt_q')?.value || '',
@@ -1628,7 +1637,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         dimData: dimData,
         dim2005Data: dim2005Data,
         vulcData: vulcData,
+        vulcTable: vulcData,
         vulcData2: vulcData2,
+        vulcTable2: vulcData2,
         injSetData: injSetData,
         qtyTable: qtyTable,
         jointQtyTable: jointQtyTable,

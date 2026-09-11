@@ -193,49 +193,34 @@ export async function getReportById(id) {
 
 
 export async function processMoldStrokes(reportData, existingReport = null) {
-  // Only process for formCode 3002 (조인트) and when submitting (not drafting)
-  if (reportData.formCode !== 3002 || reportData.status !== '제출완료') return;
+  // Only process when submitting (not drafting)
+  if (reportData.status !== '제출완료') return;
 
-  // If already processed previously, we should calculate the diff.
-  // For simplicity now, if it was already processed, we skip or handle basic diff.
   const isUpdate = existingReport && existingReport.status === '제출완료' && existingReport.moldStrokesProcessed;
   
   const v = reportData.vulcTable || {};
-  const qty = reportData.jointQtyTable || {};
-  const prevQty = existingReport ? (existingReport.jointQtyTable || {}) : {};
-
-  // Table 1 (usually LH)
-  const molds1 = [
-    { moldId: v.mold_frt_p_1, qtyKey: 'act_frt_lh' },
-    { moldId: v.mold_frt_q_1, qtyKey: 'act_frt_lh' },
-    { moldId: v.mold_rr_r_1, qtyKey: 'act_rr_lh' },
-    { moldId: v.mold_rr_s_1, qtyKey: 'act_rr_lh' },
-  ];
-
-  // Table 2 (usually RH)
-  const molds2 = [
-    { moldId: v.mold_frt_p_2, qtyKey: 'act_frt_rh' },
-    { moldId: v.mold_frt_q_2, qtyKey: 'act_frt_rh' },
-    { moldId: v.mold_rr_r_2, qtyKey: 'act_rr_rh' },
-    { moldId: v.mold_rr_s_2, qtyKey: 'act_rr_rh' },
-  ];
-
-  const allMolds = [...molds1, ...molds2];
+  const prevV = existingReport ? (existingReport.vulcTable || {}) : {};
 
   // Aggregate strokes per mold ID
   const strokeUpdates = {};
-  for (const item of allMolds) {
-    if (item.moldId && item.moldId.trim() !== '') {
-      const currentOk = Number(qty[item.qtyKey]) || 0;
-      const prevOk = isUpdate ? (Number(prevQty[item.qtyKey]) || 0) : 0;
-      const diff = currentOk - prevOk;
-      
-      if (diff !== 0) {
-        if (!strokeUpdates[item.moldId]) strokeUpdates[item.moldId] = 0;
-        strokeUpdates[item.moldId] += diff;
+  
+  Object.keys(v).forEach(key => {
+    if (key.startsWith('mold_')) {
+      const suffix = key.substring(5);
+      const moldId = v[key];
+      if (moldId && moldId.trim() !== '') {
+        const strokeKey = 'stroke_' + suffix;
+        const currentStroke = Number(v[strokeKey]) || 0;
+        const prevStroke = isUpdate ? (Number(prevV[strokeKey]) || 0) : 0;
+        const diff = currentStroke - prevStroke;
+        
+        if (diff !== 0) {
+          if (!strokeUpdates[moldId]) strokeUpdates[moldId] = 0;
+          strokeUpdates[moldId] += diff;
+        }
       }
     }
-  }
+  });
 
   // Find and update molds in Firestore
   if (Object.keys(strokeUpdates).length > 0) {
