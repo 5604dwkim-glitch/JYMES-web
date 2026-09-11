@@ -11,7 +11,7 @@ import { getCurrentFormCode } from '../../constants/formCodes';
 const MOLD_TYPE_MAP = {
   1002: ["FRT(P)_L/R", "FRT(Q)_L/R", "RR(R)_L/R", "RR(S)_LH", "RR(S)_RH"],
   1032: ["FRT(P)_L/R", "FRT(Q)_L/R", "RR(R)_L/R", "RR(S)_LH", "RR(S)_RH"],
-  1011: ["RR C PART'G", "LH", "RH"],
+  1011: ["LH", "RH"],
   1022: ["공통", "LH", "RH"],
   1042: ["공통", "LH", "RH"],
   2003: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
