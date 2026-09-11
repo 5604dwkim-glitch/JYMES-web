@@ -1563,10 +1563,7 @@ export function renderSection5(ctx) {
         <div style="overflow-x: auto;">
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
-              <tr style="background: #fffde7; font-weight: 700; color: #000;">
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">RR C PART'G</th>
-              </tr>
+
               <tr style="background: #fffde7; font-weight: 700; color: #000;">
                 <th colspan="2" style="border: 1px solid #000; padding: 6px;">부 위(Part)</th>
                 <th style="border: 1px solid #000; padding: 6px; width: 40%;">LH</th>
