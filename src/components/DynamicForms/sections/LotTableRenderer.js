@@ -693,7 +693,6 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       // ────────────────────────────────────────────────────────
       // #1022, #1042 : JG1 / JG1S G/RUN 'E' 조인트 전용 양식
       // ────────────────────────────────────────────────────────
-      case 1022:
       case 1023:
       case 1024:
       case 1042:
@@ -1035,7 +1034,8 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
         `;
         break;
       }
-      // #4022, #3012 : PART'G 조인트 전용 양식
+      // #1022, #4022, #3012 : 조인트 전용 양식
+      case 1022:
       case 4022:
       case 3012: {
         lotContainer.innerHTML = `
