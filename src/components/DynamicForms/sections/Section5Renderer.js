@@ -1288,6 +1288,11 @@ export function renderSection5(ctx) {
                 <th style="border: 1px solid #000; padding: 6px; width: 33%;">FRT(P)_L/R</th>
                 <th style="border: 1px solid #000; padding: 6px; width: 33%;">FRT(Q)_L/R</th>
               </tr>
+              <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                <td colspan="2" style="border: 1px solid #000; padding: 4px;">금형 No. [ 호기 ]</td>
+                <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_frt_p', 'FRT(P)_L/R', v['mold_frt_p'] || '')}</td>
+                <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_frt_q', 'FRT(Q)_L/R', v['mold_frt_q'] || '')}</td>
+              </tr>
             </thead>
             <tbody>
               <!-- 1. 가류온도 영역 -->
@@ -1409,6 +1414,12 @@ export function renderSection5(ctx) {
                 <th style="border: 1px solid #000; padding: 6px; width: 22%;">RR(R)_L/R</th>
                 <th style="border: 1px solid #000; padding: 6px; width: 22%;">RR(S)_LH</th>
                 <th style="border: 1px solid #000; padding: 6px; width: 22%;">RR(S)_RH</th>
+              </tr>
+              <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                <td colspan="2" style="border: 1px solid #000; padding: 4px;">금형 No. [ 호기 ]</td>
+                <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rr_r', 'RR(R)_L/R', v['mold_rr_r'] || '')}</td>
+                <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rr_s_lh', 'RR(S)_LH', v['mold_rr_s_lh'] || '')}</td>
+                <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rr_s_rh', 'RR(S)_RH', v['mold_rr_s_rh'] || '')}</td>
               </tr>
             </thead>
             <tbody>
@@ -1569,6 +1580,11 @@ export function renderSection5(ctx) {
                 <th style="border: 1px solid #000; padding: 6px; width: 40%;">LH</th>
                 <th style="border: 1px solid #000; padding: 6px; width: 40%;">RH</th>
               </tr>
+              <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                <td colspan="2" style="border: 1px solid #000; padding: 4px;">금형 No. [ 호기 ]</td>
+                <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_lh', 'LH', v['mold_lh'] || '')}</td>
+                <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rh', 'RH', v['mold_rh'] || '')}</td>
+              </tr>
             </thead>
             <tbody>
               <!-- 1. 가류온도 영역 -->
@@ -1724,6 +1740,12 @@ export function renderSection5(ctx) {
                   <th style="border: 1px solid #000; padding: 6px; width: 22%;">LH Y부</th>
                   <th style="border: 1px solid #000; padding: 6px; width: 22%;">RH Y부</th>
                 </tr>
+                <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                  <td colspan="2" style="border: 1px solid #000; padding: 4px;">금형 No. [ 호기 ]</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_x_lr', 'X부(L/R)', v['mold_x_lr'] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_lh_y', 'LH Y부', v['mold_lh_y'] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rh_y', 'RH Y부', v['mold_rh_y'] || '')}</td>
+                </tr>
               </thead>
               <tbody>
                 <tr>
@@ -1813,6 +1835,13 @@ export function renderSection5(ctx) {
                   <th style="border: 1px solid #000; padding: 6px; width: 16%;">LH Y부</th>
                   <th style="border: 1px solid #000; padding: 6px; width: 16%;">RH X부</th>
                   <th style="border: 1px solid #000; padding: 6px; width: 16%;">RH Y부</th>
+                </tr>
+                <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                  <td colspan="2" style="border: 1px solid #000; padding: 4px;">금형 No. [ 호기 ]</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_lh_x', 'LH X부', v['mold_lh_x'] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_lh_y', 'LH Y부', v['mold_lh_y'] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rh_x', 'RH X부', v['mold_rh_x'] || '')}</td>
+                  <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_rh_y', 'RH Y부', v['mold_rh_y'] || '')}</td>
                 </tr>
               </thead>
               <tbody>
