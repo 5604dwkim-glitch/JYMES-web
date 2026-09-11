@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { fetchReports, deleteReport, bulkApproveReports, bulkDeleteReports, fetchWorkers } from '../services/firestore';
-import { CAR_MODELS, DEFAULT_PROCESSES } from '../constants/masterData';
+import { CAR_MODELS, DEFAULT_PROCESSES, CAR_MODEL_PARTS } from '../constants/masterData';
 import { useNavigate } from 'react-router-dom';
 import LegacyDetailModal from './DynamicForms/LegacyDetailModal';
 
@@ -15,9 +15,9 @@ export default function ReportList({ initialStatus = 'ALL' }) {
   const [filteredReports, setFilteredReports] = useState([]); // 클라이언트 searchQuery 적용 결과
   const [loading, setLoading] = useState(true);
 
-  const initialStartDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const initialStartDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('sv-SE');
   const [startDate, setStartDate] = useState(initialStartDate);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toLocaleDateString('sv-SE'));
   const [carModel, setCarModel] = useState('ALL');
   const [processName, setProcessName] = useState('ALL');
   const [status, setStatus] = useState(initialStatus);
@@ -29,6 +29,12 @@ export default function ReportList({ initialStatus = 'ALL' }) {
   const [viewMode, setViewMode] = useState('list');
   const [allWorkers, setAllWorkers] = useState([]);
   const [workersFetched, setWorkersFetched] = useState(false);
+
+  const getOffsetDateStr = (daysOffset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysOffset);
+    return d.toLocaleDateString('sv-SE');
+  };
 
   const toggleViewMode = async () => {
     if (viewMode === 'list') {
@@ -56,10 +62,10 @@ export default function ReportList({ initialStatus = 'ALL' }) {
     }
     const kw = searchQuery.toLowerCase();
     setFilteredReports(reports.filter(r =>
-      r.id.toLowerCase().includes(kw) ||
+      (r.id && r.id.toLowerCase().includes(kw)) ||
       (r.carModel && r.carModel.toLowerCase().includes(kw)) ||
       (r.itemName && r.itemName.toLowerCase().includes(kw)) ||
-      r.workerName.toLowerCase().includes(kw) ||
+      (r.workerName && r.workerName.toLowerCase().includes(kw)) ||
       (r.notes && r.notes.toLowerCase().includes(kw))
     ));
   }, [searchQuery, reports]);
@@ -71,15 +77,16 @@ export default function ReportList({ initialStatus = 'ALL' }) {
     if (userRole && userRole.role === 'worker') {
       filters.workerName = userRole.workerName;
     }
-    const data = await fetchReports(filters);
+    let data = await fetchReports(filters);
+
     setReports(data);
     setFilteredReports(searchQuery
       ? data.filter(r => {
           const kw = searchQuery.toLowerCase();
-          return r.id.toLowerCase().includes(kw) ||
+          return (r.id && r.id.toLowerCase().includes(kw)) ||
             (r.carModel && r.carModel.toLowerCase().includes(kw)) ||
             (r.itemName && r.itemName.toLowerCase().includes(kw)) ||
-            r.workerName.toLowerCase().includes(kw) ||
+            (r.workerName && r.workerName.toLowerCase().includes(kw)) ||
             (r.notes && r.notes.toLowerCase().includes(kw));
         })
       : data
@@ -89,7 +96,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
 
   const handleResetFilters = () => {
     setStartDate(initialStartDate);
-    setEndDate(new Date().toISOString().split('T')[0]);
+    setEndDate(new Date().toLocaleDateString('sv-SE'));
     setCarModel('ALL');
     setProcessName('ALL');
     setStatus('ALL');
@@ -393,7 +400,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
       }
 
       const zipBlob = await zip.generateAsync({ type: "blob" });
-      saveAs(zipBlob, `작업일보_일괄다운로드_${new Date().toISOString().split('T')[0]}.zip`);
+      saveAs(zipBlob, `작업일보_일괄다운로드_${new Date().toLocaleDateString('sv-SE')}.zip`);
     } catch (error) {
       console.error("ZIP 다운로드 오류:", error);
       alert("다운로드 중 오류가 발생했습니다.");
@@ -471,22 +478,45 @@ export default function ReportList({ initialStatus = 'ALL' }) {
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignSelf: 'flex-end', width: '100%', justifyContent: 'flex-end', marginTop: '8px' }}>
-                    <button 
+          <button 
             className="btn btn-outline-secondary btn-sm" 
             onClick={() => {
-              const today = new Date().toISOString().split('T')[0];
-              setStartDate(today);
-              setEndDate(today);
+              const dStr = getOffsetDateStr(-2);
+              setStartDate(dStr);
+              setEndDate(dStr);
             }}
           >
-            당일작성 조회
+            {getOffsetDateStr(-2).substring(5).replace('-', '.')} 조회
+          </button>
+          
+          <button 
+            className="btn btn-outline-secondary btn-sm" 
+            onClick={() => {
+              const dStr = getOffsetDateStr(-1);
+              setStartDate(dStr);
+              setEndDate(dStr);
+            }}
+          >
+            {getOffsetDateStr(-1).substring(5).replace('-', '.')} 조회
+          </button>
+
+          <button 
+            className="btn btn-outline-secondary btn-sm" 
+            onClick={() => {
+              const dStr = getOffsetDateStr(0);
+              setStartDate(dStr);
+              setEndDate(dStr);
+            }}
+            style={{ borderColor: 'var(--accent-emerald)', color: 'var(--accent-emerald)' }}
+          >
+            {getOffsetDateStr(0).substring(5).replace('-', '.')} 조회
           </button>
           {userRole?.role !== 'worker' && (
             <button className="btn btn-outline-primary btn-sm" onClick={toggleViewMode}>
               {viewMode === 'list' ? '🪧 제출 현황 보드' : '📋 리스트 보기'}
             </button>
           )}
-          <button className="btn btn-secondary btn-sm" onClick={handleResetFilters}>초기화</button>
+
           <button className="btn btn-primary btn-sm" onClick={() => navigate('/form')}>
             <span>➕</span> 신규 일보 작성
           </button>
@@ -516,93 +546,208 @@ export default function ReportList({ initialStatus = 'ALL' }) {
 
       
       
-      {viewMode === 'board' ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px', padding: '16px', backgroundColor: 'var(--surface-color)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-          {allWorkers.map(w => {
-            const userReports = filteredReports.filter(r => r.workerName === w.name);
-            const hasSubmitted = userReports.some(r => r.status !== '임시저장');
-            const hasDraft = userReports.some(r => r.status === '임시저장');
-            const draft = hasDraft ? userReports.find(r => r.status === '임시저장') : null;
-            
-            let hasLotCho = false, hasDimCho = false;
-            let hasLotJung = false, hasDimJung = false;
-            let hasLotJong = false, hasDimJong = false;
+      {viewMode === 'board' ? (() => {
+        const grouped = {};
+        const submittedWorkers = new Set();
+        
+        filteredReports.forEach(r => {
+          let carModel = r.carModel || '기타 차종';
+          let itemName = r.itemName || '기타 부품';
+          let processName = r.processName || '기타 공정';
+          
+          if (r.isLeaderForm || processName === '반장 작업일보') {
+            carModel = '공통';
+            itemName = '공통';
+            processName = '반장 작업일보';
+          }
+          
+          submittedWorkers.add(r.workerName);
+          
+          if (!grouped[carModel]) grouped[carModel] = {};
+          if (!grouped[carModel][itemName]) grouped[carModel][itemName] = {};
+          if (!grouped[carModel][itemName][processName]) grouped[carModel][itemName][processName] = [];
+          
+          grouped[carModel][itemName][processName].push(r);
+        });
 
-            if (draft) {
-              hasLotCho = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('초물') && v && String(v).trim() !== '');
-              hasDimCho = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('초') && v && String(v).trim() !== '');
-              hasLotJung = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('중물') && v && String(v).trim() !== '');
-              hasDimJung = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('중') && v && String(v).trim() !== '');
-              hasLotJong = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('종물') && v && String(v).trim() !== '');
-              hasDimJong = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('종') && v && String(v).trim() !== '');
-            }
+        const renderWorkerCard = (w, userReports) => {
+          const hasSubmitted = userReports.some(r => r.status !== '임시저장');
+          const hasDraft = userReports.some(r => r.status === '임시저장');
+          const draft = hasDraft ? userReports.find(r => r.status === '임시저장') : null;
+          
+          let hasLotCho = false, hasDimCho = false;
+          let hasLotJung = false, hasDimJung = false;
+          let hasLotJong = false, hasDimJong = false;
 
-            return (
-              <div 
-                key={w.id} 
-                onClick={() => { setSearchQuery(w.name); setViewMode('list'); }}
-                style={{ 
-                  border: '1px solid var(--border-color)', 
-                  borderRadius: '12px', 
-                  padding: '16px', 
-                  textAlign: 'center', 
-                  backgroundColor: hasSubmitted ? '#f0fdf4' : (hasDraft ? '#f8fafc' : '#fef2f2'), 
-                  cursor: 'pointer', 
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                  transition: 'transform 0.2s',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-              >
-                <div style={{ fontSize: '28px' }}>{hasSubmitted ? '✅' : (hasDraft ? '📝' : '❌')}</div>
-                <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#334155' }}>{w.name}</div>
-                <div style={{ fontSize: '12px', color: hasSubmitted ? '#166534' : (hasDraft ? '#0369a1' : '#991b1b'), fontWeight: '700' }}>
-                  {hasSubmitted ? '제출 완료' : (hasDraft ? '작성 중 (임시저장)' : '미제출')}
-                </div>
+          if (draft) {
+            hasLotCho = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('초물') && v && String(v).trim() !== '');
+            hasDimCho = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('초') && v && String(v).trim() !== '');
+            hasLotJung = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('중물') && v && String(v).trim() !== '');
+            hasDimJung = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('중') && v && String(v).trim() !== '');
+            hasLotJong = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('종물') && v && String(v).trim() !== '');
+            hasDimJong = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('종') && v && String(v).trim() !== '');
+          }
 
-                {!hasSubmitted && hasDraft && (
-                  <div style={{ fontSize: '11px', textAlign: 'left', background: '#fff', padding: '8px', borderRadius: '6px', width: '100%', marginTop: '4px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ color: hasLotCho ? '#15803d' : '#94a3b8', fontWeight: hasLotCho ? 'bold' : 'normal' }}>
-                      {hasLotCho ? '✅' : '⏳'} 소재 LOT (초물)
-                    </div>
-                    <div style={{ color: hasDimCho ? '#15803d' : '#94a3b8', fontWeight: hasDimCho ? 'bold' : 'normal' }}>
-                      {hasDimCho ? '✅' : '⏳'} 치수검사 (초물)
-                    </div>
-                    
-                    {(hasLotJung || hasDimJung) && (
-                      <>
-                        <div style={{ borderTop: '1px dashed #e2e8f0', margin: '2px 0' }}></div>
-                        <div style={{ color: hasLotJung ? '#15803d' : '#94a3b8', fontWeight: hasLotJung ? 'bold' : 'normal' }}>
-                          {hasLotJung ? '✅' : '⏳'} 소재 LOT (중물)
-                        </div>
-                        <div style={{ color: hasDimJung ? '#15803d' : '#94a3b8', fontWeight: hasDimJung ? 'bold' : 'normal' }}>
-                          {hasDimJung ? '✅' : '⏳'} 치수검사 (중물)
-                        </div>
-                      </>
-                    )}
-
-                    {(hasLotJong || hasDimJong) && (
-                      <>
-                        <div style={{ borderTop: '1px dashed #e2e8f0', margin: '2px 0' }}></div>
-                        <div style={{ color: hasLotJong ? '#15803d' : '#94a3b8', fontWeight: hasLotJong ? 'bold' : 'normal' }}>
-                          {hasLotJong ? '✅' : '⏳'} 소재 LOT (종물)
-                        </div>
-                        <div style={{ color: hasDimJong ? '#15803d' : '#94a3b8', fontWeight: hasDimJong ? 'bold' : 'normal' }}>
-                          {hasDimJong ? '✅' : '⏳'} 치수검사 (종물)
-                        </div>
-                      </>
-                    )}
+          return (
+            <div 
+              key={w.id || w.name} 
+              onClick={() => { setSearchQuery(w.name); setViewMode('list'); }}
+              style={{ 
+                border: '1px solid var(--border-color)', 
+                borderRadius: '12px', 
+                padding: '12px', 
+                backgroundColor: hasSubmitted ? '#f0fdf4' : (hasDraft ? '#f8fafc' : '#fef2f2'), 
+                cursor: 'pointer', 
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                transition: 'transform 0.2s',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+            >
+              <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '12px' }}>
+                <div style={{ fontSize: '24px', lineHeight: 1 }}>{hasSubmitted ? '✅' : (hasDraft ? '📝' : '❌')}</div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#334155' }}>{w.name}</div>
+                  <div style={{ fontSize: '12px', color: hasSubmitted ? '#166534' : (hasDraft ? '#0369a1' : '#991b1b'), fontWeight: '700' }}>
+                    {hasSubmitted ? '제출 완료' : (hasDraft ? '작성 중' : '미제출')}
                   </div>
-                )}
+                </div>
               </div>
-            );
-          })}
-        </div>
-      ) : (
+
+
+              {!hasSubmitted && hasDraft && !userReports.some(r => r.isLeaderForm || r.processName === '반장 작업일보') && (
+                <div style={{ fontSize: '11px', textAlign: 'left', background: '#fff', padding: '8px', borderRadius: '6px', width: '100%', marginTop: '4px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ color: hasLotCho ? '#15803d' : '#94a3b8', fontWeight: hasLotCho ? 'bold' : 'normal' }}>
+                    {hasLotCho ? '✅' : '⏳'} 소재 LOT (초물)
+                  </div>
+                  <div style={{ color: hasDimCho ? '#15803d' : '#94a3b8', fontWeight: hasDimCho ? 'bold' : 'normal' }}>
+                    {hasDimCho ? '✅' : '⏳'} 치수검사 (초물)
+                  </div>
+                  
+                  {(hasLotJung || hasDimJung) && (
+                    <>
+                      <div style={{ borderTop: '1px dashed #e2e8f0', margin: '2px 0' }}></div>
+                      <div style={{ color: hasLotJung ? '#15803d' : '#94a3b8', fontWeight: hasLotJung ? 'bold' : 'normal' }}>
+                        {hasLotJung ? '✅' : '⏳'} 소재 LOT (중물)
+                      </div>
+                      <div style={{ color: hasDimJung ? '#15803d' : '#94a3b8', fontWeight: hasDimJung ? 'bold' : 'normal' }}>
+                        {hasDimJung ? '✅' : '⏳'} 치수검사 (중물)
+                      </div>
+                    </>
+                  )}
+
+                  {(hasLotJong || hasDimJong) && (
+                    <>
+                      <div style={{ borderTop: '1px dashed #e2e8f0', margin: '2px 0' }}></div>
+                      <div style={{ color: hasLotJong ? '#15803d' : '#94a3b8', fontWeight: hasLotJong ? 'bold' : 'normal' }}>
+                        {hasLotJong ? '✅' : '⏳'} 소재 LOT (종물)
+                      </div>
+                      <div style={{ color: hasDimJong ? '#15803d' : '#94a3b8', fontWeight: hasDimJong ? 'bold' : 'normal' }}>
+                        {hasDimJong ? '✅' : '⏳'} 치수검사 (종물)
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        const completionRate = allWorkers.length > 0 ? ((submittedWorkers.size / allWorkers.length) * 100).toFixed(1) : '0.0';
+
+        return (
+          <div style={{ padding: '16px', backgroundColor: 'var(--surface-color)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', background: '#eff6ff', color: '#1e3a8a', padding: '8px 16px', borderRadius: '24px', border: '1px solid #bfdbfe', fontWeight: 'bold' }}>
+                <span style={{ marginRight: '8px', fontSize: '18px' }}>📊</span>
+                작업일보 작성율: {completionRate}%
+                <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#3b82f6', marginLeft: '8px', paddingLeft: '8px', borderLeft: '1px solid #93c5fd' }}>
+                  {submittedWorkers.size}명 / {allWorkers.length}명
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '24px' }}>
+              {Object.entries(grouped)
+                .sort(([carModelA], [carModelB]) => {
+                  const idxA = CAR_MODELS.findIndex(c => c.code === carModelA);
+                  const idxB = CAR_MODELS.findIndex(c => c.code === carModelB);
+                  return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+                })
+                .flatMap(([carModel, items]) => 
+                  Object.entries(items)
+                    .sort(([itemA], [itemB]) => {
+                      const parts = CAR_MODEL_PARTS[carModel] || [];
+                      const idxA = parts.findIndex(p => p.name === itemA || p.code === itemA);
+                      const idxB = parts.findIndex(p => p.name === itemB || p.code === itemB);
+                      return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+                    })
+                    .map(([itemName, processes]) => (
+                  <div key={`${carModel}-${itemName}`} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '20px', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflowX: 'auto' }}>
+                    <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', color: '#0f172a', borderBottom: '2px solid #3b82f6', paddingBottom: '8px', display: 'inline-block', whiteSpace: 'nowrap' }}>
+                      🚗 {carModel} – {itemName}
+                    </h3>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', gap: '24px', alignItems: 'flex-start' }}>
+                      {Object.entries(processes)
+                        .sort(([pNameA], [pNameB]) => {
+                          const idxA = DEFAULT_PROCESSES.findIndex(p => p.name === pNameA);
+                          const idxB = DEFAULT_PROCESSES.findIndex(p => p.name === pNameB);
+                          return (idxA === -1 ? 999 : idxA) - (idxB === -1 ? 999 : idxB);
+                        })
+                        .map(([processName, reps]) => {
+                          const processWorkers = {};
+                        reps.forEach(r => {
+                          if (!processWorkers[r.workerName]) processWorkers[r.workerName] = [];
+                          processWorkers[r.workerName].push(r);
+                        });
+                        const wEntries = Object.entries(processWorkers);
+                        const chunkedWorkers = [];
+                        for (let i = 0; i < wEntries.length; i += 3) {
+                          chunkedWorkers.push(wEntries.slice(i, i + 3));
+                        }
+                        const processColSpan = chunkedWorkers.length || 1;
+                        
+                        return (
+                          <div key={processName} style={{ display: 'flex', flexDirection: 'column', flex: '0 0 auto' }}>
+                            <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #cbd5e1' }}>
+                              ⚙️ {processName}
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', flexWrap: 'nowrap' }}>
+                              {chunkedWorkers.map((chunk, chunkIdx) => (
+                                <div key={chunkIdx} style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '200px' }}>
+                                  {chunk.map(([wName, wReports]) => {
+                                    const wInfo = allWorkers.find(x => x.name === wName) || { id: wName + processName, name: wName };
+                                    const renderInfo = { ...wInfo, id: wInfo.id + '-' + processName + '-' + itemName };
+                                    return renderWorkerCard(renderInfo, wReports);
+                                  })}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', background: '#fef2f2' }}>
+              <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#991b1b', borderBottom: '2px solid #fecdd3', paddingBottom: '8px', display: 'inline-block' }}>❌ 미작성 인원 (제출 및 임시저장 없음)</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
+                {allWorkers.filter(w => !submittedWorkers.has(w.name)).map(w => renderWorkerCard(w, []))}
+              </div>
+            </div>
+
+          </div>
+        );
+      })()
+      : (
       <div className="table-container">
         {loading ? (
           <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>

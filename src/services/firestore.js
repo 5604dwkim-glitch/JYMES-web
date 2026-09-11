@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit, runTransaction } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit, runTransaction, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 
@@ -94,7 +94,15 @@ export async function fetchReports(filters = {}) {
       const querySnapshot = await getDocs(q);
       result = [];
       querySnapshot.forEach((doc) => {
-        result.push({ id: doc.id, ...doc.data() });
+        const r = { id: doc.id, ...doc.data() };
+        // [구버전 반장일보 소급 매핑] DB에 잘못 저장된 과거 반장 일보를 메모리상 '공통'으로 통일
+        if (r.isLeaderForm || r.processName === '반장 작업일보') {
+          r.carModel = '공통';
+          r.itemName = '공통';
+          r.processName = '반장 작업일보';
+          r.isLeaderForm = true;
+        }
+        result.push(r);
       });
 
       // 서버필터 기반 클라이언트 필터
@@ -253,7 +261,7 @@ export async function processMoldStrokes(reportData, existingReport = null) {
 
 export async function addReport(reportData) {
   try {
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toLocaleDateString('sv-SE');
     const prefix = `RPT-${todayStr.replace(/-/g, '')}-`;
     const counterRef = doc(db, 'counters', prefix);
 

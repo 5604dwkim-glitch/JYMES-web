@@ -22,7 +22,7 @@ export function updateDowntimeSection(ctx) {
       if (downtimeCard) downtimeCard.style.display = 'block';
     }
 
-    const isJoint = curProc === '조인트' || curProc === '조인트(D)' || curProc.includes('조인트');
+    const isJoint = curProc === '조인트' || curProc === '조인트 V부' || curProc.includes('조인트');
 
     // 1. 비가동 라벨 타이틀 렌더링
     const titleLabel = container.querySelector('#downtimeTitleLabel');

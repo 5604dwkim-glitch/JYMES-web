@@ -23,6 +23,7 @@ export default function LegacyFormReactWrapper({ existingData }) {
   const [badgeContainerElement, setBadgeContainerElement] = useState(null);
 
   useEffect(() => {
+    setIsReady(false);
     async function initForm() {
       try {
         let workers = await fetchWorkers();
@@ -114,6 +115,12 @@ export default function LegacyFormReactWrapper({ existingData }) {
       if (sf) sf.style.display = 'none';
       const lf = document.getElementById('leaderFixedActionBar');
       if (lf) lf.style.display = 'none';
+      
+      // Clean up any stray vanilla modals
+      ['wheelNumberPickerModal', 'wheelListPickerModal', 'wheelTimePickerModal', 'wheelLotDatePickerModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (modal) modal.remove();
+      });
     };
   }, [isReady, existingData, lang]);
 

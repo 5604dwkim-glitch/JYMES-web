@@ -49,6 +49,12 @@ export const MANUFACTURERS = [
     models: [
       { code: 'P417', name: 'P417' }
     ]
+  },
+  {
+    name: '공통(Common)',
+    models: [
+      { code: '공통', name: '공통' }
+    ]
   }
 ];
 
@@ -101,6 +107,9 @@ export const CAR_MODEL_PARTS = {
   ],
   'P417': [
     { code: 'UPR', name: 'UPR' }
+  ],
+  '공통': [
+    { code: '공통', name: '공통' }
   ]
 };
 
@@ -110,7 +119,8 @@ export const DEFAULT_PROCESSES = [
   { id: 'PROC_PREP', name: '소재준비', code: 'PREP', lines: ['1라인'], leadTimeMinutes: 30, manager: '김철수' },
   { id: 'PROC_JOIN', name: '조인트', code: 'JOIN', lines: ['1라인'], leadTimeMinutes: 40, manager: '정성훈' },
   { id: 'PROC_POST', name: '후가공', code: 'POST', lines: ['1라인'], leadTimeMinutes: 45, manager: '이영호' },
-  { id: 'PROC_INSP', name: '검사포장', code: 'INSP', lines: ['1라인'], leadTimeMinutes: 20, manager: '장수미' }
+  { id: 'PROC_INSP', name: '검사포장', code: 'INSP', lines: ['1라인'], leadTimeMinutes: 20, manager: '장수미' },
+  { id: 'PROC_LEADER', name: '반장 작업일보', code: 'LEADER', lines: ['1라인'], leadTimeMinutes: 0, manager: '반장' }
 ];
 
 export const DEFAULT_ITEMS = [
@@ -706,7 +716,7 @@ export function generateSampleReports(workers) {
   for (let d = 25; d >= 0; d--) {
     const dateObj = new Date(today);
     dateObj.setDate(today.getDate() - d);
-    const dateStr = dateObj.toISOString().split('T')[0];
+    const dateStr = dateObj.toLocaleDateString('sv-SE');
 
     if (dateObj.getDay() === 0) continue;
 

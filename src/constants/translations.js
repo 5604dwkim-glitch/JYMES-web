@@ -212,7 +212,7 @@ export const TRANSLATIONS = {
     // Extended Table Headers & Terms
     th_category: "구분",
     th_position: "위치",
-    th_spec: "규격",
+    th_spec: "스펙(mm)",
     th_act: "실측",
     th_initial: "초물",
     th_middle: "중물",

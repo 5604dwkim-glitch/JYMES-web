@@ -2,7 +2,7 @@ import { DEFAULT_LEADER_ITEMS } from "../../constants/masterData.js";
 import { store, bindTimeWheelPicker, windowMock } from "./LegacyFormWrapper.jsx";
 
 export function renderLeaderPaperForm(container, existingData, loggedInWorkerName) {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('sv-SE');
   const dateParts = (existingData ? existingData.date : todayStr).split('-');
 
   let defaultStartTime = '08:00';
@@ -13,31 +13,29 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
     if (times[1]) defaultEndTime = times[1];
   }
 
-  let attTotal = 50;
-  let attPresent = 48;
-  let attAbsent = 2;
-  let attAnnualLeave = 1;
+  const workersList = store.getWorkers();
+  let attTotal = (workersList && workersList.length > 0) ? workersList.length : 50;
+  let attAnnualLeave = 0;
   let attSickLeave = 0;
-  let attHalfLeave = 1;
+  let attHalfLeave = 0;
 
   if (existingData && existingData.attendanceData) {
     const a = existingData.attendanceData;
     if (a.total !== undefined) {
       attTotal = a.total;
-      attPresent = a.present;
-      attAbsent = a.absent;
-      attAnnualLeave = a.annualLeave !== undefined ? a.annualLeave : (a.absent || 0);
+      attAnnualLeave = a.annualLeave !== undefined ? a.annualLeave : 0;
       attSickLeave = a.sickLeave || 0;
       attHalfLeave = a.halfLeave || 0;
     } else if (a.buildingB) {
       attTotal = (a.buildingB.total || 0) + (a.buildingC?.total || 0) + (a.buildingD?.total || 0);
-      attPresent = (a.buildingB.present || 0) + (a.buildingC?.present || 0) + (a.buildingD?.present || 0);
-      attAbsent = (a.buildingB.absent || 0) + (a.buildingC?.absent || 0) + (a.buildingD?.absent || 0);
-      attAnnualLeave = attAbsent;
+      attAnnualLeave = (a.buildingB.absent || 0) + (a.buildingC?.absent || 0) + (a.buildingD?.absent || 0);
       attSickLeave = 0;
       attHalfLeave = 0;
     }
   }
+
+  let attAbsent = attAnnualLeave + attSickLeave + attHalfLeave;
+  let attPresent = Math.max(0, attTotal - attAbsent);
 
   const items = existingData && existingData.leaderFormItems ? existingData.leaderFormItems : DEFAULT_LEADER_ITEMS;
 
@@ -80,7 +78,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
 
       <!-- 1. 생산현황 테이블 -->
       <div style="margin-bottom: 20px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;" data-i18n="leader_section1"><span class="sec-num"></span> 생산현황</h3>
+        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;" data-i18n="leader_section1">생산현황</h3>
         <div class="table-container">
           <table class="data-table" style="border: 1px solid #000; font-size: 12px;">
             <thead>
@@ -103,23 +101,35 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
                       <input type="number" class="form-control leader-packed-qty" data-seq="${it.seq}" style="padding: 4px; text-align: right; font-weight: 700;" value="${it.packedQty || ''}" placeholder="0" />
                     </td>
                     ${isHood ? `
-                      <td style="border: 1px solid #000; padding: 2px; text-align: center;" colspan="2">
-                        <span style="font-size: 10px; color: var(--text-muted);" data-i18n="leader_center">센터:</span>
-                        <input type="number" class="form-control leader-scrap-center" data-seq="${it.seq}" style="padding: 4px; text-align: right; width: 70px; display: inline-block;" value="${it.scrapCenter || ''}" placeholder="0" />
-                      </td>
-                      <td style="border: 1px solid #000; padding: 2px; text-align: center;" colspan="2">
-                        <span style="font-size: 10px; color: var(--text-muted);" data-i18n="leader_side">사이드:</span>
-                        <input type="number" class="form-control leader-scrap-side" data-seq="${it.seq}" style="padding: 4px; text-align: right; width: 70px; display: inline-block;" value="${it.scrapSide || ''}" placeholder="0" />
+                      <td style="border: 1px solid #000; padding: 4px;" colspan="4">
+                        <div style="display: flex; gap: 8px;">
+                          <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 10px; color: var(--text-muted); white-space: nowrap;" data-i18n="leader_center">센터:</span>
+                            <input type="number" class="form-control leader-scrap-center" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapCenter || ''}" placeholder="0" />
+                          </div>
+                          <div style="flex: 1; display: flex; align-items: center; gap: 4px;">
+                            <span style="font-size: 10px; color: var(--text-muted); white-space: nowrap;" data-i18n="leader_side">사이드:</span>
+                            <input type="number" class="form-control leader-scrap-side" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapSide || ''}" placeholder="0" />
+                          </div>
+                        </div>
                       </td>
                     ` : hasD ? `
-                      <td style="border: 1px solid #000; padding: 2px;"><input type="number" class="form-control leader-scrap-a" data-seq="${it.seq}" style="padding: 4px; text-align: right;" value="${it.scrapA || ''}" placeholder="A" /></td>
-                      <td style="border: 1px solid #000; padding: 2px;"><input type="number" class="form-control leader-scrap-b" data-seq="${it.seq}" style="padding: 4px; text-align: right;" value="${it.scrapB || ''}" placeholder="B" /></td>
-                      <td style="border: 1px solid #000; padding: 2px;"><input type="number" class="form-control leader-scrap-c" data-seq="${it.seq}" style="padding: 4px; text-align: right;" value="${it.scrapC || ''}" placeholder="C" /></td>
-                      <td style="border: 1px solid #000; padding: 2px;"><input type="number" class="form-control leader-scrap-d" data-seq="${it.seq}" style="padding: 4px; text-align: right;" value="${it.scrapD || ''}" placeholder="D" /></td>
+                      <td style="border: 1px solid #000; padding: 4px;" colspan="4">
+                        <div style="display: flex; gap: 4px;">
+                          <input type="number" class="form-control leader-scrap-a" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapA || ''}" placeholder="A" />
+                          <input type="number" class="form-control leader-scrap-b" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapB || ''}" placeholder="B" />
+                          <input type="number" class="form-control leader-scrap-c" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapC || ''}" placeholder="C" />
+                          <input type="number" class="form-control leader-scrap-d" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapD || ''}" placeholder="D" />
+                        </div>
+                      </td>
                     ` : `
-                      <td style="border: 1px solid #000; padding: 2px;"><input type="number" class="form-control leader-scrap-a" data-seq="${it.seq}" style="padding: 4px; text-align: right;" value="${it.scrapA || ''}" placeholder="A" /></td>
-                      <td style="border: 1px solid #000; padding: 2px;"><input type="number" class="form-control leader-scrap-b" data-seq="${it.seq}" style="padding: 4px; text-align: right;" value="${it.scrapB || ''}" placeholder="B" /></td>
-                      <td style="border: 1px solid #000; padding: 2px;" colspan="2"><input type="number" class="form-control leader-scrap-c" data-seq="${it.seq}" style="padding: 4px; text-align: right;" value="${it.scrapC || ''}" placeholder="C" /></td>
+                      <td style="border: 1px solid #000; padding: 4px;" colspan="4">
+                        <div style="display: flex; gap: 4px;">
+                          <input type="number" class="form-control leader-scrap-a" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapA || ''}" placeholder="A" />
+                          <input type="number" class="form-control leader-scrap-b" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapB || ''}" placeholder="B" />
+                          <input type="number" class="form-control leader-scrap-c" data-seq="${it.seq}" style="flex: 1; min-width: 0; padding: 4px; text-align: right;" value="${it.scrapC || ''}" placeholder="C" />
+                        </div>
+                      </td>
                     `}
                   </tr>
                 `;
@@ -131,7 +141,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
 
       <!-- 2. 근태현황 테이블 & 아래 근태 사유 (연차, 병가, 반차 수량 입력) -->
       <div style="margin-bottom: 20px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;" data-i18n="leader_section2"><span class="sec-num"></span> 근태현황</h3>
+        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;" data-i18n="leader_section2">근태현황</h3>
         
         <div class="table-container" style="margin-bottom: 10px;">
           <table class="data-table" style="border: 1px solid #000; font-size: 12px; border-collapse: collapse; width: 100%;">
@@ -214,15 +224,35 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
   i18n.applyTranslations(container);
   i18n.applyTranslations(leaderFixedBar);
 
-  // 리더 폼 섹션 순번 부여 (1. 생산현황, 2. 근태현황)
-  let leaderStep = 1;
-  container.querySelectorAll('#leaderPaperForm .sec-num').forEach(span => {
-    span.textContent = leaderStep + '.';
-    leaderStep++;
-  });
+  
 
   bindTimeWheelPicker(container.querySelector('#leaderStartTime'), '시작시간 선택');
   bindTimeWheelPicker(container.querySelector('#leaderEndTime'), '종료시간 선택');
+
+  const updateAttendance = () => {
+    const totalEl = container.querySelector('#att_total');
+    const presentEl = container.querySelector('#att_present');
+    const absentEl = container.querySelector('#att_absent');
+    const annualEl = container.querySelector('#att_annualLeave');
+    const sickEl = container.querySelector('#att_sickLeave');
+    const halfEl = container.querySelector('#att_halfLeave');
+    
+    if (totalEl && presentEl && absentEl && annualEl && sickEl && halfEl) {
+      const t = Number(totalEl.value) || 0;
+      const a = Number(annualEl.value) || 0;
+      const s = Number(sickEl.value) || 0;
+      const h = Number(halfEl.value) || 0;
+      const abs = a + s + h;
+      const pres = Math.max(0, t - abs);
+      absentEl.value = abs;
+      presentEl.value = pres;
+    }
+  };
+
+  container.querySelector('#att_total')?.addEventListener('input', updateAttendance);
+  container.querySelector('#att_annualLeave')?.addEventListener('input', updateAttendance);
+  container.querySelector('#att_sickLeave')?.addEventListener('input', updateAttendance);
+  container.querySelector('#att_halfLeave')?.addEventListener('input', updateAttendance);
 
   // leader form용 fixed 버튼 이벤트 바인딩
   const btnLeaderDraftSave = leaderFixedBar.querySelector('#btnLeaderDraftSave');
@@ -230,13 +260,18 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
 
   const processLeaderSave = (targetStatus) => {
     try {
-      const yy = container.querySelector('#leaderYear')?.value || '26';
-      const mm = (container.querySelector('#leaderMonth')?.value || '07').padStart(2, '0');
-      const dd = (container.querySelector('#leaderDay')?.value || '25').padStart(2, '0');
-      const fullDate = `20${yy}-${mm}-${dd}`;
+      const reportDateInput = document.getElementById('reportDate')?.value;
+      const startTimeInput = document.getElementById('startTimeInput')?.value;
+      const endTimeInput = document.getElementById('endTimeInput')?.value;
 
-      const st = container.querySelector('#leaderStartTime')?.value || '08:00';
-      const et = container.querySelector('#leaderEndTime')?.value || '17:00';
+      let yy = container.querySelector('#leaderYear')?.value || '26';
+      let mm = (container.querySelector('#leaderMonth')?.value || '07').padStart(2, '0');
+      let dd = (container.querySelector('#leaderDay')?.value || '25').padStart(2, '0');
+      let fullDate = `20${yy}-${mm}-${dd}`;
+      if (reportDateInput) fullDate = reportDateInput;
+
+      const st = startTimeInput || container.querySelector('#leaderStartTime')?.value || '08:00';
+      const et = endTimeInput || container.querySelector('#leaderEndTime')?.value || '17:00';
       const workHours = `${st} ~ ${et}`;
 
       let grandTotalPacked = 0;
@@ -283,7 +318,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
       const reasonText = reasonParts.length > 0 ? reasonParts.join(', ') : '전원 정상출근';
 
       const attendanceData = {
-        total: Number(container.querySelector('#att_total')?.value) || 50,
+        total: Number(container.querySelector('#att_total')?.value) || 0,
         present: Number(container.querySelector('#att_present')?.value) || 0,
         absent: Number(container.querySelector('#att_absent')?.value) || 0,
         annualLeave: annualLeave,
@@ -299,13 +334,13 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
         date: fullDate,
         workHours: workHours,
         shift: '주간',
-        carModel: 'JG1',
-        processName: '검사포장',
+        carModel: '공통',
+        processName: '반장 작업일보',
         line: '1라인',
         workerName: currentWorkerName,
         workerId: 'EMP001',
-        itemCode: '인벨트',
-        itemName: '인벨트 외 9종',
+        itemCode: '공통',
+        itemName: '공통',
         targetQty: grandTotalPacked + grandTotalScrap + 50,
         actualQty: grandTotalPacked,
         defectQty: grandTotalScrap,

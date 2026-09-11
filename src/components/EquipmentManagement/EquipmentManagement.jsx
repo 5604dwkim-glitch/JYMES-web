@@ -82,7 +82,7 @@ export default function EquipmentManagement() {
   const handleSaveRepairRequest = async (equipment, repairData) => {
     try {
       const newHistoryRow = {
-        date: repairData.requestDate || new Date().toISOString().split('T')[0],
+        date: repairData.requestDate || new Date().toLocaleDateString('sv-SE'),
         issue: repairData.requestContent || '',
         action: repairData.actionContent || '',
         attachment: '수리의뢰서',

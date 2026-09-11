@@ -712,7 +712,7 @@ export function renderQtySection(ctx) {
       case 2023:
       case 2031:
       case 2032:
-        qtySection.innerHTML = Templates.getDtCrewPrepQtyHTML(existingData, container);
+        qtySection.innerHTML = Templates.getDtCrewPrepQtyHTML(existingData, container, formCode);
         qtySection.addEventListener('input', calcDtCrewPrepQtySummary);
         calcDtCrewPrepQtySummary();
         break;

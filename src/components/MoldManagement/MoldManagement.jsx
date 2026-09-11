@@ -17,14 +17,15 @@ const MOLD_TYPE_MAP = {
   2003: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
   2013: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
   2024: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
-  2025: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "D", "1", "2", "3", "4"],
+  2025: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "V부(L/R)"],
   2033: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
   2042: ["LH", "RH"],
   3002: ["FRT LH(P)", "FRT LH(Q)", "RR LH(R)", "RR LH(S)", "FRT RH(P)", "FRT RH(Q)", "RR RH(R)", "RR RH(S)"],
-  4002: ["LH", "RH", "X부", "Y부"],
+  3012: ["LH X부", "LH Y부", "RH X부", "RH Y부"],
+  4002: ["LH X부", "LH Y부", "RH X부", "RH Y부"],
   4012: ["Frunk", "LH", "RH"],
   4022: ["LH", "RH"],
-  4032: ["LH", "RH"],
+  4032: ["X부(L/R)", "Y부(L/R)"],
   5002: ["LH", "RH"],
   6002: ["LH", "RH"]
 };
@@ -34,6 +35,19 @@ const getMoldTypesForFormCode = (formCode) => {
   return MOLD_TYPE_MAP[formCode] || ['LH', 'RH', '공통'];
 };
 
+const getAllJointMoldTypes = (carModel, partName) => {
+  let partCode = partName;
+  if (CAR_MODEL_PARTS[carModel]) {
+    const found = CAR_MODEL_PARTS[carModel].find(p => p.name === partName || p.code === partName);
+    if (found) partCode = found.code;
+  }
+  const code1 = getCurrentFormCode(carModel, partCode, '조인트');
+  const code2 = getCurrentFormCode(carModel, partCode, '조인트 V부');
+  const types1 = getMoldTypesForFormCode(code1);
+  const types2 = code2 !== 9999 ? getMoldTypesForFormCode(code2) : [];
+  return Array.from(new Set([...types1, ...types2]));
+};
+
 export default function MoldManagement() {
   const { userRole } = useAuth();
   const [activeTab, setActiveTab] = useState('list');
@@ -41,6 +55,11 @@ export default function MoldManagement() {
   const [historyMold, setHistoryMold] = useState(null);
   const [repairMold, setRepairMold] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Filters
+  const [filterCarModel, setFilterCarModel] = useState('');
+  const [filterPartName, setFilterPartName] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'code', direction: 'ascending' });
 
   // Form State
   const [showModal, setShowModal] = useState(false);
@@ -108,7 +127,7 @@ export default function MoldManagement() {
   const handleSaveRepairRequest = async (repairData) => {
     try {
       const newHistoryRow = {
-        date: repairData.requestDate || new Date().toISOString().split('T')[0],
+        date: repairData.requestDate || new Date().toLocaleDateString('sv-SE'),
         issue: repairData.requestContent || '',
         action: repairData.actionContent || '',
         attachment: '수리의뢰서',
@@ -154,31 +173,106 @@ export default function MoldManagement() {
     return <Navigate to="/" replace />;
   }
 
+  const filteredMolds = molds.filter(m => {
+    let match = true;
+    if (filterCarModel && m.carModel !== filterCarModel) match = false;
+    if (filterPartName) {
+      const isPartMatch = m.partName === filterPartName || 
+                          (filterPartName === 'PTG' && m.partName === 'SIDE TALE GATE') ||
+                          (filterPartName === 'SIDE TALE GATE' && m.partName === 'PTG');
+      if (!isPartMatch) match = false;
+    }
+    return match;
+  });
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIndicator = (key) => {
+    if (sortConfig.key === key) {
+      return sortConfig.direction === 'ascending' ? ' ▲' : ' ▼';
+    }
+    return ' ↕';
+  };
+
+  const sortedMolds = React.useMemo(() => {
+    let sortableMolds = [...filteredMolds];
+    if (sortConfig.key !== null) {
+      sortableMolds.sort((a, b) => {
+        let aVal = a[sortConfig.key];
+        let bVal = b[sortConfig.key];
+        
+        if (sortConfig.key === 'currentStrokes') {
+           aVal = Number(aVal) || 0;
+           bVal = Number(bVal) || 0;
+        } else if (sortConfig.key === 'receiptDate') {
+           aVal = a.receiptDate || a.manufactureDate || '';
+           bVal = b.receiptDate || b.manufactureDate || '';
+        } else {
+           aVal = aVal ? aVal.toString().toLowerCase() : '';
+           bVal = bVal ? bVal.toString().toLowerCase() : '';
+        }
+
+        if (aVal < bVal) return sortConfig.direction === 'ascending' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'ascending' ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableMolds;
+  }, [filteredMolds, sortConfig]);
+
   return (
     <div className="card" style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
 
       
       <div className="card-body" style={{ flex: 1, overflow: 'auto', padding: '20px', position: 'relative' }}>
         <div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '13px', color: '#475569' }}>🔍 목록 필터:</span>
+                <select 
+                  className="form-control" 
+                  style={{ width: '150px', display: 'inline-block', height: '32px', padding: '0 8px', fontSize: '12px' }} 
+                  value={filterCarModel} 
+                  onChange={e => { setFilterCarModel(e.target.value); setFilterPartName(''); }}
+                >
+                  <option value="">전체 차종</option>
+                  {CAR_MODELS.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                </select>
+                <select 
+                  className="form-control" 
+                  style={{ width: '150px', display: 'inline-block', height: '32px', padding: '0 8px', fontSize: '12px' }} 
+                  value={filterPartName} 
+                  onChange={e => setFilterPartName(e.target.value)} 
+                  disabled={!filterCarModel}
+                >
+                  <option value="">전체 부품</option>
+                  {(CAR_MODEL_PARTS[filterCarModel] || []).map(p => <option key={p.code} value={p.name}>{p.name}</option>)}
+                </select>
+              </div>
               <button className="btn btn-primary" onClick={() => openModal()}>+ 신규 금형 등록</button>
             </div>
             
             {loading ? <p>로딩 중...</p> : (
-              <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table className="table" style={{ width: '100%', borderCollapse: 'collapse', userSelect: 'none' }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #cbd5e1' }}>
-                    <th>관리번호</th>
-                    <th>금형입고 일자</th>
-                    <th>품명</th>
-                    <th>품번</th>
-                    <th>상태</th>
-                    <th>누적타수</th>
+                  <tr style={{ borderBottom: '1px solid #cbd5e1', color: '#475569', fontSize: '13px' }}>
+                    <th onClick={() => requestSort('code')} style={{cursor:'pointer'}}>관리번호<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('code')}</span></th>
+                    <th onClick={() => requestSort('receiptDate')} style={{cursor:'pointer'}}>금형입고 일자<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('receiptDate')}</span></th>
+                    <th onClick={() => requestSort('name')} style={{cursor:'pointer'}}>품명<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('name')}</span></th>
+                    <th onClick={() => requestSort('itemNo')} style={{cursor:'pointer'}}>품번<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('itemNo')}</span></th>
+                    <th onClick={() => requestSort('status')} style={{cursor:'pointer'}}>상태<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('status')}</span></th>
+                    <th onClick={() => requestSort('currentStrokes')} style={{cursor:'pointer'}}>누적타수<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('currentStrokes')}</span></th>
                     <th>금형이력카드</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {molds.map(m => {
+                  {sortedMolds.map(m => {
                     const strokePercent = Math.min(100, Math.round((m.currentStrokes / (m.maxStrokes || 1)) * 100));
                     return (
                       <tr key={m.id} style={{ borderBottom: '1px solid #cbd5e1' }}>
@@ -282,7 +376,7 @@ export default function MoldManagement() {
                   </select>
 
                   <select 
-                    className="form-control" 
+                    className="form-select" 
                     value={formData.moldType || ''} 
                     onChange={(e) => {
                       const newType = e.target.value;
@@ -291,8 +385,8 @@ export default function MoldManagement() {
                     }}
                     disabled={!formData.carModel || !formData.partName}
                   >
-                    <option value="">3. 구분명 (가류/위치)</option>
-                    {getMoldTypesForFormCode(getCurrentFormCode(formData.carModel, formData.partName, '조인트')).map(t => (
+                    <option value="">3. 구분명(가류/위치)</option>
+                    {getAllJointMoldTypes(formData.carModel, formData.partName).map(t => (
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>

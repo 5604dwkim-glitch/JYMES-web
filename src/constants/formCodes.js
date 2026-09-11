@@ -40,7 +40,7 @@ export const FORM_CODE_MAP = {
   'DS CREW_D/SIDE_소재준비(C)': 2022,
   'DS CREW_D/SIDE_소재준비(D)': 2023,
   'DS CREW_D/SIDE_조인트': 2024,
-  'DS CREW_D/SIDE_조인트(D)': 2025,
+  'DS CREW_D/SIDE_조인트 V부': 2025,
   'DS CREW_D/SIDE_후가공': 2026,
   'DS CREW_D/SIDE_검사포장': 2027,
   // DS STD

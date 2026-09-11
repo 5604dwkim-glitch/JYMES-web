@@ -312,13 +312,21 @@ export default function LegacyDetailModal({ report, onClose }) {
                       <td style="border: 1px solid #000; text-align: right; padding: 4px; font-weight: 700;">${it.packedQty ? it.packedQty.toLocaleString() : 0}</td>
                       <td style="border: 1px solid #000; text-align: right; padding: 4px;">${it.reworkQty ? it.reworkQty.toLocaleString() : 0}</td>
                       ${it.name === 'KM/KX Hood' ? `
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px;" colspan="2">센터: ${it.scrapCenter || 0}</td>
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px;" colspan="2">사이드: ${it.scrapSide || 0}</td>
+                        <td style="border: 1px solid #000; padding: 4px;" colspan="4">
+                          <div style="display: flex; gap: 4px; width: 100%;">
+                            <div style="flex: 1; text-align: center;">센터: ${it.scrapCenter || 0}</div>
+                            <div style="flex: 1; text-align: center;">사이드: ${it.scrapSide || 0}</div>
+                          </div>
+                        </td>
                       ` : `
-                        <td style="border: 1px solid #000; text-align: right; padding: 4px;">A: ${it.scrapA || 0}</td>
-                        <td style="border: 1px solid #000; text-align: right; padding: 4px;">B: ${it.scrapB || 0}</td>
-                        <td style="border: 1px solid #000; text-align: right; padding: 4px;">C: ${it.scrapC || 0}</td>
-                        <td style="border: 1px solid #000; text-align: right; padding: 4px;">D: ${it.scrapD || 0}</td>
+                        <td style="border: 1px solid #000; padding: 4px;" colspan="4">
+                          <div style="display: flex; gap: 4px; width: 100%;">
+                            <div style="flex: 1; text-align: right;">A: ${it.scrapA || 0}</div>
+                            <div style="flex: 1; text-align: right;">B: ${it.scrapB || 0}</div>
+                            <div style="flex: 1; text-align: right;">C: ${it.scrapC || 0}</div>
+                            ${(it.name === 'DS CREW LH' || it.name === 'DS CREW RH') ? `<div style="flex: 1; text-align: right;">D: ${it.scrapD || 0}</div>` : ''}
+                          </div>
+                        </td>
                       `}
                     </tr>
                   `).join('')}

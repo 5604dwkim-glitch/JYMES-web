@@ -8,7 +8,7 @@ const addThreeMonths = (dateStr) => {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return "";
   d.setMonth(d.getMonth() + 3);
-  return d.toISOString().split("T")[0];
+  return d.toLocaleDateString('sv-SE');
 };
 
 export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate }) {

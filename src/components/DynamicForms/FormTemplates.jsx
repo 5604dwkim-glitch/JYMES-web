@@ -6,6 +6,7 @@ import { store } from './LegacyFormWrapper.jsx';
     const gb = (id) => ed?.dtCrewQtyB?.[id] || '';
     const isQuad = (carName === 'DT QUAD');
     const totalLenSpec = isQuad ? '509±5mm' : '779±5mm';
+    const totalLenSpecB = isQuad ? '2463±10mm' : '2699±6mm';
     return `
       <!-- 6. 치수확인 카드 -->
       <div class="card">
@@ -27,67 +28,72 @@ import { store } from './LegacyFormWrapper.jsx';
           <div style="overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; background: #ffffff;">
             <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
               <colgroup>
-                <col style="width:22%">
-                <col style="width:19.5%"><col style="width:19.5%">
-                <col style="width:19.5%"><col style="width:19.5%">
+                <col style="width:14%">
+                <col style="width:10%">
+                <col style="width:19%">
+                <col style="width:19%">
+                <col style="width:19%">
+                <col style="width:19%">
               </colgroup>
               <thead>
                 <tr>
-                  <th style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-main); padding:8px 4px; font-weight:800;">구분</th>
-                  <th colspan="2" style="border:1px solid var(--border-color); background:rgba(2,132,199,0.08); color: var(--accent-blue); padding:8px 4px; font-weight:800;">LH</th>
-                  <th colspan="2" style="border:1px solid var(--border-color); background:rgba(5,150,105,0.08); color: var(--accent-blue); padding:8px 4px; font-weight:800;">RH</th>
+                  <th colspan="2" style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-main); padding:8px 4px; font-weight:800;">구분</th>
+                  <th colspan="2" style="border:1px solid var(--border-color); background:#eff6ff; color:#1d4ed8; padding:8px 4px; font-weight:800;">LH</th>
+                  <th colspan="2" style="border:1px solid var(--border-color); background:#f0fdf4; color:#15803d; padding:8px 4px; font-weight:800;">RH</th>
                 </tr>
               </thead>
               <tbody>
                 <!-- 전장길이 -->
                 <tr>
                   <td rowspan="4" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">전장길이</td>
-                  <td colspan="4" style="border:1px solid var(--border-color); background:#fef3c7; color:#92400e; font-weight:800; padding:6px; font-size:12px;">${totalLenSpec}</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
+                  <td colspan="4" style="border:1px solid var(--border-color); background:#fef9c3; color:#a16207; font-weight:800; padding:6px;">${totalLenSpec}</td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초 (LH)</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_초" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_초')}"></td>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초 (RH)</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_초" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_초')}"></td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초</td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_초" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_초')}"></td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_초" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_초')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중 (LH)</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_중" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_중')}"></td>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중 (RH)</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_중" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_중')}"></td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중</td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_중" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_중')}"></td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_중" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_중')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종 (LH)</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_종" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_종')}"></td>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종 (RH)</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_종" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_종')}"></td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종</td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_종" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_종')}"></td>
+                  <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_종" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_종')}"></td>
                 </tr>
 
                 <!-- 끝단 클립 -->
                 <tr>
                   <td rowspan="4" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">끝단 클립</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
                   <td style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-weight:700; padding:5px 2px; font-size:11px;">121±1</td>
                   <td style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-weight:700; padding:5px 2px; font-size:11px;">28±1</td>
                   <td style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-weight:700; padding:5px 2px; font-size:11px;">28±1</td>
                   <td style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-weight:700; padding:5px 2px; font-size:11px;">121±1</td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${g('clip_LH1_초')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${g('clip_LH2_초')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${g('clip_RH1_초')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${g('clip_RH2_초')}"></td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초</td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_초" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH1_초')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_초" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH2_초')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_초" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH1_초')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_초" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH2_초')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${g('clip_LH1_중')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${g('clip_LH2_중')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${g('clip_RH1_중')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${g('clip_RH2_중')}"></td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중</td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_중" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH1_중')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_중" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH2_중')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_중" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH1_중')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_중" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH2_중')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${g('clip_LH1_종')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${g('clip_LH2_종')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${g('clip_RH1_종')}"></td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${g('clip_RH2_종')}"></td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종</td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_종" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH1_종')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_종" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH2_종')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_종" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH1_종')}"></td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_종" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH2_종')}"></td>
                 </tr>
               </tbody>
             </table>
@@ -109,96 +115,119 @@ import { store } from './LegacyFormWrapper.jsx';
             <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:center;">
               <colgroup>
                 ${isQuad ? `
-                  <col style="width:34%">
-                  <col style="width:33%"><col style="width:33%">
+                  <col style="width:14%">
+                  <col style="width:10%">
+                  <col style="width:38%">
+                  <col style="width:38%">
                 ` : `
-                  <col style="width:20%">
-                  <col style="width:20%"><col style="width:20%">
-                  <col style="width:20%"><col style="width:20%">
+                  <col style="width:14%">
+                  <col style="width:10%">
+                  <col style="width:19%">
+                  <col style="width:19%">
+                  <col style="width:19%">
+                  <col style="width:19%">
                 `}
               </colgroup>
               <thead>
                 <tr>
-                  <th rowspan="2" style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-main); padding:8px 4px; font-weight:800; vertical-align:middle;">구분</th>
-                  <th colspan="${isQuad ? '1' : '2'}" style="border:1px solid var(--border-color); background:rgba(2,132,199,0.08); color: var(--accent-blue); padding:6px 4px; font-weight:800;">LH</th>
-                  <th colspan="${isQuad ? '1' : '2'}" style="border:1px solid var(--border-color); background:rgba(5,150,105,0.08); color: var(--accent-blue); padding:6px 4px; font-weight:800;">RH</th>
+                  <th rowspan="2" colspan="2" style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-main); padding:8px 4px; font-weight:800; vertical-align:middle;">구분</th>
+                  ${isQuad ? `
+                    <th colspan="1" style="border:1px solid var(--border-color); background:#eff6ff; color:#1d4ed8; padding:8px 4px; font-weight:800;">LH</th>
+                    <th colspan="1" style="border:1px solid var(--border-color); background:#f0fdf4; color:#15803d; padding:8px 4px; font-weight:800;">RH</th>
+                  ` : `
+                    <th colspan="2" style="border:1px solid var(--border-color); background:#eff6ff; color:#1d4ed8; padding:8px 4px; font-weight:800;">LH</th>
+                    <th colspan="2" style="border:1px solid var(--border-color); background:#f0fdf4; color:#15803d; padding:8px 4px; font-weight:800;">RH</th>
+                  `}
                 </tr>
                 <tr>
-                  <th style="border:1px solid var(--border-color); background:rgba(2,132,199,0.05); color: var(--accent-blue); padding:4px; font-size:11px; font-weight:700;">${isQuad ? '2호' : '3호'}</th>
-                  ${isQuad ? '' : `<th style="border:1px solid var(--border-color); background:rgba(2,132,199,0.05); color: var(--accent-blue); padding:4px; font-size:11px; font-weight:700;">4호</th>`}
-                  <th style="border:1px solid var(--border-color); background:rgba(5,150,105,0.05); color: var(--accent-blue); padding:4px; font-size:11px; font-weight:700;">${isQuad ? '3호' : '2호'}</th>
-                  ${isQuad ? '' : `<th style="border:1px solid var(--border-color); background:rgba(5,150,105,0.05); color: var(--accent-blue); padding:4px; font-size:11px; font-weight:700;">4호</th>`}
+                  ${isQuad ? `
+                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size:11px; padding:4px;">3호</th>
+                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size:11px; padding:4px;">2호</th>
+                  ` : `
+                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size:11px; padding:4px;">3호</th>
+                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size:11px; padding:4px;">4호</th>
+                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size:11px; padding:4px;">2호</th>
+                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size:11px; padding:4px;">4호</th>
+                  `}
                 </tr>
               </thead>
               <tbody>
-                <!-- 전장길이 (초.중.종) -->
+                <!-- 전장길이 -->
                 <tr>
-                  <td rowspan="4" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">전장길이<br><span style="font-size:10px; color:var(--text-muted); font-weight:normal;">(초.중.종)</span></td>
-                  <td colspan="${isQuad ? '2' : '4'}" style="border:1px solid var(--border-color); background:#fef3c7; color:#92400e; font-weight:800; padding:6px; font-size:12px;">${isQuad ? '2463±10mm' : '2699±6mm'}</td>
+                  <td rowspan="4" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">전장길이</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
+                  <td colspan="${isQuad ? '2' : '4'}" style="border:1px solid var(--border-color); background:#fef9c3; color:#a16207; font-weight:800; padding:6px;">${totalLenSpecB}</td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${gb('len_LH3_초')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${gb('len_LH4_초')}"></td>`}
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${gb('len_RH2_초')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_초" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="초" value="${gb('len_RH4_초')}"></td>`}
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초</td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_초" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH3_초')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_초" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH4_초')}"></td>`}
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_초" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH2_초')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_초" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH4_초')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${gb('len_LH3_중')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${gb('len_LH4_중')}"></td>`}
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${gb('len_RH2_중')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_중" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="중" value="${gb('len_RH4_중')}"></td>`}
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중</td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_중" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH3_중')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_중" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH4_중')}"></td>`}
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_중" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH2_중')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_중" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH4_중')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${gb('len_LH3_종')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${gb('len_LH4_종')}"></td>`}
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${gb('len_RH2_종')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_종" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="종" value="${gb('len_RH4_종')}"></td>`}
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종</td>
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_종" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH3_종')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_종" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH4_종')}"></td>`}
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_종" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH2_종')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_종" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH4_종')}"></td>`}
                 </tr>
 
-                <!-- 끝단 클립 (초.중.종) -->
+                <!-- 끝단 클립 -->
                 <tr>
-                  <td rowspan="7" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">끝단 클립<br><span style="font-size:10px; color:var(--text-muted); font-weight:normal;">(초.중.종)</span></td>
+                  <td rowspan="7" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">끝단 클립</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
                   <td colspan="${isQuad ? '1' : '2'}" style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-weight:700; padding:5px 2px; font-size:11px;">(좌측) 28±1</td>
                   <td colspan="${isQuad ? '1' : '2'}" style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-weight:700; padding:5px 2px; font-size:11px;">(우측) 28±1</td>
                 </tr>
-                <!-- 초물 (좌/우) -->
                 <tr>
-                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_초좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_LH3_초좌')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_초좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_LH4_초좌')}"></td>`}
-                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_초좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_RH2_초좌')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_초좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_RH4_초좌')}"></td>`}
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초(좌)</td>
+                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_초좌')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_초좌')}"></td>`}
+                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_초좌')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_초좌')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_초우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_LH3_초우')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_초우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_LH4_초우')}"></td>`}
-                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_초우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_RH2_초우')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_초우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_RH4_초우')}"></td>`}
-                </tr>
-                <!-- 중물 (좌/우) -->
-                <tr>
-                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_중좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_LH3_중좌')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_중좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_LH4_중좌')}"></td>`}
-                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_중좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_RH2_중좌')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_중좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_RH4_중좌')}"></td>`}
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초(우)</td>
+                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_초우')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_초우')}"></td>`}
+                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_초우')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_초우')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_중우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_LH3_중우')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_중우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_LH4_중우')}"></td>`}
-                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_중우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_RH2_중우')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_중우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_RH4_중우')}"></td>`}
-                </tr>
-                <!-- 종물 (좌/우) -->
-                <tr>
-                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_종좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_LH3_종좌')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_종좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_LH4_종좌')}"></td>`}
-                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_종좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_RH2_종좌')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_종좌" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(좌)" value="${gb('clip_RH4_종좌')}"></td>`}
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중(좌)</td>
+                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_중좌')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_중좌')}"></td>`}
+                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_중좌')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_중좌')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_종우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_LH3_종우')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_종우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_LH4_종우')}"></td>`}
-                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_종우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_RH2_종우')}"></td>
-                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_종우" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="(우)" value="${gb('clip_RH4_종우')}"></td>`}
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중(우)</td>
+                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_중우')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_중우')}"></td>`}
+                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_중우')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_중우')}"></td>`}
+                </tr>
+                <tr>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종(좌)</td>
+                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_종좌')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_종좌')}"></td>`}
+                  <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_종좌')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_종좌')}"></td>`}
+                </tr>
+                <tr>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종(우)</td>
+                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_종우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_종우')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_종우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_종우')}"></td>`}
+                  <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_종우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_종우')}"></td>
+                  ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_종우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_종우')}"></td>`}
                 </tr>
               </tbody>
             </table>
@@ -341,12 +370,13 @@ import { store } from './LegacyFormWrapper.jsx';
             <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
               <thead>
                 <tr style="background: #ffffff; font-weight: 700;">
-                  <th rowspan="2" style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">구분</th>
+                  <th style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">구분</th>
                   <th style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">LH</th>
                   <th style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">MIDDLE</th>
                   <th style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">RH</th>
                 </tr>
                 <tr style="background: #ffffff; font-weight: 700;">
+                  <td style="border: 1px solid #000; padding: 5px 2px; font-weight: 700; color: #000; font-size: 11px; background: #f8fafc;">스펙(mm)</td>
                   <td style="border: 1px solid #000; padding: 5px 2px; font-weight: 700; color: #000; font-size: 11px;">700±5</td>
                   <td style="border: 1px solid #000; padding: 5px 2px; font-weight: 700; color: #000; font-size: 11px;">1086±5</td>
                   <td style="border: 1px solid #000; padding: 5px 2px; font-weight: 700; color: #000; font-size: 11px;">700±5</td>
@@ -1189,9 +1219,8 @@ import { store } from './LegacyFormWrapper.jsx';
     `;
   }
 
-  export function getDtCrewPrepQtyHTML(ed, container) {
+  export function getDtCrewPrepQtyHTML(ed, container, formCode) {
     const q = ed?.dtCrewPrepQty || ed?.qtyData || {};
-    const formCode = getCurrentFormCode();
     const lhHeader = (formCode === 2023) ? 'LH D' : 'LH A';
     const rhHeader = (formCode === 2023) ? 'RH D' : 'RH A';
     return `

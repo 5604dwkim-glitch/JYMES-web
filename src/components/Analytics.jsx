@@ -9,8 +9,8 @@ export default function Analytics() {
   useEffect(() => {
     async function loadData() {
       // By default, fetch the last 30 days of data for analytics to prevent huge read costs
-      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleDateString('sv-SE');
+      const endDate = new Date().toLocaleDateString('sv-SE');
       const data = await fetchReports({ startDate, endDate });
       setReports(data);
       setLoading(false);

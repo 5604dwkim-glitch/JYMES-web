@@ -7,6 +7,7 @@ import { renderLeaderPaperForm } from "./LeaderFormRenderer.js";
 import * as Templates from './FormTemplates.jsx';
 import * as _Sections from './sections/index.js';
 import { MANUFACTURERS, CAR_MODELS, CAR_MODEL_PARTS, DEFAULT_LEADER_ITEMS, DEFAULT_ATTENDANCE, DOWNTIME_REASONS } from '../../constants/masterData.js';
+import { FORM_CODE_MAP } from '../../constants/formMappings.js';
 
 const i18n = { applyTranslations: () => {} };
 const STRING_TO_KEY_MAP = {};
@@ -60,57 +61,20 @@ export function renderReportForm(container, editingReportId = null) {
 
   container.innerHTML = `
     <div class="mobile-form-container" style="max-width: 800px;">
-      <!-- 양식 선택 토글 탭 -->
-      <div class="card" style="margin-bottom: 16px; padding: 12px 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 16px; font-weight: 700; color: var(--text-main);" data-i18n="form_select_label">📋 입력 양식 선택:</span>
-            <span style="font-size: 11px; background: ${isLeaderRole ? 'rgba(124, 58, 237, 0.15)' : 'rgba(5, 150, 105, 0.15)'}; color: ${isLeaderRole ? 'var(--accent-purple)' : 'var(--accent-emerald)'}; padding: 3px 8px; border-radius: 4px; font-weight: 700;">
-              ${isLeaderRole ? `👑 반장 권한 (${loggedInWorkerName || '반장'})` : `👤 일반 작업자 (${loggedInWorkerName || '작업자'})`}
-            </span>
-          </div>
-
-          <div class="touch-chip-group" style="gap: 6px;">
-            <div class="touch-chip ${activeFormType === 'standard' ? 'active' : ''}" id="btnSelectStandardForm" style="min-width: 130px; padding: 6px 12px; font-size: 12px;" data-i18n="form_standard_title">
-              📱 공정 모바일 원터치 양식
-            </div>
-            <div class="touch-chip ${activeFormType === 'leader' ? 'active' : ''}" id="btnSelectLeaderForm" style="min-width: 140px; padding: 6px 12px; font-size: 12px; ${!isLeaderRole ? 'opacity: 0.5; cursor: not-allowed;' : ''}" ${!isLeaderRole ? 'title="직급이 반장인 사용자만 선택할 수 있습니다."' : ''} data-i18n="form_leader_title">
-              ${!isLeaderRole ? '🔒 ' : ''}📋 작업일보(반장)
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 폼 컨테이너 동적 렌더링 -->
       <div id="formContentArea"></div>
     </div>
   `;
 
   const formArea = container.querySelector('#formContentArea');
-  const btnSelectLeaderForm = container.querySelector('#btnSelectLeaderForm');
-  const btnSelectStandardForm = container.querySelector('#btnSelectStandardForm');
 
-  if (activeFormType === 'leader' && isLeaderRole) {
-    renderLeaderPaperForm(formArea, existingData, loggedInWorkerName);
+  if (existingData && existingData.isLeaderForm) {
+    import('./LeaderFormRenderer.js').then(module => {
+      module.renderLeaderPaperForm(formArea, existingData, loggedInWorkerName);
+    });
   } else {
     renderStandardMobileForm(formArea, existingData, loggedInWorkerName);
   }
-
-  btnSelectLeaderForm.addEventListener('click', () => {
-    if (!isLeaderRole) {
-      windowMock.showToast(`⚠️ '작업일보(반장)' 양식은 직급이 [반장]인 사용자만 선택할 수 있습니다. (현재 직급: ${userPosition})`, 'warning');
-      return;
-    }
-    btnSelectLeaderForm.classList.add('active');
-    btnSelectStandardForm.classList.remove('active');
-    renderLeaderPaperForm(formArea, existingData, loggedInWorkerName);
-  });
-
-  btnSelectStandardForm.addEventListener('click', () => {
-    btnSelectStandardForm.classList.add('active');
-    btnSelectLeaderForm.classList.remove('active');
-    renderStandardMobileForm(formArea, existingData, loggedInWorkerName);
-  });
 }
 
 
@@ -121,7 +85,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
   let initialMaker = MANUFACTURERS.find(m => m.models.some(md => md.code === initialCarCode)) || MANUFACTURERS[0];
 
   const selectedProcessName = existingData ? existingData.processName : '';
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('sv-SE');
 
   let defaultStartTime = '08:00';
   let defaultEndTime = '17:00';
@@ -368,108 +332,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   //               현대 3001~3099 / 기아 4001~4099
   //               GM 5001~5099 / 르노 6001~6099
   // ============================================================
-  const FORM_CODE_MAP = {
-    // ── 제네시스(Genesis) ──────────────────────────────────
-    // JG1(스윙도어)
-    'JG1_인벨트_소재준비'     : 1001,
-    'JG1_인벨트_조인트'       : 1002,
-    'JG1_인벨트_후가공'       : 1003,
-    'JG1_인벨트_검사포장'     : 1004,
-    "JG1_RR C PART'G_조인트"  : 1011,
-    "JG1_RR C PART'G_후가공"  : 1012,
-    "JG1_RR C PART'G_검사포장": 1013,
-    "JG1_G/RUN 'E'_소재준비"  : 1021,
-    "JG1_G/RUN 'E'_조인트"    : 1022,
-    "JG1_G/RUN 'E'_후가공"    : 1023,
-    "JG1_G/RUN 'E'_검사포장"  : 1024,
-    // JG1S(코치도어)
-    'JG1S_인벨트_소재준비'    : 1031,
-    'JG1S_인벨트_조인트'      : 1032,
-    'JG1S_인벨트_후가공'      : 1033,
-    'JG1S_인벨트_검사포장'    : 1034,
-    "JG1S_G/RUN 'E'_소재준비" : 1041,
-    "JG1S_G/RUN 'E'_조인트"   : 1042,
-    "JG1S_G/RUN 'E'_후가공"   : 1043,
-    "JG1S_G/RUN 'E'_검사포장" : 1044,
 
-    // ── 스텔란티스(Stellantis) ────────────────────────────
-    // DT CREW
-    'DT CREW_D/SIDE_클립머신' : 2001,
-    'DT CREW_D/SIDE_소재준비' : 2002,
-    'DT CREW_D/SIDE_조인트'   : 2003,
-    'DT CREW_D/SIDE_후가공'   : 2004,
-    'DT CREW_D/SIDE_검사포장' : 2005,
-    // DT QUAD
-    'DT QUAD_D/SIDE_클립머신' : 2011,
-    'DT QUAD_D/SIDE_소재준비' : 2012,
-    'DT QUAD_D/SIDE_조인트'   : 2013,
-    'DT QUAD_D/SIDE_후가공'   : 2014,
-    'DT QUAD_D/SIDE_검사포장' : 2015,
-    // DS CREW
-    'DS CREW_D/SIDE_소재준비(A)' : 2021,
-    'DS CREW_D/SIDE_소재준비(C)' : 2022,
-    'DS CREW_D/SIDE_소재준비(D)' : 2023,
-    'DS CREW_D/SIDE_조인트'      : 2024,
-    'DS CREW_D/SIDE_조인트(D)'   : 2025,
-    'DS CREW_D/SIDE_후가공'      : 2026,
-    'DS CREW_D/SIDE_검사포장'    : 2027,
-    // DS STD
-    'DS STD_D/SIDE_소재준비(A)'  : 2031,
-    'DS STD_D/SIDE_소재준비(C)'  : 2032,
-    'DS STD_D/SIDE_조인트'       : 2033,
-    'DS STD_D/SIDE_후가공'       : 2034,
-    'DS STD_D/SIDE_검사포장'     : 2035,
-    // KM/KX
-    'KM/KX_HOOD SURROUND_클립머신' : 2041,
-    'KM/KX_HOOD SURROUND_조인트'   : 2042,
-    'KM/KX_HOOD SURROUND_후가공'   : 2043,
-    'KM/KX_HOOD SURROUND_검사포장' : 2044,
-
-    // ── 현대(HMC) ─────────────────────────────────────────
-    // NE1a
-    'NE1a_D/SIDE_소재준비'    : 3001,
-    'NE1a_D/SIDE_조인트'      : 3002,
-    'NE1a_D/SIDE_후가공'      : 3003,
-    'NE1a_D/SIDE_검사포장'    : 3004,
-    // ME1a
-    "ME1a_PART'G_소재준비"    : 3011,
-    "ME1a_PART'G_조인트"      : 3012,
-    "ME1a_PART'G_후가공"      : 3013,
-    "ME1a_PART'G_검사포장"    : 3014,
-
-    // ── 기아(KMC) ─────────────────────────────────────────
-    // OV1K
-    'OV1K_PTG_소재준비'       : 4001,
-    'OV1K_PTG_조인트'         : 4002,
-    'OV1K_PTG_후가공'         : 4003,
-    'OV1K_PTG_검사포장'       : 4004,
-    'OV1K_FRUNK_소재준비'     : 4011,
-    'OV1K_FRUNK_조인트'       : 4012,
-    'OV1K_FRUNK_후가공'       : 4013,
-    'OV1K_FRUNK_검사포장'     : 4014,
-    // LQ2a
-    'LQ2a_HOOD SIDE_소재준비' : 4021,
-    'LQ2a_HOOD SIDE_조인트'   : 4022,
-    'LQ2a_HOOD SIDE_후가공'   : 4023,
-    'LQ2a_HOOD SIDE_검사포장' : 4024,
-    // MV1a
-    'MV1a_PTG_소재준비'       : 4031,
-    'MV1a_PTG_조인트'         : 4032,
-    'MV1a_PTG_후가공'         : 4033,
-    'MV1a_PTG_검사포장'       : 4034,
-
-    // ── GM(지엠) ──────────────────────────────────────────
-    '9BQC_G/RUN_소재준비'     : 5001,
-    '9BQC_G/RUN_조인트'       : 5002,
-    '9BQC_G/RUN_후가공'       : 5003,
-    '9BQC_G/RUN_검사포장'     : 5004,
-
-    // ── 르노(Renault) ─────────────────────────────────────
-    'P417_UPR_소재준비'        : 6001,
-    'P417_UPR_조인트'          : 6002,
-    'P417_UPR_후가공'          : 6003,
-    'P417_UPR_검사포장'        : 6004,
-  };
 
   // 현재 선택된 양식의 고유 4자리 코드 반환 함수
   function getCurrentFormCode() {
@@ -758,6 +621,13 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       processList = processList.filter(p => p !== '소재준비');
     }
 
+    // 공통 차종이 아닐 경우 반장 작업일보 제외, 공통 차종일 경우 반장 작업일보만 표시
+    if (carCode !== '공통') {
+      processList = processList.filter(p => p !== '반장 작업일보');
+    } else {
+      processList = ['반장 작업일보'];
+    }
+
     // KM/KX 선택 시 소재준비 공정 제외
     if (carCode === 'KM/KX') {
       processList = processList.filter(p => p !== '소재준비');
@@ -768,7 +638,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       processList = processList.filter(p => p !== '클립머신');
     }
 
-    // DS CREW 선택 시 소재준비(A/C/D) 세분화 및 조인트와 후가공 사이에 조인트(D) 추가
+    // DS CREW 선택 시 소재준비(A/C/D) 세분화 및 조인트와 후가공 사이에 조인트 V부 추가
     if (carCode === 'DS CREW') {
       const idx = processList.indexOf('소재준비');
       if (idx !== -1) {
@@ -776,7 +646,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       }
       const jIdx = processList.indexOf('조인트');
       if (jIdx !== -1) {
-        processList.splice(jIdx + 1, 0, '조인트(D)');
+        processList.splice(jIdx + 1, 0, '조인트 V부');
       }
     }
 
@@ -811,16 +681,157 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         processChipGroup.querySelectorAll('.touch-chip').forEach(c => c.classList.remove('active'));
         chip.classList.add('active');
         if (processValue) processValue.value = chip.dataset.name;
-        try { renderSection5(); } catch(e) { console.warn('renderSection5 error:', e); }
-        try { renderQtySection(); } catch(e) { console.warn('renderQtySection error:', e); }
-        try { renderSection4LotTable(); } catch(e) { console.warn('renderSection4LotTable error:', e); }
-        try { updateDowntimeSection(); } catch(e) { console.warn('updateDowntimeSection error:', e); }
-        renderFormCodeBadge();
-        updateSectionNumbers();
+        
+        const isLeader = chip.dataset.name === '반장 작업일보';
+        const elsToToggle = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
+        
+        if (isLeader) {
+          elsToToggle.forEach(id => {
+            const el = container.querySelector(id);
+            if (el) el.style.display = 'none';
+          });
+          const standardFixedBar = document.getElementById('standardFixedActionBar');
+          if (standardFixedBar) standardFixedBar.style.display = 'none';
+
+          let leaderContainer = container.querySelector('#leaderFormContainer');
+          if (!leaderContainer) {
+             leaderContainer = document.createElement('div');
+             leaderContainer.id = 'leaderFormContainer';
+             container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
+          }
+          leaderContainer.style.display = 'block';
+
+          import('./LeaderFormRenderer.js').then(module => {
+            module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
+            // Hide the duplicate top section of Leader Form (Date, etc.)
+            setTimeout(() => {
+              const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+              const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
+              if (lfHeader) lfHeader.style.display = 'none';
+              if (lfDate) lfDate.style.display = 'none';
+
+              // Sync dates from standard form to hidden leader form fields
+              const reportDate = document.getElementById('reportDate');
+              const stInput = document.getElementById('startTimeInput');
+              const etInput = document.getElementById('endTimeInput');
+
+              const syncDate = (val) => {
+                const parts = val.split('-');
+                if (parts.length === 3) {
+                  const ly = leaderContainer.querySelector('#leaderYear');
+                  const lm = leaderContainer.querySelector('#leaderMonth');
+                  const ld = leaderContainer.querySelector('#leaderDay');
+                  if (ly) ly.value = parts[0].substring(2);
+                  if (lm) lm.value = parts[1];
+                  if (ld) ld.value = parts[2];
+                }
+              };
+
+              if (reportDate) {
+                syncDate(reportDate.value);
+                reportDate.addEventListener('change', (e) => syncDate(e.target.value));
+              }
+
+              if (stInput) {
+                const lSt = leaderContainer.querySelector('#leaderStartTime');
+                if (lSt) {
+                  lSt.value = stInput.value;
+                  // time picker uses custom events or sets value directly, we can use MutationObserver or just patch the save logic, 
+                  // but standard DOM change/input event might fire.
+                  // For safety, we'll also just check the values right before saving if possible, but let's bind change anyway
+                  stInput.addEventListener('change', (e) => { lSt.value = e.target.value; });
+                }
+              }
+
+              if (etInput) {
+                const lEt = leaderContainer.querySelector('#leaderEndTime');
+                if (lEt) {
+                  lEt.value = etInput.value;
+                  etInput.addEventListener('change', (e) => { lEt.value = e.target.value; });
+                }
+              }
+            }, 50);
+          });
+        } else {
+          elsToToggle.forEach(id => {
+            const el = container.querySelector(id);
+            if (el) el.style.display = 'block';
+          });
+          const leaderContainer = container.querySelector('#leaderFormContainer');
+          if (leaderContainer) leaderContainer.style.display = 'none';
+          
+          const standardFixedBar = document.getElementById('standardFixedActionBar');
+          if (standardFixedBar) standardFixedBar.style.display = 'flex';
+
+          try { renderSection5(); } catch(e) { console.warn('renderSection5 error:', e); }
+          try { renderQtySection(); } catch(e) { console.warn('renderQtySection error:', e); }
+          try { renderSection4LotTable(); } catch(e) { console.warn('renderSection4LotTable error:', e); }
+          try { updateDowntimeSection(); } catch(e) { console.warn('updateDowntimeSection error:', e); }
+          renderFormCodeBadge();
+          updateSectionNumbers();
+        }
       });
     });
-    renderFormCodeBadge();
-    updateSectionNumbers();
+    
+    // 초기 로딩 시에도 반장 작업일보가 선택되어 있는지 확인하여 동일하게 분기처리
+    const isLeaderInit = activeProcess === '반장 작업일보';
+    const elsToToggleInit = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
+    if (isLeaderInit) {
+      elsToToggleInit.forEach(id => {
+        const el = container.querySelector(id);
+        if (el) el.style.display = 'none';
+      });
+      setTimeout(() => {
+        const standardFixedBar = document.getElementById('standardFixedActionBar');
+        if (standardFixedBar) standardFixedBar.style.display = 'none';
+      }, 50);
+
+      let leaderContainer = container.querySelector('#leaderFormContainer');
+      if (!leaderContainer) {
+         leaderContainer = document.createElement('div');
+         leaderContainer.id = 'leaderFormContainer';
+         container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
+      }
+      leaderContainer.style.display = 'block';
+
+      import('./LeaderFormRenderer.js').then(module => {
+        module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
+        setTimeout(() => {
+          const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+          const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
+          if (lfHeader) lfHeader.style.display = 'none';
+          if (lfDate) lfDate.style.display = 'none';
+
+          const reportDate = document.getElementById('reportDate');
+          const stInput = document.getElementById('startTimeInput');
+          const etInput = document.getElementById('endTimeInput');
+          const syncDate = (val) => {
+            const parts = val.split('-');
+            if (parts.length === 3) {
+              const ly = leaderContainer.querySelector('#leaderYear');
+              const lm = leaderContainer.querySelector('#leaderMonth');
+              const ld = leaderContainer.querySelector('#leaderDay');
+              if (ly) ly.value = parts[0].substring(2);
+              if (lm) lm.value = parts[1];
+              if (ld) ld.value = parts[2];
+            }
+          };
+          if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+          if (stInput) { const lSt = leaderContainer.querySelector('#leaderStartTime'); if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }); } }
+          if (etInput) { const lEt = leaderContainer.querySelector('#leaderEndTime'); if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }); } }
+        }, 50);
+      });
+    } else {
+      elsToToggleInit.forEach(id => {
+        const el = container.querySelector(id);
+        if (el) el.style.display = 'block';
+      });
+      const leaderContainer = container.querySelector('#leaderFormContainer');
+      if (leaderContainer) leaderContainer.style.display = 'none';
+
+      renderFormCodeBadge();
+      updateSectionNumbers();
+    }
     i18n.applyTranslations(container);
   }
 
@@ -1599,7 +1610,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       }, {});
 
       const reportData = {
-        date: container.querySelector('#reportDate')?.value || new Date().toISOString().split('T')[0],
+        date: container.querySelector('#reportDate')?.value || new Date().toLocaleDateString('sv-SE'),
         workHours: workHours,
         shift: '주간',
         carModel: curCarModelValue?.value || 'JG1',
@@ -2010,7 +2021,7 @@ export function bindTimeWheelPicker(inputElem, titleText = '시간 선택') {
   });
 }
 
-function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCenter = 100, range = 30, unit = '') {
+function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCenter = 100, range = 30, unit = '', tolerance = null) {
   if (!inputElem) return;
   inputElem.readOnly = true;
   inputElem.style.cursor = 'pointer';
@@ -2018,7 +2029,7 @@ function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCe
     if (e) e.stopPropagation();
     const rawVal = parseFloat(inputElem.value);
     const initialVal = !isNaN(rawVal) ? rawVal : defaultCenter;
-    openNumberWheelPicker(initialVal, titleText, defaultCenter, range, unit, (selectedVal) => {
+    openNumberWheelPicker(initialVal, titleText, defaultCenter, range, unit, tolerance, (selectedVal) => {
       inputElem.value = selectedVal;
       inputElem.dispatchEvent(new Event('input', { bubbles: true }));
       inputElem.dispatchEvent(new Event('change', { bubbles: true }));
@@ -2026,7 +2037,7 @@ function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCe
   };
 }
 
-function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defaultCenter = 100, range = 30, unit = '', callback) {
+function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defaultCenter = 100, range = 30, unit = '', tolerance = null, callback) {
   let modal = document.getElementById('wheelNumberPickerModal');
   if (modal) modal.remove();
 
@@ -2194,6 +2205,11 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
   });
 
   modal.querySelector('#wnpConfirmBtn').addEventListener('click', () => {
+    if (tolerance !== null && (selectedNumber < defaultCenter - tolerance || selectedNumber > defaultCenter + tolerance)) {
+      if (!window.confirm("스펙을 벗어납니다. 그래도 입력하시겠습니까?")) {
+        return;
+      }
+    }
     if (callback) callback(String(selectedNumber));
     closeModal();
   });
@@ -2753,6 +2769,7 @@ export function autoBindAllDimensionInputs(container) {
 
     let defVal = 0;
     let foundSpec = false;
+    let toleranceVal = null;
 
     if (input.dataset.wheelParsedSpec !== undefined) {
       defVal = parseFloat(input.dataset.wheelParsedSpec);
@@ -2801,15 +2818,18 @@ export function autoBindAllDimensionInputs(container) {
 
     // B. Check same row for 규격 / Spec / ±
     if (!foundSpec && tr) {
-      const isSpecRow = tr.textContent.includes('규격') || tr.textContent.includes('Spec');
+      const isSpecRow = tr.textContent.includes('규격') || tr.textContent.includes('Spec') || tr.textContent.includes('스펙');
       const tds = Array.from(tr.querySelectorAll('td, th'));
       for (let td of tds) {
         const text = td.textContent;
         if (text.includes('±')) {
-          const match = text.match(/([\d.]+)\s*±/);
-          if (match && !isNaN(parseFloat(match[1]))) {
-            defVal = parseFloat(match[1]);
-            foundSpec = true;
+          const match = text.match(/([\d.]+)\s*±\s*([\d.]+)?/);
+            if (match && !isNaN(parseFloat(match[1]))) {
+              defVal = parseFloat(match[1]);
+              if (match[2] && !isNaN(parseFloat(match[2]))) {
+                toleranceVal = parseFloat(match[2]);
+              }
+              foundSpec = true;
             break;
           }
         } else if (isSpecRow) {
@@ -2832,16 +2852,19 @@ export function autoBindAllDimensionInputs(container) {
 
       while (prevTr && lookback > 0 && !foundSpec) {
         const rowText = prevTr.textContent;
-        const isSpecRow = rowText.includes('규격') || rowText.includes('Spec');
+        const isSpecRow = rowText.includes('규격') || rowText.includes('Spec') || rowText.includes('스펙');
         const prevCells = Array.from(prevTr.querySelectorAll('td, th'));
 
         if (isSpecRow) {
           // 1) Match cell index
           if (cellIdx >= 0 && cellIdx < prevCells.length) {
             const cText = prevCells[cellIdx].textContent;
-            const pmMatch = cText.match(/([\d.]+)\s*±/);
+            const pmMatch = cText.match(/([\d.]+)\s*±\s*([\d.]+)?/);
             if (pmMatch && !isNaN(parseFloat(pmMatch[1]))) {
               defVal = parseFloat(pmMatch[1]);
+              if (pmMatch[2] && !isNaN(parseFloat(pmMatch[2]))) {
+                toleranceVal = parseFloat(pmMatch[2]);
+              }
               foundSpec = true;
               break;
             }
@@ -2856,10 +2879,13 @@ export function autoBindAllDimensionInputs(container) {
           // 2) Any cell in this spec row with ± or number
           for (let cell of prevCells) {
             const cText = cell.textContent;
-            if (cText.includes('규격') || cText.includes('Spec') || cText.includes('구분') || cText.includes('단컷팅') || cText.includes('전방') || cText.includes('후방')) continue;
-            const pmMatch = cText.match(/([\d.]+)\s*±/);
+            if (cText.includes('규격') || cText.includes('Spec') || cText.includes('스펙') || cText.includes('구분') || cText.includes('단컷팅') || cText.includes('전방') || cText.includes('후방')) continue;
+            const pmMatch = cText.match(/([\d.]+)\s*±\s*([\d.]+)?/);
             if (pmMatch && !isNaN(parseFloat(pmMatch[1]))) {
               defVal = parseFloat(pmMatch[1]);
+              if (pmMatch[2] && !isNaN(parseFloat(pmMatch[2]))) {
+                toleranceVal = parseFloat(pmMatch[2]);
+              }
               foundSpec = true;
               break;
             }
@@ -2895,10 +2921,13 @@ export function autoBindAllDimensionInputs(container) {
 
       if (!foundSpec) {
         for (let cell of theadCells) {
-          const match = cell.textContent.match(/([\d.]+)\s*±/);
-          if (match && !isNaN(parseFloat(match[1]))) {
-            defVal = parseFloat(match[1]);
-            foundSpec = true;
+          const match = cell.textContent.match(/([\d.]+)\s*±\s*([\d.]+)?/);
+            if (match && !isNaN(parseFloat(match[1]))) {
+              defVal = parseFloat(match[1]);
+              if (match[2] && !isNaN(parseFloat(match[2]))) {
+                toleranceVal = parseFloat(match[2]);
+              }
+              foundSpec = true;
             break;
           }
         }
@@ -2910,10 +2939,13 @@ export function autoBindAllDimensionInputs(container) {
       const card = table.closest('.card') || table.parentElement;
       if (card) {
         const cardText = card.textContent;
-        const match = cardText.match(/([\d.]+)\s*±/);
-        if (match && !isNaN(parseFloat(match[1]))) {
-          defVal = parseFloat(match[1]);
-          foundSpec = true;
+        const match = cardText.match(/([\d.]+)\s*±\s*([\d.]+)?/);
+            if (match && !isNaN(parseFloat(match[1]))) {
+              defVal = parseFloat(match[1]);
+              if (match[2] && !isNaN(parseFloat(match[2]))) {
+                toleranceVal = parseFloat(match[2]);
+              }
+              foundSpec = true;
         }
       }
     }
@@ -2968,6 +3000,6 @@ export function autoBindAllDimensionInputs(container) {
       }
     }
 
-    bindNumberWheelPicker(input, titleText, defVal, range, unit);
+    bindNumberWheelPicker(input, titleText, defVal, range, unit, toleranceVal);
   });
 }

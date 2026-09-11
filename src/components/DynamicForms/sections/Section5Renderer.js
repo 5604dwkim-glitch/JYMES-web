@@ -6,7 +6,7 @@ import { autoFormatDateTimeString } from './formUtils.js';
  * ctx: { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode, bindNumberWheelPicker }
  */
 export function renderSection5(ctx) {
-  const { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode, bindNumberWheelPicker } = ctx;
+  const { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode, bindNumberWheelPicker, currentMakerName } = ctx;
     const section5 = container.querySelector('#section5DynamicContainer');
     if (!section5) return;
 
@@ -17,7 +17,7 @@ export function renderSection5(ctx) {
     const _partName = partValueInput ? partValueInput.value : '';
     const getMoldOptions = (moldType, selectedVal) => {
       if (!moldType) return '<option value="">선택</option>';
-      const filtered = molds.filter(m => m.carModel === _carModel && m.partName === _partName && (m.moldType === moldType || (m.moldType && m.moldType.includes(moldType))));
+      const filtered = molds.filter(m => m.carModel === _carModel && m.partName === _partName && (m.moldType === moldType || (m.moldType && (m.moldType.includes(moldType) || moldType.includes(m.moldType)))));
       let options = '<option value="">선택</option>';
       filtered.forEach(m => {
         const moldNo = m.moldNumber || m.code;
@@ -39,20 +39,18 @@ export function renderSection5(ctx) {
     if (formCode === 3002) {
       const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};
 
-      const inp = (prefix, suffix) => {
+      const inp = (prefix, suffix, placeholder = '') => {
         const id = `vulc_${prefix}${suffix}`;
         const vval = v[`${prefix}${suffix}`] || '';
-        return `<input type="text" id="${id}" class="form-control vulc-input-dynamic" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${vval}" />`;
+        return `<input type="text" id="${id}" class="form-control vulc-input-dynamic" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${vval}" placeholder="${placeholder}" />`;
       };
 
       const tempCell = (stage, part, suffix) => `
         <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-          <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-          ${inp(`temp_${stage}_${part}_상`, suffix)}
+          ${inp(`temp_${stage}_${part}_상`, suffix, '(상)')}
         </div>
         <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-          <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-          ${inp(`temp_${stage}_${part}_하`, suffix)}
+          ${inp(`temp_${stage}_${part}_하`, suffix, '(하)')}
         </div>
       `;
 
@@ -97,7 +95,7 @@ export function renderSection5(ctx) {
                   <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
                     가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                   </td>
-                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">스펙(mm)</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
@@ -128,7 +126,7 @@ export function renderSection5(ctx) {
                   <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
                     가류시간(Time) - 초<br>(Sec)
                   </td>
-                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">스펙(mm)</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
@@ -227,7 +225,7 @@ export function renderSection5(ctx) {
                     정치절단길이<br>(Spec Cutt,g )
                   </td>
                   <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    규격 (Spec)
+                    스펙(mm)
                   </td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                     326 ± 2mm
@@ -284,7 +282,7 @@ export function renderSection5(ctx) {
                     정치절단길이<br>(Spec Cutt,g )
                   </td>
                   <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    규격 (Spec)
+                    스펙(mm)
                   </td>
                   <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                     326 ± 2mm
@@ -359,7 +357,7 @@ export function renderSection5(ctx) {
                     정치절단길이<br>(Spec Cutt,g )
                   </td>
                   <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    규격 (Spec)
+                    스펙(mm)
                   </td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                     1870 ± 2.5mm
@@ -397,7 +395,7 @@ export function renderSection5(ctx) {
       return;
     }
 
-    if (curProc === '조인트' || curProc === '조인트(D)') {
+    if (curProc === '조인트' || curProc === '조인트 V부') {
 
       if (formCode === 1022 || formCode === 1042) {
         const jointLotVal = existingData?.jointRubberLotNo || '';
@@ -627,9 +625,9 @@ export function renderSection5(ctx) {
                 return `
                   <tr style="background: #f1f5f9; font-weight: 700; color: #000;">
                     <th colspan="2" style="border: 1px solid #000; padding: 6px;">부위 [직각/둔각/직선/엔드]</th>
-                    <th style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}R[직각]</th>
-                    <th style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}S[둔각]</th>
-                    <th style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}T[직선]</th>
+                    <th id="${pfx}_th_R" style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}R[직각]</th>
+                    <th id="${pfx}_th_S" style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}S[둔각]</th>
+                    <th id="${pfx}_th_T" style="border: 1px solid #000; padding: 6px; width: 25%;">${sidePrefix}T[직선]</th>
                   </tr>
                   <!-- 금형 No. -->
                   <tr style="background: #ffffff; font-weight: 700; color: #000;">
@@ -652,36 +650,36 @@ export function renderSection5(ctx) {
               </tr>
               <tr>
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">초 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_r_초_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_초_상 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_s_초_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_초_상 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_t_초_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_초_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_r_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_초_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_s_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_초_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_t_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_초_상 || ''}" /></div></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_r_초_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_초_하 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_s_초_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_초_하 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_t_초_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_초_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_r_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_초_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_s_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_초_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_t_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_초_하 || ''}" /></div></td>
               </tr>
               <tr>
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">중 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_r_중_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_중_상 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_s_중_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_중_상 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_t_중_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_중_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_r_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_중_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_s_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_중_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_t_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_중_상 || ''}" /></div></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_r_중_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_중_하 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_s_중_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_중_하 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_t_중_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_중_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_r_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_중_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_s_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_중_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_t_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_중_하 || ''}" /></div></td>
               </tr>
               <tr>
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">종 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_r_종_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_종_상 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_s_종_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_종_상 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_t_종_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_종_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_r_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_종_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_s_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_종_상 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_t_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_종_상 || ''}" /></div></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_r_종_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_종_하 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_s_종_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_종_하 || ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_t_종_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_종_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_r_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_r_종_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_s_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_s_종_하 || ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_t_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_t_종_하 || ''}" /></div></td>
               </tr>
 
               <!-- 가류 시간 [ 초 ] -->
@@ -694,21 +692,21 @@ export function renderSection5(ctx) {
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">초 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_r_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_r_초 || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_s_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_s_초 || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_t_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_t_초 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_r_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_r_초 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_s_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_s_초 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_t_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_t_초 || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">중 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_r_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_r_중 || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_s_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_s_중 || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_t_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_t_중 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_r_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_r_중 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_s_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_s_중 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_t_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_t_중 || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">종 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_r_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_r_종 || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_s_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_s_종 || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_t_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_t_종 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_r_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_r_종 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_s_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_s_종 || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_t_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_t_종 || ''}" /></td>
               </tr>
             </tbody>
           </table>
@@ -727,21 +725,21 @@ export function renderSection5(ctx) {
               <col style="width: 19%;" />
             </colgroup>
             <thead>
-              <!-- 부위(엔드) -->
+              <!-- 부위 -->
               <tr style="background: #f1f5f9; font-weight: 700; color: #000;">
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">부위(엔드)</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 19%;">1호</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 19%;">2호</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 19%;">3호</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 19%;">4호</th>
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">부위</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
               </tr>
               <!-- 금형 No. -->
               <tr style="background: #ffffff; font-weight: 700; color: #000;">
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700;">금형 No. [ 호기 ]</td>
-                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_1', '1', data.mold_1 ?? data.mold_R ?? '')}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_2', '2', data.mold_2 ?? data.mold_S ?? '')}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_3', '3', data.mold_3 ?? data.mold_T ?? '')}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_4', '4', data.mold_4 ?? '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_1', 'V부(L/R)', data.mold_1 ?? data.mold_R ?? '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_2', 'V부(L/R)', data.mold_2 ?? data.mold_S ?? '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_3', 'V부(L/R)', data.mold_3 ?? data.mold_T ?? '')}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${renderMoldSelect(pfx + '_mold_4', 'V부(L/R)', data.mold_4 ?? '')}</td>
               </tr>
             </thead>
             <tbody>
@@ -756,42 +754,42 @@ export function renderSection5(ctx) {
               </tr>
               <tr>
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">초 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_1_초_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_초_상 ?? data.temp_r_초_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_2_초_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_초_상 ?? data.temp_s_초_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_3_초_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_초_상 ?? data.temp_t_초_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_4_초_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_초_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_1_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_초_상 ?? data.temp_r_초_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_2_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_초_상 ?? data.temp_s_초_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_3_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_초_상 ?? data.temp_t_초_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_4_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_초_상 ?? ''}" /></div></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_1_초_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_초_하 ?? data.temp_r_초_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_2_초_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_초_하 ?? data.temp_s_초_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_3_초_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_초_하 ?? data.temp_t_초_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_4_초_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_초_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_1_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_초_하 ?? data.temp_r_초_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_2_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_초_하 ?? data.temp_s_초_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_3_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_초_하 ?? data.temp_t_초_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_4_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_초_하 ?? ''}" /></div></td>
               </tr>
               <tr>
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">중 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_1_중_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_중_상 ?? data.temp_r_중_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_2_중_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_중_상 ?? data.temp_s_중_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_3_중_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_중_상 ?? data.temp_t_중_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_4_중_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_중_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_1_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_중_상 ?? data.temp_r_중_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_2_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_중_상 ?? data.temp_s_중_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_3_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_중_상 ?? data.temp_t_중_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_4_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_중_상 ?? ''}" /></div></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_1_중_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_중_하 ?? data.temp_r_중_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_2_중_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_중_하 ?? data.temp_s_중_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_3_중_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_중_하 ?? data.temp_t_중_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_4_중_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_중_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_1_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_중_하 ?? data.temp_r_중_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_2_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_중_하 ?? data.temp_s_중_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_3_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_중_하 ?? data.temp_t_중_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_4_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_중_하 ?? ''}" /></div></td>
               </tr>
               <tr>
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">종 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_1_종_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_종_상 ?? data.temp_r_종_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_2_종_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_종_상 ?? data.temp_s_종_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_3_종_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_종_상 ?? data.temp_t_종_상 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_4_종_상" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_종_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_1_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_종_상 ?? data.temp_r_종_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_2_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_종_상 ?? data.temp_s_종_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_3_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_종_상 ?? data.temp_t_종_상 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="${pfx}_temp_4_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_종_상 ?? ''}" /></div></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_1_종_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_종_하 ?? data.temp_r_종_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_2_종_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_종_하 ?? data.temp_s_종_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_3_종_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_종_하 ?? data.temp_t_종_하 ?? ''}" /></div></td>
-                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_4_종_하" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_종_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_1_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_1_종_하 ?? data.temp_r_종_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_2_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_2_종_하 ?? data.temp_s_종_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_3_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_3_종_하 ?? data.temp_t_종_하 ?? ''}" /></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="${pfx}_temp_4_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${data.temp_4_종_하 ?? ''}" /></div></td>
               </tr>
 
               <!-- 가류 시간 [ 초 ] -->
@@ -805,24 +803,24 @@ export function renderSection5(ctx) {
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">초 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_1_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_1_초 ?? data.time_r_초 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_2_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_2_초 ?? data.time_s_초 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_3_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_3_초 ?? data.time_t_초 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_4_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_4_초 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_1_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_1_초 ?? data.time_r_초 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_2_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_2_초 ?? data.time_s_초 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_3_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_3_초 ?? data.time_t_초 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_4_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_4_초 ?? ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">중 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_1_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_1_중 ?? data.time_r_중 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_2_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_2_중 ?? data.time_s_중 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_3_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_3_중 ?? data.time_t_중 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_4_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_4_중 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_1_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_1_중 ?? data.time_r_중 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_2_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_2_중 ?? data.time_s_중 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_3_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_3_중 ?? data.time_t_중 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_4_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_4_중 ?? ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">종 물</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_1_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_1_종 ?? data.time_r_종 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_2_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_2_종 ?? data.time_s_종 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_3_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_3_종 ?? data.time_t_종 ?? ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_4_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_4_종 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_1_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_1_종 ?? data.time_r_종 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_2_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_2_종 ?? data.time_s_종 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_3_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_3_종 ?? data.time_t_종 ?? ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="${pfx}_time_4_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${data.time_4_종 ?? ''}" /></td>
               </tr>
             </tbody>
           </table>
@@ -861,7 +859,7 @@ export function renderSection5(ctx) {
                   가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; width: 10%;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
@@ -873,16 +871,16 @@ export function renderSection5(ctx) {
                 <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
                   초물
                 </td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_lh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_1_lh_상 || data.temp_start_1_lh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_rh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_1_rh_상 || data.temp_start_1_rh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_lh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_2_lh_상 || data.temp_start_2_lh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_rh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_2_rh_상 || data.temp_start_2_rh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_1_lh_상 || data.temp_start_1_lh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_1_rh_상 || data.temp_start_1_rh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_2_lh_상 || data.temp_start_2_lh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_start_2_rh_상 || data.temp_start_2_rh || ''}" /></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_lh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_1_lh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_rh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_1_rh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_lh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_2_lh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_rh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_2_rh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_1_lh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_1_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_1_rh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_2_lh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_start_2_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_start_2_rh_하 || ''}" /></td>
               </tr>
 
               <!-- 중물 (상/하) -->
@@ -890,16 +888,16 @@ export function renderSection5(ctx) {
                 <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
                   중물
                 </td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_lh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_1_lh_상 || data.temp_harf_1_lh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_rh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_1_rh_상 || data.temp_harf_1_rh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_lh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_2_lh_상 || data.temp_harf_2_lh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_rh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_2_rh_상 || data.temp_harf_2_rh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_1_lh_상 || data.temp_harf_1_lh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_1_rh_상 || data.temp_harf_1_rh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_2_lh_상 || data.temp_harf_2_lh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_harf_2_rh_상 || data.temp_harf_2_rh || ''}" /></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_lh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_1_lh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_rh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_1_rh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_lh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_2_lh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_rh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_2_rh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_1_lh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_1_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_1_rh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_2_lh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_harf_2_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_harf_2_rh_하 || ''}" /></td>
               </tr>
 
               <!-- 종물 (상/하) -->
@@ -907,16 +905,16 @@ export function renderSection5(ctx) {
                 <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
                   종물
                 </td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_lh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_1_lh_상 || data.temp_finish_1_lh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_rh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_1_rh_상 || data.temp_finish_1_rh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_lh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_2_lh_상 || data.temp_finish_2_lh || ''}" /></td>
-                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_rh_상" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_2_rh_상 || data.temp_finish_2_rh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_1_lh_상 || data.temp_finish_1_lh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_1_rh_상 || data.temp_finish_1_rh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_2_lh_상 || data.temp_finish_2_lh || ''}" /></td>
+                <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(상)" value="${data.temp_finish_2_rh_상 || data.temp_finish_2_rh || ''}" /></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_lh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_1_lh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_rh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_1_rh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_lh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_2_lh_하 || ''}" /></td>
-                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_rh_하" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_2_rh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_1_lh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_1_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_1_rh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_2_lh_하 || ''}" /></td>
+                <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="vulc_temp_finish_2_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" placeholder="(하)" value="${data.temp_finish_2_rh_하 || ''}" /></td>
               </tr>
 
               <!-- 2. 가류시간 영역 -->
@@ -925,7 +923,7 @@ export function renderSection5(ctx) {
                   가류시간(Time)- 초<br>(Sec)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
@@ -936,28 +934,28 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_1_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_1_lh || data.time_start_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_1_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_1_rh || data.time_start_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_2_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_2_lh || data.time_start_rr_s_lh || data.time_start_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_2_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_2_rh || data.time_start_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_1_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_1_lh || data.time_start_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_1_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_1_rh || data.time_start_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_2_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_2_lh || data.time_start_rr_s_lh || data.time_start_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_2_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_start_2_rh || data.time_start_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_1_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_1_lh || data.time_harf_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_1_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_1_rh || data.time_harf_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_2_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_2_lh || data.time_harf_rr_s_lh || data.time_harf_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_2_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_2_rh || data.time_harf_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_1_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_1_lh || data.time_harf_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_1_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_1_rh || data.time_harf_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_2_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_2_lh || data.time_harf_rr_s_lh || data.time_harf_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_2_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_harf_2_rh || data.time_harf_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_1_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_1_lh || data.time_finish_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_1_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_1_rh || data.time_finish_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_2_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_2_lh || data.time_finish_rr_s_lh || data.time_finish_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_2_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_2_rh || data.time_finish_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_1_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_1_lh || data.time_finish_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_1_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_1_rh || data.time_finish_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_2_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_2_lh || data.time_finish_rr_s_lh || data.time_finish_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_2_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${data.time_finish_2_rh || data.time_finish_rr_s_rh || ''}" /></td>
               </tr>
             </tbody>
           </table>
@@ -987,7 +985,7 @@ export function renderSection5(ctx) {
                   가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; width: 14%;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
               </tr>
@@ -997,8 +995,8 @@ export function renderSection5(ctx) {
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; gap: 4px;">
-                    <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(상)" value="${v.temp_start_frt_p_상 ?? v.temp_start_frt_p ?? ''}" />
-                    <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(하)" value="${v.temp_start_frt_p_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_start_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(상)" value="${v.temp_start_frt_p_상 ?? v.temp_start_frt_p ?? ''}" />
+                    <input type="text" id="vulc_temp_start_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(하)" value="${v.temp_start_frt_p_하 ?? ''}" />
                   </div>
                 </td>
               </tr>
@@ -1008,8 +1006,8 @@ export function renderSection5(ctx) {
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; gap: 4px;">
-                    <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(상)" value="${v.temp_harf_frt_p_상 ?? v.temp_harf_frt_p ?? ''}" />
-                    <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(하)" value="${v.temp_harf_frt_p_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_harf_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(상)" value="${v.temp_harf_frt_p_상 ?? v.temp_harf_frt_p ?? ''}" />
+                    <input type="text" id="vulc_temp_harf_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(하)" value="${v.temp_harf_frt_p_하 ?? ''}" />
                   </div>
                 </td>
               </tr>
@@ -1019,8 +1017,8 @@ export function renderSection5(ctx) {
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; gap: 4px;">
-                    <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(상)" value="${v.temp_finish_frt_p_상 ?? v.temp_finish_frt_p ?? ''}" />
-                    <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(하)" value="${v.temp_finish_frt_p_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_finish_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(상)" value="${v.temp_finish_frt_p_상 ?? v.temp_finish_frt_p ?? ''}" />
+                    <input type="text" id="vulc_temp_finish_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="flex: 1; height: 24px; text-align: center; font-size: 11px; padding: 2px;" placeholder="(하)" value="${v.temp_finish_frt_p_하 ?? ''}" />
                   </div>
                 </td>
               </tr>
@@ -1031,7 +1029,7 @@ export function renderSection5(ctx) {
                   가류시간(Time)- 초<br>(Sec)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
               </tr>
@@ -1039,19 +1037,19 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
               </tr>
             </tbody>
           </table>
@@ -1065,7 +1063,7 @@ export function renderSection5(ctx) {
         vulcTableHTML = makeDtCrewVulcTable('vulc', v, 1, 'LH') + makeDtCrewVulcTable('vulc2', v2, 2, 'RH');
       } else if (isDtCrew) {
         vulcTableHTML = makeDtCrewVulcTable('vulc', v, 1) + makeDtCrewVulcTable('vulc2', v2, 2);
-      } else if (formCode === 4002) {
+      } else if (formCode === -9999) {
         vulcTableHTML = `
         <div style="overflow-x: auto;">
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
@@ -1090,7 +1088,7 @@ export function renderSection5(ctx) {
                   가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 
@@ -1105,41 +1103,41 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_start_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_start_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하  || ''}" readonly />
     </div>
   </td>
               </tr>
@@ -1150,41 +1148,41 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_harf_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_harf_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하  || ''}" readonly />
     </div>
   </td>
               </tr>
@@ -1195,41 +1193,41 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하  || ''}" readonly />
     </div>
   </td>
                 <td style="border: 1px solid #000; padding: 2px;">
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-      <input type="text" id="vulc_temp_finish_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상  || ''}" readonly />
     </div>
     <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
       <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-      <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하  || ''}" readonly />
+      <input type="text" id="vulc_temp_finish_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하  || ''}" readonly />
     </div>
   </td>
               </tr>
@@ -1240,7 +1238,7 @@ export function renderSection5(ctx) {
                   가류시간(Time)- 초<br>(Sec)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 
@@ -1252,28 +1250,28 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh  || ''}" readonly /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh  || ''}" readonly /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r  || ''}" readonly /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r  || ''}" readonly /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh  || ''}" readonly /></td>
               </tr>
             </tbody>
           </table>
@@ -1298,7 +1296,7 @@ export function renderSection5(ctx) {
                   가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
@@ -1308,21 +1306,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1331,21 +1329,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1354,21 +1352,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1379,25 +1377,25 @@ export function renderSection5(ctx) {
                   가류시간(Time)- 초<br>(Sec)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">초물(Start)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">중물(Harf)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">종물(Finish)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || ''}" /></td>
               </tr>
             </tbody>
           </table>
@@ -1420,7 +1418,7 @@ export function renderSection5(ctx) {
                   가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
@@ -1431,31 +1429,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1464,31 +1462,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1497,31 +1495,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_r_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_r_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_lh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하  || ''}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_rh_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_상  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_상  || ''}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_rh_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_하  || ''}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_하  || ''}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1532,7 +1530,7 @@ export function renderSection5(ctx) {
                   가류시간(Time)- 초<br>(Sec)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
@@ -1540,21 +1538,21 @@ export function renderSection5(ctx) {
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">초물(Start)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">중물(Harf)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">종물(Finish)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_rh || ''}" /></td>
               </tr>
             </tbody>
           </table>
@@ -1582,7 +1580,7 @@ export function renderSection5(ctx) {
                   가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
@@ -1594,21 +1592,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상 ?? v.temp_start_frt_p ?? ''}" />
+                    <input type="text" id="vulc_temp_start_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_상 ?? v.temp_start_frt_p ?? ''}" />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_start_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_p_하 ?? ''}" />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상 ?? v.temp_start_frt_q ?? ''}" />
+                    <input type="text" id="vulc_temp_start_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_상 ?? v.temp_start_frt_q ?? ''}" />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_start_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_frt_q_하 ?? ''}" />
                   </div>
                 </td>
               </tr>
@@ -1619,21 +1617,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상 ?? v.temp_harf_frt_p ?? ''}" />
+                    <input type="text" id="vulc_temp_harf_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_상 ?? v.temp_harf_frt_p ?? ''}" />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_harf_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_p_하 ?? ''}" />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상 ?? v.temp_harf_frt_q ?? ''}" />
+                    <input type="text" id="vulc_temp_harf_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_상 ?? v.temp_harf_frt_q ?? ''}" />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_harf_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_frt_q_하 ?? ''}" />
                   </div>
                 </td>
               </tr>
@@ -1644,21 +1642,21 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상 ?? v.temp_finish_frt_p ?? ''}" />
+                    <input type="text" id="vulc_temp_finish_frt_p_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_상 ?? v.temp_finish_frt_p ?? ''}" />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_finish_frt_p_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_p_하 ?? ''}" />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_frt_q_상" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상 ?? v.temp_finish_frt_q ?? ''}" />
+                    <input type="text" id="vulc_temp_finish_frt_q_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_상 ?? v.temp_finish_frt_q ?? ''}" />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_frt_q_하" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하 ?? ''}" />
+                    <input type="text" id="vulc_temp_finish_frt_q_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_frt_q_하 ?? ''}" />
                   </div>
                 </td>
               </tr>
@@ -1669,7 +1667,7 @@ export function renderSection5(ctx) {
                   가류시간(Time)- 초<br>(Sec)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
@@ -1678,28 +1676,126 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || ''}" /></td>
               </tr>
             </tbody>
           </table>
         </div>
         `;
       
+      } else if (formCode === 3012 || formCode === 4002) {
+        const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};
+        const inp = (prefix, suffix, placeholder = '') => {
+          const id = `vulc_${prefix}${suffix}`;
+          const vval = v[`${prefix}${suffix}`] || '';
+          return `<input type="text" id="${id}" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${vval}" placeholder="${placeholder}" readonly />`;
+        };
+        const tempCell = (stage, part, suffix) => `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+            ${inp(`temp_${stage}_${part}_상`, suffix, '(상)')}
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+            ${inp(`temp_${stage}_${part}_하`, suffix, '(하)')}
+          </div>
+        `;
+        const timeCell = (stage, part, suffix) => `
+          ${inp(`time_${stage}_${part}`, suffix)}
+        `;
+
+        vulcTableHTML = `
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <thead>
+                <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                  <th colspan="2" style="border: 1px solid #000; padding: 6px;">부 위(Part)</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 16%;">LH X부</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 16%;">LH Y부</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 16%;">RH X부</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 16%;">RH Y부</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    가류온도<br>(Temperature) 상<br>(Upper/하DOWN)
+                  </td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">스펙(mm)</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">초물(Start)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'frt_p', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'frt_q', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'rr_r', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'rr_s_lh', '')}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">중물(Harf)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'frt_p', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'frt_q', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'rr_r', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'rr_s_lh', '')}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">종물(Finish)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'frt_p', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'frt_q', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'rr_r', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'rr_s_lh', '')}</td>
+                </tr>
+                <tr>
+                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    가류시간(Time) - 초<br>(Sec)
+                  </td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">스펙(mm)</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">초물(Start)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'frt_p', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'frt_q', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'rr_r', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'rr_s_lh', '')}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">중물(Harf)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'frt_p', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'frt_q', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'rr_r', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'rr_s_lh', '')}</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">종물(Finish)</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'frt_p', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'frt_q', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'rr_r', '')}</td>
+                  <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'rr_s_lh', '')}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
       } else {
         vulcTableHTML = `
         <div style="overflow-x: auto;">
@@ -1726,7 +1822,7 @@ export function renderSection5(ctx) {
                   가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
@@ -1738,31 +1834,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_rh || ''}" /></td>
               </tr>
 
               <!-- 2. 가류시간 영역 -->
@@ -1771,7 +1867,7 @@ export function renderSection5(ctx) {
                   가류시간(Time)- 초<br>(Sec)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  규격 (Spec)
+                  스펙(mm)
                 </td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
                 <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
@@ -1783,31 +1879,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_start_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_harf_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_rh" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.time_finish_rr_s_rh || ''}" /></td>
               </tr>
             </tbody>
           </table>
@@ -1838,17 +1934,59 @@ export function renderSection5(ctx) {
         </div>
       `;
       // blur 이벤트 바인딩
-      const jointInput = section5.querySelector('#jointRubberLotNo');
-      if (jointInput) {
-        jointInput.addEventListener('blur', () => {
-          if (jointInput.value) jointInput.value = autoFormatDateTimeString(jointInput.value);
-        });
-        jointInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') jointInput.value = autoFormatDateTimeString(jointInput.value);
-        });
-      }
+        const jointInput = section5.querySelector('#jointRubberLotNo');
+        if (jointInput) {
+          jointInput.addEventListener('blur', () => {
+            if (jointInput.value) jointInput.value = autoFormatDateTimeString(jointInput.value);
+          });
+          jointInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') jointInput.value = autoFormatDateTimeString(jointInput.value);
+          });
+        }
 
-      if (formCode === 4012) {
+        // Dynamic LH/RH update for DT CREW
+        const bindSideCheckboxes = (pfx) => {
+          const lhEl = section5.querySelector(`#${pfx}_lh_check`);
+          const rhEl = section5.querySelector(`#${pfx}_rh_check`);
+          if (!lhEl || !rhEl) return;
+  
+          const updateTable = () => {
+            const lh = lhEl.checked;
+            const rh = rhEl.checked;
+            const sidePrefix = (lh && rh) ? 'LH/RH ' : (lh ? 'LH ' : (rh ? 'RH ' : ''));
+            
+            const thR = section5.querySelector(`#${pfx}_th_R`);
+            const thS = section5.querySelector(`#${pfx}_th_S`);
+            const thT = section5.querySelector(`#${pfx}_th_T`);
+            if (thR) thR.innerText = sidePrefix + 'R[직각]';
+            if (thS) thS.innerText = sidePrefix + 'S[둔각]';
+            if (thT) thT.innerText = sidePrefix + 'T[직선]';
+  
+            const moldR = section5.querySelector(`#${pfx}_mold_R`);
+            const moldS = section5.querySelector(`#${pfx}_mold_S`);
+            const moldT = section5.querySelector(`#${pfx}_mold_T`);
+            
+            if (moldR) {
+              const curVal = moldR.value;
+              moldR.innerHTML = getMoldOptions(sidePrefix + 'R[직각]', curVal);
+            }
+            if (moldS) {
+              const curVal = moldS.value;
+              moldS.innerHTML = getMoldOptions(sidePrefix + 'S[둔각]', curVal);
+            }
+            if (moldT) {
+              const curVal = moldT.value;
+              moldT.innerHTML = getMoldOptions(sidePrefix + 'T[직선]', curVal);
+            }
+          };
+  
+          lhEl.addEventListener('change', updateTable);
+          rhEl.addEventListener('change', updateTable);
+        };
+        bindSideCheckboxes('vulc');
+        bindSideCheckboxes('vulc2');
+
+        if (formCode === 4012) {
         bindNumberWheelPicker(section5.querySelector('#vulc_temp_start_frt_p_상'), '초물 가류온도 (상)', 200, 30, '℃');
         bindNumberWheelPicker(section5.querySelector('#vulc_temp_start_frt_p_하'), '초물 가류온도 (하)', 200, 30, '℃');
         bindNumberWheelPicker(section5.querySelector('#vulc_temp_harf_frt_p_상'), '중물 가류온도 (상)', 200, 30, '℃');
@@ -1860,7 +1998,7 @@ export function renderSection5(ctx) {
         bindNumberWheelPicker(section5.querySelector('#vulc_time_harf_frt_p'), '중물 가류시간', 90, 30, '초');
         bindNumberWheelPicker(section5.querySelector('#vulc_time_finish_frt_p'), '종물 가류시간', 90, 30, '초');
       }
-     else if (formCode === 4002) {
+     else if (formCode === -9999) {
         const phases = [{k:'start', n:'초물'}, {k:'harf', n:'중물'}, {k:'finish', n:'종물'}];
         const cols = [{k:'frt_p', n:'LH X부'}, {k:'frt_q', n:'LH Y부'}, {k:'rr_r', n:'RH X부'}, {k:'rr_s_lh', n:'RH Y부'}];
         phases.forEach(p => {
@@ -1868,6 +2006,109 @@ export function renderSection5(ctx) {
             ['상', '하'].forEach(pos => {
               const el = section5.querySelector('#vulc_temp_' + p.k + '_' + c.k + '_' + pos);
               if (el) bindNumberWheelPicker(el, p.n + ' 가류온도 ' + c.n + ' (' + pos + ')', 200, 30, '℃');
+            });
+            const timeEl = section5.querySelector('#vulc_time_' + p.k + '_' + c.k);
+            if (timeEl) bindNumberWheelPicker(timeEl, p.n + ' 가류시간 ' + c.n, 90, 30, '초');
+          });
+        });
+      } else if (formCode === 4032) {
+        const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};
+        const inp = (prefix, suffix, placeholder = '') => {
+          const id = `vulc_${prefix}${suffix}`;
+          const vval = v[`${prefix}${suffix}`] || '';
+          return `<input type="text" id="${id}" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${vval}" placeholder="${placeholder}" readonly />`;
+        };
+        const tempCell = (stage, part, suffix) => `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+            ${inp(`temp_${stage}_${part}_상`, suffix, '(상)')}
+          </div>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+            ${inp(`temp_${stage}_${part}_하`, suffix, '(하)')}
+          </div>
+        `;
+        const timeCell = (stage, part, suffix) => `
+          ${inp(`time_${stage}_${part}`, suffix)}
+        `;
+
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              ♨️ <span class="sec-num"></span> 설비 가류온도 & 가류시간 입력
+            </label>
+            <div style="overflow-x: auto; margin-bottom: 16px;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                    <th colspan="2" style="border: 1px solid #000; padding: 6px; vertical-align: middle;">부 위(Part)</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 35%;">X부(L/R)</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 35%;">Y부(L/R)</th>
+                  </tr>
+                  <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px;">금형선택</td>
+                    <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_x_lr', 'X부', v['mold_x_lr'] || '')}</td>
+                    <td style="border: 1px solid #000; padding: 4px;">${renderMoldSelect('vulc_mold_y_lr', 'Y부', v['mold_y_lr'] || '')}</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                      가류온도<br>(Temperature) 상<br>(Upper/하DOWN)
+                    </td>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">스펙(mm)</td>
+                    <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                    <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">초물(Start)</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'x_lr', '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${tempCell('start', 'y_lr', '')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">중물(Harf)</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'x_lr', '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${tempCell('harf', 'y_lr', '')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">종물(Finish)</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'x_lr', '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${tempCell('finish', 'y_lr', '')}</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                      가류시간(Time) - 초<br>(Sec)
+                    </td>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">스펙(mm)</td>
+                    <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                    <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">초물(Start)</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'x_lr', '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${timeCell('start', 'y_lr', '')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">중물(Harf)</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'x_lr', '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${timeCell('harf', 'y_lr', '')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 2px;">종물(Finish)</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'x_lr', '')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${timeCell('finish', 'y_lr', '')}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+
+        const phases = [{k:'start', n:'초물'}, {k:'harf', n:'중물'}, {k:'finish', n:'종물'}];
+        const cols = [{k:'x_lr', n:'X부(L/R)'}, {k:'y_lr', n:'Y부(L/R)'}];
+        phases.forEach(p => {
+          cols.forEach(c => {
+            ['상', '하'].forEach(pos => {
+              const el = section5.querySelector('#vulc_temp_' + p.k + '_' + c.k + '_' + pos);
+              if (el) bindNumberWheelPicker(el, p.n + ' 가류온도 ' + c.n + ' (' + pos + ')', 200, 30, '도');
             });
             const timeEl = section5.querySelector('#vulc_time_' + p.k + '_' + c.k);
             if (timeEl) bindNumberWheelPicker(timeEl, p.n + ' 가류시간 ' + c.n, 90, 30, '초');
@@ -1895,7 +2136,7 @@ export function renderSection5(ctx) {
                     <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
-                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">규격 (Spec)</td>
+                    <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">스펙(mm)</td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px; background: #ffffff;">326 ± 2mm</td>
                   </tr>
                   <tr>
@@ -2082,7 +2323,7 @@ ${renderDtRow4('종')}
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
                     <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      규격 (Spec)
+                      스펙(mm)
                     </td>
                     <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                       745 ± 1mm
@@ -2113,7 +2354,7 @@ ${renderDtRow4('종')}
                       전방
                     </td>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      규격(Spec)
+                      스펙(mm)
                     </td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
@@ -2161,7 +2402,7 @@ ${renderDtRow4('종')}
                       후방
                     </td>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      규격(Spec)
+                      스펙(mm)
                     </td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
@@ -2225,7 +2466,7 @@ ${renderDtRow4('종')}
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
                     <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      규격 (Spec)
+                      스펙(mm)
                     </td>
                     <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                       687 ± 1mm
@@ -2256,7 +2497,7 @@ ${renderDtRow4('종')}
                       전방
                     </td>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      규격(Spec)
+                      스펙(mm)
                     </td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
@@ -2295,7 +2536,7 @@ ${renderDtRow4('종')}
                       후방
                     </td>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      규격(Spec)
+                      스펙(mm)
                     </td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">29</td>
                     <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">29</td>
@@ -2356,7 +2597,7 @@ ${renderDtRow4('종')}
                     정치절단길이<br>(Spec Cutt,g )
                   </td>
                   <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    규격 (Spec)
+                    스펙(mm)
                   </td>
                   <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                     745 ± 1mm
@@ -2400,7 +2641,7 @@ ${renderDtRow4('종')}
                     전방
                   </td>
                   <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    규격(Spec)
+                    스펙(mm)
                   </td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
@@ -2468,7 +2709,7 @@ ${renderDtRow4('종')}
                     후방
                   </td>
                   <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    규격(Spec)
+                    스펙(mm)
                   </td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
                   <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
@@ -2559,7 +2800,7 @@ ${renderDtRow4('종')}
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
                     <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      규격 (Spec)
+                      스펙(mm)
                     </td>
                     <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
                       326 ± 2mm
@@ -2747,17 +2988,17 @@ ${renderDtRow4('종')}
             </div>
           </div>
         `;
-      } else if ([2005, 2015, 2027, 2035].includes(formCode)) {
+            } else if ([2005, 2015].includes(formCode)) {
         const d2005 = existingData?.dim2005Data || {};
         const aSpec = (formCode === 2015 || curCarCode === 'DT QUAD')
           ? '509 ± 5'
-          : (formCode === 2035 || curCarCode === 'DS STD')
+          : (curCarCode === 'DS STD'
             ? '1018 ± 5'
-            : ((formCode === 2027 || curCarCode === 'DS CREW') ? '707 ± 5' : '779 ± 5');
-        const bClipSpec = (formCode === 2035 || curCarCode === 'DS STD') ? '29 ± 1' : '28 ± 1';
-        const cSpec = (formCode === 2035 || curCarCode === 'DS STD')
+            : (curCarCode === 'DS CREW' ? '707 ± 5' : '779 ± 5'));
+        const bClipSpec = (curCarCode === 'DS STD') ? '29 ± 1' : '28 ± 1';
+        const cSpec = (curCarCode === 'DS STD')
           ? '391 ± 5'
-          : ((formCode === 2027 || curCarCode === 'DS CREW')
+          : (curCarCode === 'DS CREW'
             ? '379 ± 5'
             : ((formCode === 2015 || curCarCode === 'DT QUAD') ? '216 ± 4' : '246 ± 4'));
         
@@ -2784,18 +3025,6 @@ ${renderDtRow4('종')}
           ]}
         ];
 
-        if (formCode === 2027) {
-          rowsDef.push({
-            group: 'D 전장',
-            spec: '475 ± 5',
-            items: [
-              { pos: '초물', k: 'cho_D' },
-              { pos: '중물', k: 'jung_D' },
-              { pos: '종물', k: 'jong_D' }
-            ]
-          });
-        }
-
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
@@ -2820,10 +3049,131 @@ ${renderDtRow4('종')}
                       ${idx === 0 ? `<td rowspan="${g.items.length}" style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff; vertical-align: middle;">${g.spec}</td>` : ''}
                       <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff;">${it.pos}</td>
                       <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                        <input type="text" id="dim2005_${it.k}_lh" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2005[it.k + '_lh'] || ''}" />
+                        <input type="text" id="dim2005_${it.k}_lh" data-wheel-parsed-spec="${parseFloat(g.spec)}" data-isolated="true" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2005[it.k + '_lh'] || ''}" />
                       </td>
                       <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                        <input type="text" id="dim2005_${it.k}_rh" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2005[it.k + '_rh'] || ''}" />
+                        <input type="text" id="dim2005_${it.k}_rh" data-wheel-parsed-spec="${parseFloat(g.spec)}" data-isolated="true" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2005[it.k + '_rh'] || ''}" />
+                      </td>
+                    </tr>
+                  `).join('')).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      } else if (formCode === 2035) {
+        const d2035 = existingData?.dim2005Data || {};
+        const stages = [
+          { pos: '초물', items: [
+            { group: 'A 전장', spec: '1018 ± 5', k: 'cho_A' },
+            { group: 'B 좌측 클립', spec: '29 ± 1', k: 'cho_B_left' },
+            { group: 'B 우측 클립', spec: '29 ± 1', k: 'cho_B_right' },
+            { group: 'C 전장', spec: '391 ± 5', k: 'cho_C' }
+          ]},
+          { pos: '중물', items: [
+            { group: 'A 전장', spec: '1018 ± 5', k: 'jung_A' },
+            { group: 'B 좌측 클립', spec: '29 ± 1', k: 'jung_B_left' },
+            { group: 'B 우측 클립', spec: '29 ± 1', k: 'jung_B_right' },
+            { group: 'C 전장', spec: '391 ± 5', k: 'jung_C' }
+          ]},
+          { pos: '종물', items: [
+            { group: 'A 전장', spec: '1018 ± 5', k: 'jong_A' },
+            { group: 'B 좌측 클립', spec: '29 ± 1', k: 'jong_B_left' },
+            { group: 'B 우측 클립', spec: '29 ± 1', k: 'jong_B_right' },
+            { group: 'C 전장', spec: '391 ± 5', k: 'jong_C' }
+          ]}
+        ];
+
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인
+            </label>
+
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 12px; background: #fff; font-family: 'Noto Sans KR', sans-serif;" data-wheel-parsed-spec="2035_isolated">
+                <thead>
+                  <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                    <th style="border: 1px solid #000; padding: 6px; width: 18%;">구분</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 26%;">항목</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 20%;">스펙(mm)</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 18%;">LH</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 18%;">RH</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${stages.map(stage => stage.items.map((it, idx) => `
+                    <tr>
+                      ${idx === 0 ? `<td rowspan="${stage.items.length}" style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff; vertical-align: middle;">${stage.pos}</td>` : ''}
+                      <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff;">${it.group}</td>
+                      <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff;">${it.spec}</td>
+                      <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                        <input type="text" id="dim2005_${it.k}_lh" data-wheel-parsed-spec="${parseFloat(it.spec)}" data-isolated="true" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2035[it.k + '_lh'] || ''}" />
+                      </td>
+                      <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                        <input type="text" id="dim2005_${it.k}_rh" data-wheel-parsed-spec="${parseFloat(it.spec)}" data-isolated="true" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2035[it.k + '_rh'] || ''}" />
+                      </td>
+                    </tr>
+                  `).join('')).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+} else if (formCode === 2027) {
+        const d2027 = existingData?.dim2005Data || {};
+        const stages = [
+          { pos: '초물', items: [
+            { group: 'A 전장', spec: '707 ± 5', k: 'cho_A' },
+            { group: 'B 좌측 클립', spec: '28 ± 1', k: 'cho_B_left' },
+            { group: 'B 우측 클립', spec: '28 ± 1', k: 'cho_B_right' },
+            { group: 'C 전장', spec: '379 ± 5', k: 'cho_C' },
+            { group: 'D 전장', spec: '475 ± 5', k: 'cho_D' }
+          ]},
+          { pos: '중물', items: [
+            { group: 'A 전장', spec: '707 ± 5', k: 'jung_A' },
+            { group: 'B 좌측 클립', spec: '28 ± 1', k: 'jung_B_left' },
+            { group: 'B 우측 클립', spec: '28 ± 1', k: 'jung_B_right' },
+            { group: 'C 전장', spec: '379 ± 5', k: 'jung_C' },
+            { group: 'D 전장', spec: '475 ± 5', k: 'jung_D' }
+          ]},
+          { pos: '종물', items: [
+            { group: 'A 전장', spec: '707 ± 5', k: 'jong_A' },
+            { group: 'B 좌측 클립', spec: '28 ± 1', k: 'jong_B_left' },
+            { group: 'B 우측 클립', spec: '28 ± 1', k: 'jong_B_right' },
+            { group: 'C 전장', spec: '379 ± 5', k: 'jong_C' },
+            { group: 'D 전장', spec: '475 ± 5', k: 'jong_D' }
+          ]}
+        ];
+
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인
+            </label>
+
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 12px; background: #fff; font-family: 'Noto Sans KR', sans-serif;" data-wheel-parsed-spec="2027_isolated">
+                <thead>
+                  <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                    <th style="border: 1px solid #000; padding: 6px; width: 18%;">구분</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 26%;">항목</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 20%;">스펙(mm)</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 18%;">LH</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 18%;">RH</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${stages.map(stage => stage.items.map((it, idx) => `
+                    <tr>
+                      ${idx === 0 ? `<td rowspan="${stage.items.length}" style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff; vertical-align: middle;">${stage.pos}</td>` : ''}
+                      <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff;">${it.group}</td>
+                      <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #ffffff;">${it.spec}</td>
+                      <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                        <input type="text" id="dim2005_${it.k}_lh" data-wheel-parsed-spec="${parseFloat(it.spec)}" data-isolated="true" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2027[it.k + '_lh'] || ''}" />
+                      </td>
+                      <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                        <input type="text" id="dim2005_${it.k}_rh" data-wheel-parsed-spec="${parseFloat(it.spec)}" data-isolated="true" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" value="${d2027[it.k + '_rh'] || ''}" />
                       </td>
                     </tr>
                   `).join('')).join('')}
