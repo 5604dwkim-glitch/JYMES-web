@@ -16,9 +16,9 @@ export function renderSection5(ctx) {
     const _carModel = carModelValue ? carModelValue.value : '';
     const _partName = partValueInput ? partValueInput.value : '';
     const getMoldOptions = (moldType, selectedVal) => {
-      if (!moldType) return '<option value="">선택</option>';
+      if (!moldType) return '<option value="">금형선택</option>';
       const filtered = molds.filter(m => m.carModel === _carModel && m.partName === _partName && (m.moldType === moldType || (m.moldType && (m.moldType.includes(moldType) || moldType.includes(m.moldType)))));
-      let options = '<option value="">선택</option>';
+      let options = '<option value="">금형선택</option>';
       filtered.forEach(m => {
         const moldNo = m.moldNumber || m.code;
         options += `<option value="${moldNo}" ${selectedVal === moldNo ? 'selected' : ''}>${moldNo}</option>`;
