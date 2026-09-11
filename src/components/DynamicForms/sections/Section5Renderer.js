@@ -162,7 +162,7 @@ export function renderSection5(ctx) {
       section5.innerHTML = `
         <div class="card" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
-            🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
+            🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
           </label>
           <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
           <input type="text" id="lotNo_jointRubber" class="form-control lot-datetime-input"
@@ -443,7 +443,7 @@ export function renderSection5(ctx) {
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-              🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
+              🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
             </label>
             <input type="text" id="jointRubberLotNo" class="form-control" style="width: 100%; border: 1px solid var(--border-color); text-align: center; font-size: 12px; padding: 10px; border-radius: 6px; box-sizing: border-box;" placeholder="조인트 고무 LOT 입력" value="${jointLotVal}" />
           </div>
@@ -2032,7 +2032,7 @@ export function renderSection5(ctx) {
         ${dimCardForQuad}
         <div class="card" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
-            🧪 <span class="sec-num"></span> 소재 LOT 번호 입력
+            🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
           </label>
           <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
           <input type="text" id="jointRubberLotNo" class="form-control lot-datetime-input"
