@@ -2103,9 +2103,14 @@ export function renderSection5(ctx) {
             const strokeLabelT = section5.querySelector(`#stroke_label_${pfx}_stroke_T`);
             if (strokeLabelT) strokeLabelT.innerText = sidePrefix + 'T[직선]';
           };
-  
-          lhEl.addEventListener('change', updateTable);
-          rhEl.addEventListener('change', updateTable);
+          lhEl.addEventListener('change', (e) => {
+            if (e.target.checked && rhEl.checked) rhEl.checked = false;
+            updateTable();
+          });
+          rhEl.addEventListener('change', (e) => {
+            if (e.target.checked && lhEl.checked) lhEl.checked = false;
+            updateTable();
+          });
         };
         bindSideCheckboxes('vulc');
         bindSideCheckboxes('vulc2');
