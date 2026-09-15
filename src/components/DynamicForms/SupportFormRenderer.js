@@ -62,19 +62,7 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
         </table>
       </div>
 
-      <div style="margin-bottom: 14px; font-size: 13px; display: flex; gap: 16px; align-items: center;">
-        <div>
-          <span style="font-weight: 700;">작성일: </span>
-          <input type="text" id="suppYear" value="${dateParts[0].substring(2)}" style="width: 30px; text-align: right; border: none; border-bottom: 1px solid #000; font-family: monospace; font-size: 14px;" />년 
-          <input type="text" id="suppMonth" value="${dateParts[1]}" style="width: 24px; text-align: right; border: none; border-bottom: 1px solid #000; font-family: monospace; font-size: 14px;" />월 
-          <input type="text" id="suppDay" value="${dateParts[2]}" style="width: 24px; text-align: right; border: none; border-bottom: 1px solid #000; font-family: monospace; font-size: 14px;" />일
-        </div>
-        <div>
-          <span style="font-weight: 700;">근무시간: </span>
-          <input type="time" id="suppStartTime" value="${defaultStartTime}" style="border: none; border-bottom: 1px solid #000; font-family: monospace; font-size: 14px; padding: 0 4px;" /> ~ 
-          <input type="time" id="suppEndTime" value="${defaultEndTime}" style="border: none; border-bottom: 1px solid #000; font-family: monospace; font-size: 14px; padding: 0 4px;" />
-        </div>
-      </div>
+
 
       <!-- 1. 지원 내역 입력 항목 -->
       <div style="margin-bottom: 20px;">

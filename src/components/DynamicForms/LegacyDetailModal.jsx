@@ -556,10 +556,7 @@ export default function LegacyDetailModal({ report, onClose }) {
               </span>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 10px;">
-              <div>작성일 : ${r.date}</div>
-              <div>근무시간 : ${r.workHours || '08:00 ~ 17:00'}</div>
-            </div>
+
             
             <div style="margin-bottom: 14px;">
               <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">1. 금일 지원 내역</div>
