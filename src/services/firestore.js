@@ -120,10 +120,10 @@ export async function fetchReports(filters = {}) {
         result = result.filter(r => r.status === serverFilters.status);
       if (serverFilters.workerName) {
         const kw = serverFilters.workerName.toLowerCase();
-        result = result.filter(r => r.workerName.toLowerCase().includes(kw));
+        result = result.filter(r => r.workerName && r.workerName.toLowerCase().includes(kw));
       }
 
-      result = result.sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+      result = result.sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
 
       // 캐시 저장
       setReportsCache(serverFilters, result);
@@ -133,10 +133,10 @@ export async function fetchReports(filters = {}) {
     if (searchQuery) {
       const kw = searchQuery.toLowerCase();
       result = result.filter(r =>
-        r.id.toLowerCase().includes(kw) ||
+        (r.id && r.id.toLowerCase().includes(kw)) ||
         (r.carModel && r.carModel.toLowerCase().includes(kw)) ||
         (r.itemName && r.itemName.toLowerCase().includes(kw)) ||
-        r.workerName.toLowerCase().includes(kw) ||
+        (r.workerName && r.workerName.toLowerCase().includes(kw)) ||
         (r.notes && r.notes.toLowerCase().includes(kw))
       );
     }
