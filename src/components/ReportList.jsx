@@ -666,7 +666,11 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           );
         };
 
-        const completionRate = allWorkers.length > 0 ? ((submittedWorkers.size / allWorkers.length) * 100).toFixed(1) : '0.0';
+        const fieldWorkers = allWorkers.filter(w => w.process !== '관리' && w.dept !== '관리팀');
+        
+        // 제출자 중 실제 현장 작업자만 필터링하여 100% 초과 방지
+        const submittedFieldWorkersCount = [...submittedWorkers].filter(name => fieldWorkers.some(fw => fw.name === name)).length;
+        const completionRate = fieldWorkers.length > 0 ? ((submittedFieldWorkersCount / fieldWorkers.length) * 100).toFixed(1) : '0.0';
 
         return (
           <div style={{ padding: '16px', backgroundColor: 'var(--surface-color)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
@@ -676,7 +680,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                 <span style={{ marginRight: '8px', fontSize: '18px' }}>📊</span>
                 작업일보 작성율: {completionRate}%
                 <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#3b82f6', marginLeft: '8px', paddingLeft: '8px', borderLeft: '1px solid #93c5fd' }}>
-                  {submittedWorkers.size}명 / {allWorkers.length}명
+                  {submittedFieldWorkersCount}명 / {fieldWorkers.length}명
                 </span>
               </div>
             </div>
@@ -750,7 +754,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
             <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px', background: '#fef2f2' }}>
               <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: '#991b1b', borderBottom: '2px solid #fecdd3', paddingBottom: '8px', display: 'inline-block' }}>❌ 미작성 인원 (제출 및 임시저장 없음)</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '12px' }}>
-                {allWorkers.filter(w => !submittedWorkers.has(w.name)).map(w => renderWorkerCard(w, []))}
+                {fieldWorkers.filter(w => !submittedWorkers.has(w.name)).map(w => renderWorkerCard(w, []))}
               </div>
             </div>
 
