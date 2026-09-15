@@ -54,7 +54,7 @@ export function renderReportForm(container, editingReportId = null) {
                        loggedInWorkerName === '장수미' ||
                        loggedInWorkerName === '양은주';
 
-  let activeFormType = existingData ? (existingData.isLeaderForm ? 'leader' : 'standard') : 'standard';
+  let activeFormType = existingData ? (existingData.isLeaderForm ? 'leader' : existingData.isForkliftForm ? 'forklift' : 'standard') : 'standard';
   if (!isLeaderRole && activeFormType === 'leader') {
     activeFormType = 'standard';
   }
@@ -71,6 +71,10 @@ export function renderReportForm(container, editingReportId = null) {
   if (existingData && existingData.isLeaderForm) {
     import('./LeaderFormRenderer.js').then(module => {
       module.renderLeaderPaperForm(formArea, existingData, loggedInWorkerName);
+    });
+  } else if (existingData && existingData.isForkliftForm) {
+    import('./ForkliftFormRenderer.js').then(module => {
+      module.renderForkliftPaperForm(formArea, existingData, loggedInWorkerName);
     });
   } else {
     renderStandardMobileForm(formArea, existingData, loggedInWorkerName);
@@ -683,75 +687,108 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         if (processValue) processValue.value = chip.dataset.name;
         
         const isLeader = chip.dataset.name === '반장 작업일보';
+        const isForklift = chip.dataset.name === '지게차작업';
         const elsToToggle = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
         
-        if (isLeader) {
+        if (isLeader || isForklift) {
           elsToToggle.forEach(id => {
             const el = container.querySelector(id);
             if (el) el.style.display = 'none';
           });
           const standardFixedBar = document.getElementById('standardFixedActionBar');
           if (standardFixedBar) standardFixedBar.style.display = 'none';
-
-          let leaderContainer = container.querySelector('#leaderFormContainer');
-          if (!leaderContainer) {
-             leaderContainer = document.createElement('div');
-             leaderContainer.id = 'leaderFormContainer';
-             container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
+          
+          if (isLeader) {
+            const forkCont = container.querySelector('#forkliftFormContainer');
+            if (forkCont) forkCont.style.display = 'none';
+            let leaderContainer = container.querySelector('#leaderFormContainer');
+            if (!leaderContainer) {
+               leaderContainer = document.createElement('div');
+               leaderContainer.id = 'leaderFormContainer';
+               container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
+            }
+            leaderContainer.style.display = 'block';
+  
+            import('./LeaderFormRenderer.js').then(module => {
+              module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
+              setTimeout(() => {
+                const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+                const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
+                if (lfHeader) lfHeader.style.display = 'none';
+                if (lfDate) lfDate.style.display = 'none';
+  
+                const syncDate = (val) => {
+                  const parts = val.split('-');
+                  if (parts.length === 3) {
+                    const ly = leaderContainer.querySelector('#leaderYear');
+                    const lm = leaderContainer.querySelector('#leaderMonth');
+                    const ld = leaderContainer.querySelector('#leaderDay');
+                    if (ly) ly.value = parts[0].substring(2);
+                    if (lm) lm.value = parts[1];
+                    if (ld) ld.value = parts[2];
+                  }
+                };
+                const reportDate = document.getElementById('reportDate');
+                if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+                
+                const stInput = document.getElementById('startTimeInput');
+                if (stInput) {
+                  const lSt = leaderContainer.querySelector('#leaderStartTime');
+                  if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }); }
+                }
+                const etInput = document.getElementById('endTimeInput');
+                if (etInput) {
+                  const lEt = leaderContainer.querySelector('#leaderEndTime');
+                  if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }); }
+                }
+              }, 50);
+            });
+          } else if (isForklift) {
+            const leadCont = container.querySelector('#leaderFormContainer');
+            if (leadCont) leadCont.style.display = 'none';
+            let forkliftContainer = container.querySelector('#forkliftFormContainer');
+            if (!forkliftContainer) {
+               forkliftContainer = document.createElement('div');
+               forkliftContainer.id = 'forkliftFormContainer';
+               container.querySelector('#mobileWorkReportForm').appendChild(forkliftContainer);
+            }
+            forkliftContainer.style.display = 'block';
+  
+            import('./ForkliftFormRenderer.js').then(module => {
+              module.renderForkliftPaperForm(forkliftContainer, existingData, loggedInWorkerName);
+              setTimeout(() => {
+                const ffHeader = forkliftContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+                const ffDate = forkliftContainer.querySelector('div[style*="margin-bottom: 14px"]');
+                if (ffHeader) ffHeader.style.display = 'none';
+                if (ffDate) ffDate.style.display = 'none';
+                
+                const syncDate = (val) => {
+                  const parts = val.split('-');
+                  if (parts.length === 3) {
+                    const fy = forkliftContainer.querySelector('#forkYear');
+                    const fm = forkliftContainer.querySelector('#forkMonth');
+                    const fd = forkliftContainer.querySelector('#forkDay');
+                    if (fy) fy.value = parts[0].substring(2);
+                    if (fm) fm.value = parts[1];
+                    if (fd) fd.value = parts[2];
+                  }
+                };
+                const reportDate = document.getElementById('reportDate');
+                if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+                
+                const stInput = document.getElementById('startTimeInput');
+                if (stInput) {
+                  const fSt = forkliftContainer.querySelector('#forkStartTime');
+                  if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }); }
+                }
+                const etInput = document.getElementById('endTimeInput');
+                if (etInput) {
+                  const fEt = forkliftContainer.querySelector('#forkEndTime');
+                  if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }); }
+                }
+              }, 50);
+            });
           }
-          leaderContainer.style.display = 'block';
-
-          import('./LeaderFormRenderer.js').then(module => {
-            module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
-            // Hide the duplicate top section of Leader Form (Date, etc.)
-            setTimeout(() => {
-              const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
-              const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
-              if (lfHeader) lfHeader.style.display = 'none';
-              if (lfDate) lfDate.style.display = 'none';
-
-              // Sync dates from standard form to hidden leader form fields
-              const reportDate = document.getElementById('reportDate');
-              const stInput = document.getElementById('startTimeInput');
-              const etInput = document.getElementById('endTimeInput');
-
-              const syncDate = (val) => {
-                const parts = val.split('-');
-                if (parts.length === 3) {
-                  const ly = leaderContainer.querySelector('#leaderYear');
-                  const lm = leaderContainer.querySelector('#leaderMonth');
-                  const ld = leaderContainer.querySelector('#leaderDay');
-                  if (ly) ly.value = parts[0].substring(2);
-                  if (lm) lm.value = parts[1];
-                  if (ld) ld.value = parts[2];
-                }
-              };
-
-              if (reportDate) {
-                syncDate(reportDate.value);
-                reportDate.addEventListener('change', (e) => syncDate(e.target.value));
-              }
-
-              if (stInput) {
-                const lSt = leaderContainer.querySelector('#leaderStartTime');
-                if (lSt) {
-                  lSt.value = stInput.value;
-                  // time picker uses custom events or sets value directly, we can use MutationObserver or just patch the save logic, 
-                  // but standard DOM change/input event might fire.
-                  // For safety, we'll also just check the values right before saving if possible, but let's bind change anyway
-                  stInput.addEventListener('change', (e) => { lSt.value = e.target.value; });
-                }
-              }
-
-              if (etInput) {
-                const lEt = leaderContainer.querySelector('#leaderEndTime');
-                if (lEt) {
-                  lEt.value = etInput.value;
-                  etInput.addEventListener('change', (e) => { lEt.value = e.target.value; });
-                }
-              }
-            }, 50);
-          });
         } else {
           elsToToggle.forEach(id => {
             const el = container.querySelector(id);
@@ -759,6 +796,8 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
           });
           const leaderContainer = container.querySelector('#leaderFormContainer');
           if (leaderContainer) leaderContainer.style.display = 'none';
+          const forkliftContainer = container.querySelector('#forkliftFormContainer');
+          if (forkliftContainer) forkliftContainer.style.display = 'none';
           
           const standardFixedBar = document.getElementById('standardFixedActionBar');
           if (standardFixedBar) standardFixedBar.style.display = 'flex';
@@ -773,10 +812,11 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       });
     });
     
-    // 초기 로딩 시에도 반장 작업일보가 선택되어 있는지 확인하여 동일하게 분기처리
+    // 초기 로딩 시에도 반장 작업일보나 지게차작업이 선택되어 있는지 확인하여 동일하게 분기처리
     const isLeaderInit = activeProcess === '반장 작업일보';
+    const isForkliftInit = activeProcess === '지게차작업';
     const elsToToggleInit = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
-    if (isLeaderInit) {
+    if (isLeaderInit || isForkliftInit) {
       elsToToggleInit.forEach(id => {
         const el = container.querySelector(id);
         if (el) el.style.display = 'none';
@@ -786,41 +826,91 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         if (standardFixedBar) standardFixedBar.style.display = 'none';
       }, 50);
 
-      let leaderContainer = container.querySelector('#leaderFormContainer');
-      if (!leaderContainer) {
-         leaderContainer = document.createElement('div');
-         leaderContainer.id = 'leaderFormContainer';
-         container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
-      }
-      leaderContainer.style.display = 'block';
-
-      import('./LeaderFormRenderer.js').then(module => {
-        module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
-        setTimeout(() => {
-          const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
-          const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
-          if (lfHeader) lfHeader.style.display = 'none';
-          if (lfDate) lfDate.style.display = 'none';
-
-          const reportDate = document.getElementById('reportDate');
-          const stInput = document.getElementById('startTimeInput');
-          const etInput = document.getElementById('endTimeInput');
-          const syncDate = (val) => {
-            const parts = val.split('-');
-            if (parts.length === 3) {
-              const ly = leaderContainer.querySelector('#leaderYear');
-              const lm = leaderContainer.querySelector('#leaderMonth');
-              const ld = leaderContainer.querySelector('#leaderDay');
-              if (ly) ly.value = parts[0].substring(2);
-              if (lm) lm.value = parts[1];
-              if (ld) ld.value = parts[2];
+      if (isLeaderInit) {
+        let leaderContainer = container.querySelector('#leaderFormContainer');
+        if (!leaderContainer) {
+           leaderContainer = document.createElement('div');
+           leaderContainer.id = 'leaderFormContainer';
+           container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
+        }
+        leaderContainer.style.display = 'block';
+  
+        import('./LeaderFormRenderer.js').then(module => {
+          module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
+          setTimeout(() => {
+            const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+            const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
+            if (lfHeader) lfHeader.style.display = 'none';
+            if (lfDate) lfDate.style.display = 'none';
+  
+            const reportDate = document.getElementById('reportDate');
+            const stInput = document.getElementById('startTimeInput');
+            const etInput = document.getElementById('endTimeInput');
+            const syncDate = (val) => {
+              const parts = val.split('-');
+              if (parts.length === 3) {
+                const ly = leaderContainer.querySelector('#leaderYear');
+                const lm = leaderContainer.querySelector('#leaderMonth');
+                const ld = leaderContainer.querySelector('#leaderDay');
+                if (ly) ly.value = parts[0].substring(2);
+                if (lm) lm.value = parts[1];
+                if (ld) ld.value = parts[2];
+              }
+            };
+            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+            if (stInput) {
+              const lSt = leaderContainer.querySelector('#leaderStartTime');
+              if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }); }
             }
-          };
-          if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
-          if (stInput) { const lSt = leaderContainer.querySelector('#leaderStartTime'); if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }); } }
-          if (etInput) { const lEt = leaderContainer.querySelector('#leaderEndTime'); if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }); } }
-        }, 50);
-      });
+            if (etInput) {
+              const lEt = leaderContainer.querySelector('#leaderEndTime');
+              if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }); }
+            }
+          }, 50);
+        });
+      } else if (isForkliftInit) {
+        let forkliftContainer = container.querySelector('#forkliftFormContainer');
+        if (!forkliftContainer) {
+           forkliftContainer = document.createElement('div');
+           forkliftContainer.id = 'forkliftFormContainer';
+           container.querySelector('#mobileWorkReportForm').appendChild(forkliftContainer);
+        }
+        forkliftContainer.style.display = 'block';
+  
+        import('./ForkliftFormRenderer.js').then(module => {
+          module.renderForkliftPaperForm(forkliftContainer, existingData, loggedInWorkerName);
+          setTimeout(() => {
+            const ffHeader = forkliftContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+            const ffDate = forkliftContainer.querySelector('div[style*="margin-bottom: 14px"]');
+            if (ffHeader) ffHeader.style.display = 'none';
+            if (ffDate) ffDate.style.display = 'none';
+  
+            const reportDate = document.getElementById('reportDate');
+            const stInput = document.getElementById('startTimeInput');
+            const etInput = document.getElementById('endTimeInput');
+            const syncDate = (val) => {
+              const parts = val.split('-');
+              if (parts.length === 3) {
+                const fy = forkliftContainer.querySelector('#forkYear');
+                const fm = forkliftContainer.querySelector('#forkMonth');
+                const fd = forkliftContainer.querySelector('#forkDay');
+                if (fy) fy.value = parts[0].substring(2);
+                if (fm) fm.value = parts[1];
+                if (fd) fd.value = parts[2];
+              }
+            };
+            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+            if (stInput) {
+              const fSt = forkliftContainer.querySelector('#forkStartTime');
+              if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }); }
+            }
+            if (etInput) {
+              const fEt = forkliftContainer.querySelector('#forkEndTime');
+              if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }); }
+            }
+          }, 50);
+        });
+      }
     } else {
       elsToToggleInit.forEach(id => {
         const el = container.querySelector(id);

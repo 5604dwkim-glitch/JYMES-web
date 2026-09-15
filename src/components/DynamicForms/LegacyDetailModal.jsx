@@ -425,6 +425,99 @@ export default function LegacyDetailModal({ report, onClose }) {
             </div>
           </div>
         `;
+      } else if (r.isForkliftForm) {
+        const checklistItems = [
+          { id: 'check1', text: '전후진, 조향 및 제동장치 정상 여부' },
+          { id: 'check2', text: '하역장치 (리프트, 틸트) 정상 작동 여부' },
+          { id: 'check3', text: '경보장치 (경적, 후진벨) 및 전조/후미등' },
+          { id: 'check4', text: '배터리 충전 상태 및 배선 확인' },
+          { id: 'check5', text: '타이어 마모 상태 및 외관 확인' }
+        ];
+        const chkData = r.forkliftChecks || {};
+        
+        modalBodyRef.current.innerHTML = `
+          <div class="print-report-sheet" style="font-family: 'Noto Sans KR', sans-serif; color: #000; padding: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+              <div>
+                <h2 style="font-size: 24px; font-weight: 800; color: #000; letter-spacing: 2px;">지게차 작업일보</h2>
+                <div style="font-size: 13px; color: #475569; margin-top: 2px;">일보ID: ${r.id} | 작성자: ${r.workerName}</div>
+              </div>
+              <table style="border-collapse: collapse; border: 1px solid #000; font-size: 13px; text-align: center;">
+                <tr>
+                  <td style="border: 1px solid #000; width: 45px; background: #f1f5f9; font-weight: 700;">작성</td>
+                  <td style="border: 1px solid #000; width: 45px; background: #f1f5f9; font-weight: 700;">승인</td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; height: 35px; vertical-align: middle; font-weight: 700;">${r.workerName}</td>
+                  <td style="border: 1px solid #000; height: 35px; vertical-align: middle;">${r.approver || '생산부장'}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.12)); border: 1px solid #8b5cf6; border-radius: 3px; padding: 3px 6px; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 3px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 12px;">🏷️</span>
+                <div>
+                  <div style="font-size: 13px; font-weight: 800; color: #7c3aed;">
+                    양식 고유번호: #${r.formCode || 9002}
+                  </div>
+                  <div style="font-size: 13px; color: #1e293b; font-weight: 600;">
+                    [공통] 공통 - 지게차작업 공정 전용 양식
+                  </div>
+                </div>
+              </div>
+              <span class="status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : 'pending'}" style="font-size: 13px; font-weight: 700;">
+                ${r.status}
+              </span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 10px;">
+              <div>작성일 : ${r.date}</div>
+              <div>근무시간 : ${r.workHours || '08:00 ~ 17:00'}</div>
+            </div>
+            
+            <div style="margin-bottom: 14px; font-size: 12px;">
+              <span style="font-weight: 800;">장비 제원:</span> <span style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e1;">전기 지게차 (2톤)</span>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">1. 일일 안전 점검 체크리스트</div>
+              <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="background: #f1f5f9; color: #000;">
+                    <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 45px;">번호</th>
+                    <th style="border: 1px solid #000; text-align: center; padding: 4px;">점검 항목</th>
+                    <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 100px;">상태</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${checklistItems.map((item, idx) => {
+                    const isGood = chkData[item.id] !== false;
+                    return \`
+                      <tr>
+                        <td style="border: 1px solid #000; text-align: center; padding: 4px;">\${idx + 1}</td>
+                        <td style="border: 1px solid #000; padding: 4px; font-weight: 700;">\${item.text}</td>
+                        <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 800; color: \${isGood ? '#059669' : '#dc2626'};">
+                          \${isGood ? '양호 (O)' : '불량 (X)'}
+                        </td>
+                      </tr>
+                    \`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+            
+            <div style="margin-bottom: 14px;">
+              <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">2. 금일 주요 작업 내용</div>
+              <div style="border: 1px solid #000; padding: 10px; min-height: 100px; font-size: 12px; white-space: pre-wrap;">${r.workDetails || '입력된 내용 없음'}</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; font-family: monospace; border-top: 1px solid #000; padding-top: 8px;">
+              <span>HSC-DT-005</span>
+              <span>A4 (210×297 mm)</span>
+            </div>
+          </div>
+        `;
       } else {
         const cardDateTime = `
           <div class="card" style="padding: 3px 6px; margin-bottom: 3px; border: 1px solid #94a3b8; background: #fff;">

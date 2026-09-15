@@ -120,7 +120,8 @@ export const DEFAULT_PROCESSES = [
   { id: 'PROC_JOIN', name: '조인트', code: 'JOIN', lines: ['1라인'], leadTimeMinutes: 40, manager: '정성훈' },
   { id: 'PROC_POST', name: '후가공', code: 'POST', lines: ['1라인'], leadTimeMinutes: 45, manager: '이영호' },
   { id: 'PROC_INSP', name: '검사포장', code: 'INSP', lines: ['1라인'], leadTimeMinutes: 20, manager: '장수미' },
-  { id: 'PROC_LEADER', name: '반장 작업일보', code: 'LEADER', lines: ['1라인'], leadTimeMinutes: 0, manager: '반장' }
+  { id: 'PROC_LEADER', name: '반장 작업일보', code: 'LEADER', lines: ['1라인'], leadTimeMinutes: 0, manager: '반장' },
+  { id: 'PROC_FORKLIFT', name: '지게차작업', code: 'FORK', lines: ['1라인'], leadTimeMinutes: 0, manager: '작업자' }
 ];
 
 export const DEFAULT_ITEMS = [
