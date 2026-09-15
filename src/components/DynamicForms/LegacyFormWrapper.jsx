@@ -9,8 +9,7 @@ import * as _Sections from './sections/index.js';
 import { MANUFACTURERS, CAR_MODELS, CAR_MODEL_PARTS, DEFAULT_LEADER_ITEMS, DEFAULT_ATTENDANCE, DOWNTIME_REASONS } from '../../constants/masterData.js';
 import { FORM_CODE_MAP } from '../../constants/formMappings.js';
 
-const i18n = { applyTranslations: () => {} };
-const STRING_TO_KEY_MAP = {};
+import { i18n, STRING_TO_KEY_MAP } from '../../constants/translations.js';
 
 let _ctx = {};
 export function setLegacyFormContext(ctx) {
@@ -386,6 +385,11 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         span.textContent = '';
       }
     });
+    
+    // UI 구조가 갱신될 때마다 전체 번역 다시 적용
+    if (i18n && i18n.applyTranslations) {
+      i18n.applyTranslations(container);
+    }
   }
 
   // DT CREW / DT QUAD D/SIDE 클립머신 전용 여부 확인 (#2001, #2011)
