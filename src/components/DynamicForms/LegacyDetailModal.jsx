@@ -493,15 +493,15 @@ export default function LegacyDetailModal({ report, onClose }) {
                 <tbody>
                   ${checklistItems.map((item, idx) => {
                     const isGood = chkData[item.id] !== false;
-                    return \`
+                    return `
                       <tr>
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px;">\${idx + 1}</td>
-                        <td style="border: 1px solid #000; padding: 4px; font-weight: 700;">\${item.text}</td>
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 800; color: \${isGood ? '#059669' : '#dc2626'};">
-                          \${isGood ? '양호 (O)' : '불량 (X)'}
+                        <td style="border: 1px solid #000; text-align: center; padding: 4px;">${idx + 1}</td>
+                        <td style="border: 1px solid #000; padding: 4px; font-weight: 700;">${item.text}</td>
+                        <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 800; color: ${isGood ? '#059669' : '#dc2626'};">
+                          ${isGood ? '양호 (O)' : '불량 (X)'}
                         </td>
                       </tr>
-                    \`;
+                    `;
                   }).join('')}
                 </tbody>
               </table>

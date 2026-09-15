@@ -92,24 +92,24 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
           <tbody>
             ${checklistItems.map((item, idx) => {
               const isGood = chkData[item.id] !== false; // 기본값 양호
-              return \`
+              return `
                 <tr>
-                  <td style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 6px;">\${idx + 1}</td>
-                  <td style="border: 1px solid #000; font-weight: 600; padding: 6px;">\${item.text}</td>
+                  <td style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 6px;">${idx + 1}</td>
+                  <td style="border: 1px solid #000; font-weight: 600; padding: 6px;">${item.text}</td>
                   <td style="border: 1px solid #000; text-align: center; padding: 6px;">
                     <div style="display: flex; justify-content: center; gap: 10px;">
                       <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <input type="radio" name="\${item.id}" value="true" \${isGood ? 'checked' : ''} />
+                        <input type="radio" name="${item.id}" value="true" ${isGood ? 'checked' : ''} />
                         양호
                       </label>
                       <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--accent-rose);">
-                        <input type="radio" name="\${item.id}" value="false" \${!isGood ? 'checked' : ''} />
+                        <input type="radio" name="${item.id}" value="false" ${!isGood ? 'checked' : ''} />
                         불량
                       </label>
                     </div>
                   </td>
                 </tr>
-              \`;
+              `;
             }).join('')}
           </tbody>
         </table>
@@ -164,18 +164,18 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
       let yy = container.querySelector('#forkYear')?.value || '26';
       let mm = (container.querySelector('#forkMonth')?.value || '07').padStart(2, '0');
       let dd = (container.querySelector('#forkDay')?.value || '25').padStart(2, '0');
-      let fullDate = \`20\${yy}-\${mm}-\${dd}\`;
+      let fullDate = `20${yy}-${mm}-${dd}`;
 
       const reportDateInput = document.getElementById('reportDate')?.value;
       if (reportDateInput) fullDate = reportDateInput;
 
       const st = container.querySelector('#forkStartTime')?.value || '08:00';
       const et = container.querySelector('#forkEndTime')?.value || '17:00';
-      const workHours = \`\${st} ~ \${et}\`;
+      const workHours = `${st} ~ ${et}`;
 
       const checks = {};
       checklistItems.forEach(item => {
-        const radio = container.querySelector(\`input[name="\${item.id}"]:checked\`);
+        const radio = container.querySelector(`input[name="${item.id}"]:checked`);
         checks[item.id] = radio ? (radio.value === 'true') : true;
       });
 
@@ -204,8 +204,8 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
         workDetails: workDetailsText,
         status: targetStatus,
         notes: targetStatus === '임시저장' 
-          ? \`[지게차작업] \${currentWorkerName} 중간 저장 (\${workHours}).\`
-          : \`[지게차작업] \${currentWorkerName} 작성 완료 (\${workHours}).\`
+          ? `[지게차작업] ${currentWorkerName} 중간 저장 (${workHours}).`
+          : `[지게차작업] ${currentWorkerName} 작성 완료 (${workHours}).`
       };
 
       if (existingData) {
@@ -235,7 +235,7 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
       }
     } catch (err) {
       console.error('Error saving forklift report:', err);
-      windowMock.showToast(\`⚠️ 저장 중 오류가 발생했습니다: \${err.message}\`, 'error');
+      windowMock.showToast(`⚠️ 저장 중 오류가 발생했습니다: ${err.message}`, 'error');
     }
   };
 
