@@ -32,7 +32,7 @@ export function printIsolatedReport(element, title = '공정작업일보') {
       <style>
         @page {
           size: A4 portrait;
-          margin: 8mm 24mm 8mm 24mm;
+          margin: 8mm 18mm 8mm 18mm;
         }
         * {
           box-sizing: border-box;
@@ -45,8 +45,8 @@ export function printIsolatedReport(element, title = '공정작업일보') {
           font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
           color: #000;
           background: #fff;
-          font-size: 8px;
-          line-height: 1.15;
+          font-size: 11px;
+          line-height: 1.2;
         }
         .print-report-sheet {
           width: 100%;
@@ -55,7 +55,7 @@ export function printIsolatedReport(element, title = '공정작업일보') {
           padding: 0;
         }
         h2 {
-          font-size: 13px !important;
+          font-size: 12px !important;
           margin: 0 0 1px 0 !important;
           letter-spacing: 0.5px !important;
         }
@@ -70,7 +70,7 @@ export function printIsolatedReport(element, title = '공정작업일보') {
           box-shadow: none !important;
         }
         label {
-          font-size: 8.5px !important;
+          font-size: 10px !important;
           font-weight: 700 !important;
           margin-bottom: 2px !important;
           display: block !important;
@@ -96,9 +96,9 @@ export function printIsolatedReport(element, title = '공정작업일보') {
         }
         th, td {
           border: 1px solid #475569 !important;
-          padding: 1px 3px !important;
-          font-size: 7.5px !important;
-          line-height: 1.15 !important;
+          padding: 2px 4px !important;
+          font-size: 9px !important;
+          line-height: 1.2 !important;
         }
         th {
           background-color: #f1f5f9 !important;
@@ -112,9 +112,9 @@ export function printIsolatedReport(element, title = '공정작업일보') {
         }
         .status-badge {
           display: inline-block;
-          padding: 1px 3px !important;
+          padding: 1px 4px !important;
           border-radius: 2px !important;
-          font-size: 7px !important;
+          font-size: 9px !important;
           border: 1px solid #cbd5e1 !important;
         }
         /* 폼 배지 컨테이너 간격 최소화 */
@@ -127,7 +127,7 @@ export function printIsolatedReport(element, title = '공정작업일보') {
         }
         /* 입력값 표시 스팬 크기 통일 */
         span[style*="fontWeight"] {
-          font-size: 8px !important;
+          font-size: 9px !important;
         }
         /* 비가동 섹션 불필요 여백 제거 */
         #downtimeCard {
@@ -143,6 +143,46 @@ export function printIsolatedReport(element, title = '공정작업일보') {
           .no-print { display: none !important; }
           /* 페이지 하단 고정 여백 제거 */
           div[style*="height: 120px"] { display: none !important; }
+          /* 인라인 스타일의 큰 font-size 강제 축소 */
+          * {
+            font-size: inherit !important;
+          }
+          body {
+            font-size: 9px !important;
+          }
+          /* 타이틀(공정작업일보) 유지 */
+          h2 { font-size: 14px !important; }
+          /* 섹션 레이블 */
+          label, .card > label { font-size: 10px !important; }
+          /* 테이블 셀 */
+          th, td { font-size: 8.5px !important; padding: 2px 4px !important; }
+          /* 생산 실적 요약 수량 숫자 */
+          .print-report-sheet div[style*="font-size: 16px"],
+          .print-report-sheet div[style*="font-size:16px"] {
+            font-size: 11px !important;
+          }
+          /* 생산 실적 요약 레이블 */
+          .print-report-sheet div[style*="font-size: 13px"],
+          .print-report-sheet div[style*="font-size:13px"] {
+            font-size: 9px !important;
+          }
+          /* 배지/스팬 폰트 */
+          .status-badge { font-size: 8.5px !important; }
+          /* 특이사항, 노트 섹션 */
+          .print-report-sheet div[style*="font-size: 14px"],
+          .print-report-sheet div[style*="font-size:14px"] {
+            font-size: 10px !important;
+          }
+          /* 양식 번호/헤더 부분 */
+          .print-report-sheet div[style*="font-size: 20px"],
+          .print-report-sheet div[style*="font-size:20px"] {
+            font-size: 14px !important;
+          }
+          /* 승인란 셀은 인쇄에서 높이 고정 해제 */
+          table.approval-table td[style*="height: 59px"] {
+            height: auto !important;
+            min-height: 40px !important;
+          }
         }
       </style>
     </head>
@@ -272,10 +312,10 @@ export default function LegacyDetailModal({ report, onClose }) {
             <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
               <div>
                 <h2 style="font-size: 24px; font-weight: 800; color: #000; letter-spacing: 2px;">작 업 일 보 (반장)</h2>
-                <div style="font-size: 11px; color: #475569; margin-top: 2px;">일보ID: ${r.id} | 작성자: ${r.workerName}</div>
+                <div style="font-size: 13px; color: #475569; margin-top: 2px;">일보ID: ${r.id} | 작성자: ${r.workerName}</div>
               </div>
 
-              <table style="border-collapse: collapse; border: 1px solid #000; font-size: 11px; text-align: center;">
+              <table style="border-collapse: collapse; border: 1px solid #000; font-size: 13px; text-align: center;">
                 <tr>
                   <td style="border: 1px solid #000; width: 45px; background: #f1f5f9; font-weight: 700;">작성</td>
                   <td style="border: 1px solid #000; width: 45px; background: #f1f5f9; font-weight: 700;">승인</td>
@@ -294,7 +334,7 @@ export default function LegacyDetailModal({ report, onClose }) {
 
             <div style="margin-bottom: 14px;">
               <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">1. 생산현황</div>
-              <table class="data-table print-table" style="border: 1px solid #000; font-size: 11px; width: 100%; border-collapse: collapse;">
+              <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse;">
                 <thead>
                   <tr style="background: #f1f5f9; color: #000;">
                     <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 45px;">순번</th>
@@ -336,7 +376,7 @@ export default function LegacyDetailModal({ report, onClose }) {
 
             <div style="margin-bottom: 14px;">
               <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">2. 근태현황</div>
-              <table class="data-table print-table" style="border: 1px solid #000; font-size: 11px; width: 100%; border-collapse: collapse; margin-bottom: 6px;">
+              <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; margin-bottom: 6px;">
                 <thead>
                   <tr style="background: #f1f5f9; color: #000;">
                     <th style="border: 1px solid #000; text-align: center; padding: 6px;">총원</th>
@@ -353,7 +393,7 @@ export default function LegacyDetailModal({ report, onClose }) {
                 </tbody>
               </table>
 
-              <div style="border: 1px solid #000; padding: 6px 12px; font-size: 11px; background: #fafafa; display: flex; gap: 16px; align-items: center;">
+              <div style="border: 1px solid #000; padding: 6px 12px; font-size: 13px; background: #fafafa; display: flex; gap: 16px; align-items: center;">
                 <span><strong>📋 근태 사유 상세:</strong></span>
                 <span>연차: <strong>${attAnnualLeave}</strong>명</span>
                 <span>병가: <strong>${attSickLeave}</strong>명</span>
@@ -362,7 +402,7 @@ export default function LegacyDetailModal({ report, onClose }) {
               </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b; font-family: monospace; border-top: 1px solid #000; padding-top: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; font-family: monospace; border-top: 1px solid #000; padding-top: 8px;">
               <span>HSC-DT-005</span>
               <span>A4 (210×297 mm)</span>
             </div>
@@ -371,10 +411,10 @@ export default function LegacyDetailModal({ report, onClose }) {
       } else {
         const cardDateTime = `
           <div class="card" style="padding: 3px 6px; margin-bottom: 3px; border: 1px solid #94a3b8; background: #fff;">
-            <label style="font-size: 8.5px; font-weight: 700; color: #0284c7; margin-bottom: 2px; display: block;">
+            <label style="font-size: 14px; font-weight: 700; color: #0284c7; margin-bottom: 2px; display: block;">
               📅 1. 작업 기본 정보
             </label>
-            <table class="data-table" style="width: 100%; border-collapse: collapse; border: 1px solid #94a3b8; font-size: 8px;">
+            <table class="data-table" style="width: 100%; border-collapse: collapse; border: 1px solid #94a3b8; font-size: 13px;">
               <tbody>
                 <tr>
                   <th style="width: 18%; background: #f8fafc; font-weight: 700; padding: 2px 4px;">작업 일자</th>
@@ -395,25 +435,25 @@ export default function LegacyDetailModal({ report, onClose }) {
 
         const cardSummary = `
           <div class="card" style="padding: 3px 6px; margin-bottom: 3px; border: 1px solid #94a3b8; background: #fff;">
-            <label style="font-size: 8.5px; font-weight: 700; color: #059669; margin-bottom: 2px; display: block;">
+            <label style="font-size: 14px; font-weight: 700; color: #059669; margin-bottom: 2px; display: block;">
               📊 2. 생산 실적 종합 요약
             </label>
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; text-align: center;">
               <div style="background: #f8fafc; padding: 3px; border-radius: 3px; border: 1px solid #e2e8f0;">
-                <div style="font-size: 7px; color: #64748b; font-weight: 600;">목표 수량</div>
-                <div style="font-size: 11px; font-weight: 800; color: #1e293b; margin-top: 1px;">${(r.targetQty || 0).toLocaleString()} EA</div>
+                <div style="font-size: 13px; color: #64748b; font-weight: 600;">목표 수량</div>
+                <div style="font-size: 16px; font-weight: 800; color: #1e293b; margin-top: 1px;">${(r.targetQty || 0).toLocaleString()} EA</div>
               </div>
               <div style="background: rgba(16,185,129,0.08); padding: 3px; border-radius: 3px; border: 1px solid rgba(16,185,129,0.2);">
-                <div style="font-size: 7px; color: #047857; font-weight: 600;">생산 완료량</div>
-                <div style="font-size: 11px; font-weight: 800; color: #047857; margin-top: 1px;">${(r.actualQty || 0).toLocaleString()} EA</div>
+                <div style="font-size: 13px; color: #047857; font-weight: 600;">생산 완료량</div>
+                <div style="font-size: 16px; font-weight: 800; color: #047857; margin-top: 1px;">${(r.actualQty || 0).toLocaleString()} EA</div>
               </div>
               <div style="background: rgba(244,63,94,0.08); padding: 3px; border-radius: 3px; border: 1px solid rgba(244,63,94,0.2);">
-                <div style="font-size: 7px; color: #be123c; font-weight: 600;">불량 수량</div>
-                <div style="font-size: 11px; font-weight: 800; color: #be123c; margin-top: 1px;">${(r.defectQty || 0).toLocaleString()} EA</div>
+                <div style="font-size: 13px; color: #be123c; font-weight: 600;">불량 수량</div>
+                <div style="font-size: 16px; font-weight: 800; color: #be123c; margin-top: 1px;">${(r.defectQty || 0).toLocaleString()} EA</div>
               </div>
               <div style="background: rgba(99,102,241,0.08); padding: 3px; border-radius: 3px; border: 1px solid rgba(99,102,241,0.2);">
-                <div style="font-size: 7px; color: #6366f1; font-weight: 600;">목표 달성률</div>
-                <div style="font-size: 11px; font-weight: 800; color: #6366f1; margin-top: 1px;">${r.attainmentRate || 0}%</div>
+                <div style="font-size: 13px; color: #6366f1; font-weight: 600;">목표 달성률</div>
+                <div style="font-size: 16px; font-weight: 800; color: #6366f1; margin-top: 1px;">${r.attainmentRate || 0}%</div>
               </div>
             </div>
           </div>
@@ -449,8 +489,8 @@ export default function LegacyDetailModal({ report, onClose }) {
             const span = document.createElement('span');
             span.style.fontWeight = 'bold';
             span.style.color = '#0369a1';
-            span.style.fontSize = '12px';
-            span.style.padding = '0 4px';
+            span.style.fontSize = '9px';
+            span.style.padding = '0 2px';
             
             if (input.tagName === 'SELECT') {
                span.textContent = input.options[input.selectedIndex]?.text || '';
@@ -480,24 +520,24 @@ export default function LegacyDetailModal({ report, onClose }) {
 
         const cardNotes = `
           <div class="card" style="padding: 3px 6px; margin-bottom: 3px; border: 1px solid #94a3b8; background: #fff;">
-            <label style="font-size: 8.5px; font-weight: 700; color: #1e293b; margin-bottom: 2px; display: block;">
+            <label style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 2px; display: block;">
               📝 <span class="sec-num"></span> 작업 특이사항
             </label>
-            <div style="background: #ffffff; padding: 3px 6px; border-radius: 3px; border: 1px solid #e2e8f0; font-size: 8px; min-height: 16px; line-height: 1.4;">
+            <div style="background: #ffffff; padding: 3px 6px; border-radius: 3px; border: 1px solid #e2e8f0; font-size: 13px; min-height: 16px; line-height: 1.4;">
               ${r.notes || '특이사항 없음.'}
             </div>
           </div>
         `;
 
         modalBodyRef.current.innerHTML = `
-          <div class="print-report-sheet" style="font-size: 9px; max-width: 800px; margin: 0 auto;">
+          <div class="print-report-sheet" style="font-size: 13px; max-width: 800px; margin: 0 auto;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 5px;">
               <div>
-                <h2 style="font-size: 15px; font-weight: 800; color: #000; margin: 0; letter-spacing: 2px;">공 정 작 업 일 보</h2>
-                <div style="font-size: 8px; color: #64748b; margin-top: 1px;">일보 번호: ${r.id} | 작성일시: ${r.createdAt || r.date}</div>
+                <h2 style="font-size: 20px; font-weight: 800; color: #000; margin: 0; letter-spacing: 2px;">공 정 작 업 일 보</h2>
+                <div style="font-size: 13px; color: #64748b; margin-top: 1px;">일보 번호: ${r.id} | 작성일시: ${r.createdAt || r.date}</div>
               </div>
 
-              <table class="approval-table" style="border-collapse: collapse; border: 1px solid #000; font-size: 9px; text-align: center; table-layout: fixed; width: 100px;">
+              <table class="approval-table" style="border-collapse: collapse; border: 1px solid #000; font-size: 13px; text-align: center; table-layout: fixed; width: 100px;">
                 <colgroup>
                   <col style="width: 50px;" />
                   <col style="width: 50px;" />
@@ -515,17 +555,17 @@ export default function LegacyDetailModal({ report, onClose }) {
 
             <div style="background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.12)); border: 1px solid #8b5cf6; border-radius: 3px; padding: 3px 6px; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 3px;">
               <div style="display: flex; align-items: center; gap: 4px;">
-                <span style="font-size: 10px;">🏷️</span>
+                <span style="font-size: 12px;">🏷️</span>
                 <div>
-                  <div style="font-size: 8px; font-weight: 800; color: #7c3aed;">
+                  <div style="font-size: 13px; font-weight: 800; color: #7c3aed;">
                     양식 고유번호: #${r.formCode}
                   </div>
-                  <div style="font-size: 8px; color: #1e293b; font-weight: 600;">
+                  <div style="font-size: 13px; color: #1e293b; font-weight: 600;">
                     [${r.carModel}] ${r.itemName || 'D/SIDE'} - ${r.processName} 공정 전용 양식
                   </div>
                 </div>
               </div>
-              <span class="status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : 'pending'}" style="font-size: 8px; font-weight: 700;">
+              <span class="status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : 'pending'}" style="font-size: 13px; font-weight: 700;">
                 ${r.status}
               </span>
             </div>
@@ -537,12 +577,12 @@ export default function LegacyDetailModal({ report, onClose }) {
 
             <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 3px 6px; border-radius: 3px; border: 1px solid #e2e8f0; margin-top: 2px;">
               <div>
-                <span style="color: #64748b; font-size: 8px;">최종 승인 상태:</span>
+                <span style="color: #64748b; font-size: 13px;">최종 승인 상태:</span>
                 <span class="status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : 'pending'}" style="margin-left: 4px;">
                   ${r.status}
                 </span>
               </div>
-              <div style="font-size: 8px; color: #64748b;">
+              <div style="font-size: 13px; color: #64748b;">
                 ${r.approver ? `승인자: <strong>${r.approver}</strong> (${r.approvedAt || ''})` : '승인 대기중'}
               </div>
             </div>
