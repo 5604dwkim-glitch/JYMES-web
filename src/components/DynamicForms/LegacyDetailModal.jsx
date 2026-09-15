@@ -576,15 +576,13 @@ export default function LegacyDetailModal({ report, onClose }) {
                 <tbody>
                   ${[0,1,2,3,4].map(idx => {
                     const item = supportItems[idx] || {};
-                    return \`
-                      <tr>
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 700;">${idx + 1}</td>
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px;">${item.carModel || ''}</td>
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px;">${item.part || ''}</td>
-                        <td style="border: 1px solid #000; text-align: center; padding: 4px;">${item.type || ''}</td>
-                        <td style="border: 1px solid #000; text-align: left; padding: 4px;">${item.note || ''}</td>
-                      </tr>
-                    \`;
+                    return "<tr>" +
+                      "<td style='border: 1px solid #000; text-align: center; padding: 4px; font-weight: 700;'>" + (idx + 1) + "</td>" +
+                      "<td style='border: 1px solid #000; text-align: center; padding: 4px;'>" + (item.carModel || '') + "</td>" +
+                      "<td style='border: 1px solid #000; text-align: center; padding: 4px;'>" + (item.part || '') + "</td>" +
+                      "<td style='border: 1px solid #000; text-align: center; padding: 4px;'>" + (item.type || '') + "</td>" +
+                      "<td style='border: 1px solid #000; text-align: left; padding: 4px;'>" + (item.note || '') + "</td>" +
+                      "</tr>";
                   }).join('')}
                 </tbody>
               </table>

@@ -702,6 +702,8 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
           if (isLeader) {
             const forkCont = container.querySelector('#forkliftFormContainer');
             if (forkCont) forkCont.style.display = 'none';
+            const suppCont = container.querySelector('#supportFormContainer');
+            if (suppCont) suppCont.style.display = 'none';
             let leaderContainer = container.querySelector('#leaderFormContainer');
             if (!leaderContainer) {
                leaderContainer = document.createElement('div');
@@ -747,6 +749,8 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
           } else if (isForklift) {
             const leadCont = container.querySelector('#leaderFormContainer');
             if (leadCont) leadCont.style.display = 'none';
+            const suppCont = container.querySelector('#supportFormContainer');
+            if (suppCont) suppCont.style.display = 'none';
             let forkliftContainer = container.querySelector('#forkliftFormContainer');
             if (!forkliftContainer) {
                forkliftContainer = document.createElement('div');
