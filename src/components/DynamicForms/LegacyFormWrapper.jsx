@@ -625,11 +625,11 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       processList = processList.filter(p => p !== '소재준비');
     }
 
-    // 공통 차종이 아닐 경우 반장, 지게차 제외, 공통 차종일 경우 반장, 지게차만 표시
+    // 공통 차종이 아닐 경우 반장, 지게차, 출하지원 제외, 공통 차종일 경우 3가지만 표시
     if (carCode !== '공통') {
-      processList = processList.filter(p => p !== '반장 작업일보' && p !== '지게차작업');
+      processList = processList.filter(p => p !== '반장 작업일보' && p !== '지게차작업' && p !== '출하지원');
     } else {
-      processList = ['반장 작업일보', '지게차작업'];
+      processList = ['반장 작업일보', '지게차작업', '출하지원'];
     }
 
     // KM/KX 선택 시 소재준비 공정 제외
@@ -688,9 +688,10 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         
         const isLeader = chip.dataset.name === '반장 작업일보';
         const isForklift = chip.dataset.name === '지게차작업';
+        const isSupport = chip.dataset.name === '출하지원';
         const elsToToggle = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
         
-        if (isLeader || isForklift) {
+        if (isLeader || isForklift || isSupport) {
           elsToToggle.forEach(id => {
             const el = container.querySelector(id);
             if (el) el.style.display = 'none';
@@ -788,6 +789,53 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
                 }
               }, 50);
             });
+          } else if (isSupport) {
+            const leadCont = container.querySelector('#leaderFormContainer');
+            if (leadCont) leadCont.style.display = 'none';
+            const forkCont = container.querySelector('#forkliftFormContainer');
+            if (forkCont) forkCont.style.display = 'none';
+            let supportContainer = container.querySelector('#supportFormContainer');
+            if (!supportContainer) {
+               supportContainer = document.createElement('div');
+               supportContainer.id = 'supportFormContainer';
+               container.querySelector('#mobileWorkReportForm').appendChild(supportContainer);
+            }
+            supportContainer.style.display = 'block';
+
+            import('./SupportFormRenderer.js').then(module => {
+              module.renderSupportPaperForm(supportContainer, existingData, loggedInWorkerName);
+              setTimeout(() => {
+                const sfHeader = supportContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+                const sfDate = supportContainer.querySelector('div[style*="margin-bottom: 14px"]');
+                if (sfHeader) sfHeader.style.display = 'none';
+                if (sfDate) sfDate.style.display = 'none';
+                
+                const syncDate = (val) => {
+                  const parts = val.split('-');
+                  if (parts.length === 3) {
+                    const sy = supportContainer.querySelector('#suppYear');
+                    const sm = supportContainer.querySelector('#suppMonth');
+                    const sd = supportContainer.querySelector('#suppDay');
+                    if (sy) sy.value = parts[0].substring(2);
+                    if (sm) sm.value = parts[1];
+                    if (sd) sd.value = parts[2];
+                  }
+                };
+                const reportDate = document.getElementById('reportDate');
+                if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+                
+                const stInput = document.getElementById('startTimeInput');
+                if (stInput) {
+                  const sSt = supportContainer.querySelector('#suppStartTime');
+                  if (sSt) { sSt.value = stInput.value; stInput.addEventListener('change', (e) => { sSt.value = e.target.value; }); }
+                }
+                const etInput = document.getElementById('endTimeInput');
+                if (etInput) {
+                  const sEt = supportContainer.querySelector('#suppEndTime');
+                  if (sEt) { sEt.value = etInput.value; etInput.addEventListener('change', (e) => { sEt.value = e.target.value; }); }
+                }
+              }, 50);
+            });
           }
         } else {
           elsToToggle.forEach(id => {
@@ -798,6 +846,8 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
           if (leaderContainer) leaderContainer.style.display = 'none';
           const forkliftContainer = container.querySelector('#forkliftFormContainer');
           if (forkliftContainer) forkliftContainer.style.display = 'none';
+          const supportContainer = container.querySelector('#supportFormContainer');
+          if (supportContainer) supportContainer.style.display = 'none';
           
           const standardFixedBar = document.getElementById('standardFixedActionBar');
           if (standardFixedBar) standardFixedBar.style.display = 'flex';

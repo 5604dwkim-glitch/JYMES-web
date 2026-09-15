@@ -108,6 +108,12 @@ export async function fetchReports(filters = {}) {
           r.processName = '지게차작업';
           r.isForkliftForm = true;
         }
+        if (r.isSupportForm || r.processName === '출하지원') {
+          r.carModel = '공통';
+          r.itemName = '공통';
+          r.processName = '출하지원';
+          r.isSupportForm = true;
+        }
         result.push(r);
       });
 
@@ -320,6 +326,7 @@ export async function addReport(reportData) {
         materialLots: reportData.materialLots || {},
         isLeaderForm: reportData.isLeaderForm || false,
         isForkliftForm: reportData.isForkliftForm || false,
+        isSupportForm: reportData.isSupportForm || false,
         formCode: reportData.formCode || 'HSC-DT-005',
         leaderFormItems: reportData.leaderFormItems || [],
         attendanceData: reportData.attendanceData || {},

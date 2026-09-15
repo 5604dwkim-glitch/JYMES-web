@@ -103,6 +103,7 @@ export const FORM_CODE_MAP = {
   // ── 공통(Common) ──────────────────────────────────────────
   '공통_공통_반장 작업일보': 9001,
   '공통_공통_지게차작업': 9002,
+  '공통_공통_출하지원': 9003,
 };
 
 export const getCurrentFormCode = (carModel, part, process) => {

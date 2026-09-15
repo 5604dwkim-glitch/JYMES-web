@@ -565,6 +565,11 @@ export default function ReportList({ initialStatus = 'ALL' }) {
             itemName = '공통';
             processName = '지게차작업';
           }
+          if (r.isSupportForm || processName === '출하지원') {
+            carModel = '공통';
+            itemName = '공통';
+            processName = '출하지원';
+          }
           
           submittedWorkers.add(r.workerName);
           
@@ -623,7 +628,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
               </div>
 
 
-              {!hasSubmitted && hasDraft && !userReports.some(r => r.isLeaderForm || r.processName === '반장 작업일보' || r.isForkliftForm || r.processName === '지게차작업') && (
+              {!hasSubmitted && hasDraft && !userReports.some(r => r.isLeaderForm || r.processName === '반장 작업일보' || r.isForkliftForm || r.processName === '지게차작업' || r.isSupportForm || r.processName === '출하지원') && (
                 <div style={{ fontSize: '11px', textAlign: 'left', background: '#fff', padding: '8px', borderRadius: '6px', width: '100%', marginTop: '4px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ color: hasLotCho ? '#15803d' : '#94a3b8', fontWeight: hasLotCho ? 'bold' : 'normal' }}>
                     {hasLotCho ? '✅' : '⏳'} 소재 LOT (초물)
