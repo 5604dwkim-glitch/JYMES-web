@@ -625,11 +625,11 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       processList = processList.filter(p => p !== '소재준비');
     }
 
-    // 공통 차종이 아닐 경우 반장 작업일보 제외, 공통 차종일 경우 반장 작업일보만 표시
+    // 공통 차종이 아닐 경우 반장, 지게차 제외, 공통 차종일 경우 반장, 지게차만 표시
     if (carCode !== '공통') {
-      processList = processList.filter(p => p !== '반장 작업일보');
+      processList = processList.filter(p => p !== '반장 작업일보' && p !== '지게차작업');
     } else {
-      processList = ['반장 작업일보'];
+      processList = ['반장 작업일보', '지게차작업'];
     }
 
     // KM/KX 선택 시 소재준비 공정 제외
