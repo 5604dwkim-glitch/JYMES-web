@@ -327,6 +327,23 @@ export default function LegacyDetailModal({ report, onClose }) {
               </table>
             </div>
 
+            <div style="background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.12)); border: 1px solid #8b5cf6; border-radius: 3px; padding: 3px 6px; margin-bottom: 3px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 3px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 12px;">🏷️</span>
+                <div>
+                  <div style="font-size: 13px; font-weight: 800; color: #7c3aed;">
+                    양식 고유번호: #${r.formCode || 9001}
+                  </div>
+                  <div style="font-size: 13px; color: #1e293b; font-weight: 600;">
+                    [${r.carModel}] ${r.itemName || '공통'} - ${r.processName} 공정 전용 양식
+                  </div>
+                </div>
+              </div>
+              <span class="status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : 'pending'}" style="font-size: 13px; font-weight: 700;">
+                ${r.status}
+              </span>
+            </div>
+
             <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 10px;">
               <div>작성일 : ${r.date}</div>
               <div>근무시간 : ${r.workHours || '08:00 ~ 17:00'}</div>

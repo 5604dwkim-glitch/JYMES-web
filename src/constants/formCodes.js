@@ -99,6 +99,9 @@ export const FORM_CODE_MAP = {
   'P417_UPR_조인트': 6002,
   'P417_UPR_후가공': 6003,
   'P417_UPR_검사포장': 6004,
+
+  // ── 공통(Common) ──────────────────────────────────────────
+  '공통_공통_반장 작업일보': 9001,
 };
 
 export const getCurrentFormCode = (carModel, part, process) => {

@@ -59,6 +59,20 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
         </table>
       </div>
 
+      <div style="background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(168,85,247,0.12)); border: 1px solid #8b5cf6; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">🏷️</span>
+          <div>
+            <div style="font-size: 15px; font-weight: 800; color: #7c3aed; margin-bottom: 2px;">
+              양식 고유번호: #9001
+            </div>
+            <div style="font-size: 14px; color: #1e293b; font-weight: 600;">
+              [공통] 공통 - 반장 작업일보 공정 전용 양식
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 작성일 & 시작시간/종료시간 -->
       <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
         <div style="display: flex; align-items: center; gap: 6px;">
@@ -345,7 +359,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
         actualQty: grandTotalPacked,
         defectQty: grandTotalScrap,
         isLeaderForm: true,
-        formCode: 'HSC-DT-005',
+        formCode: 9001,
         leaderFormItems,
         attendanceData,
         status: targetStatus,
