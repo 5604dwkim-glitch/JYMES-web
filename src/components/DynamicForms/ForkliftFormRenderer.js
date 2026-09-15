@@ -122,7 +122,7 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #000; padding-top: 12px; margin-bottom: 12px;">
-        <span style="font-size: 11px; color: #64748b; font-family: monospace;">HSC-DT-005 (A4 210×297 mm)</span>
+
       </div>
 
       <!-- 화면 하단 고정 여백 -->

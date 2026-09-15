@@ -41,10 +41,7 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
             </div>
           </div>
         </div>
-        <div style="text-align: right;">
-          <div style="font-size: 12px; color: #64748b; font-weight: 700;">HSC-DT-005 호환</div>
-          <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Revision: 1.0</div>
-        </div>
+
       </div>
 
       <!-- 공통 상단 (종이양식 흉내) -->

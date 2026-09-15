@@ -419,10 +419,7 @@ export default function LegacyDetailModal({ report, onClose }) {
               </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; font-family: monospace; border-top: 1px solid #000; padding-top: 8px;">
-              <span>HSC-DT-005</span>
-              <span>A4 (210×297 mm)</span>
-            </div>
+
           </div>
         `;
       } else if (r.isForkliftForm) {
@@ -512,10 +509,7 @@ export default function LegacyDetailModal({ report, onClose }) {
               <div style="border: 1px solid #000; padding: 10px; min-height: 100px; font-size: 12px; white-space: pre-wrap;">${r.workDetails || '입력된 내용 없음'}</div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; font-family: monospace; border-top: 1px solid #000; padding-top: 8px;">
-              <span>HSC-DT-005</span>
-              <span>A4 (210×297 mm)</span>
-            </div>
+            
           </div>
         `;
       } else if (r.isSupportForm) {
@@ -590,10 +584,7 @@ export default function LegacyDetailModal({ report, onClose }) {
               <div style="border: 1px solid #000; padding: 10px; min-height: 100px; font-size: 12px; white-space: pre-wrap;">${r.workDetails || '입력된 내용 없음'}</div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #64748b; font-family: monospace; border-top: 1px solid #000; padding-top: 8px;">
-              <span>HSC-DT-005</span>
-              <span>A4 (210×297 mm)</span>
-            </div>
+            
           </div>
         `;
       } else {
