@@ -15,7 +15,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
   const [filteredReports, setFilteredReports] = useState([]); // 클라이언트 searchQuery 적용 결과
   const [loading, setLoading] = useState(true);
 
-  const initialStartDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toLocaleDateString('sv-SE');
+  const initialStartDate = new Date().toLocaleDateString('sv-SE');
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(new Date().toLocaleDateString('sv-SE'));
   const [carModel, setCarModel] = useState('ALL');

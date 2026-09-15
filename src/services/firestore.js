@@ -1,6 +1,7 @@
-import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit, runTransaction, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, writeBatch, limit, runTransaction, addDoc, serverTimestamp, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
+import { buildStatsUpdate } from './statsAggregator';
 
 const REPORTS_COLLECTION = 'reports';
 
@@ -67,6 +68,53 @@ function setReportsCache(serverFilters, data) {
 export function invalidateReportsCache() {
   reportCache.clear();
 }
+
+// ─────────────────────────────────────────────
+// ③ Molds 캐시 (인메모리, TTL 60분) — 작업일보 작성·대시보드 중복 읽기 방지
+// ─────────────────────────────────────────────
+let moldsCache = null;
+let moldsCacheAt = 0;
+const MOLDS_CACHE_TTL_MS = 60 * 60 * 1000; // 60분
+
+export function getMoldsFromCache() {
+  if (!moldsCache || Date.now() - moldsCacheAt > MOLDS_CACHE_TTL_MS) return null;
+  return moldsCache;
+}
+export function setMoldsCache(data) {
+  moldsCache = data;
+  moldsCacheAt = Date.now();
+}
+export function invalidateMoldsCache() {
+  moldsCache = null;
+  moldsCacheAt = 0;
+}
+
+// ─────────────────────────────────────────────
+// ④ Equipments 캐시 (인메모리, TTL 60분)
+// ─────────────────────────────────────────────
+let equipmentsCache = null;
+let equipmentsCacheAt = 0;
+const EQUIPMENTS_CACHE_TTL_MS = 60 * 60 * 1000; // 60분
+
+export function getEquipmentsFromCache() {
+  if (!equipmentsCache || Date.now() - equipmentsCacheAt > EQUIPMENTS_CACHE_TTL_MS) return null;
+  return equipmentsCache;
+}
+export function setEquipmentsCache(data) {
+  equipmentsCache = data;
+  equipmentsCacheAt = Date.now();
+}
+export function invalidateEquipmentsCache() {
+  equipmentsCache = null;
+  equipmentsCacheAt = 0;
+}
+
+// ─────────────────────────────────────────────
+// ⑤ ChangePoints 캐시 (인메모리, TTL 30분)
+// ─────────────────────────────────────────────
+let changePointsCache = null;
+let changePointsCacheAt = 0;
+const CHANGE_POINTS_CACHE_TTL_MS = 30 * 60 * 1000; // 30분
 
 // ─────────────────────────────────────────────
 // Reports CRUD
@@ -154,6 +202,24 @@ export async function fetchReports(filters = {}) {
   }
 }
 
+export async function fetchDailyStats(startDate) {
+  try {
+    let q = collection(db, 'daily_stats');
+    if (startDate) {
+      q = query(q, where('__name__', '>=', startDate));
+    }
+    const snap = await getDocs(q);
+    const stats = [];
+    snap.forEach(doc => {
+      stats.push({ date: doc.id, ...doc.data() });
+    });
+    return stats;
+  } catch (e) {
+    console.error('Error fetching daily stats', e);
+    return [];
+  }
+}
+
 export async function fetchMyRecentReports(workerName) {
   try {
     // limit(20) 추가: 전체 스캔 방지 → 최신 20건만 읽고 3개 반환
@@ -234,25 +300,63 @@ export async function processMoldStrokes(reportData, existingReport = null) {
     }
   });
 
-  // Find and update molds in Firestore
+  // [개선④] 금형 코드별 개별 쿼리 → 캐시된 전체 목록에서 메모리 룩업 (N회 → 0~1회)
   if (Object.keys(strokeUpdates).length > 0) {
+    const allMolds = await fetchMolds(); // 캐시 적용: 이미 읽었으면 Firestore 호출 없음
+    const moldMap = {};
+    allMolds.forEach(m => { if (m.code) moldMap[m.code] = m; });
+
+    const batch = writeBatch(db);
+    let hasBatch = false;
     for (const [moldCode, strokesToAdd] of Object.entries(strokeUpdates)) {
       if (strokesToAdd === 0) continue;
-      
-      try {
-        const q = query(collection(db, 'molds'), where('code', '==', moldCode), limit(1));
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-          const moldDoc = snapshot.docs[0];
-          const currentStrokes = moldDoc.data().currentStrokes || 0;
-          await updateDoc(doc(db, 'molds', moldDoc.id), {
-            currentStrokes: currentStrokes + strokesToAdd
-          });
-        }
-      } catch (err) {
-        console.error('Failed to update strokes for mold:', moldCode, err);
+      const moldDoc = moldMap[moldCode];
+      if (moldDoc) {
+        const currentStrokes = moldDoc.currentStrokes || 0;
+        batch.update(doc(db, 'molds', moldDoc.id), {
+          currentStrokes: currentStrokes + strokesToAdd
+        });
+        hasBatch = true;
       }
     }
+    if (hasBatch) {
+      try {
+        await batch.commit();
+        invalidateMoldsCache(); // 타수 변경 후 캐시 무효화
+      } catch (err) {
+        console.error('Failed to update mold strokes:', err);
+      }
+    }
+  }
+}
+
+async function applyStatsUpdate(oldReport, newReport) {
+  try {
+    const diff = buildStatsUpdate(oldReport, newReport);
+    if (Object.keys(diff).length === 0) return;
+    
+    // 재귀적으로 숫자를 increment()로 변환
+    const convertToIncrements = (obj) => {
+      const result = {};
+      for (const [k, v] of Object.entries(obj)) {
+        if (typeof v === 'number') {
+          result[k] = increment(v);
+        } else if (v && typeof v === 'object') {
+          result[k] = convertToIncrements(v);
+        }
+      }
+      return result;
+    };
+    
+    const increments = convertToIncrements(diff);
+    
+    const targetDate = (newReport && newReport.date) || (oldReport && oldReport.date);
+    if (!targetDate) return;
+    
+    const statsRef = doc(db, 'daily_stats', targetDate);
+    await setDoc(statsRef, increments, { merge: true });
+  } catch (error) {
+    console.error('Failed to update daily_stats:', error);
   }
 }
 
@@ -357,6 +461,7 @@ export async function addReport(reportData) {
     }
     
     await processMoldStrokes(newReport);
+    await applyStatsUpdate(null, newReport);
     
     return newReport;
   } catch (error) {
@@ -368,12 +473,21 @@ export async function addReport(reportData) {
 export async function updateReport(id, updatedFields) {
   try {
     const docRef = doc(db, REPORTS_COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    const existingReport = docSnap.exists() ? docSnap.data() : null;
+
     const cleanedFields = { ...updatedFields };
     Object.keys(cleanedFields).forEach(key => {
       if (cleanedFields[key] === undefined) delete cleanedFields[key];
     });
     await updateDoc(docRef, cleanedFields);
     invalidateReportsCache();
+    
+    if (existingReport) {
+      const mergedReport = { ...existingReport, ...cleanedFields };
+      await applyStatsUpdate(existingReport, mergedReport);
+    }
+    
     return true;
   } catch (error) {
     console.error('Error updating report:', error);
@@ -384,8 +498,16 @@ export async function updateReport(id, updatedFields) {
 export async function deleteReport(id) {
   try {
     const docRef = doc(db, REPORTS_COLLECTION, id);
+    const docSnap = await getDoc(docRef);
+    const existingReport = docSnap.exists() ? docSnap.data() : null;
+
     await deleteDoc(docRef);
     invalidateReportsCache();
+
+    if (existingReport) {
+      await applyStatsUpdate(existingReport, null);
+    }
+
     return true;
   } catch (error) {
     console.error('Error deleting report:', error);
@@ -412,6 +534,14 @@ export async function bulkApproveReports(ids, approverName = '관리자') {
 
 export async function bulkDeleteReports(ids) {
   try {
+    const existingReports = [];
+    for (const id of ids) {
+      const docSnap = await getDoc(doc(db, REPORTS_COLLECTION, id));
+      if (docSnap.exists()) {
+        existingReports.push(docSnap.data());
+      }
+    }
+
     const batch = writeBatch(db);
     ids.forEach(id => {
       const docRef = doc(db, REPORTS_COLLECTION, id);
@@ -419,6 +549,11 @@ export async function bulkDeleteReports(ids) {
     });
     await batch.commit();
     invalidateReportsCache();
+
+    for (const r of existingReports) {
+      await applyStatsUpdate(r, null);
+    }
+
     return ids.length;
   } catch (error) {
     console.error('Error bulk deleting:', error);
@@ -498,6 +633,7 @@ export const addChangePoint = async (data) => {
       ...data,
       createdAt: serverTimestamp(),
     });
+    changePointsCache = null; // 캐시 무효화
     return docRef.id;
   } catch (error) {
     console.error('Error adding change point:', error);
@@ -505,11 +641,49 @@ export const addChangePoint = async (data) => {
   }
 };
 
-export const fetchChangePoints = async () => {
+// ─────────────────────────────────────────────
+// [개선①②] Molds / Equipments — 캐시 통합 조회 함수
+// ─────────────────────────────────────────────
+export async function fetchMolds() {
+  const cached = getMoldsFromCache();
+  if (cached) return cached;
   try {
-    const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'));
+    const snap = await getDocs(collection(db, 'molds'));
+    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setMoldsCache(data);
+    return data;
+  } catch (e) {
+    console.error('Error fetching molds:', e);
+    return [];
+  }
+}
+
+export async function fetchEquipments() {
+  const cached = getEquipmentsFromCache();
+  if (cached) return cached;
+  try {
+    const snap = await getDocs(collection(db, 'equipments'));
+    const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setEquipmentsCache(data);
+    return data;
+  } catch (e) {
+    console.error('Error fetching equipments:', e);
+    return [];
+  }
+}
+
+// [개선③] fetchChangePoints — 캐시 + limit(50)
+export const fetchChangePoints = async (forceRefresh = false) => {
+  if (!forceRefresh && changePointsCache && (Date.now() - changePointsCacheAt < CHANGE_POINTS_CACHE_TTL_MS)) {
+    return changePointsCache;
+  }
+  try {
+    const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'), limit(50));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    changePointsCache = data;
+    changePointsCacheAt = Date.now();
+    return data;
   } catch (error) {
     console.error('Error fetching change points:', error);
     throw error;
@@ -520,6 +694,7 @@ export const updateChangePoint = async (id, data) => {
   try {
     const docRef = doc(db, 'changePoints', id);
     await updateDoc(docRef, data);
+    changePointsCache = null; // 캐시 무효화
   } catch (error) {
     console.error('Error updating change point:', error);
     throw error;
@@ -530,6 +705,7 @@ export const deleteChangePoint = async (id) => {
   try {
     const docRef = doc(db, 'changePoints', id);
     await deleteDoc(docRef);
+    changePointsCache = null; // 캐시 무효화
   } catch (error) {
     console.error('Error deleting change point:', error);
     throw error;

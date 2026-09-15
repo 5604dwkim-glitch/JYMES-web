@@ -3,12 +3,10 @@ import { createPortal } from 'react-dom';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { addReport, updateReport, fetchWorkers } from '../../services/firestore';
+import { addReport, updateReport, fetchWorkers, fetchMolds, fetchEquipments } from '../../services/firestore';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { useI18n } from '../../contexts/I18nContext';
 import FormCodeBadge from './FormCodeBadge';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase';
 
 export default function LegacyFormReactWrapper({ existingData }) {
   const containerRef = useRef(null);
@@ -31,18 +29,11 @@ export default function LegacyFormReactWrapper({ existingData }) {
           workers = generate50Workers();
         }
         
-        let molds = [];
-        let equipments = [];
-        try {
-          const eqSnapshot = await getDocs(collection(db, 'equipments'));
-          equipments = eqSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (e) { console.error(e); }
-        try {
-          const snapshot = await getDocs(collection(db, 'molds'));
-          molds = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        } catch (e) {
-          console.error("Failed to fetch molds", e);
-        }
+        // [개선①②] 캐시된 함수 사용 — 이미 읽어온 적 있으면 Firestore 호출 없음
+        const [equipments, molds] = await Promise.all([
+          fetchEquipments(),
+          fetchMolds()
+        ]);
         
         setLegacyFormContext({
           userRoleInfo: userRole,
