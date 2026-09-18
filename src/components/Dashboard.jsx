@@ -321,8 +321,17 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
       }
     });
     let labels = Object.keys(groups);
-    if (chartPeriod === 'daily' && labels.length > 31) labels = labels.slice(-31);
-    if (chartPeriod === 'monthly' && labels.length > 12) labels = labels.slice(-12);
+    if (chartPeriod === 'daily' && labels.length > 0) {
+      // 가장 최근 데이터가 속한 달의 1일부터 표시
+      const lastDate = new Date(labels[labels.length - 1]);
+      const monthStart = `${lastDate.getFullYear()}-${String(lastDate.getMonth()+1).padStart(2,'0')}-01`;
+      labels = labels.filter(l => l >= monthStart);
+    }
+    if (chartPeriod === 'monthly' && labels.length > 0) {
+      // 가장 최근 데이터가 속한 해의 1월부터 표시
+      const lastYear = labels[labels.length - 1].substring(0, 4);
+      labels = labels.filter(l => l >= `${lastYear}-01`);
+    }
     return {
       labels,
       datasets: [
