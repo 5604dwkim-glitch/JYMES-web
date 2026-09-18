@@ -1178,6 +1178,18 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         '2004_rh_2': container.querySelector('#lotNo_2004_rh_2')?.checked || false
       };
 
+      container.querySelectorAll('input.lot-datetime-input, input[id^="lotNo_"]').forEach(el => {
+        let key = el.id;
+        if (key.startsWith('lotNo_')) key = key.replace('lotNo_', '');
+        if (materialLots[key] === undefined) {
+          if (el.type === 'checkbox') {
+            materialLots[key] = el.checked;
+          } else {
+            materialLots[key] = autoFormatDateTimeString(el.value || '');
+          }
+        }
+      });
+
       const itemCodeVal = curPartValueInput?.value || curItemSelect?.value || '인벨트';
       const itemNameVal = curPartValueInput?.value || selectedItemOption?.dataset?.name || curItemSelect?.value || itemCodeVal;
 

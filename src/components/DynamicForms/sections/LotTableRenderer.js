@@ -933,7 +933,14 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       case 3002:
       case 3003:
       case 3004: {
-        const rows = [
+        const rows = formCode === 3002 ? [
+          { key: 'FRT_A', label: 'FRT A' },
+          { key: 'FRT_B', label: 'FRT B' },
+          { key: 'RR_A', label: 'RR A' },
+          { key: 'RR_B', label: 'RR B' },
+          { key: 'RR_C', label: 'RR C' },
+          { key: 'RR_D', label: 'RR D' }
+        ] : [
           { key: 'FRT_A', label: 'FRT A' },
           { key: 'RR_A', label: 'RR A' },
           { key: 'RR_C', label: 'RR C' },
