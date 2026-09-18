@@ -2537,7 +2537,7 @@ ${renderDtRow4('종')}
                       스펙(mm)
                     </td>
                     <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
-                      745 ± 1mm
+                      ${formCode === 1031 ? '741' : '745'} ± 1mm
                     </td>
                   </tr>
                   <tr>
@@ -2547,11 +2547,11 @@ ${renderDtRow4('종')}
                     <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
                       <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(초)</span>
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_초'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="${formCode === 1031 ? '741' : '745'}" value="${d['cut_FRT_초'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(중)</span>
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_중'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="${formCode === 1031 ? '741' : '745'}" value="${d['cut_FRT_중'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(종)</span>
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="${d['cut_FRT_종'] || ''}" />
+                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="${formCode === 1031 ? '741' : '745'}" value="${d['cut_FRT_종'] || ''}" />
                       </div>
                     </td>
                   </tr>
@@ -2680,7 +2680,7 @@ ${renderDtRow4('종')}
                       스펙(mm)
                     </td>
                     <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
-                      687 ± 1mm
+                      ${formCode === 1031 ? '637' : '687'} ± 1mm
                     </td>
                   </tr>
                   <tr>
@@ -2690,11 +2690,11 @@ ${renderDtRow4('종')}
                     <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
                       <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(초)</span>
-                        <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_초'] || ''}" />
+                        <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="${formCode === 1031 ? '637' : '687'}" value="${d['cut_RR_초'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(중)</span>
-                        <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_중'] || ''}" />
+                        <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="${formCode === 1031 ? '637' : '687'}" value="${d['cut_RR_중'] || ''}" />
                         <span style="font-size: 10px; color: #333; font-weight: 700;">(종)</span>
-                        <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${d['cut_RR_종'] || ''}" />
+                        <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 27%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="${formCode === 1031 ? '637' : '687'}" value="${d['cut_RR_종'] || ''}" />
                       </div>
                     </td>
                   </tr>
