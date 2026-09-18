@@ -174,7 +174,7 @@ export const TRANSLATIONS = {
     target_qty_label: "목표 수량 (EA)",
     actual_qty_label: "생산 완료 수량 (EA)",
     defect_qty_label: "총 불량 수량 (EA)",
-    step6_downtime: "⚠️ 📝 7. 비가동 시간 & 원터치 특이사항 작성",
+    step6_downtime: "⚠️ 📝 비가동 시간 & 원터치 특이사항 작성",
     downtime_min_label: "비가동 (분)",
     downtime_cause_label: "비가동 주요 원인",
     downtime_none: "사유 없음 (정상가동)",
