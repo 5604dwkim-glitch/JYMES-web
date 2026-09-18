@@ -641,14 +641,14 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
                 const meta = chart.getDatasetMeta(0);
                 const ctx2 = chart.ctx;
                 ctx2.save();
-                ctx2.font = 'bold 9px sans-serif';
+                ctx2.font = 'bold 13px sans-serif';
                 ctx2.fillStyle = '#ef4444';
                 ctx2.textAlign = 'center';
                 ctx2.textBaseline = 'bottom';
                 meta.data.forEach((pt, i) => {
                   const val = ds.data[i];
                   if (val === null || val === undefined || val === '') return;
-                  ctx2.fillText(`${val}%`, pt.x, pt.y - 4);
+                  ctx2.fillText(`${val}%`, pt.x, pt.y - 10);
                 });
                 ctx2.restore();
               }
