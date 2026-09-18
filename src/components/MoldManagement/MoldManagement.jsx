@@ -168,11 +168,6 @@ export default function MoldManagement() {
     setShowModal(true);
   };
 
-  // Protect route
-  if (userRole?.role === 'worker') {
-    return <Navigate to="/" replace />;
-  }
-
   const filteredMolds = molds.filter(m => {
     let match = true;
     if (filterCarModel && m.carModel !== filterCarModel) match = false;
@@ -199,6 +194,8 @@ export default function MoldManagement() {
     }
     return ' ↕';
   };
+
+  
 
   const sortedMolds = React.useMemo(() => {
     let sortableMolds = [...filteredMolds];

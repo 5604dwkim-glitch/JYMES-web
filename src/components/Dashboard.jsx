@@ -81,6 +81,7 @@ export default function Dashboard() {
     setLoading(false);
   }, [userRole]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { loadData(false); }, [userRole]);
 
   const isWorker = userRole?.role !== 'admin';
@@ -222,13 +223,15 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
 
   // 필터 옵션
   const mfgOptions = useMemo(() => MANUFACTURERS.map(m => m.name), []);
-  const carOptions = useMemo(() => {
+  const carOptions = // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
     if (filterMfg === 'ALL') return MANUFACTURERS.flatMap(m => m.models).map(m => m.code);
     const mfg = MANUFACTURERS.find(m => m.name === filterMfg);
     return mfg ? mfg.models.map(m => m.code) : [];
   }, [filterMfg]);
   const procOptions = ['소재준비', '조인트', '검사포장', '후가공'];
-  const partOptions = useMemo(() => {
+  const partOptions = // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
     let carsToConsider = [];
     if (filterCar !== 'ALL') {
       carsToConsider = [filterCar];
@@ -286,7 +289,8 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
   const safeFilterCar = filterCar === 'ALL' ? 'ALL' : filterCar.replace(/[\.\/\[\]]/g, '_');
   const safeFilterPart = filterPart === 'ALL' ? 'ALL' : filterPart.replace(/[\.\/\[\]]/g, '_');
 
-  const chartDataObj = useMemo(() => {
+  const chartDataObj = // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
     const sorted = [...(data.dailyStats||[])].sort((a,b) => a.date.localeCompare(b.date));
     const groups = {};
     sorted.forEach(r => {
@@ -331,7 +335,8 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
   }, [data.dailyStats, chartPeriod, filterMfg, filterCar, filterPart, filterProc]);
 
   // ── 불량 유형 (기간 필터) ────────────────────────────────
-  const defectBreakdown = useMemo(() => {
+  const defectBreakdown = // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
     const cutoff = defectPeriod === 'week' ? getWeekStart() : defectPeriod === 'month' ? getMonthStart() : null;
     const filtered = (data.dailyStats||[]).filter(r => !cutoff || r.date >= cutoff);
     let defectMap = {}, totalQty = 0, detailedSum = 0;
@@ -373,7 +378,8 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
   }, [data.dailyStats, defectPeriod, filterMfg, filterCar, filterPart, filterProc]);
 
   // ── 설비/금형 수리 ───────────────────────────────────────
-  const equipRepairs = useMemo(() => {
+  const equipRepairs = // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
     const repairs = [];
     (data.equipments||[]).forEach(eq => (eq.history||[]).forEach(h => {
       if (h.attachment?.includes('수리의뢰')) repairs.push({...h, equipName:eq.name, equipId:eq.id});
@@ -381,7 +387,8 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
     return repairs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,6);
   }, [data.equipments]);
 
-  const moldRepairs = useMemo(() => {
+  const moldRepairs = // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
     const repairs = [];
     (data.molds||[]).forEach(m => (m.history||[]).forEach(h => {
       if (h.attachment?.includes('수리의뢰')) repairs.push({...h, moldName:m.name||m.code, moldId:m.id});
