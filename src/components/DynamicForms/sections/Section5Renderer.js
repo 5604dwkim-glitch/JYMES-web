@@ -86,10 +86,13 @@ export function renderSection5(ctx) {
     const molds = ctx.molds || [];
     const d = existingData?.dimData || {};
 
+    // ★ 차종/공정 변경 시 이전 내용 잔류 방지: 항상 초기화 후 재렌더링
+    section5.innerHTML = '';
+
     if (!curProc || curProc === '클립머신') {
-      section5.innerHTML = '';
       return;
     }
+
 
     if (formCode === 3002) {
       const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};

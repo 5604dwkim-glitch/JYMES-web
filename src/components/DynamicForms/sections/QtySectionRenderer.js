@@ -5,8 +5,15 @@ import * as Templates from '../FormTemplates.jsx';
  * ctx: { container, qtySection, processValue, existingData, getCurrentFormCode, updateDowntimeSection }
  */
 export function renderQtySection(ctx) {
-  const { container, qtySection, processValue, existingData, getCurrentFormCode, updateDowntimeSection, isDtCrewClip } = ctx;
+  let { container, processValue, existingData, getCurrentFormCode, updateDowntimeSection, isDtCrewClip } = ctx;
+  let qtySection = ctx.qtySection;
     if (!qtySection) return;
+
+    // ★ 이벤트 핸들러 누적 방지: 차종/공정 변경 시 새 노드로 교체하여 기존 리스너 제거
+    const _freshQty = qtySection.cloneNode(false);
+    qtySection.parentNode.replaceChild(_freshQty, qtySection);
+    qtySection = _freshQty;
+
     const curProc = processValue ? processValue.value : '';
     const formCode = getCurrentFormCode();
 
