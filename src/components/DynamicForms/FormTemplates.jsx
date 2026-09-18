@@ -3540,7 +3540,7 @@ export function getPostQty1012HTML(ed, container) {
               <!-- 2. 공정간불량 (조인트) -->
               <tr>
                 <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                  공정간불량<br>(조인트)
+                  조인트<br>(Joint)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   떨어짐(Split)
@@ -3593,7 +3593,7 @@ export function getPostQty1012HTML(ed, container) {
               <!-- 3. 공정간불량 (후가공) -->
               <tr>
                 <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                  공정간불량<br>(후가공)
+                  후가공<br>(Post)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   사상불량(Trim)
@@ -3617,6 +3617,12 @@ export function getPostQty1012HTML(ed, container) {
                   소계(Sum)
                 </td>
                 ${cols.map(c => `<td id="pdef_p_sum_${c.id}" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>`).join('')}
+              </tr>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose); font-size: 13px;">
+                  불량 합계(Total)
+                </td>
+                ${cols.map(c => `<td id="pdef_total_sum_${c.id}" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose); font-size: 13px;">0</td>`).join('')}
               </tr>
             </tbody>
           </table>

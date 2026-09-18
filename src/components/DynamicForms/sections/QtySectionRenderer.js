@@ -657,6 +657,11 @@ export function renderQtySection(ctx) {
       if (pSumElem) {
         pSumElem.textContent = jSumElem ? pSum : (jSum + pSum);
       }
+
+      const totalSumElem = table.querySelector(`#pdef_total_sum_${cId}`);
+      if (totalSumElem) {
+        totalSumElem.textContent = (jSum + pSum);
+      }
     });
 
     const targetQtyInput = container.querySelector('#targetQty');
