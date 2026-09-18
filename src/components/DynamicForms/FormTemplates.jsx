@@ -1908,7 +1908,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? (formCode === 1011 ? '60' : '')}" placeholder="${formCode === 1011 ? '60' : '0'}" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? (formCode === 1011 ? '60' : formCode === 1022 ? '200' : '')}" placeholder="${formCode === 1011 ? '60' : formCode === 1022 ? '200' : '0'}" />
                   </td>
                 `).join('')}
               </tr>
