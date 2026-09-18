@@ -3639,7 +3639,9 @@ export function getForm3004QtyHTML(ed, container) {
   const q = ed && ed.qtyTable ? ed.qtyTable : {};
   const workers = store.getWorkers() || [];
   
-  const workerOptions = workers.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
+  // Filter workers to only show those whose process includes '후가공'
+  const postWorkers = workers.filter(w => w.process && w.process.includes('후가공'));
+  const workerOptions = postWorkers.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
 
   const workerSelect = (pos) => `
     <select id="qtyd_worker_${pos}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 2px;">
@@ -3683,9 +3685,15 @@ export function getForm3004QtyHTML(ed, container) {
           </colgroup>
           <thead>
             <tr style="background: #fff; font-weight: 700;">
-              <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000;">
+              <th colspan="2" rowspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; vertical-align: middle;">
                 작업자
               </th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000; text-align: center; background: #f8fafc;">FRT LH</th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000; text-align: center; background: #f8fafc;">FRT RH</th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000; text-align: center; background: #f8fafc;">RR LH</th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000; text-align: center; background: #f8fafc;">RR RH</th>
+            </tr>
+            <tr style="background: #fff; font-weight: 700;">
               <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000;">${workerSelect('w1')}</th>
               <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000;">${workerSelect('w2')}</th>
               <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000;">${workerSelect('w3')}</th>
