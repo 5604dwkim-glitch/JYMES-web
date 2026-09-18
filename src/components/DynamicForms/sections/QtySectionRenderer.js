@@ -469,7 +469,15 @@ export function renderQtySection(ctx) {
         Number(table.querySelector(`#def_ext_contam_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_proc_len_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_proc_cut_${pos}`)?.value) || 0,
-        Number(table.querySelector(`#def_proc_oth_${pos}`)?.value) || 0
+        Number(table.querySelector(`#def_proc_oth_${pos}`)?.value) || 0,
+        // New defect IDs for Form 1013
+        Number(table.querySelector(`#def_1013_joint_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_1013_trim_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_1013_blemish_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_1013_scorch_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_1013_pad_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_1013_len_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_1013_etc_${pos}`)?.value) || 0
       ];
 
       const posDefectSum = defs.reduce((a, b) => a + b, 0);

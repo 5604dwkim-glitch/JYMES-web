@@ -1431,70 +1431,58 @@ import { store } from './LegacyFormWrapper.jsx';
                 
               </tr>
 
-              <!-- 2. 압출소재불량(Extrusion Badness) -->
+              <!-- 2. 검사항목(inspection category) -->
               <tr>
-                <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  압출소재불량<br>(Extrusion Badness)
+                <td rowspan="7" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  검사항목<br>(inspection<br>category)
                 </td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  스코치(Scortch)
+                  조인트불량<br>(joint N.G)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
-                
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_joint_FL ?? q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_joint_FR ?? q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  외면흠 (Scratch)
+                  사상불량<br>(trimming N.G)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
-                
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_trim_FL ?? q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_trim_FR ?? q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  후로킹 (Flock,g)
+                  외면흠<br>(external blemish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
-                
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_blemish_FL ?? q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_blemish_FR ?? q.ext_flock_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  오염 (Contamination)
+                  스코치<br>(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
-                
-              </tr>
-
-              <!-- 3. 공정간불량(Process Badness) -->
-              <tr>
-                <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  공정간불량<br>(Process Badness)
-                </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  길이 (Length)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
-                
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_scorch_FL ?? q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_scorch_FR ?? q.ext_contam_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  컷팅 (Cutting)
+                  클립누락<br>(Missing Pad)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
-                
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_pad_FL ?? q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_pad_FR ?? q.proc_len_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  기타 (The others)
+                  길이불량<br>(Bad length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
-                
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_len_FL ?? q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_len_FR ?? q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  기타<br>(etc)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_etc_FL ?? q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_etc_FR ?? q.proc_oth_FR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 4. 불량합계(Total) -->
