@@ -42,8 +42,11 @@ export function updateDowntimeSection(ctx) {
     const kmkxClipEquipOptions = ['전용 클립머신'];
     const kmkxJointEquipOptions = ['LH 1호', 'RH 1호', 'LH 2호', 'RH 2호'];
     const lhRhEquipOptions = ['LH', 'RH'];
+    const ne1aPrepEquipOptions = ['정치절단', '단컷팅 A', '단컷팅 C', '단컷팅 D'];
 
-    const targetOptions = (formCode === 1011 || formCode === 1022)
+    const targetOptions = (formCode === 3001)
+      ? ne1aPrepEquipOptions
+      : (formCode === 1011 || formCode === 1022)
       ? lhRhEquipOptions
       : (formCode === 2041)
         ? kmkxClipEquipOptions
