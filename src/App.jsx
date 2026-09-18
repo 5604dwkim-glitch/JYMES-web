@@ -6,14 +6,33 @@ import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 
 // Lazy loaded components for code splitting
-const ReportForm = lazy(() => import('./components/ReportForm'));
-const ReportList = lazy(() => import('./components/ReportList'));
-const Analytics = lazy(() => import('./components/Analytics'));
-const MasterData = lazy(() => import('./components/MasterData'));
-const EquipmentManagement = lazy(() => import('./components/EquipmentManagement/EquipmentManagement'));
-const MoldManagement = lazy(() => import('./components/MoldManagement/MoldManagement'));
-const TpmCheckFlow = lazy(() => import('./components/TpmCheckFlow'));
-const ChangePointManagement = lazy(() => import('./components/ChangePointManagement'));
+// Helper to handle chunk load errors (white screen) after deployment updates
+const lazyWithReload = (componentImport) => {
+  return lazy(async () => {
+    try {
+      return await componentImport();
+    } catch (error) {
+      const isChunkLoadError = error?.name === 'ChunkLoadError' || 
+                               (error?.message && error.message.includes('dynamically imported module')) ||
+                               (error?.message && error.message.includes('Failed to fetch')) ||
+                               (error?.message && error.message.includes('Importing a module script failed'));
+      if (isChunkLoadError) {
+        window.location.reload();
+        return new Promise(() => {}); // Prevent further execution while reloading
+      }
+      throw error;
+    }
+  });
+};
+
+const ReportForm = lazyWithReload(() => import('./components/ReportForm'));
+const ReportList = lazyWithReload(() => import('./components/ReportList'));
+const Analytics = lazyWithReload(() => import('./components/Analytics'));
+const MasterData = lazyWithReload(() => import('./components/MasterData'));
+const EquipmentManagement = lazyWithReload(() => import('./components/EquipmentManagement/EquipmentManagement'));
+const MoldManagement = lazyWithReload(() => import('./components/MoldManagement/MoldManagement'));
+const TpmCheckFlow = lazyWithReload(() => import('./components/TpmCheckFlow'));
+const ChangePointManagement = lazyWithReload(() => import('./components/ChangePointManagement'));
 
 // Loading fallback component
 const PageLoader = () => (
