@@ -1382,7 +1382,7 @@ import { store } from './LegacyFormWrapper.jsx';
     `;
   }
 
-  export function getStandardQty1013HTML(ed, container) {
+  export function getStandardQty1013HTML(ed, container, formCode = null) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
@@ -1418,8 +1418,8 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? (formCode === 1013 ? '60' : '')}" placeholder="${formCode === 1013 ? '60' : '0'}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? (formCode === 1013 ? '60' : '')}" placeholder="${formCode === 1013 ? '60' : '0'}" /></td>
                 
               </tr>
               <tr>
