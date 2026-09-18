@@ -3516,19 +3516,19 @@ ${renderDtRow4('종')}
                       전장 길이<br>측정 (RR)<br>단위 : mm
                     </td>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; width: 10%;">
-                      ￠ to ￠
+                      606±1<br>(￠ to ￠)
                     </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_종'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_초" data-wheel-parsed-spec="606" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_초'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_중" data-wheel-parsed-spec="606" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_중'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_lh_종" data-wheel-parsed-spec="606" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_lh_종'] || ''}" /></td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      LIP to LIP
+                      679±1<br>(LIP to LIP)
                     </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_종'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_초" data-wheel-parsed-spec="679" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_초'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_중" data-wheel-parsed-spec="679" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_중'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_lh_종" data-wheel-parsed-spec="679" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_lh_종'] || ''}" /></td>
                   </tr>
                 </tbody>
               </table>
@@ -3555,19 +3555,19 @@ ${renderDtRow4('종')}
                       전장 길이<br>측정 (RR)<br>단위 : mm
                     </td>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; width: 10%;">
-                      ￠ to ￠
+                      606±1<br>(￠ to ￠)
                     </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_종'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_초" data-wheel-parsed-spec="606" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_초'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_중" data-wheel-parsed-spec="606" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_중'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ctc_rr_rh_종" data-wheel-parsed-spec="606" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ctc_rr_rh_종'] || ''}" /></td>
                   </tr>
                   <tr>
                     <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                      LIP to LIP
+                      679±1<br>(LIP to LIP)
                     </td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_초" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_초'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_중" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_중'] || ''}" /></td>
-                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_종" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_종'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_초" data-wheel-parsed-spec="679" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_초'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_중" data-wheel-parsed-spec="679" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_중'] || ''}" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_ltl_rr_rh_종" data-wheel-parsed-spec="679" class="form-control" style="width:100%; height:26px; padding:2px; text-align:center; font-size:11px;" value="${d['ltl_rr_rh_종'] || ''}" /></td>
                   </tr>
                 </tbody>
               </table>
