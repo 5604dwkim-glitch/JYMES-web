@@ -167,7 +167,9 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
       const mm = container.querySelector('#suppMonth')?.value || dateParts[1];
       const dd = container.querySelector('#suppDay')?.value || dateParts[2];
       let fullDate = `20${yy}-${mm}-${dd}`;
-      const reportDateInput = document.getElementById('reportDate')?.value;
+      // supportFormContainer의 상위 폼 컨테이너에서 날짜 입력 탐색 (전역 검색 방지)
+      const formRoot = container.closest('form, [id="mobileWorkReportForm"]')?.parentElement || container.closest('[data-form-root]') || document;
+      const reportDateInput = (formRoot !== document ? formRoot.querySelector('#reportDate') : document.getElementById('reportDate'))?.value;
       if (reportDateInput) fullDate = reportDateInput;
 
       const st = container.querySelector('#suppStartTime')?.value || '08:00';

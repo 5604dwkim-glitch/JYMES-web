@@ -697,6 +697,12 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         const isSupport = chip.dataset.name === '출하지원';
         const elsToToggle = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
         
+        // 공정 전환 시 이전 날짜/시간 동기화 리스너 정리
+        ['#leaderFormContainer', '#forkliftFormContainer', '#supportFormContainer'].forEach(sel => {
+          const prev = container.querySelector(sel);
+          if (prev && prev._syncAbort) { prev._syncAbort.abort(); prev._syncAbort = null; }
+        });
+
         if (isLeader || isForklift || isSupport) {
           elsToToggle.forEach(id => {
             const el = container.querySelector(id);
@@ -737,19 +743,25 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
                     if (ld) ld.value = parts[2];
                   }
                 };
-                const reportDate = document.getElementById('reportDate');
-                if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+                const reportDate = container.querySelector('#reportDate');
+                const leaderSyncAbort = new AbortController();
+                if (reportDate) {
+                  syncDate(reportDate.value);
+                  reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: leaderSyncAbort.signal });
+                }
                 
-                const stInput = document.getElementById('startTimeInput');
+                const stInput = container.querySelector('#startTimeInput');
                 if (stInput) {
                   const lSt = leaderContainer.querySelector('#leaderStartTime');
-                  if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }); }
+                  if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }, { signal: leaderSyncAbort.signal }); }
                 }
-                const etInput = document.getElementById('endTimeInput');
+                const etInput = container.querySelector('#endTimeInput');
                 if (etInput) {
                   const lEt = leaderContainer.querySelector('#leaderEndTime');
-                  if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }); }
+                  if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }, { signal: leaderSyncAbort.signal }); }
                 }
+                leaderContainer.dataset.syncAbortKey = 'leaderSync';
+                leaderContainer._syncAbort = leaderSyncAbort;
               }, 50);
             });
           } else if (isForklift) {
@@ -784,19 +796,24 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
                     if (fd) fd.value = parts[2];
                   }
                 };
-                const reportDate = document.getElementById('reportDate');
-                if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+                const reportDate = container.querySelector('#reportDate');
+                const forkliftSyncAbort = new AbortController();
+                if (reportDate) {
+                  syncDate(reportDate.value);
+                  reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: forkliftSyncAbort.signal });
+                }
                 
-                const stInput = document.getElementById('startTimeInput');
+                const stInput = container.querySelector('#startTimeInput');
                 if (stInput) {
                   const fSt = forkliftContainer.querySelector('#forkStartTime');
-                  if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }); }
+                  if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }, { signal: forkliftSyncAbort.signal }); }
                 }
-                const etInput = document.getElementById('endTimeInput');
+                const etInput = container.querySelector('#endTimeInput');
                 if (etInput) {
                   const fEt = forkliftContainer.querySelector('#forkEndTime');
-                  if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }); }
+                  if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }, { signal: forkliftSyncAbort.signal }); }
                 }
+                forkliftContainer._syncAbort = forkliftSyncAbort;
               }, 50);
             });
           } else if (isSupport) {
@@ -831,19 +848,24 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
                     if (sd) sd.value = parts[2];
                   }
                 };
-                const reportDate = document.getElementById('reportDate');
-                if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+                const reportDate = container.querySelector('#reportDate');
+                const supportSyncAbort = new AbortController();
+                if (reportDate) {
+                  syncDate(reportDate.value);
+                  reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: supportSyncAbort.signal });
+                }
                 
-                const stInput = document.getElementById('startTimeInput');
+                const stInput = container.querySelector('#startTimeInput');
                 if (stInput) {
                   const sSt = supportContainer.querySelector('#suppStartTime');
-                  if (sSt) { sSt.value = stInput.value; stInput.addEventListener('change', (e) => { sSt.value = e.target.value; }); }
+                  if (sSt) { sSt.value = stInput.value; stInput.addEventListener('change', (e) => { sSt.value = e.target.value; }, { signal: supportSyncAbort.signal }); }
                 }
-                const etInput = document.getElementById('endTimeInput');
+                const etInput = container.querySelector('#endTimeInput');
                 if (etInput) {
                   const sEt = supportContainer.querySelector('#suppEndTime');
-                  if (sEt) { sEt.value = etInput.value; etInput.addEventListener('change', (e) => { sEt.value = e.target.value; }); }
+                  if (sEt) { sEt.value = etInput.value; etInput.addEventListener('change', (e) => { sEt.value = e.target.value; }, { signal: supportSyncAbort.signal }); }
                 }
+                supportContainer._syncAbort = supportSyncAbort;
               }, 50);
             });
           }
@@ -903,9 +925,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
             if (lfHeader) lfHeader.style.display = 'none';
             if (lfDate) lfDate.style.display = 'none';
   
-            const reportDate = document.getElementById('reportDate');
-            const stInput = document.getElementById('startTimeInput');
-            const etInput = document.getElementById('endTimeInput');
+            const reportDate = container.querySelector('#reportDate');
+            const stInput = container.querySelector('#startTimeInput');
+            const etInput = container.querySelector('#endTimeInput');
             const syncDate = (val) => {
               const parts = val.split('-');
               if (parts.length === 3) {
@@ -917,15 +939,17 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
                 if (ld) ld.value = parts[2];
               }
             };
-            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+            const initLeaderSyncAbort = new AbortController();
+            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: initLeaderSyncAbort.signal }); }
             if (stInput) {
               const lSt = leaderContainer.querySelector('#leaderStartTime');
-              if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }); }
+              if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }, { signal: initLeaderSyncAbort.signal }); }
             }
             if (etInput) {
               const lEt = leaderContainer.querySelector('#leaderEndTime');
-              if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }); }
+              if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }, { signal: initLeaderSyncAbort.signal }); }
             }
+            leaderContainer._syncAbort = initLeaderSyncAbort;
           }, 50);
         });
       } else if (isForkliftInit) {
@@ -945,9 +969,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
             if (ffHeader) ffHeader.style.display = 'none';
             if (ffDate) ffDate.style.display = 'none';
   
-            const reportDate = document.getElementById('reportDate');
-            const stInput = document.getElementById('startTimeInput');
-            const etInput = document.getElementById('endTimeInput');
+            const reportDate = container.querySelector('#reportDate');
+            const stInput = container.querySelector('#startTimeInput');
+            const etInput = container.querySelector('#endTimeInput');
             const syncDate = (val) => {
               const parts = val.split('-');
               if (parts.length === 3) {
@@ -959,15 +983,17 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
                 if (fd) fd.value = parts[2];
               }
             };
-            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value)); }
+            const initForkliftSyncAbort = new AbortController();
+            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: initForkliftSyncAbort.signal }); }
             if (stInput) {
               const fSt = forkliftContainer.querySelector('#forkStartTime');
-              if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }); }
+              if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }, { signal: initForkliftSyncAbort.signal }); }
             }
             if (etInput) {
               const fEt = forkliftContainer.querySelector('#forkEndTime');
-              if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }); }
+              if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }, { signal: initForkliftSyncAbort.signal }); }
             }
+            forkliftContainer._syncAbort = initForkliftSyncAbort;
           }, 50);
         });
       }
@@ -2327,7 +2353,7 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
     });
   });
 
-  const enableMouseDrag = (wheelElem) => {
+  const enableMouseDrag = (wheelElem, abortSignal) => {
     let isDragging = false;
     let startY = 0;
     let startScrollTop = 0;
@@ -2342,19 +2368,20 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
       if (!isDragging) return;
       const walk = (e.pageY - startY) * 1.5;
       wheelElem.scrollTop = startScrollTop - walk;
-    });
+    }, { signal: abortSignal });
     window.addEventListener('mouseup', () => {
       if (!isDragging) return;
       isDragging = false;
       wheelElem.style.scrollSnapType = 'y mandatory';
       const nearest = Math.round(wheelElem.scrollTop / ITEM_HEIGHT) * ITEM_HEIGHT;
       wheelElem.scrollTo({ top: nearest, behavior: 'smooth' });
-    });
+    }, { signal: abortSignal });
   };
 
-  enableMouseDrag(numWheel);
+  const dragAbortCtrl = new AbortController();
+  enableMouseDrag(numWheel, dragAbortCtrl.signal);
 
-  const closeModal = () => modal.remove();
+  const closeModal = () => { dragAbortCtrl.abort(); modal.remove(); };
 
   modal.querySelector('#wnpCloseBtn').addEventListener('click', closeModal);
   modal.querySelector('#wnpDeleteBtn').addEventListener('click', () => {
@@ -2525,7 +2552,7 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
     });
   });
 
-  const enableMouseDrag = (wheelElem) => {
+  const enableMouseDrag = (wheelElem, abortSignal) => {
     let isDragging = false;
     let startY = 0;
     let startScrollTop = 0;
@@ -2540,20 +2567,21 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
       if (!isDragging) return;
       const walk = (e.pageY - startY) * 1.5;
       wheelElem.scrollTop = startScrollTop - walk;
-    });
+    }, { signal: abortSignal });
     window.addEventListener('mouseup', () => {
       if (!isDragging) return;
       isDragging = false;
       wheelElem.style.scrollSnapType = 'y mandatory';
       const nearest = Math.round(wheelElem.scrollTop / ITEM_HEIGHT) * ITEM_HEIGHT;
       wheelElem.scrollTo({ top: nearest, behavior: 'smooth' });
-    });
+    }, { signal: abortSignal });
   };
 
-  enableMouseDrag(hourWheel);
-  enableMouseDrag(minWheel);
+  const dragAbortCtrl = new AbortController();
+  enableMouseDrag(hourWheel, dragAbortCtrl.signal);
+  enableMouseDrag(minWheel, dragAbortCtrl.signal);
 
-  const closeModal = () => modal.remove();
+  const closeModal = () => { dragAbortCtrl.abort(); modal.remove(); };
 
   modal.querySelector('#wtpCloseBtn').addEventListener('click', closeModal);
   modal.querySelector('#wtpDeleteBtn').addEventListener('click', () => {
@@ -2847,7 +2875,7 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
     });
   });
 
-  const enableMouseDrag = (wheelElem) => {
+  const enableMouseDrag = (wheelElem, abortSignal) => {
     let isDragging = false;
     let startY = 0;
     let startScrollTop = 0;
@@ -2862,22 +2890,23 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
       if (!isDragging) return;
       const walk = (e.pageY - startY) * 1.5;
       wheelElem.scrollTop = startScrollTop - walk;
-    });
+    }, { signal: abortSignal });
     window.addEventListener('mouseup', () => {
       if (!isDragging) return;
       isDragging = false;
       wheelElem.style.scrollSnapType = 'y mandatory';
       const nearest = Math.round(wheelElem.scrollTop / ITEM_HEIGHT) * ITEM_HEIGHT;
       wheelElem.scrollTo({ top: nearest, behavior: 'smooth' });
-    });
+    }, { signal: abortSignal });
   };
 
-  enableMouseDrag(yearWheel);
-  enableMouseDrag(monthWheel);
-  enableMouseDrag(dayWheel);
-  enableMouseDrag(hourWheel);
+  const dragAbortCtrl = new AbortController();
+  enableMouseDrag(yearWheel, dragAbortCtrl.signal);
+  enableMouseDrag(monthWheel, dragAbortCtrl.signal);
+  enableMouseDrag(dayWheel, dragAbortCtrl.signal);
+  enableMouseDrag(hourWheel, dragAbortCtrl.signal);
 
-  const closeModal = () => modal.remove();
+  const closeModal = () => { dragAbortCtrl.abort(); modal.remove(); };
 
   modal.querySelector('#wlpCloseBtn').addEventListener('click', closeModal);
   modal.querySelector('#wlpDeleteBtn').addEventListener('click', () => {
@@ -2914,13 +2943,9 @@ export function autoBindAllDimensionInputs(container) {
     '#qtySection input[id^="kmkx_cut_len"]',
     '#qtySection input[id^="kmkx_hole_gap"]',
     'input[id^="dim_"]',
-    'input[id^="dim2005"]',
-    'input[id^="kmkx_cut_len"]',
-    'input[id^="kmkx_hole_gap"]',
-    'input[id^="dtc_len"]',
-    'input[id^="dtcb_len"]',
-    'input[id^="dtc_clip"]',
-    'input[id^="dtcb_clip"]'
+    'input[id^="dim2005"]'
+    // 주의: 범위 미한정 dtc_len/dtcb_len/dtc_clip/dtcb_clip/kmkx_ 셀렉터는
+    // #qtySection 범위 지정 버전으로 충분하므로 중복 제거 (L-2 수정)
   ].join(', ');
 
   const inputs = container.querySelectorAll(selector);
@@ -2946,11 +2971,11 @@ export function autoBindAllDimensionInputs(container) {
       }
       foundSpec = true;
     } else if (inputId.startsWith('dtc_len_')) {
-      const carName = document.getElementById('carModelValue')?.value || '';
+      const carName = container.querySelector('#carModelValue')?.value || '';
       defVal = (carName === 'DT QUAD') ? 509 : 779;
       foundSpec = true;
     } else if (inputId.startsWith('dtcb_len_')) {
-      const carName = document.getElementById('carModelValue')?.value || '';
+      const carName = container.querySelector('#carModelValue')?.value || '';
       defVal = (carName === 'DT QUAD') ? 2463 : 2699;
       foundSpec = true;
     } else if (inputId.startsWith('dtc_clip_LH1') || inputId.startsWith('dtc_clip_RH2')) {

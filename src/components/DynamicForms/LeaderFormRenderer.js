@@ -274,9 +274,11 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
 
   const processLeaderSave = (targetStatus) => {
     try {
-      const reportDateInput = document.getElementById('reportDate')?.value;
-      const startTimeInput = document.getElementById('startTimeInput')?.value;
-      const endTimeInput = document.getElementById('endTimeInput')?.value;
+      // leaderFormContainer의 상위 폼 컨테이너에서 날짜/시간 입력 탐색 (전역 검색 방지)
+      const formRoot = container.closest('form, [id="mobileWorkReportForm"]')?.parentElement || container.closest('[data-form-root]') || document;
+      const reportDateInput = (formRoot !== document ? formRoot.querySelector('#reportDate') : document.getElementById('reportDate'))?.value;
+      const startTimeInput = (formRoot !== document ? formRoot.querySelector('#startTimeInput') : document.getElementById('startTimeInput'))?.value;
+      const endTimeInput = (formRoot !== document ? formRoot.querySelector('#endTimeInput') : document.getElementById('endTimeInput'))?.value;
 
       let yy = container.querySelector('#leaderYear')?.value || '26';
       let mm = (container.querySelector('#leaderMonth')?.value || '07').padStart(2, '0');
