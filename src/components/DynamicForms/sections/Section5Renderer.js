@@ -2391,7 +2391,7 @@ export function renderSection5(ctx) {
       const curPart = partValueInput ? partValueInput.value : '';
 
       if (formCode === 3001) {
-        const inp = (id, spec, ph) => `<input type="text" id="${id}" data-wheel-parsed-spec="${spec}" class="form-control" style="width: 100%; height: 26px; border: none; text-align: center; font-size: 11px; padding: 2px;" value="\${d['${id}'] || ''}" placeholder="${ph}" />`;
+        const inp = (id, spec, ph) => `<input type="text" id="${id}" data-wheel-parsed-spec="${spec}" class="form-control" style="width: 100%; height: 26px; border: none; text-align: center; font-size: 11px; padding: 2px;" value="${d[id] || ''}" placeholder="${ph}" />`;
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
