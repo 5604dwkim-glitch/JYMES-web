@@ -3902,7 +3902,7 @@ export function getForm3001QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[3].key)}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타 (   )</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', cols[0].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', cols[1].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', cols[2].key)}</td>
@@ -3927,7 +3927,7 @@ export function getForm3001QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_hole', cols[3].key)}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타 (   )</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[0].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[1].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[2].key)}</td>
