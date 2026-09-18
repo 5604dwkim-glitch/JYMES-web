@@ -218,6 +218,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
   const [filterMfg, setFilterMfg] = useState('ALL');
   const [filterCar, setFilterCar] = useState('ALL');
   const [filterPart, setFilterPart] = useState('ALL');
+  const [filterProc, setFilterProc] = useState('ALL');
 
   // 필터 옵션
   const mfgOptions = useMemo(() => MANUFACTURERS.map(m => m.name), []);
@@ -226,6 +227,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
     const mfg = MANUFACTURERS.find(m => m.name === filterMfg);
     return mfg ? mfg.models.map(m => m.code) : [];
   }, [filterMfg]);
+  const procOptions = ['소재준비', '조인트', '검사포장', '후가공'];
   const partOptions = useMemo(() => {
     let carsToConsider = [];
     if (filterCar !== 'ALL') {
@@ -242,6 +244,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
 
   useEffect(() => { setFilterCar('ALL'); }, [filterMfg]);
   useEffect(() => { setFilterPart('ALL'); }, [filterCar]);
+  useEffect(() => { setFilterProc('ALL'); }, [filterPart]);
 
   // ── 날짜 범위 헬퍼 ──────────────────────────────────────
   const todayStr = new Date().toLocaleDateString('sv-SE');
@@ -288,16 +291,17 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
     const groups = {};
     sorted.forEach(r => {
       if (!r.date) return;
-      const key = chartPeriod === 'weekly' ? getWeekNo(new Date(r.date)) : getMonthStr(new Date(r.date));
+      const key = chartPeriod === 'daily' ? (r.date || '').substring(0,10) : getMonthStr(new Date(r.date));
       if (!groups[key]) groups[key] = { actual: 0, defect: 0 };
       
-      if (filterMfg === 'ALL' && filterCar === 'ALL' && filterPart === 'ALL') {
+      if (filterMfg === 'ALL' && filterCar === 'ALL' && filterPart === 'ALL' && filterProc === 'ALL') {
         groups[key].actual += Number(r.totalActualQty||0);
         groups[key].defect += Number(r.totalDefectQty||0);
       } else if (r.items) {
         Object.entries(r.items).forEach(([comboKey, comboData]) => {
-          const [car, part] = comboKey.split('::');
+          const [car, part, proc] = comboKey.split('::');
           let match = true;
+          if (filterProc !== 'ALL' && proc !== filterProc) match = false;
           if (safeFilterCar !== 'ALL' && car !== safeFilterCar) match = false;
           if (match && filterMfg !== 'ALL' && safeFilterCar === 'ALL') {
              const mfg = MANUFACTURERS.find(m => m.name === filterMfg);
@@ -313,7 +317,8 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
       }
     });
     let labels = Object.keys(groups);
-    if (labels.length > 6) labels = labels.slice(-6);
+    if (chartPeriod === 'daily' && labels.length > 31) labels = labels.slice(-31);
+    if (chartPeriod === 'monthly' && labels.length > 12) labels = labels.slice(-12);
     return {
       labels,
       datasets: [
@@ -323,7 +328,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
           backgroundColor:'rgba(59,130,246,0.75)', borderRadius:5, yAxisID:'y' },
       ]
     };
-  }, [data.dailyStats, chartPeriod, filterMfg, filterCar, filterPart]);
+  }, [data.dailyStats, chartPeriod, filterMfg, filterCar, filterPart, filterProc]);
 
   // ── 불량 유형 (기간 필터) ────────────────────────────────
   const defectBreakdown = useMemo(() => {
@@ -331,7 +336,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
     const filtered = (data.dailyStats||[]).filter(r => !cutoff || r.date >= cutoff);
     let defectMap = {}, totalQty = 0, detailedSum = 0;
     filtered.forEach(r => {
-      if (filterMfg === 'ALL' && filterCar === 'ALL' && filterPart === 'ALL') {
+      if (filterMfg === 'ALL' && filterCar === 'ALL' && filterPart === 'ALL' && filterProc === 'ALL') {
         totalQty += Number(r.totalDefectQty||0);
         if (r.defectBreakdowns) Object.entries(r.defectBreakdowns).forEach(([k,v]) => {
           defectMap[k] = (defectMap[k]||0) + Number(v);
@@ -339,8 +344,9 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
         });
       } else if (r.items) {
         Object.entries(r.items).forEach(([comboKey, comboData]) => {
-          const [car, part] = comboKey.split('::');
+          const [car, part, proc] = comboKey.split('::');
           let match = true;
+          if (filterProc !== 'ALL' && proc !== filterProc) match = false;
           if (safeFilterCar !== 'ALL' && car !== safeFilterCar) match = false;
           if (match && filterMfg !== 'ALL' && safeFilterCar === 'ALL') {
              const mfg = MANUFACTURERS.find(m => m.name === filterMfg);
@@ -364,7 +370,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
     const list = Object.entries(defectMap).map(([name,qty]) => ({name,qty})).sort((a,b)=>b.qty-a.qty).slice(0,15);
     const maxQty = list[0]?.qty || 1;
     return { list, total: totalQty, maxQty };
-  }, [data.dailyStats, defectPeriod, filterMfg, filterCar, filterPart]);
+  }, [data.dailyStats, defectPeriod, filterMfg, filterCar, filterPart, filterProc]);
 
   // ── 설비/금형 수리 ───────────────────────────────────────
   const equipRepairs = useMemo(() => {
@@ -523,6 +529,13 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
               {partOptions.map(o => <option key={o} value={o}>{o}</option>)}
             </select>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: '#64748b' }}>생산공정</label>
+            <select value={filterProc} onChange={e => setFilterProc(e.target.value)} style={{ padding: '6px 28px 6px 12px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', backgroundColor: '#fff', color: '#0f172a', outline: 'none', appearance: 'auto' }}>
+              <option value="ALL">전체</option>
+              {procOptions.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </div>
         </div>
 
         {/* 탭 헤더 */}
@@ -534,8 +547,8 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
           {/* 차트 기간 / 불량 기간 컨트롤 */}
           {activeTab === 'chart' && (
             <div style={{ display:'flex', background:'#f1f5f9', borderRadius:'6px', padding:'2px' }}>
-              <button style={segBtn(chartPeriod==='weekly')}  onClick={() => setChartPeriod('weekly')}>최근 6주</button>
-              <button style={segBtn(chartPeriod==='monthly')} onClick={() => setChartPeriod('monthly')}>최근 6개월</button>
+              <button style={segBtn(chartPeriod==='daily')}  onClick={() => setChartPeriod('daily')}>최근 1달(일별)</button>
+              <button style={segBtn(chartPeriod==='monthly')} onClick={() => setChartPeriod('monthly')}>최근 1년(월별)</button>
             </div>
           )}
           {activeTab === 'defects' && (
@@ -554,13 +567,39 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
               responsive:true, maintainAspectRatio:false,
               interaction:{ mode:'index', intersect:false },
               scales:{
-                x:{ grid:{ display:false }, ticks:{ font:{ size:12 } } },
+                x:{ 
+                  grid:{ display:false }, 
+                  ticks:{ 
+                    font:{ size:12 },
+                    callback: function(val, index) {
+                      const label = chartDataObj.labels[val];
+                      if (chartPeriod !== 'daily' || !label) return label;
+                      const d = new Date(label);
+                      if (isNaN(d.getTime())) return label;
+                      const days = ['일','월','화','수','목','금','토'];
+                      const dayStr = `${d.getDate()}일(${days[d.getDay()]})`;
+                      return index === 0 ? `${d.getFullYear()}년 ${d.getMonth()+1}월 ${dayStr}` : dayStr;
+                    }
+                  } 
+                },
                 y:{ type:'linear', position:'left', title:{ display:true, text:'수량 (EA)', font:{size:12} }, grid:{ color:'#f1f5f9' } },
                 y1:{ type:'linear', position:'right', title:{ display:true, text:'불량률 (%)', font:{size:12} }, grid:{ drawOnChartArea:false }, min:0 },
               },
               plugins:{
                 legend:{ position:'top', labels:{ font:{size:13}, boxWidth:12 } },
-                tooltip:{ backgroundColor:'rgba(15,23,42,0.9)', titleFont:{size:13}, bodyFont:{size:12}, padding:12 },
+                tooltip:{ 
+                  backgroundColor:'rgba(15,23,42,0.9)', titleFont:{size:13}, bodyFont:{size:12}, padding:12,
+                  callbacks: {
+                    title: function(context) {
+                      const label = context[0].label;
+                      if (chartPeriod !== 'daily' || !label) return label;
+                      const d = new Date(label);
+                      if (isNaN(d.getTime())) return label;
+                      const days = ['일','월','화','수','목','금','토'];
+                      return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일(${days[d.getDay()]})`;
+                    }
+                  }
+                }
               }
             }} />
           </div>

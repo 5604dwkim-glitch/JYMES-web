@@ -375,6 +375,69 @@ export function renderQtySection(ctx) {
   }
 
 
+  
+  function calc3004QtySummary() {
+    if (!qtySection) return;
+    const table = qtySection.querySelector('#form3004QtyTable');
+    if (!table) return;
+
+    const cols = ['w1', 'w2', 'w3', 'w4'];
+    let grandInspect = 0;
+    let grandGood = 0;
+    let grandDefect = 0;
+
+    cols.forEach(c => {
+      // 1. 압출소재불량 소계
+      const extKeys = ['scorch', 'scratch', 'contam', 'len', 'clip', 'oth'];
+      let extSum = 0;
+      extKeys.forEach(k => {
+        extSum += Number(table.querySelector(`#qtyd_ext_${k}_${c}`)?.value) || 0;
+      });
+      const extSubElem = table.querySelector(`#qtyd_ext_sum_${c}`);
+      if (extSubElem) extSubElem.textContent = extSum || 0;
+
+      // 2. 조인트불량 불량수
+      const jKeys = ['tear', 'lack', 'push', 'bubble', 'chew', 'over', 'deform', 'foreign', 'twist', 'oth'];
+      let jSum = 0;
+      jKeys.forEach(k => {
+        jSum += Number(table.querySelector(`#qtyd_j_${k}_${c}`)?.value) || 0;
+      });
+      const jSubElem = table.querySelector(`#qtyd_j_sum_${c}`);
+      if (jSubElem) jSubElem.textContent = jSum || 0;
+
+      // 3. 후가공불량 불량수
+      const pKeys = ['overtrim', 'undertrim', 'bcontam', 'econtam', 'cmiss', 'chole', 'drain', 'cdiff', 'cutmiss', 'bmiss', 'lenover', 'cgap', 'oth'];
+      let pSum = 0;
+      pKeys.forEach(k => {
+        pSum += Number(table.querySelector(`#qtyd_p_${k}_${c}`)?.value) || 0;
+      });
+      const pSubElem = table.querySelector(`#qtyd_p_sum_${c}`);
+      if (pSubElem) pSubElem.textContent = pSum || 0;
+
+      // 4. 불량합계
+      const totalDefect = extSum + jSum + pSum;
+      const totDefElem = table.querySelector(`#qtyd_def_total_sum_${c}`);
+      if (totDefElem) totDefElem.textContent = totalDefect || 0;
+
+      // 5. 검사수 계산 (정품수 + 불량합계)
+      const goodQty = Number(table.querySelector(`#qtyd_good_${c}`)?.value) || 0;
+      const inspectQty = goodQty + totalDefect;
+      const inspElem = table.querySelector(`#qtyd_insp_sum_${c}`);
+      if (inspElem) inspElem.textContent = (goodQty > 0 || totalDefect > 0) ? inspectQty : '자동계산';
+
+      grandInspect += inspectQty;
+      grandGood += goodQty;
+      grandDefect += totalDefect;
+    });
+
+    const targetQtyElem = qtySection.querySelector('#targetQty');
+    const actualQtyElem = qtySection.querySelector('#actualQty');
+    const defectQtyElem = qtySection.querySelector('#defectQty');
+    if (targetQtyElem) targetQtyElem.value = grandInspect;
+    if (actualQtyElem) actualQtyElem.value = grandGood;
+    if (defectQtyElem) defectQtyElem.value = grandDefect;
+  }
+
   function calcJg1QtySummary() {
     const table = container.querySelector('#jg1QtyTable');
     if (!table) return;
@@ -793,6 +856,14 @@ export function renderQtySection(ctx) {
         calcInspQtySummary();
         break;
 
+
+      
+      case 3004:
+        qtySection.innerHTML = Templates.getForm3004QtyHTML(existingData, container);
+        qtySection.addEventListener('input', calc3004QtySummary);
+        qtySection.addEventListener('change', calc3004QtySummary);
+        calc3004QtySummary();
+        break;
 
       case 3001:
         qtySection.innerHTML = Templates.getForm3001QtyHTML(existingData, container);

@@ -1767,7 +1767,8 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       }, {});
 
       const reportData = {
-        date: container.querySelector('#reportDate')?.value || new Date().toLocaleDateString('sv-SE'),
+          formCode: formCode,
+          date: container.querySelector('#reportDate')?.value || new Date().toLocaleDateString('sv-SE'),
         workHours: workHours,
         shift: '주간',
         carModel: curCarModelValue?.value || 'JG1',

@@ -1,33 +1,13 @@
 const fs = require('fs');
-let code = fs.readFileSync('src/components/DynamicForms/LegacyFormWrapper.jsx', 'utf8');
 
-const originalFunc = `  function getCurrentFormCode() {
-    const curCarCode = carModelValue ? carModelValue.value : currentCarCode;
-    const curPart = partValueInput ? partValueInput.value : '';
-    const curProc = processValue ? processValue.value : '';
-    if (!curProc) return 0;
-    const lookupKey = \`\${curCarCode}_\${curPart}_\${curProc}\`;
-    return FORM_CODE_MAP[lookupKey] || 9999;
-  }`;
+let file1 = 'src/components/DynamicForms/sections/LotTableRenderer.js';
+let code1 = fs.readFileSync(file1, 'utf8');
+code1 = code1.replace(/if \(e.key === 'Enter'\) \{\s*input.value = autoFormatDateTimeString\(input.value\);\s*\}/g, "if (e.key === 'Enter') { e.preventDefault(); input.value = autoFormatDateTimeString(input.value); }");
+fs.writeFileSync(file1, code1);
 
-const newFunc = `  function getCurrentFormCode() {
-    const curCarCode = carModelValue ? carModelValue.value : currentCarCode;
-    let curPart = partValueInput ? partValueInput.value : '';
-    const curProc = processValue ? processValue.value : '';
-    if (!curProc) return 0;
-    
-    // Normalize part name: if part string contains the carCode (e.g. 'NE1a D/SIDE'), strip it
-    if (curPart && curCarCode && curPart.startsWith(curCarCode + ' ')) {
-      curPart = curPart.replace(curCarCode + ' ', '').trim();
-    }
-    
-    const lookupKey = \`\${curCarCode}_\${curPart}_\${curProc}\`;
-    return FORM_CODE_MAP[lookupKey] || 9999;
-  }`;
+let file2 = 'src/components/DynamicForms/sections/Section5Renderer.js';
+let code2 = fs.readFileSync(file2, 'utf8');
+code2 = code2.replace(/if \(e.key === 'Enter'\) jointInput.value = autoFormatDateTimeString\(jointInput.value\);/g, "if (e.key === 'Enter') { e.preventDefault(); jointInput.value = autoFormatDateTimeString(jointInput.value); }");
+fs.writeFileSync(file2, code2);
 
-if (code.includes(originalFunc)) {
-  fs.writeFileSync('src/components/DynamicForms/LegacyFormWrapper.jsx', code.replace(originalFunc, newFunc));
-  console.log('Replaced successfully.');
-} else {
-  console.log('originalFunc not found.');
-}
+console.log("Patched successfully!");

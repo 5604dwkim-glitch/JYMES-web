@@ -2110,7 +2110,7 @@ export function renderSection5(ctx) {
             if (jointInput.value) jointInput.value = autoFormatDateTimeString(jointInput.value);
           });
           jointInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') jointInput.value = autoFormatDateTimeString(jointInput.value);
+            if (e.key === 'Enter') { e.preventDefault(); jointInput.value = autoFormatDateTimeString(jointInput.value); }
           });
         }
 

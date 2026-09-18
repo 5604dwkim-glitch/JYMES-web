@@ -95,7 +95,46 @@ export function extractDefectBreakdown(r) {
       addDefect('[클립머신] 종합 불량', r.dtCrewQty[`불량합계_${id}`]);
     });
   }
-  if (r.dtCrewQtyB) {
+  
+    // 6. qtyTable (동적 양식: 3001, 3004 등)
+    if (r.qtyTable) {
+      // 3004 양식용 (NE1a 검사포장)
+      ['w1', 'w2', 'w3', 'w4'].forEach(c => {
+        addDefect('[검사_압출] 스코치', r.qtyTable[`ext_scorch_${c}`]);
+        addDefect('[검사_압출] 외면흠', r.qtyTable[`ext_scratch_${c}`]);
+        addDefect('[검사_압출] 오염/코팅불량', r.qtyTable[`ext_contam_${c}`]);
+        addDefect('[검사_압출] 길이불량', r.qtyTable[`ext_len_${c}`]);
+        addDefect('[검사_압출] 소재클립누락', r.qtyTable[`ext_clip_${c}`]);
+        addDefect('[검사_압출] 기타', r.qtyTable[`ext_oth_${c}`]);
+
+        addDefect('[검사_조인트] 떨어짐/찢어짐', r.qtyTable[`j_tear_${c}`]);
+        addDefect('[검사_조인트] 양부족', r.qtyTable[`j_lack_${c}`]);
+        addDefect('[검사_조인트] 밀림/크랙', r.qtyTable[`j_push_${c}`]);
+        addDefect('[검사_조인트] 기포', r.qtyTable[`j_bubble_${c}`]);
+        addDefect('[검사_조인트] 씹힘/삽입불량', r.qtyTable[`j_chew_${c}`]);
+        addDefect('[검사_조인트] 넘침/오버랩', r.qtyTable[`j_over_${c}`]);
+        addDefect('[검사_조인트] 후변형', r.qtyTable[`j_deform_${c}`]);
+        addDefect('[검사_조인트] 이물질', r.qtyTable[`j_foreign_${c}`]);
+        addDefect('[검사_조인트] 꼬임', r.qtyTable[`j_twist_${c}`]);
+        addDefect('[검사_조인트] 기타', r.qtyTable[`j_oth_${c}`]);
+
+        addDefect('[검사_후가공] 과사상', r.qtyTable[`p_overtrim_${c}`]);
+        addDefect('[검사_후가공] 미사상', r.qtyTable[`p_undertrim_${c}`]);
+        addDefect('[검사_후가공] 본드오염', r.qtyTable[`p_bcontam_${c}`]);
+        addDefect('[검사_후가공] 외면오염', r.qtyTable[`p_econtam_${c}`]);
+        addDefect('[검사_후가공] 클립누락/반클', r.qtyTable[`p_cmiss_${c}`]);
+        addDefect('[검사_후가공] 클립홀누락', r.qtyTable[`p_chole_${c}`]);
+        addDefect('[검사_후가공] 드레인홀불량', r.qtyTable[`p_drain_${c}`]);
+        addDefect('[검사_후가공] 클립이종', r.qtyTable[`p_cdiff_${c}`]);
+        addDefect('[검사_후가공] 절단누락', r.qtyTable[`p_cutmiss_${c}`]);
+        addDefect('[검사_후가공] 본드누락/접착불량', r.qtyTable[`p_bmiss_${c}`]);
+        addDefect('[검사_후가공] 길이초과', r.qtyTable[`p_lenover_${c}`]);
+        addDefect('[검사_후가공] 클립간격불량', r.qtyTable[`p_cgap_${c}`]);
+        addDefect('[검사_후가공] 기타', r.qtyTable[`p_oth_${c}`]);
+      });
+    }
+
+    if (r.dtCrewQtyB) {
     ['LH2', 'RH2', 'LH3', 'RH3', 'LH4', 'RH4'].forEach(id => {
       addDefect('[클립머신] 종합 불량', r.dtCrewQtyB[`불량합계_${id}`]);
     });
@@ -169,7 +208,8 @@ export function buildStatsUpdate(oldReport, newReport) {
     if (!report) return;
     const car = report.carModel || '기타';
     const item = report.itemCode || report.itemName || '기타';
-    const key = `${car}::${item}`.replace(/[\.\/\[\]]/g, '_');
+    const proc = report.processName || '기타';
+      const key = `${car}::${item}::${proc}`.replace(/[\.\/\[\]]/g, '_');
     
     if (!updates.items[key]) updates.items[key] = {};
     const combo = updates.items[key];

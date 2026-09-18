@@ -431,7 +431,7 @@ export async function addReport(reportData) {
         isLeaderForm: reportData.isLeaderForm || false,
         isForkliftForm: reportData.isForkliftForm || false,
         isSupportForm: reportData.isSupportForm || false,
-        formCode: reportData.formCode || 'HSC-DT-005',
+        formCode: reportData.formCode || '',
         leaderFormItems: reportData.leaderFormItems || [],
         attendanceData: reportData.attendanceData || {},
         downtimeMinutes: Number(reportData.downtimeMinutes) || 0,

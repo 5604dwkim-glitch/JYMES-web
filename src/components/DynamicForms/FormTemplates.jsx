@@ -3634,6 +3634,223 @@ export function getPostQty1012HTML(ed, container) {
   }
 
 
+
+export function getForm3004QtyHTML(ed, container) {
+  const q = ed && ed.qtyTable ? ed.qtyTable : {};
+  const workers = store.getWorkers() || [];
+  
+  const workerOptions = workers.map(w => `<option value="${w.name}">${w.name}</option>`).join('');
+
+  const workerSelect = (pos) => `
+    <select id="qtyd_worker_${pos}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 2px;">
+      <option value="">작업자 선택</option>
+      ${workerOptions}
+    </select>
+    <script>
+      setTimeout(() => {
+        const el = document.getElementById('qtyd_worker_${pos}');
+        if (el && "${q[`worker_${pos}`] || ''}") {
+          el.value = "${q[`worker_${pos}`] || ''}";
+        }
+      }, 0);
+    </script>
+  `;
+  
+  const inp = (prefix, pos) => `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q[`${prefix}_${pos}`] ?? ''}" placeholder="0" />`;
+  const sum = (prefix, pos) => `<span id="qtyd_${prefix}_sum_${pos}">자동계산</span>`;
+
+  const cols = ['w1', 'w2', 'w3', 'w4'];
+
+  return `
+    <div class="card" style="padding: 16px; margin-bottom: 16px;">
+      <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+         <span class="sec-num"></span> 생산실적 및 불량현황
+      </label>
+
+      <input type="hidden" id="targetQty" value="${ed ? ed.targetQty : '0'}" />
+      <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
+      <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
+
+      <div style="overflow-x: auto;">
+        <table id="form3004QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <colgroup>
+            <col style="width: 15%;">
+            <col style="width: 15%;">
+            <col style="width: 17.5%;">
+            <col style="width: 17.5%;">
+            <col style="width: 17.5%;">
+            <col style="width: 17.5%;">
+          </colgroup>
+          <thead>
+            <tr style="background: #fff; font-weight: 700;">
+              <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000;">
+                작업자
+              </th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000;">${workerSelect('w1')}</th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000;">${workerSelect('w2')}</th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000;">${workerSelect('w3')}</th>
+              <th style="border: 1px solid #000; padding: 4px; font-size: 12px; color: #000;">${workerSelect('w4')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 제품 수량 -->
+            <tr>
+              <td rowspan="3" style="border: 1px solid #000; padding: 6px; font-weight: 700; color: #000;">제품<br>수량</td>
+              <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">검사수</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px; color: #64748b;">${sum('insp', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">정품수</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('good', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #f1f5f9; color: #334155;">불량합계</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px; background: #f1f5f9; color: #334155;">${sum('def_total', c)}</td>`).join('')}
+            </tr>
+
+            <!-- 압출 소재 불량 -->
+            <tr>
+              <td rowspan="7" style="border: 1px solid #000; padding: 6px; font-weight: 700; color: #000;">압출<br>소재<br>불량</td>
+              <td style="border: 1px solid #000; padding: 6px;">스코치</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">외 면 흠</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">오염/코팅불량</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">길 이 불 량</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('ext_len', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">소재클립누락</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('ext_clip', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">기 타</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #f8fafc;">소 계</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px; background: #f8fafc; color: #64748b;">${sum('ext', c)}</td>`).join('')}
+            </tr>
+
+            <!-- 조인트 불량 -->
+            <tr>
+              <td rowspan="11" style="border: 1px solid #000; padding: 6px; font-weight: 700; color: #000;">조인트<br>불량</td>
+              <td style="border: 1px solid #000; padding: 6px;">떨어짐/찢어짐</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_tear', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">양 부 족</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_lack', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">밀림 / 크랙</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_push', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">기 포</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_bubble', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">씹힘/삽입불량</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_chew', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">넘침/오버랩</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_over', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">후 변 형</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_deform', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">이 물 질</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_foreign', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">꼬 임</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_twist', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">기 타</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('j_oth', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #f8fafc;">불 량 수</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px; background: #f8fafc; color: #64748b;">${sum('j', c)}</td>`).join('')}
+            </tr>
+
+            <!-- 후가공 불량 -->
+            <tr>
+              <td rowspan="14" style="border: 1px solid #000; padding: 6px; font-weight: 700; color: #000;">후가공<br>불량</td>
+              <td style="border: 1px solid #000; padding: 6px;">과 사 상</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_overtrim', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">미 사 상</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_undertrim', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">본 드 오 염</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_bcontam', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">외 면 오 염</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_econtam', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">클립누락/반클</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_cmiss', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">클립홀누락</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_chole', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">드레인홀불량</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_drain', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">클립이종</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_cdiff', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">절 단 누 락</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_cutmiss', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">본드누락/접착불량</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_bmiss', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">길 이 초 과</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_lenover', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">클립간격불량</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_cgap', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px;">기 타</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;">${inp('p_oth', c)}</td>`).join('')}
+            </tr>
+            <tr>
+              <td style="border: 1px solid #000; padding: 6px; font-weight: 700; background: #f8fafc;">불 량 수</td>
+              ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px; background: #f8fafc; color: #64748b;">${sum('p', c)}</td>`).join('')}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
 export function getForm3001QtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     

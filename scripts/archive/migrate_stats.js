@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs, doc, setDoc, increment } from 'firebase/firestore';
-import { extractDefectBreakdown } from '../src/services/statsAggregator.js';
+import { extractDefectBreakdown } from '../../src/services/statsAggregator.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBk0b1VfUQsY69YY2ATRIQ4zWKr1pQHMJI",
@@ -46,6 +46,28 @@ async function migrateStats() {
     for (const [k, v] of Object.entries(defects)) {
       agg.defectBreakdowns[k] = (agg.defectBreakdowns[k] || 0) + v;
     }
+
+    if (!agg.items) agg.items = {};
+    const car = r.carModel || '기타';
+    const item = r.itemCode || r.itemName || '기타';
+    const proc = r.processName || '기타';
+    const comboKey = `${car}::${item}::${proc}`.replace(/[\.\/\[\]]/g, '_');
+    
+    if (!agg.items[comboKey]) agg.items[comboKey] = {};
+    const combo = agg.items[comboKey];
+    
+    const act = Number(r.actualQty || 0);
+    const def = Number(r.defectQty || 0);
+    if (act !== 0) combo.actualQty = (combo.actualQty || 0) + act;
+    if (def !== 0) combo.defectQty = (combo.defectQty || 0) + def;
+    
+    if (Object.keys(defects).length > 0) {
+      if (!combo.defects) combo.defects = {};
+      Object.entries(defects).forEach(([k, v]) => {
+        const dk = k.replace(/[\.\/]/g, '_');
+        combo.defects[dk] = (combo.defects[dk] || 0) + v;
+      });
+    }
   });
 
   console.log(`Aggregated stats for ${Object.keys(dailyAgg).length} days. Writing to Firestore...`);
@@ -53,7 +75,7 @@ async function migrateStats() {
   let count = 0;
   for (const [date, agg] of Object.entries(dailyAgg)) {
     const statsRef = doc(db, 'daily_stats', date);
-    await setDoc(statsRef, agg, { merge: true });
+    await setDoc(statsRef, agg);
     count++;
     if (count % 10 === 0) console.log(`Wrote ${count} days...`);
   }

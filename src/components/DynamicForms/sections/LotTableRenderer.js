@@ -1173,9 +1173,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
         }
       });
       input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          input.value = autoFormatDateTimeString(input.value);
-        }
+        if (e.key === 'Enter') { e.preventDefault(); input.value = autoFormatDateTimeString(input.value); }
       });
     });
 
