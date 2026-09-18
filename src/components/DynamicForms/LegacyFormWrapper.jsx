@@ -2983,6 +2983,7 @@ export function autoBindAllDimensionInputs(container) {
   inputs.forEach(input => {
     if (input.type === 'checkbox' || input.type === 'radio' || input.type === 'hidden') return;
     if (input.classList.contains('lot-datetime-input') || (input.id && input.id.startsWith('lotNo_'))) return;
+    if (input.id && (input.id.startsWith('vulc_stroke_') || input.id.startsWith('vulc2_stroke_'))) return; // 3002 양식 타수 입력 예외
 
     let defVal = 0;
     let foundSpec = false;
