@@ -2933,11 +2933,6 @@ export function autoBindAllDimensionInputs(container) {
     let foundSpec = false;
     let toleranceVal = null;
 
-    if (input.dataset.wheelParsedSpec !== undefined) {
-      defVal = parseFloat(input.dataset.wheelParsedSpec);
-      foundSpec = true;
-    }
-
     // Explicit check by input ID patterns (1001, 1031, etc.)
     const inputId = input.id || '';
     if (inputId.startsWith('dim_step_f_')) {
@@ -3110,6 +3105,15 @@ export function autoBindAllDimensionInputs(container) {
               foundSpec = true;
         }
       }
+    }
+
+    // OVERRIDE: If data-wheel-parsed-spec or data-wheel-tolerance is explicitly provided, they take precedence
+    if (input.dataset.wheelParsedSpec !== undefined) {
+      defVal = parseFloat(input.dataset.wheelParsedSpec);
+      foundSpec = true;
+    }
+    if (input.dataset.wheelTolerance !== undefined) {
+      toleranceVal = parseFloat(input.dataset.wheelTolerance);
     }
 
     // F. Fallbacks and styling by type
