@@ -1304,6 +1304,13 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         ltl_rr_rh_종: container.querySelector('#dim_ltl_rr_rh_종')?.value || ''
       };
 
+      container.querySelectorAll('input[id^="dim_"]').forEach(el => {
+        const key = el.id.replace('dim_', '');
+        if (dimData[key] === undefined) {
+          dimData[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+
       const dim2005Data = {
         cho_A_lh: container.querySelector('#dim2005_cho_A_lh')?.value || '',
         cho_A_rh: container.querySelector('#dim2005_cho_A_rh')?.value || '',

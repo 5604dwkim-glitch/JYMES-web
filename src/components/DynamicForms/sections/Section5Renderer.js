@@ -2390,7 +2390,196 @@ export function renderSection5(ctx) {
       const curCarCode = carModelValue ? carModelValue.value : currentCarCode;
       const curPart = partValueInput ? partValueInput.value : '';
 
-      
+      if (formCode === 3001) {
+        const inp = (id, spec, ph) => `<input type="text" id="${id}" data-wheel-parsed-spec="${spec}" class="form-control" style="width: 100%; height: 26px; border: none; text-align: center; font-size: 11px; padding: 2px;" value="\${d['${id}'] || ''}" placeholder="${ph}" />`;
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인 (FRT A / RR A)
+            </label>
+            <div style="overflow-x: auto; margin-bottom: 24px;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                    <th style="border: 1px solid #000; padding: 6px; width: 16%; font-size: 12px;">구분</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">FRT LH A</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">FRT RH A</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">RR LH A</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">RR RH A</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 정치절단 -->
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 4px; font-weight: 700; vertical-align: middle;">정치절단</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 1189±5</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 668±5</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_frt_lh_a_초', '1189', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_frt_rh_a_초', '1189', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_a_초', '668', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_a_초', '668', '(초물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_frt_lh_a_중', '1189', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_frt_rh_a_중', '1189', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_a_중', '668', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_a_중', '668', '(중물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_frt_lh_a_종', '1189', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_frt_rh_a_종', '1189', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_a_종', '668', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_a_종', '668', '(종물)')}</td>
+                  </tr>
+                  
+                  <!-- 단컷팅 -->
+                  <tr>
+                    <td rowspan="9" style="border: 1px solid #000; padding: 4px; font-weight: 700; vertical-align: middle;">단컷팅</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">Q부</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">S부/R부</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 73±1</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 57±1</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_q_lh_a_초', '73', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_q_rh_a_초', '73', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr1_lh_a_초', '57', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr1_rh_a_초', '57', '(초물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_q_lh_a_중', '73', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_q_rh_a_중', '73', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr1_lh_a_중', '57', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr1_rh_a_중', '57', '(중물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_q_lh_a_종', '73', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_q_rh_a_종', '73', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr1_lh_a_종', '57', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr1_rh_a_종', '57', '(종물)')}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" rowspan="4" style="border: 1px solid #000; background: linear-gradient(to bottom right, transparent 49%, #ccc 50%, transparent 51%);"></td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 75±1</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr2_lh_a_초', '75', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr2_rh_a_초', '75', '(초물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr2_lh_a_중', '75', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr2_rh_a_중', '75', '(중물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr2_lh_a_종', '75', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sr2_rh_a_종', '75', '(종물)')}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인 (RR C / RR D)
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                    <th style="border: 1px solid #000; padding: 6px; width: 16%; font-size: 12px;">구분</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">RR LH C</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">RR RH C</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">RR LH D</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 21%;">RR RH D</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 정치절단 -->
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 4px; font-weight: 700; vertical-align: middle;">정치절단</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 397±3</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 499±3</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_c_초', '397', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_c_초', '397', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_d_초', '499', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_d_초', '499', '(초물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_c_중', '397', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_c_중', '397', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_d_중', '499', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_d_중', '499', '(중물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_c_종', '397', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_c_종', '397', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_lh_d_종', '499', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_cut_rr_rh_d_종', '499', '(종물)')}</td>
+                  </tr>
+                  
+                  <!-- 단컷팅 -->
+                  <tr>
+                    <td rowspan="9" style="border: 1px solid #000; padding: 4px; font-weight: 700; vertical-align: middle;">단컷팅</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">R부/R부 사선커팅</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">S부/D부 사선커팅</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 41±1</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 30±1</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr1_lh_c_초', '41', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr1_rh_c_초', '41', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd1_lh_d_초', '30', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd1_rh_d_초', '30', '(초물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr1_lh_c_중', '41', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr1_rh_c_중', '41', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd1_lh_d_중', '30', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd1_rh_d_중', '30', '(중물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr1_lh_c_종', '41', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr1_rh_c_종', '41', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd1_lh_d_종', '30', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd1_rh_d_종', '30', '(종물)')}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 10±1</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 4px; font-weight: 700;">스펙(mm) 19±1</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr2_lh_c_초', '10', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr2_rh_c_초', '10', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd2_lh_d_초', '19', '(초물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd2_rh_d_초', '19', '(초물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr2_lh_c_중', '10', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr2_rh_c_중', '10', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd2_lh_d_중', '19', '(중물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd2_rh_d_중', '19', '(중물)')}</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr2_lh_c_종', '10', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_rr2_rh_c_종', '10', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd2_lh_d_종', '19', '(종물)')}</td>
+                    <td style="border: 1px solid #000; padding: 2px;">${inp('dim_step_sd2_rh_d_종', '19', '(종물)')}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
       const isDtCrew = (curCarCode === 'DT CREW' || curCarCode === 'DT QUAD' || curCarCode === 'DS CREW' || curCarCode === 'DS STD');
       const dtLenSpec = (formCode === 2023) ? '475 ± 5' : ((curCarCode === 'DT QUAD') ? '509 ± 5' : '779 ± 5');
       const dtStep2Spec = (formCode === 2023) ? '40 ± 1' : '28 ± 1';
