@@ -633,7 +633,27 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
                   }
                 }
               }
-            }} />
+            }} plugins={[{
+              id: 'defectRateLabels',
+              afterDatasetsDraw(chart) {
+                const ds = chart.data.datasets[0]; // 불량률(%) 라인 = index 0
+                if (!ds || ds.type !== 'line') return;
+                const meta = chart.getDatasetMeta(0);
+                const ctx2 = chart.ctx;
+                ctx2.save();
+                ctx2.font = 'bold 9px sans-serif';
+                ctx2.fillStyle = '#ef4444';
+                ctx2.textAlign = 'center';
+                ctx2.textBaseline = 'bottom';
+                meta.data.forEach((pt, i) => {
+                  const val = ds.data[i];
+                  if (val === null || val === undefined || Number(val) === 0) return;
+                  ctx2.fillText(`${val}%`, pt.x, pt.y - 4);
+                });
+                ctx2.restore();
+              }
+            }]} />
+
           </div>
         )}
 
