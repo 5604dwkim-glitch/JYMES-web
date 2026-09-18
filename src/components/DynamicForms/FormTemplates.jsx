@@ -2142,7 +2142,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ((formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : ''))}" placeholder="${(formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : '0')}" />
+                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ((formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : (formCode === 1033 ? '30' : '')))}" placeholder="${(formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : (formCode === 1033 ? '30' : '0'))}" />
                   </td>
                 `).join('')}
               </tr>
