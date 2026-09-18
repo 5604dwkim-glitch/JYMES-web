@@ -1880,7 +1880,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
   }
 
 
-  export function getJointQtyHTML(ed, container) {
+  export function getJointQtyHTML(ed, container, formCode = null) {
     const q = ed && ed.jointQtyTable ? ed.jointQtyTable : {};
     const cols = [
       { id: 'frt_p', label: 'LH' },
@@ -1916,7 +1916,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? (formCode === 1011 ? '60' : '')}" placeholder="${formCode === 1011 ? '60' : '0'}" />
                   </td>
                 `).join('')}
               </tr>
