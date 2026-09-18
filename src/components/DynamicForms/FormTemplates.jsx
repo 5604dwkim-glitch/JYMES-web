@@ -2031,7 +2031,7 @@ export function getJointQty1032HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['plan_'+c.id] || ''}" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['plan_'+c.id] ?? '30'}" placeholder="30" />
                   </td>
                 `).join('')}
               </tr>
