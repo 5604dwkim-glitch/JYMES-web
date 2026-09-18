@@ -579,7 +579,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
                     ticks:{ 
                       maxRotation: 0,
                       minRotation: 0,
-                      autoSkip: true,
+                      autoSkip: false,
                       font: { size: 10 },
                       color: function(context) {
                         if (chartPeriod === 'daily' && context.tick && typeof context.tick.value === 'number') {
