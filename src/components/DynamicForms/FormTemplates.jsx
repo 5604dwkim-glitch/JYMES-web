@@ -3848,7 +3848,11 @@ export function getForm3001QtyHTML(ed, container) {
     const q = ed && ed.qtyTable ? ed.qtyTable : {};
     
     // 헬퍼: input 태그 생성
-    const inp = (prefix, pos) => `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q[`${prefix}_${pos}`] ?? ''}" placeholder="0" />`;
+    const inp = (prefix, pos) => {
+      const defaultVal = prefix === 'plan' ? '200' : '';
+      const val = q[`${prefix}_${pos}`] !== undefined && q[`${prefix}_${pos}`] !== '' ? q[`${prefix}_${pos}`] : defaultVal;
+      return `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${val}" placeholder="${prefix === 'plan' ? '200' : '0'}" />`;
+    };
     const sum = (pos) => `<span id="qtyd_def_sum_${pos}">0</span>`;
 
     const getTable = (title, cols) => `
