@@ -324,7 +324,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   const partSelectSection = container.querySelector('#partSelectSection');
   const partChipGroup = container.querySelector('#partChipGroup');
   const partValueInput = container.querySelector('#partValue');
-  const qtySection = container.querySelector('#qtySection');
+
 
   bindTimeWheelPicker(container.querySelector('#startTimeInput'), '시작시간 선택');
   bindTimeWheelPicker(container.querySelector('#endTimeInput'), '종료시간 선택');
@@ -442,7 +442,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
   function _getCtx() {
     return { container, processValue, carModelValue, currentCarCode, partValueInput, existingData,
-             getCurrentFormCode, bindNumberWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, qtySection, isDtCrewClip, currentMakerName, molds: store.getMolds() };
+             getCurrentFormCode, bindNumberWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, 
+             get qtySection() { return container.querySelector('#qtySection'); },
+             isDtCrewClip, currentMakerName, molds: store.getMolds() };
   }
   function renderSection5() {
     _Sections.renderSection5(_getCtx());
