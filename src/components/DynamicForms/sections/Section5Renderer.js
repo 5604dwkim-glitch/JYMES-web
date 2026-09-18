@@ -1498,31 +1498,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_r_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_r_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_r_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_lh_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_lh_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_lh_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_rh_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_start_rr_s_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_start_rr_s_rh_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_start_rr_s_rh_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1531,31 +1531,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_r_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_r_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_r_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_lh_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_lh_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_lh_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_rh_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_harf_rr_s_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_harf_rr_s_rh_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_harf_rr_s_rh_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
               </tr>
@@ -1564,31 +1564,31 @@ export function renderSection5(ctx) {
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_r_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_r_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_r_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_r_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_r_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_lh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_lh_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_lh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_lh_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_lh_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(상)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_rh_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_상 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_rh_상" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_상 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                   <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
                     <span style="font-size: 10px; color: #555; font-weight: 700;">(하)</span>
-                    <input type="text" id="vulc_temp_finish_rr_s_rh_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_하 || (formCode === 1032 ? '210' : '')}" readonly />
+                    <input type="text" id="vulc_temp_finish_rr_s_rh_하" data-wheel-parsed-spec="200" class="form-control" style="width: 70%; height: 24px; text-align: center; font-size: 11px; padding: 2px;" value="${v.temp_finish_rr_s_rh_하 || (formCode === 1032 ? '200' : '')}" readonly />
                   </div>
                 </td>
               </tr>
