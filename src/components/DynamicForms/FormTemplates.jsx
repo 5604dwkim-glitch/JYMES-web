@@ -3491,6 +3491,10 @@ export function getPostQty1012HTML(ed, container) {
         <input type="hidden" id="actualQty" value="${ed ? ed.actualQty : '0'}" />
         <input type="hidden" id="defectQty" value="${ed ? ed.defectQty : '0'}" />
 
+        <div style="text-align: center; margin-bottom: 12px;">
+          <img src="/images/form1012_guide.jpg" alt="1012 Guide" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 4px;" />
+        </div>
+
         <div style="overflow-x: auto;">
           <table id="postQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
