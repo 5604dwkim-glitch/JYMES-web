@@ -2050,10 +2050,10 @@ export function getJointQty1032HTML(ed, container) {
               <!-- 2. 불량 (DEFECT) -->
               <tr>
                 <td rowspan="9" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                  불 량<br>(DEFECT)
+                  공정간불량<br>(Process<br>Badness)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  터짐(Split)
+                  떨어짐(Split)
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
@@ -2066,27 +2066,27 @@ export function getJointQty1032HTML(ed, container) {
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['push_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">미성형(Lack)</td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">양부족<br>(lack of quantity)</td>
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['lack_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">오버(Over)</td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">넘침(overflowing)</td>
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['over_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기포(Bubble)</td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기포 (Air bubbles)</td>
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['bubble_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">조각(Scrap)</td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">찌꺼기(worthless)</td>
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['scrap_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">인서트(Insert)</td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">삽입불량(Bad insert)</td>
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['insert_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기 타(Oth.)</td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기타(The others)</td>
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['oth_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr style="background: #f8fafc; font-weight: 700;">
