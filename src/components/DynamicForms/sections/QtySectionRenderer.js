@@ -515,10 +515,9 @@ export function renderQtySection(ctx) {
       const defs = [
         Number(table.querySelector(`#qtyd_ext_scorch_${pos}`)?.value) || 0,
         Number(table.querySelector(`#qtyd_ext_scratch_${pos}`)?.value) || 0,
-        Number(table.querySelector(`#qtyd_ext_flock_${pos}`)?.value) || 0,
-        Number(table.querySelector(`#qtyd_ext_contam_${pos}`)?.value) || 0,
-        Number(table.querySelector(`#qtyd_proc_len_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_ext_oth_${pos}`)?.value) || 0,
         Number(table.querySelector(`#qtyd_proc_cut_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#qtyd_proc_hole_${pos}`)?.value) || 0,
         Number(table.querySelector(`#qtyd_proc_oth_${pos}`)?.value) || 0
       ];
 

@@ -3885,56 +3885,49 @@ export function getForm3001QtyHTML(ed, container) {
               </tr>
               <!-- 2. 압출소재불량(Extrusion Badness) -->
               <tr>
-                <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  압출소재불량<br>(Extrusion Badness)
+                <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  압출 소재 불량
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">스코치(Scortch)</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">스코치</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[0].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[1].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[2].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scorch', cols[3].key)}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">외면흠 (Scratch)</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">외면 불량</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[0].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[1].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[2].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('ext_scratch', cols[3].key)}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">플로킹 (Flock)</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[0].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[1].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[2].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_flock', cols[3].key)}</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타 (   )</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_oth', cols[3].key)}</td>
               </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">오염/이물 (Contam)</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[0].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[1].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[2].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('ext_contam', cols[3].key)}</td>
-              </tr>
-              <!-- 3. 공정불량(Process Badness) -->
+              <!-- 3. 공정간불량(Process Badness) -->
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  공정불량<br>(Process Badness)
+                  공정간 불량
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">길이불량(Len)</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[0].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[1].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[2].key)}</td>
-                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_len', cols[3].key)}</td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">단면컷팅(Cut)</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">절단 불량</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[0].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[1].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[2].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_cut', cols[3].key)}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타(Oth)</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">홀 가공 불량</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_hole', cols[0].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_hole', cols[1].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_hole', cols[2].key)}</td>
+                <td style="border: 1px solid #000; padding: 2px;">${inp('proc_hole', cols[3].key)}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타 (   )</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[0].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[1].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('proc_oth', cols[2].key)}</td>

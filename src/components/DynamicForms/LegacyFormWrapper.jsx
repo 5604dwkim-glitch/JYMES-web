@@ -1387,6 +1387,17 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         proc_oth_RR: container.querySelector('#def_proc_oth_RR')?.value || ''
       };
 
+      container.querySelectorAll('input.qty-input-dynamic, input[id^="qtyd_"]').forEach(el => {
+        let key = el.id;
+        if (key.startsWith('qtyd_')) key = key.replace('qtyd_', '');
+        else if (key.startsWith('qty_')) key = key.replace('qty_', '');
+        else if (key.startsWith('def_')) key = key.replace('def_', '');
+        
+        if (qtyTable[key] === undefined) {
+          qtyTable[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+
       const vulcData = {
 
         set_nozzle: container.querySelector('#vulc_set_nozzle')?.value || '',
