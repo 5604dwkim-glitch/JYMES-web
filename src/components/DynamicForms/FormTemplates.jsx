@@ -1424,8 +1424,8 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? (formCode === 1013 ? '60' : '')}" placeholder="${formCode === 1013 ? '60' : '0'}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? (formCode === 1013 ? '60' : '')}" placeholder="${formCode === 1013 ? '60' : '0'}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? (formCode === 1013 ? '60' : formCode === 1024 ? '200' : '')}" placeholder="${formCode === 1013 ? '60' : formCode === 1024 ? '200' : '0'}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? (formCode === 1013 ? '60' : formCode === 1024 ? '200' : '')}" placeholder="${formCode === 1013 ? '60' : formCode === 1024 ? '200' : '0'}" /></td>
                 
               </tr>
               <tr>
