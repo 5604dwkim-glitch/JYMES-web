@@ -2357,7 +2357,7 @@ export function renderSection5(ctx) {
                     <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-weight: 700; width: 24px; text-align: center;">(초)</span>
-                        <input type="text" id="dim_ptg_act_초" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_초'] || ''}" />
+                        <input type="text" id="dim_ptg_act_초" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" value="${d['ptg_act_초'] || ''}" />
                       </div>
                     </td>
                   </tr>
@@ -2365,7 +2365,7 @@ export function renderSection5(ctx) {
                     <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-weight: 700; width: 24px; text-align: center;">(중)</span>
-                        <input type="text" id="dim_ptg_act_중" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_중'] || ''}" />
+                        <input type="text" id="dim_ptg_act_중" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" value="${d['ptg_act_중'] || ''}" />
                       </div>
                     </td>
                   </tr>
@@ -2373,7 +2373,7 @@ export function renderSection5(ctx) {
                     <td style="border: 1px solid #000; padding: 4px; text-align: left; background: #ffffff;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
                         <span style="font-weight: 700; width: 24px; text-align: center;">(종)</span>
-                        <input type="text" id="dim_ptg_act_종" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" placeholder="326" value="${d['ptg_act_종'] || ''}" />
+                        <input type="text" id="dim_ptg_act_종" class="form-control" style="flex: 1; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; padding: 4px;" value="${d['ptg_act_종'] || ''}" />
                       </div>
                     </td>
                   </tr>
