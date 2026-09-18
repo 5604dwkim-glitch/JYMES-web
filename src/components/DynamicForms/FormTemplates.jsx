@@ -1635,8 +1635,8 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
     const processValue = container ? container.querySelector('#processValue') : null;
     const curProc = processValue ? processValue.value : '';
     const sectionTitleLabel = '📊 <span class="sec-num"></span> 생산실적 및 불량 현황';
-    const defaultPlan = formCode === 1001 ? 100 : (formCode === 1004 ? 60 : (formCode === 1031 ? 30 : ''));
-    const defaultPlaceholder = formCode === 1004 ? '60' : (formCode === 1031 ? '30' : '0');
+    const defaultPlan = formCode === 1001 ? 100 : (formCode === 1004 ? 60 : (formCode === 1031 || formCode === 1034 ? 30 : ''));
+    const defaultPlaceholder = formCode === 1004 ? '60' : (formCode === 1031 || formCode === 1034 ? '30' : '0');
 
     return `
       <div class="card" style="padding: 16px; margin-bottom: 16px;">
