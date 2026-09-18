@@ -2147,7 +2147,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? (formCode === 1003 ? '60' : '')}" placeholder="${formCode === 1003 ? '60' : '0'}" />
                   </td>
                 `).join('')}
               </tr>
@@ -2207,14 +2207,6 @@ export function getPostQtyHTML(ed, container, formCode) {
                   기타(etc)
                 </td>
                 ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
-              </tr>
-
-              <!-- 3. 조인트 불량 합계 (Sum Defects) -->
-              <tr style="background: #fffde7; font-weight: 700;">
-                <td colspan="2" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">
-                  불량 합계(Sum Defects)
-                </td>
-                ${cols.map(c => `<td id="pdef_j_sum_${c.id}" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>`).join('')}
               </tr>
 
               <!-- 4. 후가공 불량 (Bad post-processing) -->
