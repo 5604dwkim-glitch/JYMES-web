@@ -683,7 +683,63 @@ export function renderQtySection(ctx) {
     if (actualQtyInput) actualQtyInput.value = totalAct;
     if (defectQtyInput) defectQtyInput.value = overallDefect;
   }
+  
+  function calcPostQty3003Summary() {
+    const table = container.querySelector('#postQtyTable');
+    if (!table) return;
+
+    const cols = ['fl', 'fr', 'rl', 'rr'];
+    let totalPlan = 0;
+    let totalAct = 0;
+    let overallDefect = 0;
+
+    const extKeys = ['scorch', 'scratch', 'coat', 'len', 'clip_omit', 'oth'];
+    const jointKeys = ['drop', 'lack', 'push', 'bubble', 'chew', 'overflow', 'deform', 'foreign', 'twist', 'oth'];
+    const postKeys = ['oversand', 'undersand', 'bond_contam', 'ext_contam', 'clip_half', 'clip_hole_omit', 'drain_bad', 'clip_diff', 'cut_omit', 'bond_omit', 'len_over', 'clip_gap_bad', 'oth'];
+
+    cols.forEach(cId => {
+      const plan = Number(table.querySelector(`#pqty_plan_${cId}`)?.value) || 0;
+      const act = Number(table.querySelector(`#pqty_act_${cId}`)?.value) || 0;
+      totalPlan += plan;
+      totalAct += act;
+
+      let extSum = 0;
+      extKeys.forEach(k => {
+        extSum += Number(table.querySelector(`#pdef_ext_${k}_${cId}`)?.value) || 0;
+      });
+
+      let jointSum = 0;
+      jointKeys.forEach(k => {
+        jointSum += Number(table.querySelector(`#pdef_j_${k}_${cId}`)?.value) || 0;
+      });
+      const jRowElem = table.querySelector(`#pdef_j_row_sum_${cId}`);
+      if (jRowElem) jRowElem.textContent = jointSum;
+
+      let postSum = 0;
+      postKeys.forEach(k => {
+        postSum += Number(table.querySelector(`#pdef_post_${k}_${cId}`)?.value) || 0;
+      });
+      const postRowElem = table.querySelector(`#pdef_post_row_sum_${cId}`);
+      if (postRowElem) postRowElem.textContent = postSum;
+
+      const colTotal = extSum + jointSum + postSum;
+      overallDefect += colTotal;
+
+      const totalElem = table.querySelector(`#pdef_total_sum_${cId}`);
+      if (totalElem) totalElem.textContent = colTotal;
+    });
+
+    const targetQtyInput = container.querySelector('#targetQty');
+    const actualQtyInput = container.querySelector('#actualQty');
+    const defectQtyInput = container.querySelector('#defectQty');
+
+    if (targetQtyInput) targetQtyInput.value = totalPlan;
+    if (actualQtyInput) actualQtyInput.value = totalAct;
+    if (defectQtyInput) defectQtyInput.value = overallDefect;
+  }
+
   function calcPostQtySummary() {
+
     const table = container.querySelector('#postQtyTable');
     if (!table) return;
 
