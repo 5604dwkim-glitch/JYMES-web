@@ -3582,6 +3582,134 @@ ${renderDtRow4('종')}
             </div>
           </div>
         `;
+      } else if (formCode === 3004) {
+        const d = existingData?.dimData || {};
+        section5.innerHTML = `
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 12px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <tbody>
+                  <!-- 소재 길이 파트 -->
+                  <tr>
+                    <td colspan="2" style="border: 1px solid #000; padding: 6px; font-weight: 700;">구분</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">FRT LH A</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">FRT RH A</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR LH A</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR RH A</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="9" style="border: 1px solid #000; padding: 6px; font-weight: 700; vertical-align: middle;">소재<br>길이</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">스펙(mm)</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 6px; font-weight: 700;">1189±5</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 6px; font-weight: 700;">668±5</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(초물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_frt_lh_a_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_frt_lh_a_초'] || ''}" data-wheel-parsed-spec="1189" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_frt_rh_a_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_frt_rh_a_초'] || ''}" data-wheel-parsed-spec="1189" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_a_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_a_초'] || ''}" data-wheel-parsed-spec="668" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_a_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_a_초'] || ''}" data-wheel-parsed-spec="668" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(중물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_frt_lh_a_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_frt_lh_a_중'] || ''}" data-wheel-parsed-spec="1189" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_frt_rh_a_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_frt_rh_a_중'] || ''}" data-wheel-parsed-spec="1189" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_a_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_a_중'] || ''}" data-wheel-parsed-spec="668" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_a_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_a_중'] || ''}" data-wheel-parsed-spec="668" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(종물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_frt_lh_a_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_frt_lh_a_종'] || ''}" data-wheel-parsed-spec="1189" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_frt_rh_a_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_frt_rh_a_종'] || ''}" data-wheel-parsed-spec="1189" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_a_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_a_종'] || ''}" data-wheel-parsed-spec="668" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_a_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_a_종'] || ''}" data-wheel-parsed-spec="668" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;"></td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR LH C</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR RH C</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR LH D</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR RH D</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">스펙(mm)</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 6px; font-weight: 700;">397±3</td>
+                    <td colspan="2" style="border: 1px solid #000; padding: 6px; font-weight: 700;">499±3</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(초물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_c_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_c_초'] || ''}" data-wheel-parsed-spec="397" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_c_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_c_초'] || ''}" data-wheel-parsed-spec="397" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_d_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_d_초'] || ''}" data-wheel-parsed-spec="499" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_d_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_d_초'] || ''}" data-wheel-parsed-spec="499" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(중물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_c_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_c_중'] || ''}" data-wheel-parsed-spec="397" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_c_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_c_중'] || ''}" data-wheel-parsed-spec="397" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_d_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_d_중'] || ''}" data-wheel-parsed-spec="499" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_d_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_d_중'] || ''}" data-wheel-parsed-spec="499" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(종물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_c_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_c_종'] || ''}" data-wheel-parsed-spec="397" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_c_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_c_종'] || ''}" data-wheel-parsed-spec="397" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_lh_d_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_lh_d_종'] || ''}" data-wheel-parsed-spec="499" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_mat_rr_rh_d_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['mat_rr_rh_d_종'] || ''}" data-wheel-parsed-spec="499" /></td>
+                  </tr>
+                  
+                  <!-- 클립 간격 파트 -->
+                  <tr>
+                    <td colspan="2" style="border: 1px solid #000; padding: 6px; font-weight: 700;">구분</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">FRT LH B</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">FRT RH B</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR LH B</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">RR RH B</td>
+                  </tr>
+                  <tr>
+                    <td rowspan="5" style="border: 1px solid #000; padding: 6px; font-weight: 700; vertical-align: middle;">클립<br>간격</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;"></td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">P부</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">Q부</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">R부</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">S부</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">스펙(mm)</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">109±1.5</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">112±1.5</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">112±1.5</td>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">7±1.5</td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(초물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_frt_lh_b_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_frt_lh_b_초'] || ''}" data-wheel-parsed-spec="109" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_frt_rh_b_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_frt_rh_b_초'] || ''}" data-wheel-parsed-spec="112" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_rr_lh_b_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_rr_lh_b_초'] || ''}" data-wheel-parsed-spec="112" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_rr_rh_b_초" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_rr_rh_b_초'] || ''}" data-wheel-parsed-spec="7" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(중물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_frt_lh_b_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_frt_lh_b_중'] || ''}" data-wheel-parsed-spec="109" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_frt_rh_b_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_frt_rh_b_중'] || ''}" data-wheel-parsed-spec="112" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_rr_lh_b_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_rr_lh_b_중'] || ''}" data-wheel-parsed-spec="112" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_rr_rh_b_중" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_rr_rh_b_중'] || ''}" data-wheel-parsed-spec="7" /></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px; font-weight: 700;">(종물)</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_frt_lh_b_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_frt_lh_b_종'] || ''}" data-wheel-parsed-spec="109" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_frt_rh_b_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_frt_rh_b_종'] || ''}" data-wheel-parsed-spec="112" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_rr_lh_b_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_rr_lh_b_종'] || ''}" data-wheel-parsed-spec="112" /></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_clip_rr_rh_b_종" class="form-control " style="width:100%; border:none; text-align:center; padding:4px;" value="${d['clip_rr_rh_b_종'] || ''}" data-wheel-parsed-spec="7" /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
       } else {
         const d = existingData?.dimData || {};
         const isJg1Inbelt = (curCarCode === 'JG1' || curCarCode === 'JG1S' || (currentMakerName && currentMakerName.includes('제네시스'))) &&
