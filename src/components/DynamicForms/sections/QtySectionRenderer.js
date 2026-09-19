@@ -579,7 +579,70 @@ export function renderQtySection(ctx) {
     if (defectQtyInput) defectQtyInput.value = overallDefect;
   }
 
+  
+  function calcJointQty3003Summary() {
+    const table = container.querySelector('#jointQtyTable');
+    if (!table) return;
+
+    const planLH = Number(table.querySelector('#jqty_plan_frt_p')?.value) || 0;
+    const planRH = Number(table.querySelector('#jqty_plan_frt_q')?.value) || 0;
+    const actLH = Number(table.querySelector('#jqty_act_frt_p')?.value) || 0;
+    const actRH = Number(table.querySelector('#jqty_act_frt_q')?.value) || 0;
+
+    const totalPlan = planLH + planRH;
+    const totalAct = actLH + actRH;
+
+    const extKeys = ['scorch', 'scratch', 'coat', 'len', 'clip_omit', 'oth'];
+    const jointKeys = ['drop', 'lack', 'push', 'bubble', 'chew', 'overflow', 'deform', 'foreign', 'twist', 'oth'];
+    const postKeys = ['oversand', 'undersand', 'bond_contam', 'ext_contam', 'clip_half', 'clip_hole_omit', 'drain_bad', 'clip_diff', 'cut_omit', 'bond_omit', 'len_over', 'clip_gap_bad', 'oth'];
+
+    let extLH = 0, extRH = 0;
+    extKeys.forEach(k => {
+      extLH += Number(table.querySelector(`#dtc_pdef_ext_${k}_LH`)?.value) || 0;
+      extRH += Number(table.querySelector(`#dtc_pdef_ext_${k}_RH`)?.value) || 0;
+    });
+
+    let jointLH = 0, jointRH = 0;
+    jointKeys.forEach(k => {
+      jointLH += Number(table.querySelector(`#dtc_pdef_j_${k}_LH`)?.value) || 0;
+      jointRH += Number(table.querySelector(`#dtc_pdef_j_${k}_RH`)?.value) || 0;
+    });
+    
+    const jRowLHElem = table.querySelector('#dtc_pdef_j_row_sum_LH');
+    const jRowRHElem = table.querySelector('#dtc_pdef_j_row_sum_RH');
+    if (jRowLHElem) jRowLHElem.textContent = jointLH;
+    if (jRowRHElem) jRowRHElem.textContent = jointRH;
+
+    let postLH = 0, postRH = 0;
+    postKeys.forEach(k => {
+      postLH += Number(table.querySelector(`#dtc_pdef_post_${k}_LH`)?.value) || 0;
+      postRH += Number(table.querySelector(`#dtc_pdef_post_${k}_RH`)?.value) || 0;
+    });
+
+    const pRowLHElem = table.querySelector('#dtc_pdef_post_row_sum_LH');
+    const pRowRHElem = table.querySelector('#dtc_pdef_post_row_sum_RH');
+    if (pRowLHElem) pRowLHElem.textContent = postLH;
+    if (pRowRHElem) pRowRHElem.textContent = postRH;
+
+    const totalDefectLH = extLH + jointLH + postLH;
+    const totalDefectRH = extRH + jointRH + postRH;
+    
+    const sumLHElem = table.querySelector('#dtc_pdef_total_sum_LH');
+    const sumRHElem = table.querySelector('#dtc_pdef_total_sum_RH');
+    if (sumLHElem) sumLHElem.textContent = totalDefectLH;
+    if (sumRHElem) sumRHElem.textContent = totalDefectRH;
+
+    const targetQtyInput = container.querySelector('#targetQty');
+    const actualQtyInput = container.querySelector('#actualQty');
+    const defectQtyInput = container.querySelector('#defectQty');
+
+    if (targetQtyInput) targetQtyInput.value = totalPlan;
+    if (actualQtyInput) actualQtyInput.value = totalAct;
+    if (defectQtyInput) defectQtyInput.value = totalDefectLH + totalDefectRH;
+  }
+
   function calcJointQtySummary() {
+
     const table = container.querySelector('#jointQtyTable');
     if (!table) return;
 
@@ -950,6 +1013,8 @@ export function renderQtySection(ctx) {
             qtySection.innerHTML = Templates.getJointQty3002HTML(existingData, container);
           } else if (formCode === 3002) {
             qtySection.innerHTML = Templates.getJointQty3002HTML(existingData, container);
+          } else if (formCode === 3003) {
+            qtySection.innerHTML = Templates.getJointQty3003HTML(existingData, container);
           } else if (formCode === 1032) {
             qtySection.innerHTML = Templates.getJointQty1032HTML(existingData, container);
           } else {
