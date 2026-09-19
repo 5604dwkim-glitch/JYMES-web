@@ -2942,13 +2942,13 @@ export function getPostQtyHTML(ed, container, formCode) {
                 
               </tr>
 
-              <!-- 2. 압출소재불량(Extrusion Badness) -->
+              <!-- 2. 압출소재불량(extruded material) -->
               <tr>
-                <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  압출소재불량<br>(Extrusion Badness)
+                <td rowspan="6" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  압출소재<br>(extruded material)
                 </td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  스코치(Scortch)
+                  스코치(Scorch)
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
@@ -2956,7 +2956,7 @@ export function getPostQtyHTML(ed, container, formCode) {
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  외면흠 (Scratch)
+                  외면 흠<br>(external blemish)
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
@@ -2964,28 +2964,44 @@ export function getPostQtyHTML(ed, container, formCode) {
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  후로킹 (Flock,g)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
-                
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  오염 (Contamination)
+                  오염(Pollution)
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  길이 미달<br>(short of length)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_short_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_short_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_short_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_short_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  단면이상<br>(cross-section abnormality)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_cross_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_cross_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_cross_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_cross_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  기타 (etc)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_etc_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_etc_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_etc_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_etc_FR ?? ''}" placeholder="0" /></td>
+                
+              </tr>
 
-              <!-- 3. 공정간불량(Process Badness) -->
+              <!-- 3. 공정간불량(Defect between processes) -->
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  공정간불량<br>(Process Badness)
+                  공정간 불량<br>(Defect between processes)
                 </td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  길이 (Length)
+                  길이(Length)
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
@@ -2993,7 +3009,7 @@ export function getPostQtyHTML(ed, container, formCode) {
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  컷팅 (Cutting)
+                  컷팅(Cutting)
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
@@ -3001,7 +3017,7 @@ export function getPostQtyHTML(ed, container, formCode) {
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  기타 (The others)
+                  기타 (etc)
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
                 <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
@@ -3011,7 +3027,7 @@ export function getPostQtyHTML(ed, container, formCode) {
               <!-- 4. 불량합계(Total) -->
               <tr style="background: #fffde7; font-weight: 700;">
                 <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
-                  불량합계(Total)
+                  불량 합계(Sum Defects)
                 </td>
                 <td id="def_sum_FL" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
                 <td id="def_sum_FR" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
