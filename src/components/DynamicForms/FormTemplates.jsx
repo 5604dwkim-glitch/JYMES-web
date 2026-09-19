@@ -2352,7 +2352,7 @@ export function getJointQty1032HTML(ed, container) {
               <!-- 조인트부 -->
               ${jointItems.map((item, idx) => `
                 <tr>
-                  ${idx === 0 ? `<td rowspan="11" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 4px; font-size: 11px;">조인트부</td>` : ''}
+                  ${idx === 0 ? `<td rowspan="10" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 4px; font-size: 11px;">조인트부</td>` : ''}
                   <td style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">${item.label}</td>
                   ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_${item.id}_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${q['j_' + item.id + '_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
                 </tr>
@@ -2361,7 +2361,7 @@ export function getJointQty1032HTML(ed, container) {
               <!-- 후가공부 -->
               ${postItems.map((item, idx) => `
                 <tr>
-                  ${idx === 0 ? `<td rowspan="14" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 4px; font-size: 11px;">후가공부</td>` : ''}
+                  ${idx === 0 ? `<td rowspan="13" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 4px; font-size: 11px;">후가공부</td>` : ''}
                   <td style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">${item.label}</td>
                   ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_post_${item.id}_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${q['post_' + item.id + '_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
                 </tr>
