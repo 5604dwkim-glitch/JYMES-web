@@ -1812,7 +1812,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">계획(P)</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : '200'}" placeholder="200" />
                   </td>
                 `).join('')}
               </tr>
