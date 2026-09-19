@@ -2357,10 +2357,6 @@ export function getJointQty1032HTML(ed, container) {
                   ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_${item.id}_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${q['j_' + item.id + '_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
                 </tr>
               `).join('')}
-              <tr style="background: #f1f5f9; font-weight: 700;">
-                <td style="border: 1px solid #000; padding: 5px;">조인트 합계</td>
-                ${cols.map(c => `<td id="pdef_j_row_sum_${c.id}" style="border: 1px solid #000; padding: 5px; color: var(--accent-rose);">0</td>`).join('')}
-              </tr>
 
               <!-- 후가공부 -->
               ${postItems.map((item, idx) => `
@@ -2370,10 +2366,6 @@ export function getJointQty1032HTML(ed, container) {
                   ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_post_${item.id}_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="${q['post_' + item.id + '_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
                 </tr>
               `).join('')}
-              <tr style="background: #f1f5f9; font-weight: 700;">
-                <td style="border: 1px solid #000; padding: 5px;">후가공 합계</td>
-                ${cols.map(c => `<td id="pdef_post_row_sum_${c.id}" style="border: 1px solid #000; padding: 5px; color: var(--accent-rose);">0</td>`).join('')}
-              </tr>
               
               <tr style="background: #fffde7; font-weight: 700;">
                 <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">불량합계(Total)</td>
