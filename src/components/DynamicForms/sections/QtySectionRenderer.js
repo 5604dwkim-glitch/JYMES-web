@@ -556,10 +556,10 @@ export function renderQtySection(ctx) {
         Number(table.querySelector(`#jdef_split_${cId}`)?.value) || 0,
         Number(table.querySelector(`#jdef_push_${cId}`)?.value) || 0,
         Number(table.querySelector(`#jdef_lack_${cId}`)?.value) || 0,
-        Number(table.querySelector(`#jdef_over_${cId}`)?.value) || 0,
+        (Number(table.querySelector(`#jdef_over_${cId}`)?.value) || 0) + (Number(table.querySelector(`#jdef_chew_${cId}`)?.value) || 0),
         Number(table.querySelector(`#jdef_bubble_${cId}`)?.value) || 0,
-        Number(table.querySelector(`#jdef_scrap_${cId}`)?.value) || 0,
-        Number(table.querySelector(`#jdef_insert_${cId}`)?.value) || 0,
+        (Number(table.querySelector(`#jdef_scrap_${cId}`)?.value) || 0) + (Number(table.querySelector(`#jdef_foreign_${cId}`)?.value) || 0),
+        (Number(table.querySelector(`#jdef_insert_${cId}`)?.value) || 0) + (Number(table.querySelector(`#jdef_torn_${cId}`)?.value) || 0),
         Number(table.querySelector(`#jdef_oth_${cId}`)?.value) || 0
       ];
 
@@ -598,10 +598,10 @@ export function renderQtySection(ctx) {
         Number(table.querySelector(`#jdef_split_${cId}`)?.value) || 0,
         Number(table.querySelector(`#jdef_push_${cId}`)?.value) || 0,
         Number(table.querySelector(`#jdef_lack_${cId}`)?.value) || 0,
-        Number(table.querySelector(`#jdef_over_${cId}`)?.value) || 0,
+        (Number(table.querySelector(`#jdef_over_${cId}`)?.value) || 0) + (Number(table.querySelector(`#jdef_chew_${cId}`)?.value) || 0),
         Number(table.querySelector(`#jdef_bubble_${cId}`)?.value) || 0,
-        Number(table.querySelector(`#jdef_scrap_${cId}`)?.value) || 0,
-        Number(table.querySelector(`#jdef_insert_${cId}`)?.value) || 0,
+        (Number(table.querySelector(`#jdef_scrap_${cId}`)?.value) || 0) + (Number(table.querySelector(`#jdef_foreign_${cId}`)?.value) || 0),
+        (Number(table.querySelector(`#jdef_insert_${cId}`)?.value) || 0) + (Number(table.querySelector(`#jdef_torn_${cId}`)?.value) || 0),
         Number(table.querySelector(`#jdef_oth_${cId}`)?.value) || 0
       ];
 

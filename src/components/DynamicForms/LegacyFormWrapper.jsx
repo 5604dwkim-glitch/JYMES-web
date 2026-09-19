@@ -1737,6 +1737,13 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         oth_rr_s_rh: container.querySelector('#jdef_oth_rr_s_rh')?.value || ''
       };
 
+      container.querySelectorAll('input[id^="jqty_"], input[id^="jdef_"]').forEach(el => {
+        let key = el.id.replace('jqty_', '').replace('jdef_', '');
+        if (jointQtyTable[key] === undefined) {
+          jointQtyTable[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+
       const postQtyTable = {
         plan_fl: container.querySelector('#pqty_plan_fl')?.value || '',
         plan_fr: container.querySelector('#pqty_plan_fr')?.value || '',
