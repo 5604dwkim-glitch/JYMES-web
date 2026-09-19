@@ -1079,13 +1079,16 @@ export function renderQtySection(ctx) {
           qtySection.addEventListener('input', calcJointQtySummary);
           calcJointQtySummary();
         } else if (curProc === '후가공') {
-          if (formCode === 1012) {
+          if (formCode === 3003) {
+            qtySection.innerHTML = Templates.getPostQty3003HTML(existingData, container);
+          } else if (formCode === 1012) {
             qtySection.innerHTML = Templates.getPostQty1012HTML(existingData, container);
           } else {
             qtySection.innerHTML = Templates.getPostQtyHTML(existingData, container, formCode);
           }
-          qtySection.addEventListener('input', calcPostQtySummary);
-          calcPostQtySummary();
+          qtySection.addEventListener('input', formCode === 3003 ? calcPostQty3003Summary : calcPostQtySummary);
+          if (formCode === 3003) calcPostQty3003Summary();
+          else calcPostQtySummary();
         } else {
           if (formCode === 1013 || formCode === 1024 || formCode === 1044) {
             qtySection.innerHTML = Templates.getStandardQty1013HTML(existingData, container, formCode);
