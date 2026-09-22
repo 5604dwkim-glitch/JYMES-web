@@ -143,6 +143,32 @@ export function extractDefectBreakdown(r) {
       addDefect('[검사/후가공] 피치불량', r.qtyTable[`p_cgap_${c}`]);
       addDefect('[검사/후가공] 기타',     r.qtyTable[`p_oth_${c}`]);
     });
+
+    // 4001 계열 양식 등 FL/FR/RL/RR 분류
+    ['FL', 'FR', 'RL', 'RR'].forEach(c => {
+      addDefect('[검사/압출] 스카치',     r.qtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 기스',       r.qtyTable[`ext_scratch_${c}`]);
+      addDefect('[검사/압출] 후로킹불량', r.qtyTable[`ext_flock_${c}`]);
+      addDefect('[검사/압출] 오염',       r.qtyTable[`ext_contam_${c}`]);
+      addDefect('[검사/압출] 기장',       r.qtyTable[`ext_short_${c}`]);
+      addDefect('[검사/압출] 단면불량',   r.qtyTable[`ext_cross_${c}`]);
+      addDefect('[검사/압출] 기타',       r.qtyTable[`ext_etc_${c}`]);
+      
+      addDefect('[검사/후가공] 기장',     r.qtyTable[`proc_len_${c}`]);
+      addDefect('[검사/후가공] 커팅불량', r.qtyTable[`proc_cut_${c}`]);
+      addDefect('[검사/후가공] 기타',     r.qtyTable[`proc_oth_${c}`]);
+    });
+
+    // LH_A / RH_A 분류 양식
+    ['LH_A', 'RH_A'].forEach(c => {
+      addDefect('[검사/압출] 스카치',     r.qtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 오염',       r.qtyTable[`ext_contam_${c}`]);
+      addDefect('[검사/압출] 기타',       r.qtyTable[`ext_other_${c}`]);
+      
+      addDefect('[검사/후가공] 기장',     r.qtyTable[`proc_len_${c}`]);
+      addDefect('[검사/후가공] 2차사상',  r.qtyTable[`proc_sec_${c}`]);
+      addDefect('[검사/후가공] 기타',     r.qtyTable[`proc_other_${c}`]);
+    });
   }
 
   // 7. dtCrewQtyB (클립머신 Table B — LH3/LH4/RH2/RH4)
