@@ -49,6 +49,16 @@ export default function ReportList({ initialStatus = 'ALL' }) {
     }
   };
 
+  // 조회 화면 진입 시 양식 작성 화면의 하단 고정 버튼 바 3종을 즉시 숨김
+  // (Layout.jsx의 전역 처리와 이중 보호)
+  useEffect(() => {
+    const BAR_IDS = ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'];
+    BAR_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }, []);
+
   // Firestore 호출: 날짜/차종/공정/상태 변경 시에만 실행 (searchQuery 제외)
   useEffect(() => {
     loadReports();

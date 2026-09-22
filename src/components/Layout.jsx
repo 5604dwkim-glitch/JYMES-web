@@ -27,6 +27,16 @@ export default function Layout() {
     return () => clearInterval(timer);
   }, []);
 
+  // 라우트 이동 시 양식 작성 화면의 하단 고정 버튼 바 3종을 일괄 숨김
+  // (신규작성/이어작성 → 다른 메뉴로 이동해도 버튼이 남는 문제 근본 해결)
+  useEffect(() => {
+    const BAR_IDS = ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'];
+    BAR_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  }, [location.pathname]);
+
   const getPageTitle = () => {
     switch (location.pathname) {
       case '/': return { title: t('title_dashboard'), sub: t('subtitle_dashboard') };

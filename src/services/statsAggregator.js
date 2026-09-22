@@ -23,120 +23,140 @@ export function extractDefectBreakdown(r) {
     });
   }
 
-  // 2. inspQtyTable (검사포장 공정)
+  // 2. inspQtyTable (검사포장 공정 — 스텔란티스 DS계열 양식)
   if (r.inspQtyTable) {
     [1, 2, 3, 4].forEach(c => {
-      addDefect('[검사/압출] 스카치', r.inspQtyTable[`ext_scorch_${c}`]);
-      addDefect('[검사/압출] 기스', r.inspQtyTable[`ext_scratch_${c}`]);
-      addDefect('[검사/압출] 오염', r.inspQtyTable[`ext_contam_${c}`]);
-      addDefect('[검사/압출] 기장', r.inspQtyTable[`ext_len_${c}`]);
-      addDefect('[검사/압출] 클립', r.inspQtyTable[`ext_clip_${c}`]);
-      addDefect('[검사/압출] 기타', r.inspQtyTable[`ext_oth_${c}`]);
+      addDefect('[검사/압출] 스카치',   r.inspQtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 기스',     r.inspQtyTable[`ext_scratch_${c}`]);
+      addDefect('[검사/압출] 오염',     r.inspQtyTable[`ext_contam_${c}`]);
+      addDefect('[검사/압출] 기장',     r.inspQtyTable[`ext_len_${c}`]);
+      addDefect('[검사/압출] 클립',     r.inspQtyTable[`ext_clip_${c}`]);
+      addDefect('[검사/압출] 기타',     r.inspQtyTable[`ext_oth_${c}`]);
       
-      addDefect('[검사/조인트] 빠짐', r.inspQtyTable[`j_drop_${c}`]);
+      addDefect('[검사/조인트] 빠짐',   r.inspQtyTable[`j_drop_${c}`]);
       addDefect('[검사/조인트] 미성형', r.inspQtyTable[`j_lack_${c}`]);
-      addDefect('[검사/조인트] 밀림', r.inspQtyTable[`j_push_${c}`]);
-      addDefect('[검사/조인트] 기포', r.inspQtyTable[`j_bubble_${c}`]);
-      addDefect('[검사/조인트] 씹힘', r.inspQtyTable[`j_chew_${c}`]);
-      addDefect('[검사/조인트] 오버', r.inspQtyTable[`j_overflow_${c}`]);
-      addDefect('[검사/조인트] 변형', r.inspQtyTable[`j_deform_${c}`]);
-      addDefect('[검사/조인트] 이물', r.inspQtyTable[`j_foreign_${c}`]);
+      addDefect('[검사/조인트] 밀림',   r.inspQtyTable[`j_push_${c}`]);
+      addDefect('[검사/조인트] 기포',   r.inspQtyTable[`j_bubble_${c}`]);
+      addDefect('[검사/조인트] 씹힘',   r.inspQtyTable[`j_chew_${c}`]);
+      addDefect('[검사/조인트] 오버',   r.inspQtyTable[`j_overflow_${c}`]);
+      addDefect('[검사/조인트] 변형',   r.inspQtyTable[`j_deform_${c}`]);
+      addDefect('[검사/조인트] 이물',   r.inspQtyTable[`j_foreign_${c}`]);
       addDefect('[검사/조인트] 틀어짐', r.inspQtyTable[`j_twist_${c}`]);
-      addDefect('[검사/조인트] 기타', r.inspQtyTable[`j_oth_${c}`]);
+      addDefect('[검사/조인트] 기타',   r.inspQtyTable[`j_oth_${c}`]);
 
       addDefect('[검사/후가공] 사상과다', r.inspQtyTable[`p_trim_over_${c}`]);
       addDefect('[검사/후가공] 사상미달', r.inspQtyTable[`p_trim_under_${c}`]);
       addDefect('[검사/후가공] 본드오염', r.inspQtyTable[`p_bond_contam_${c}`]);
       addDefect('[검사/후가공] 표면오염', r.inspQtyTable[`p_ext_contam_${c}`]);
       addDefect('[검사/후가공] 클립누락', r.inspQtyTable[`p_clip_miss_${c}`]);
-      addDefect('[검사/후가공] 클립홀', r.inspQtyTable[`p_clip_hole_${c}`]);
-      addDefect('[검사/후가공] 물구멍', r.inspQtyTable[`p_drain_hole_${c}`]);
+      addDefect('[검사/후가공] 클립홀',   r.inspQtyTable[`p_clip_hole_${c}`]);
+      addDefect('[검사/후가공] 물구멍',   r.inspQtyTable[`p_drain_hole_${c}`]);
       addDefect('[검사/후가공] 이종클립', r.inspQtyTable[`p_wrong_clip_${c}`]);
       addDefect('[검사/후가공] 커팅불량', r.inspQtyTable[`p_cut_miss_${c}`]);
       addDefect('[검사/후가공] 본드불량', r.inspQtyTable[`p_bond_miss_${c}`]);
       addDefect('[검사/후가공] 기장과다', r.inspQtyTable[`p_len_excess_${c}`]);
       addDefect('[검사/후가공] 피치불량', r.inspQtyTable[`p_clip_pitch_${c}`]);
-      addDefect('[검사/후가공] 기타', r.inspQtyTable[`p_oth_${c}`]);
+      addDefect('[검사/후가공] 기타',     r.inspQtyTable[`p_oth_${c}`]);
     });
   }
 
   // 3. jointQtyTable (조인트 공정)
   if (r.jointQtyTable) {
     ['frt_p', 'frt_q', 'rr_r', 'rr_s_lh', 'rr_s_rh'].forEach(pos => {
-      addDefect('[조인트] 쪼개짐', r.jointQtyTable[`split_${pos}`]);
-      addDefect('[조인트] 밀림', r.jointQtyTable[`push_${pos}`]);
-      addDefect('[조인트] 미성형', r.jointQtyTable[`lack_${pos}`]);
-      addDefect('[조인트] 오버', r.jointQtyTable[`over_${pos}`]);
-      addDefect('[조인트] 기포', r.jointQtyTable[`bubble_${pos}`]);
-      addDefect('[조인트] 스크랩', r.jointQtyTable[`scrap_${pos}`]);
-      addDefect('[조인트] 인서트 불량', r.jointQtyTable[`insert_${pos}`]);
-      addDefect('[조인트] 기타', r.jointQtyTable[`oth_${pos}`]);
+      addDefect('[조인트] 쪼개짐',       r.jointQtyTable[`split_${pos}`]);
+      addDefect('[조인트] 밀림',         r.jointQtyTable[`push_${pos}`]);
+      addDefect('[조인트] 미성형',       r.jointQtyTable[`lack_${pos}`]);
+      addDefect('[조인트] 오버',         r.jointQtyTable[`over_${pos}`]);
+      addDefect('[조인트] 기포',         r.jointQtyTable[`bubble_${pos}`]);
+      addDefect('[조인트] 스크랩',       r.jointQtyTable[`scrap_${pos}`]);
+      addDefect('[조인트] 인서트불량',   r.jointQtyTable[`insert_${pos}`]);
+      addDefect('[조인트] 기타',         r.jointQtyTable[`oth_${pos}`]);
     });
   }
 
   // 4. postQtyTable (후가공 공정)
   if (r.postQtyTable) {
     ['fl', 'fr', 'rl', 'rr'].forEach(pos => {
-      addDefect('[후가공] 조인트 빠짐', r.postQtyTable[`j_drop_${pos}`]);
-      addDefect('[후가공] 미성형', r.postQtyTable[`j_lack_${pos}`]);
-      addDefect('[후가공] 단차', r.postQtyTable[`j_step_${pos}`]);
-      addDefect('[후가공] 기포', r.postQtyTable[`j_bubble_${pos}`]);
-      addDefect('[후가공] 씹힘', r.postQtyTable[`j_chew_${pos}`]);
-      addDefect('[후가공] 스크랩', r.postQtyTable[`j_scrap_${pos}`]);
-      addDefect('[후가공] 사상 불량', r.postQtyTable[`p_trim_${pos}`]);
-      addDefect('[후가공] 오염', r.postQtyTable[`p_poll_${pos}`]);
-      addDefect('[후가공] 기타', r.postQtyTable[`p_oth_${pos}`]);
+      addDefect('[후가공] 조인트빠짐', r.postQtyTable[`j_drop_${pos}`]);
+      addDefect('[후가공] 미성형',     r.postQtyTable[`j_lack_${pos}`]);
+      addDefect('[후가공] 단차',       r.postQtyTable[`j_step_${pos}`]);
+      addDefect('[후가공] 기포',       r.postQtyTable[`j_bubble_${pos}`]);
+      addDefect('[후가공] 씹힘',       r.postQtyTable[`j_chew_${pos}`]);
+      addDefect('[후가공] 스크랩',     r.postQtyTable[`j_scrap_${pos}`]);
+      addDefect('[후가공] 사상불량',   r.postQtyTable[`p_trim_${pos}`]);
+      addDefect('[후가공] 오염',       r.postQtyTable[`p_poll_${pos}`]);
+      addDefect('[후가공] 기타',       r.postQtyTable[`p_oth_${pos}`]);
     });
   }
   
-  // 5. dtCrewQty (클립머신 등)
+  // 5. dtCrewQty (클립머신 Table A — LH/RH)
+  // ★ 변경: 종합 불량 합계 대신 세부 항목 8종을 각각 집계
   if (r.dtCrewQty) {
     ['LH', 'RH'].forEach(id => {
-      addDefect('[클립머신] 종합 불량', r.dtCrewQty[`불량합계_${id}`]);
+      addDefect('[클립머신] 길이미달',    r.dtCrewQty[`길이미달_${id}`]);
+      addDefect('[클립머신] 길이초과',    r.dtCrewQty[`길이초과_${id}`]);
+      addDefect('[클립머신] 끝단부불량',  r.dtCrewQty[`끝단부불량_${id}`]);
+      addDefect('[클립머신] 클립홀찢어짐', r.dtCrewQty[`클립홀찢어짐_${id}`]);
+      addDefect('[클립머신] 클립간격불량', r.dtCrewQty[`클립간격불량_${id}`]);
+      addDefect('[클립머신] 드레인홀불량', r.dtCrewQty[`드레인홀불량_${id}`]);
+      addDefect('[클립머신] 스코치',      r.dtCrewQty[`스코치_${id}`]);
+      addDefect('[클립머신] 기타',        r.dtCrewQty[`기타_${id}`]);
     });
   }
-  
-    // 6. qtyTable (동적 양식: 3001, 3004 등)
-    if (r.qtyTable) {
-      // 3004 양식용 (NE1a 검사포장)
-      ['w1', 'w2', 'w3', 'w4'].forEach(c => {
-        addDefect('[검사_압출] 스코치', r.qtyTable[`ext_scorch_${c}`]);
-        addDefect('[검사_압출] 외면흠', r.qtyTable[`ext_scratch_${c}`]);
-        addDefect('[검사_압출] 오염/코팅불량', r.qtyTable[`ext_contam_${c}`]);
-        addDefect('[검사_압출] 길이불량', r.qtyTable[`ext_len_${c}`]);
-        addDefect('[검사_압출] 소재클립누락', r.qtyTable[`ext_clip_${c}`]);
-        addDefect('[검사_압출] 기타', r.qtyTable[`ext_oth_${c}`]);
 
-        addDefect('[검사_조인트] 떨어짐/찢어짐', r.qtyTable[`j_tear_${c}`]);
-        addDefect('[검사_조인트] 양부족', r.qtyTable[`j_lack_${c}`]);
-        addDefect('[검사_조인트] 밀림/크랙', r.qtyTable[`j_push_${c}`]);
-        addDefect('[검사_조인트] 기포', r.qtyTable[`j_bubble_${c}`]);
-        addDefect('[검사_조인트] 씹힘/삽입불량', r.qtyTable[`j_chew_${c}`]);
-        addDefect('[검사_조인트] 넘침/오버랩', r.qtyTable[`j_over_${c}`]);
-        addDefect('[검사_조인트] 후변형', r.qtyTable[`j_deform_${c}`]);
-        addDefect('[검사_조인트] 이물질', r.qtyTable[`j_foreign_${c}`]);
-        addDefect('[검사_조인트] 꼬임', r.qtyTable[`j_twist_${c}`]);
-        addDefect('[검사_조인트] 기타', r.qtyTable[`j_oth_${c}`]);
+  // 6. qtyTable (동적 양식: NE1a 검사포장 — 3004 등)
+  // ★ 변경: inspQtyTable 계열 이름으로 통합 (언더스코어 → 슬래시)
+  if (r.qtyTable) {
+    ['w1', 'w2', 'w3', 'w4'].forEach(c => {
+      // 압출소재 불량 → [검사/압출] 통합
+      addDefect('[검사/압출] 스카치',   r.qtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 기스',     r.qtyTable[`ext_scratch_${c}`]);
+      addDefect('[검사/압출] 오염',     r.qtyTable[`ext_contam_${c}`]);
+      addDefect('[검사/압출] 기장',     r.qtyTable[`ext_len_${c}`]);
+      addDefect('[검사/압출] 클립',     r.qtyTable[`ext_clip_${c}`]);
+      addDefect('[검사/압출] 기타',     r.qtyTable[`ext_oth_${c}`]);
 
-        addDefect('[검사_후가공] 과사상', r.qtyTable[`p_overtrim_${c}`]);
-        addDefect('[검사_후가공] 미사상', r.qtyTable[`p_undertrim_${c}`]);
-        addDefect('[검사_후가공] 본드오염', r.qtyTable[`p_bcontam_${c}`]);
-        addDefect('[검사_후가공] 외면오염', r.qtyTable[`p_econtam_${c}`]);
-        addDefect('[검사_후가공] 클립누락/반클', r.qtyTable[`p_cmiss_${c}`]);
-        addDefect('[검사_후가공] 클립홀누락', r.qtyTable[`p_chole_${c}`]);
-        addDefect('[검사_후가공] 드레인홀불량', r.qtyTable[`p_drain_${c}`]);
-        addDefect('[검사_후가공] 클립이종', r.qtyTable[`p_cdiff_${c}`]);
-        addDefect('[검사_후가공] 절단누락', r.qtyTable[`p_cutmiss_${c}`]);
-        addDefect('[검사_후가공] 본드누락/접착불량', r.qtyTable[`p_bmiss_${c}`]);
-        addDefect('[검사_후가공] 길이초과', r.qtyTable[`p_lenover_${c}`]);
-        addDefect('[검사_후가공] 클립간격불량', r.qtyTable[`p_cgap_${c}`]);
-        addDefect('[검사_후가공] 기타', r.qtyTable[`p_oth_${c}`]);
-      });
-    }
+      // 조인트 불량 → [검사/조인트] 통합
+      addDefect('[검사/조인트] 빠짐',   r.qtyTable[`j_tear_${c}`]);
+      addDefect('[검사/조인트] 미성형', r.qtyTable[`j_lack_${c}`]);
+      addDefect('[검사/조인트] 밀림',   r.qtyTable[`j_push_${c}`]);
+      addDefect('[검사/조인트] 기포',   r.qtyTable[`j_bubble_${c}`]);
+      addDefect('[검사/조인트] 씹힘',   r.qtyTable[`j_chew_${c}`]);
+      addDefect('[검사/조인트] 오버',   r.qtyTable[`j_over_${c}`]);
+      addDefect('[검사/조인트] 변형',   r.qtyTable[`j_deform_${c}`]);
+      addDefect('[검사/조인트] 이물',   r.qtyTable[`j_foreign_${c}`]);
+      addDefect('[검사/조인트] 틀어짐', r.qtyTable[`j_twist_${c}`]);
+      addDefect('[검사/조인트] 기타',   r.qtyTable[`j_oth_${c}`]);
 
-    if (r.dtCrewQtyB) {
-    ['LH2', 'RH2', 'LH3', 'RH3', 'LH4', 'RH4'].forEach(id => {
-      addDefect('[클립머신] 종합 불량', r.dtCrewQtyB[`불량합계_${id}`]);
+      // 후가공 불량 → [검사/후가공] 통합
+      addDefect('[검사/후가공] 사상과다', r.qtyTable[`p_overtrim_${c}`]);
+      addDefect('[검사/후가공] 사상미달', r.qtyTable[`p_undertrim_${c}`]);
+      addDefect('[검사/후가공] 본드오염', r.qtyTable[`p_bcontam_${c}`]);
+      addDefect('[검사/후가공] 표면오염', r.qtyTable[`p_econtam_${c}`]);
+      addDefect('[검사/후가공] 클립누락', r.qtyTable[`p_cmiss_${c}`]);
+      addDefect('[검사/후가공] 클립홀',   r.qtyTable[`p_chole_${c}`]);
+      addDefect('[검사/후가공] 물구멍',   r.qtyTable[`p_drain_${c}`]);
+      addDefect('[검사/후가공] 이종클립', r.qtyTable[`p_cdiff_${c}`]);
+      addDefect('[검사/후가공] 커팅불량', r.qtyTable[`p_cutmiss_${c}`]);
+      addDefect('[검사/후가공] 본드불량', r.qtyTable[`p_bmiss_${c}`]);
+      addDefect('[검사/후가공] 기장과다', r.qtyTable[`p_lenover_${c}`]);
+      addDefect('[검사/후가공] 피치불량', r.qtyTable[`p_cgap_${c}`]);
+      addDefect('[검사/후가공] 기타',     r.qtyTable[`p_oth_${c}`]);
+    });
+  }
+
+  // 7. dtCrewQtyB (클립머신 Table B — LH3/LH4/RH2/RH4)
+  // ★ 변경: 종합 불량 합계 대신 세부 항목 8종을 각각 집계
+  if (r.dtCrewQtyB) {
+    ['LH3', 'LH4', 'RH2', 'RH4'].forEach(id => {
+      addDefect('[클립머신] 길이미달',    r.dtCrewQtyB[`길이미달_${id}`]);
+      addDefect('[클립머신] 길이초과',    r.dtCrewQtyB[`길이초과_${id}`]);
+      addDefect('[클립머신] 끝단부불량',  r.dtCrewQtyB[`끝단부불량_${id}`]);
+      addDefect('[클립머신] 클립홀찢어짐', r.dtCrewQtyB[`클립홀찢어짐_${id}`]);
+      addDefect('[클립머신] 클립간격불량', r.dtCrewQtyB[`클립간격불량_${id}`]);
+      addDefect('[클립머신] 드레인홀불량', r.dtCrewQtyB[`드레인홀불량_${id}`]);
+      addDefect('[클립머신] 스코치',      r.dtCrewQtyB[`스코치_${id}`]);
+      addDefect('[클립머신] 기타',        r.dtCrewQtyB[`기타_${id}`]);
     });
   }
 
@@ -209,7 +229,7 @@ export function buildStatsUpdate(oldReport, newReport) {
     const car = report.carModel || '기타';
     const item = report.itemCode || report.itemName || '기타';
     const proc = report.processName || '기타';
-      const key = `${car}::${item}::${proc}`.replace(/[\.\/\[\]]/g, '_');
+      const key = `${car}::${item}::${proc}`.replace(/[\.\\/\[\]]/g, '_');
     
     if (!updates.items[key]) updates.items[key] = {};
     const combo = updates.items[key];
@@ -223,7 +243,7 @@ export function buildStatsUpdate(oldReport, newReport) {
     if (Object.keys(defects).length > 0) {
       if (!combo.defects) combo.defects = {};
       Object.entries(defects).forEach(([k, v]) => {
-        const dk = k.replace(/[\.\/]/g, '_');
+        const dk = k.replace(/[\.\\/]/g, '_');
         combo.defects[dk] = (combo.defects[dk] || 0) + (v * mult);
       });
     }

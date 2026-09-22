@@ -102,10 +102,11 @@ export default function LegacyFormReactWrapper({ existingData }) {
     }
     
     return () => {
-      const sf = document.getElementById('standardFixedActionBar');
-      if (sf) sf.style.display = 'none';
-      const lf = document.getElementById('leaderFixedActionBar');
-      if (lf) lf.style.display = 'none';
+      const BAR_IDS = ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'];
+      BAR_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+      });
       
       // Clean up any stray vanilla modals
       ['wheelNumberPickerModal', 'wheelListPickerModal', 'wheelTimePickerModal', 'wheelLotDatePickerModal'].forEach(id => {
