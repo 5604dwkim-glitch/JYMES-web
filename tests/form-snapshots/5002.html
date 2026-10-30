@@ -1,4 +1,4 @@
-<!-- form 5002 | 9BQC_G/RUN_조인트 -->
+<!-- form 5002 | 9BQC_G/RUN_소재준비-정치절단 -->
 <!-- ERRORS: none -->
 <!-- [section4LotTable] -->
 <div id="section4Card" style="display: block;"><div id="section4LotTableContainer">
@@ -88,130 +88,192 @@
         </div></div>
 <!-- [section5] -->
 <div id="section5DynamicContainer">
-
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
-          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
-            🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
-          </label>
-          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
-          <input type="text" id="jointRubberLotNo" class="form-control lot-datetime-input" style="max-width: 280px; font-family: monospace;" placeholder="년월일시분 (예: 2607251330)" value="">
-        </div>
-
         <div class="card" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-            ♨️ <span class="sec-num"></span> 설비 가류온도 &amp; 가류시간 입력
+            📐 <span class="sec-num"></span> 치수확인
           </label>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <thead>
+                <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                  <th colspan="3" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">FRT LH</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">FRT RH</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">RR LH</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">RR RH</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- 1. 정치절단길이 -->
+                <tr>
+                  <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    정치절단길이<br>(Spec Cutt,g )
+                  </td>
+                  <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                    스펙(mm)
+                  </td>
+                  <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
+                    745 ± 1mm
+                  </td>
+                  <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
+                    687 ± 1mm
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                    실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
+                  </td>
+                  <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
+                    <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
+                      <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="" placeholder="(초)">
+                      <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="" placeholder="(중)">
+                      <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="" placeholder="(종)">
+                    </div>
+                  </td>
+                  <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
+                    <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
+                      <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="" placeholder="(초)">
+                      <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="" placeholder="(중)">
+                      <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="" placeholder="(종)">
+                    </div>
+                  </td>
+                </tr>
 
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-            <thead>
-              <tr style="background: #fffde7; font-weight: 700; color: #000;">
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">FRT</th>
-                <th colspan="3" style="border: 1px solid #000; padding: 6px;">RR</th>
-              </tr>
-              <tr style="background: #fffde7; font-weight: 700; color: #000;">
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">부 위(Part)</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">FRT(P)_L/R</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">FRT(Q)_L/R</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">RR(R)_L/R</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">RR(S)_LH</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">RR(S)_RH</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- 1. 가류온도 영역 -->
-              <tr>
-                <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                  가류온도<br>(Temperature) 상<br>(Upper/하(DOWN)
-                </td>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  스펙(mm)
-                </td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">200 ± 10</td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  초물(Start)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  중물(Harf)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  종물(Finish)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-              </tr>
+                <!-- 2. 단컷팅 (Step cutt,g) - 전방 & 후방 -->
+                <tr>
+                  <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    단컷팅<br>(Step cutt,g)
+                  </td>
+                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    전방
+                  </td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                    스펙(mm)
+                  </td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
+                </tr>
+                <tr>
+                  <td rowspan="3" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    실측(Act)
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="dim_step_f_초_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                    </div>
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="dim_step_f_중_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                    </div>
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="dim_step_f_종_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                    </div>
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_f_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                  </td>
+                </tr>
 
-              <!-- 2. 가류시간 영역 -->
-              <tr>
-                <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                  가류시간(Time)- 초<br>(Sec)
-                </td>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  스펙(mm)
-                </td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
-                <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">90 ± 10</td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  초물(Start)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_start_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  중물(Harf)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_harf_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  종물(Finish)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_p" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_frt_q" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_r" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_lh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_finish_rr_s_rh" data-wheel-parsed-spec="90" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value=""></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                <!-- 3. 단컷팅 (Step cutt,g) - 후방 -->
+                <tr>
+                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    후방
+                  </td>
+                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                    스펙(mm)
+                  </td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">29</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">29</td>
+                </tr>
+                <tr>
+                  <td rowspan="3" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                    실측(Act)
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="dim_step_r_초_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                    </div>
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="dim_step_r_중_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                    </div>
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="dim_step_r_종_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                    </div>
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                  </td>
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="text" id="dim_step_r_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
         </div>
       </div>
@@ -227,106 +289,124 @@
         <input type="hidden" id="defectQty" value="0">
 
         <div style="overflow-x: auto;">
-          <table id="jointQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
-              <tr style="background: #fffde7; font-weight: 700; color: #000;">
-                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                <th style="border: 1px solid #000; padding: 6px; width: 16%;">LH</th><th style="border: 1px solid #000; padding: 6px; width: 16%;">RH</th>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
+                  구 분(Division)
+                </th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">FRT LH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">FRT RH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">RR LH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">RR RH</th>
               </tr>
             </thead>
             <tbody>
-              <!-- 1. 생산량 (Q,TY) -->
+              <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  계획(P)
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
+                  계획
                 </td>
-
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_frt_p" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="" placeholder="0">
-                  </td>
-
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_frt_q" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="" placeholder="0">
-                  </td>
-
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  실적(O)
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  실적
                 </td>
-
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_act_frt_p" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="" placeholder="0">
-                  </td>
-
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_act_frt_q" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="" placeholder="0">
-                  </td>
-
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
 
-              <!-- 2. 공정간불량 (Process Badness) -->
+              <!-- 2. 압출소재불량(Extrusion Badness) -->
               <tr>
-                <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                  공정간불량<br>(Process<br>Badness)
+                <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  압출소재불량<br>(Extrusion Badness)
                 </td>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  떨어짐(Split)
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  밀림(Push)
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  양부족<br><span style="font-size: 9px; font-weight: normal;">(lack of quantity)</span>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  넘침(overflowing)
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  기포 (Air bubbles)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  찌꺼기(worthless)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  삽입불량(Bad insert)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                  기타(The others)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
 
-              <!-- 3. 불량합계 (Total) -->
+              <!-- 3. 공정간불량(Process Badness) -->
+              <tr>
+                <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  공정간불량<br>(Process Badness)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  길이 (Length)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  컷팅 (Cutting)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  기타 (The others)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+
+              <!-- 4. 불량합계(Total) -->
               <tr style="background: #fffde7; font-weight: 700;">
                 <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
                   불량합계(Total)
                 </td>
-                <td id="jdef_sum_frt_p" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td><td id="jdef_sum_frt_q" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="def_sum_FL" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="def_sum_FR" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="def_sum_RL" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="def_sum_RR" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
               </tr>
             </tbody>
           </table>

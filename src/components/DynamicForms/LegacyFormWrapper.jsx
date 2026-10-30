@@ -8,6 +8,7 @@ import * as Templates from './FormTemplates.jsx';
 import * as _Sections from './sections/index.js';
 import { MANUFACTURERS, CAR_MODELS, CAR_MODEL_PARTS, DEFAULT_LEADER_ITEMS, DEFAULT_ATTENDANCE, DOWNTIME_REASONS } from '../../constants/masterData.js';
 import { FORM_CODE_MAP } from '../../constants/formMappings.js';
+import { getProcessListOverride } from '../../constants/formProcessOverrides.js';
 
 import { i18n, STRING_TO_KEY_MAP } from '../../constants/translations.js';
 
@@ -667,6 +668,10 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         processList.splice(idx, 1, '소재준비(A)', '소재준비(C)');
       }
     }
+
+    // 차종/부품 전용 공정 목록이 정의된 경우(예: 9BQC G/RUN 14공정) 해당 목록으로 대체
+    const overrideProcessList = getProcessListOverride(carCode, curPart);
+    if (overrideProcessList) processList = overrideProcessList;
 
     let activeProcess = initialProcess;
     if (activeProcess === null) {

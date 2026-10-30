@@ -232,7 +232,7 @@ function AdminDashboard({ data, t, navigate, onRefresh, lastRefreshed, isRefresh
   }, [filterMfg]);
   const procOptions = ['클립머신', '소재준비', '조인트', '검사포장', '후가공'];
   // 세부 공정명(소재준비(A)/(C)/(D), 조인트 V부 등)도 기본 공정 필터에 포함되도록 기준 공정명으로 비교
-  const baseProc = (p) => String(p || '').replace(/\(.*\)$/, '').replace(/\s*V부$/, '').trim();
+  const baseProc = (p) => String(p || '').replace(/-.+$/, '').replace(/\(.*\)$/, '').replace(/\s*V부$/, '').trim();
   const procMatches = (proc, filter) => proc === filter || baseProc(proc) === filter;
   const partOptions = // eslint-disable-next-line react-hooks/exhaustive-deps
   useMemo(() => {
