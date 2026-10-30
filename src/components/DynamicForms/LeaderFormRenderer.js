@@ -344,7 +344,8 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
       };
 
       const currentUserRole = store.getUserRole();
-      const currentWorkerName = currentUserRole?.workerName || loggedInWorkerName || '장수미';
+      // 기존 일보를 수정(관리자 포함)하는 경우 원래 작성자를 유지 (신규 작성 시에만 로그인 사용자 적용)
+      const currentWorkerName = existingData?.workerName || currentUserRole?.workerName || loggedInWorkerName || '장수미';
 
       const reportData = {
         date: fullDate,
@@ -354,7 +355,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
         processName: '반장 작업일보',
         line: '1라인',
         workerName: currentWorkerName,
-        workerId: 'EMP001',
+        workerId: existingData?.workerId || 'EMP001',
         itemCode: '공통',
         itemName: '공통',
         targetQty: grandTotalPacked + grandTotalScrap + 50,

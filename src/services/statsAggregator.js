@@ -1,3 +1,31 @@
+// ── 양식별 불량 키 → 표시 이름 매핑 (dtCrewPostQty / postQtyTable 공용) ──
+const POST_EXT_MAP = [
+  ['scorch', '[검사/압출] 스코치'], ['scratch', '[검사/압출] 외면흠'], ['coat', '[검사/압출] 오염'],
+  ['len', '[검사/압출] 길이불량'], ['clip_omit', '[검사/압출] 클립'], ['oth', '[검사/압출] 기타']
+];
+const POST_JOINT_MAP = [
+  ['drop', '[검사/조인트] 빠짐'], ['lack', '[검사/조인트] 미성형'], ['push', '[검사/조인트] 밀림'],
+  ['bubble', '[검사/조인트] 기포'], ['chew', '[검사/조인트] 씹힘'], ['overflow', '[검사/조인트] 오버'],
+  ['deform', '[검사/조인트] 변형'], ['foreign', '[검사/조인트] 이물'], ['twist', '[검사/조인트] 틀어짐'],
+  ['oth', '[검사/조인트] 기타']
+];
+const POST_POST_MAP = [
+  ['oversand', '[검사/후가공] 사상과다'], ['undersand', '[검사/후가공] 사상미달'],
+  ['bond_contam', '[검사/후가공] 본드오염'], ['ext_contam', '[검사/후가공] 표면오염'],
+  ['clip_half', '[검사/후가공] 클립누락'], ['clip_hole_omit', '[검사/후가공] 클립홀'],
+  ['drain_bad', '[검사/후가공] 물구멍'], ['clip_diff', '[검사/후가공] 이종클립'],
+  ['cut_omit', '[검사/후가공] 커팅불량'], ['bond_omit', '[검사/후가공] 본드불량'],
+  ['len_over', '[검사/후가공] 길이초과'], ['clip_gap_bad', '[검사/후가공] 피치불량'],
+  ['oth', '[검사/후가공] 기타']
+];
+// DT/DS CREW 조인트 표(dtCrewJointQty) 불량 키
+const CREW_JOINT_MAP = [
+  ['tear', '[조인트] 떨어짐'], ['lack', '[조인트] 미성형'], ['push', '[조인트] 밀림'],
+  ['bubble', '[조인트] 기포'], ['chew', '[조인트] 씹힘'], ['overflow', '[조인트] 오버'],
+  ['deform', '[조인트] 변형'], ['foreign', '[조인트] 이물'], ['twist', '[조인트] 꼬임'],
+  ['oth', '[조인트] 기타']
+];
+
 export function extractDefectBreakdown(r) {
   let defectMap = {};
   let totalDetailedDefects = 0;
@@ -26,10 +54,10 @@ export function extractDefectBreakdown(r) {
   // 2. inspQtyTable (검사포장 공정 — 스텔란티스 DS계열 양식)
   if (r.inspQtyTable) {
     [1, 2, 3, 4].forEach(c => {
-      addDefect('[검사/압출] 스카치',   r.inspQtyTable[`ext_scorch_${c}`]);
-      addDefect('[검사/압출] 기스',     r.inspQtyTable[`ext_scratch_${c}`]);
+      addDefect('[검사/압출] 스코치',   r.inspQtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 외면흠',     r.inspQtyTable[`ext_scratch_${c}`]);
       addDefect('[검사/압출] 오염',     r.inspQtyTable[`ext_contam_${c}`]);
-      addDefect('[검사/압출] 기장',     r.inspQtyTable[`ext_len_${c}`]);
+      addDefect('[검사/압출] 길이불량',     r.inspQtyTable[`ext_len_${c}`]);
       addDefect('[검사/압출] 클립',     r.inspQtyTable[`ext_clip_${c}`]);
       addDefect('[검사/압출] 기타',     r.inspQtyTable[`ext_oth_${c}`]);
       
@@ -54,7 +82,7 @@ export function extractDefectBreakdown(r) {
       addDefect('[검사/후가공] 이종클립', r.inspQtyTable[`p_wrong_clip_${c}`]);
       addDefect('[검사/후가공] 커팅불량', r.inspQtyTable[`p_cut_miss_${c}`]);
       addDefect('[검사/후가공] 본드불량', r.inspQtyTable[`p_bond_miss_${c}`]);
-      addDefect('[검사/후가공] 기장과다', r.inspQtyTable[`p_len_excess_${c}`]);
+      addDefect('[검사/후가공] 길이초과', r.inspQtyTable[`p_len_excess_${c}`]);
       addDefect('[검사/후가공] 피치불량', r.inspQtyTable[`p_clip_pitch_${c}`]);
       addDefect('[검사/후가공] 기타',     r.inspQtyTable[`p_oth_${c}`]);
     });
@@ -62,7 +90,10 @@ export function extractDefectBreakdown(r) {
 
   // 3. jointQtyTable (조인트 공정)
   if (r.jointQtyTable) {
-    ['frt_p', 'frt_q', 'rr_r', 'rr_s_lh', 'rr_s_rh'].forEach(pos => {
+    ['frt_p', 'frt_q', 'rr_r', 'rr_s_lh', 'rr_s_rh', 'frt_lh', 'frt_rh', 'rr_lh', 'rr_rh'].forEach(pos => {
+      addDefect('[조인트] 씹힘',         r.jointQtyTable[`chew_${pos}`]);
+      addDefect('[조인트] 이물',         r.jointQtyTable[`foreign_${pos}`]);
+      addDefect('[조인트] 찢어짐',       r.jointQtyTable[`torn_${pos}`]);
       addDefect('[조인트] 쪼개짐',       r.jointQtyTable[`split_${pos}`]);
       addDefect('[조인트] 밀림',         r.jointQtyTable[`push_${pos}`]);
       addDefect('[조인트] 미성형',       r.jointQtyTable[`lack_${pos}`]);
@@ -86,6 +117,15 @@ export function extractDefectBreakdown(r) {
       addDefect('[후가공] 사상불량',   r.postQtyTable[`p_trim_${pos}`]);
       addDefect('[후가공] 오염',       r.postQtyTable[`p_poll_${pos}`]);
       addDefect('[후가공] 기타',       r.postQtyTable[`p_oth_${pos}`]);
+
+      // 3003 계열 후가공 양식 (ext_/j_/post_ 접두 키)
+      addDefect('[검사/조인트] 밀림',   r.postQtyTable[`j_push_${pos}`]);
+      addDefect('[검사/조인트] 오버',   r.postQtyTable[`j_overflow_${pos}`]);
+      addDefect('[검사/조인트] 변형',   r.postQtyTable[`j_deform_${pos}`]);
+      addDefect('[검사/조인트] 이물',   r.postQtyTable[`j_foreign_${pos}`]);
+      addDefect('[검사/조인트] 틀어짐', r.postQtyTable[`j_twist_${pos}`]);
+      POST_EXT_MAP.forEach(([k, name]) => addDefect(name, r.postQtyTable[`ext_${k}_${pos}`]));
+      POST_POST_MAP.forEach(([k, name]) => addDefect(name, r.postQtyTable[`post_${k}_${pos}`]));
     });
   }
   
@@ -109,10 +149,10 @@ export function extractDefectBreakdown(r) {
   if (r.qtyTable) {
     ['w1', 'w2', 'w3', 'w4'].forEach(c => {
       // 압출소재 불량 → [검사/압출] 통합
-      addDefect('[검사/압출] 스카치',   r.qtyTable[`ext_scorch_${c}`]);
-      addDefect('[검사/압출] 기스',     r.qtyTable[`ext_scratch_${c}`]);
+      addDefect('[검사/압출] 스코치',   r.qtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 외면흠',     r.qtyTable[`ext_scratch_${c}`]);
       addDefect('[검사/압출] 오염',     r.qtyTable[`ext_contam_${c}`]);
-      addDefect('[검사/압출] 기장',     r.qtyTable[`ext_len_${c}`]);
+      addDefect('[검사/압출] 길이불량',     r.qtyTable[`ext_len_${c}`]);
       addDefect('[검사/압출] 클립',     r.qtyTable[`ext_clip_${c}`]);
       addDefect('[검사/압출] 기타',     r.qtyTable[`ext_oth_${c}`]);
 
@@ -139,33 +179,33 @@ export function extractDefectBreakdown(r) {
       addDefect('[검사/후가공] 이종클립', r.qtyTable[`p_cdiff_${c}`]);
       addDefect('[검사/후가공] 커팅불량', r.qtyTable[`p_cutmiss_${c}`]);
       addDefect('[검사/후가공] 본드불량', r.qtyTable[`p_bmiss_${c}`]);
-      addDefect('[검사/후가공] 기장과다', r.qtyTable[`p_lenover_${c}`]);
+      addDefect('[검사/후가공] 길이초과', r.qtyTable[`p_lenover_${c}`]);
       addDefect('[검사/후가공] 피치불량', r.qtyTable[`p_cgap_${c}`]);
       addDefect('[검사/후가공] 기타',     r.qtyTable[`p_oth_${c}`]);
     });
 
     // 4001 계열 양식 등 FL/FR/RL/RR 분류
     ['FL', 'FR', 'RL', 'RR'].forEach(c => {
-      addDefect('[검사/압출] 스카치',     r.qtyTable[`ext_scorch_${c}`]);
-      addDefect('[검사/압출] 기스',       r.qtyTable[`ext_scratch_${c}`]);
+      addDefect('[검사/압출] 스코치',     r.qtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 외면흠',       r.qtyTable[`ext_scratch_${c}`]);
       addDefect('[검사/압출] 후로킹불량', r.qtyTable[`ext_flock_${c}`]);
       addDefect('[검사/압출] 오염',       r.qtyTable[`ext_contam_${c}`]);
-      addDefect('[검사/압출] 기장',       r.qtyTable[`ext_short_${c}`]);
+      addDefect('[검사/압출] 길이불량',       r.qtyTable[`ext_short_${c}`]);
       addDefect('[검사/압출] 단면불량',   r.qtyTable[`ext_cross_${c}`]);
       addDefect('[검사/압출] 기타',       r.qtyTable[`ext_etc_${c}`]);
       
-      addDefect('[검사/후가공] 기장',     r.qtyTable[`proc_len_${c}`]);
+      addDefect('[검사/후가공] 길이불량',     r.qtyTable[`proc_len_${c}`]);
       addDefect('[검사/후가공] 커팅불량', r.qtyTable[`proc_cut_${c}`]);
       addDefect('[검사/후가공] 기타',     r.qtyTable[`proc_oth_${c}`]);
     });
 
     // LH_A / RH_A 분류 양식
     ['LH_A', 'RH_A'].forEach(c => {
-      addDefect('[검사/압출] 스카치',     r.qtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 스코치',     r.qtyTable[`ext_scorch_${c}`]);
       addDefect('[검사/압출] 오염',       r.qtyTable[`ext_contam_${c}`]);
       addDefect('[검사/압출] 기타',       r.qtyTable[`ext_other_${c}`]);
       
-      addDefect('[검사/후가공] 기장',     r.qtyTable[`proc_len_${c}`]);
+      addDefect('[검사/후가공] 길이불량',     r.qtyTable[`proc_len_${c}`]);
       addDefect('[검사/후가공] 2차사상',  r.qtyTable[`proc_sec_${c}`]);
       addDefect('[검사/후가공] 기타',     r.qtyTable[`proc_other_${c}`]);
     });
@@ -183,6 +223,86 @@ export function extractDefectBreakdown(r) {
       addDefect('[클립머신] 드레인홀불량', r.dtCrewQtyB[`드레인홀불량_${id}`]);
       addDefect('[클립머신] 스코치',      r.dtCrewQtyB[`스코치_${id}`]);
       addDefect('[클립머신] 기타',        r.dtCrewQtyB[`기타_${id}`]);
+    });
+  }
+
+  // 8. qtyTable 추가 양식 (3001 위치별 / 1013·4011 계열)
+  if (r.qtyTable) {
+    ['FL_A', 'FR_A', 'RL_A', 'RR_A', 'RL_C', 'RR_C', 'RL_D', 'RR_D'].forEach(c => {
+      addDefect('[검사/압출] 스코치',     r.qtyTable[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 외면흠',       r.qtyTable[`ext_scratch_${c}`]);
+      addDefect('[검사/압출] 기타',       r.qtyTable[`ext_oth_${c}`]);
+      addDefect('[검사/후가공] 커팅불량', r.qtyTable[`proc_cut_${c}`]);
+      addDefect('[검사/후가공] 클립홀',   r.qtyTable[`proc_hole_${c}`]);
+      addDefect('[검사/후가공] 기타',     r.qtyTable[`proc_oth_${c}`]);
+    });
+    ['FL', 'FR', 'RL', 'RR'].forEach(c => {
+      // #1013 / #1024 / #1044
+      addDefect('[검사/조인트] 불량',     r.qtyTable[`def_1013_joint_${c}`]);
+      addDefect('[검사/후가공] 사상불량', r.qtyTable[`def_1013_trim_${c}`]);
+      addDefect('[검사/압출] 외면흠',       r.qtyTable[`def_1013_blemish_${c}`]);
+      addDefect('[검사/압출] 스코치',     r.qtyTable[`def_1013_scorch_${c}`]);
+      addDefect('[검사/후가공] 클립누락', r.qtyTable[`def_1013_pad_${c}`]);
+      addDefect('[검사/후가공] 길이불량',     r.qtyTable[`def_1013_len_${c}`]);
+      addDefect('[검사/후가공] 기타',     r.qtyTable[`def_1013_etc_${c}`]);
+      // #4011 계열
+      addDefect('[검사/후가공] 찍힘변형', r.qtyTable[`proc_deform_${c}`]);
+      addDefect('[검사/조인트] 불량',     r.qtyTable[`etc_joint_${c}`]);
+      addDefect('[검사/후가공] 기타',     r.qtyTable[`etc_other_${c}`]);
+    });
+  }
+
+  // 9. dtCrewPrepQty (스텔란티스 소재준비 — LH_A / RH_A)
+  if (r.dtCrewPrepQty) {
+    ['LH_A', 'RH_A'].forEach(c => {
+      addDefect('[검사/압출] 스코치',   r.dtCrewPrepQty[`ext_scorch_${c}`]);
+      addDefect('[검사/압출] 오염',     r.dtCrewPrepQty[`ext_contam_${c}`]);
+      addDefect('[검사/압출] 기타',     r.dtCrewPrepQty[`ext_other_${c}`]);
+      addDefect('[검사/후가공] 길이불량',   r.dtCrewPrepQty[`proc_len_${c}`]);
+      addDefect('[검사/후가공] 2차사상', r.dtCrewPrepQty[`proc_sec_${c}`]);
+      addDefect('[검사/후가공] 기타',   r.dtCrewPrepQty[`proc_other_${c}`]);
+    });
+  }
+
+  // 10. dtCrewJointQty (스텔란티스 조인트 — 표1/표2, A·B·C / 1~4호)
+  if (r.dtCrewJointQty) {
+    ['tbl1', 'tbl2'].forEach(tbl => {
+      const defs = r.dtCrewJointQty[tbl]?.defects;
+      if (!defs) return;
+      CREW_JOINT_MAP.forEach(([k, name]) => {
+        const row = defs[k];
+        if (!row) return;
+        ['a', 'b', 'c', 'h1', 'h2', 'h3', 'h4'].forEach(col => addDefect(name, row[col]));
+      });
+    });
+  }
+
+  // 11. dtCrewPostQty (스텔란티스 후가공 / 3003 조인트 — 압출·조인트·후가공 불량)
+  if (r.dtCrewPostQty) {
+    const q = r.dtCrewPostQty;
+    const addGroup = (group, map) => {
+      if (!q[group]) return;
+      map.forEach(([k, name]) => {
+        addDefect(name, q[group][k]?.lh);
+        addDefect(name, q[group][k]?.rh);
+      });
+    };
+    addGroup('ext', POST_EXT_MAP);
+    addGroup('joint', POST_JOINT_MAP);
+    addGroup('post', POST_POST_MAP);
+  }
+
+  // 12. kmkxClipQty (KM/KX 클립머신 — LH/MID/RH)
+  if (r.kmkxClipQty) {
+    ['LH', 'MID', 'RH'].forEach(id => {
+      addDefect('[클립머신] 길이미달',    r.kmkxClipQty[`길이미달_${id}`]);
+      addDefect('[클립머신] 길이초과',    r.kmkxClipQty[`길이초과_${id}`]);
+      addDefect('[클립머신] 끝단부불량',  r.kmkxClipQty[`끝단부불량_${id}`]);
+      addDefect('[클립머신] 클립홀찢어짐', r.kmkxClipQty[`클립홀찢어짐_${id}`]);
+      addDefect('[클립머신] 클립간격불량', r.kmkxClipQty[`클립간격불량_${id}`]);
+      addDefect('[클립머신] 드레인홀불량', r.kmkxClipQty[`드레인홀불량_${id}`]);
+      addDefect('[클립머신] 스코치',      r.kmkxClipQty[`스코치_${id}`]);
+      addDefect('[클립머신] 기타',        r.kmkxClipQty[`기타_${id}`]);
     });
   }
 
@@ -252,9 +372,15 @@ export function buildStatsUpdate(oldReport, newReport) {
 
   const addCombo = (report, mult) => {
     if (!report) return;
-    const car = report.carModel || '기타';
-    const item = report.itemCode || report.itemName || '기타';
-    const proc = report.processName || '기타';
+    // 반장/지게차/출하지원 일보는 차종·품목과 무관하므로 '공통'으로 통일 (구버전 데이터가 특정 차종 통계에 섞이는 오류 방지)
+    const isCommonForm = report.isLeaderForm || report.isForkliftForm || report.isSupportForm
+      || ['반장 작업일보', '지게차작업', '출하지원'].includes(report.processName);
+    const car = isCommonForm ? '공통' : (report.carModel || '기타');
+    const item = isCommonForm ? '공통' : (report.itemCode || report.itemName || '기타');
+    const proc = report.isLeaderForm ? '반장 작업일보'
+      : report.isForkliftForm ? '지게차작업'
+      : report.isSupportForm ? '출하지원'
+      : (report.processName || '기타');
       const key = `${car}::${item}::${proc}`.replace(/[\.\\/\[\]]/g, '_');
     
     if (!updates.items[key]) updates.items[key] = {};

@@ -13,8 +13,15 @@ export function autoFormatDateTimeString(inputStr) {
   let formatted = '';
   if (digits.length >= 2) formatted += digits.substring(0, 2) + '년 ';
   if (digits.length >= 4) formatted += digits.substring(2, 4) + '월 ';
-  if (digits.length >= 6) formatted += digits.substring(4, 6) + '일 ';
-  if (digits.length >= 8) formatted += digits.substring(6, 8) + '시';
+  if (digits.length >= 6) formatted += digits.substring(4, 6) + '일';
+  
+  if (digits.length > 6) {
+    formatted += '\n'; // 줄바꿈
+  }
+  
+  if (digits.length >= 8) formatted += digits.substring(6, 8) + '시 ';
+  if (digits.length >= 10) formatted += digits.substring(8, 10) + '분';
+  
   if (digits.length < 2) formatted = digits;
 
   return formatted.trim();

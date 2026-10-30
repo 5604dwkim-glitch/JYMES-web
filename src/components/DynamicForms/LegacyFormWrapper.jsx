@@ -526,7 +526,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
     const lotContainer = container.querySelector('#section4LotTableContainer');
     if (!lotContainer) return;
 
-    const lotInputs = lotContainer.querySelectorAll('input[type="text"].lot-datetime-input, input[type="text"][id^="lotNo_"]');
+    const lotInputs = lotContainer.querySelectorAll('input[type="text"].lot-datetime-input, input[type="text"][id^="lotNo_"], textarea.lot-datetime-input');
     lotInputs.forEach(input => {
       bindLotDateWheelPicker(input, '소재 LOT 번호 (일자/시간)');
     });
@@ -1178,7 +1178,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         '2004_rh_2': container.querySelector('#lotNo_2004_rh_2')?.checked || false
       };
 
-      container.querySelectorAll('input.lot-datetime-input, input[id^="lotNo_"]').forEach(el => {
+      container.querySelectorAll('input.lot-datetime-input, input[id^="lotNo_"], textarea.lot-datetime-input').forEach(el => {
         let key = el.id;
         if (key.startsWith('lotNo_')) key = key.replace('lotNo_', '');
         if (materialLots[key] === undefined) {
@@ -1199,7 +1199,8 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
                                curProcessValue?.value === '클립머신';
 
       const currentUserRole = store.getUserRole();
-      const currentWorkerName = currentUserRole?.workerName || loggedInWorkerName || '작업자';
+      // 기존 일보를 수정(관리자 포함)하는 경우 원래 작성자를 유지 (신규 작성 시에만 로그인 사용자 적용)
+      const currentWorkerName = existingData?.workerName || currentUserRole?.workerName || loggedInWorkerName || '작업자';
 
       const dt1Min = Number(container.querySelector('#downtimeMinutes')?.value) || 0;
       const dt1Equip = container.querySelector('#downtimeEquip1')?.value || '';
@@ -1412,10 +1413,12 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         proc_oth_RR: container.querySelector('#def_proc_oth_RR')?.value || ''
       };
 
-      container.querySelectorAll('input.qty-input-dynamic, input[id^="qtyd_"]').forEach(el => {
+      // qty-calc-input: #1013/#1024/#1044/#4011 등 표준 수량표의 불량 입력칸(def_1013_*, def_proc_deform_* 등)도 저장 대상에 포함
+      container.querySelectorAll('input.qty-input-dynamic, input[id^="qtyd_"], #qtySection input.qty-calc-input').forEach(el => {
         let key = el.id;
         if (key.startsWith('qtyd_')) key = key.replace('qtyd_', '');
         else if (key.startsWith('qty_')) key = key.replace('qty_', '');
+        else if (key.startsWith('def_1013_')) { /* 1013 계열 양식은 def_ 접두를 유지한 키로 저장/복원 (템플릿이 q.def_1013_* 로 읽음) */ }
         else if (key.startsWith('def_')) key = key.replace('def_', '');
         
         if (qtyTable[key] === undefined) {
@@ -1819,6 +1822,14 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         p_oth_rr: container.querySelector('#pdef_p_oth_rr')?.value || ''
       };
 
+      // #3003 후가공 등 pqty_/pdef_ 접두 입력칸(ext_/post_/j_push 등) 누락 방지
+      container.querySelectorAll('#qtySection input[id^="pqty_"], #qtySection input[id^="pdef_"]').forEach(el => {
+        const key = el.id.replace('pqty_', '').replace('pdef_', '');
+        if (postQtyTable[key] === undefined) {
+          postQtyTable[key] = el.type === 'checkbox' ? el.checked : el.value;
+        }
+      });
+
       const inspQtyTable = {};
       [1, 2, 3, 4].forEach(c => {
         inspQtyTable[`lh_${c}`] = container.querySelector(`#insp_lh_${c}`)?.checked || false;
@@ -1853,7 +1864,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         processName: curProcessValue?.value || '검사포장',
         line: '1라인',
         workerName: currentWorkerName,
-        workerId: 'EMP001',
+        workerId: existingData?.workerId || 'EMP001',
         itemCode: itemCodeVal,
         itemName: itemNameVal,
         targetQty: Number(container.querySelector('#targetQty')?.value) || 0,
@@ -2664,6 +2675,11 @@ export function bindLotDateWheelPicker(inputElem, titleText = '소재 LOT 날짜
   const newElem = inputElem.cloneNode(true);
   inputElem.parentNode.replaceChild(newElem, inputElem);
   
+  const noSpace = newElem.dataset.noSpace === 'true';
+  const multiline = newElem.dataset.multiline === 'true';
+  const sp = noSpace ? '' : ' ';
+  const separator = multiline ? '\n' : sp;
+
   // Re-format initial value if it already exists
   let initial = newElem.value.replace(/\D/g, '');
   if (initial.length === 10) {
@@ -2672,14 +2688,14 @@ export function bindLotDateWheelPicker(inputElem, titleText = '소재 LOT 날짜
     const dd = initial.substring(4, 6);
     const hh = initial.substring(6, 8);
     const min = initial.substring(8, 10);
-    newElem.value = `${yy}년 ${mm}월 ${dd}일 ${hh}시 ${min}분`;
+    newElem.value = `${yy}년${sp}${mm}월${sp}${dd}일${separator}${hh}시${sp}${min}분`;
   } else if (initial.length === 8) {
     // Handling legacy 8 digit data (YYMMDDHH)
     const yy = initial.substring(0, 2);
     const mm = initial.substring(2, 4);
     const dd = initial.substring(4, 6);
     const hh = initial.substring(6, 8);
-    newElem.value = `${yy}년 ${mm}월 ${dd}일 ${hh}시 00분`;
+    newElem.value = `${yy}년${sp}${mm}월${sp}${dd}일${separator}${hh}시${sp}00분`;
   } else {
     newElem.value = initial;
   }
@@ -2696,7 +2712,7 @@ export function bindLotDateWheelPicker(inputElem, titleText = '소재 LOT 날짜
       const dd = digits.substring(4, 6);
       const hh = digits.substring(6, 8);
       const min = digits.substring(8, 10);
-      e.target.value = `${yy}년 ${mm}월 ${dd}일 ${hh}시 ${min}분`;
+      e.target.value = `${yy}년${sp}${mm}월${sp}${dd}일${separator}${hh}시${sp}${min}분`;
       newElem.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
       e.target.value = digits;

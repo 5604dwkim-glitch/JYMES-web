@@ -46,21 +46,21 @@ import { store } from './LegacyFormWrapper.jsx';
                 <!-- 전장길이 -->
                 <tr>
                   <td rowspan="4" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">전장길이</td>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">스펙(mm)</td>
                   <td colspan="4" style="border:1px solid var(--border-color); background:#fef9c3; color:#a16207; font-weight:800; padding:6px;">${totalLenSpec}</td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">초</td>
                   <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_초" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_초')}"></td>
                   <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_초" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_초')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">중</td>
                   <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_중" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_중')}"></td>
                   <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_중" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_중')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">종</td>
                   <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_LH_종" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_LH_종')}"></td>
                   <td colspan="2" style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_len_RH_종" data-wheel-parsed-spec="${isQuad ? 509 : 779}" class="form-control" style="font-size:12px; padding:4px; text-align:center;" placeholder="-" value="${g('len_RH_종')}"></td>
                 </tr>
@@ -68,28 +68,28 @@ import { store } from './LegacyFormWrapper.jsx';
                 <!-- 끝단 클립 -->
                 <tr>
                   <td rowspan="4" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">끝단 클립</td>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">스펙(mm)</td>
                   <td style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-weight:700; padding:5px 2px; font-size:11px;">121±1</td>
                   <td style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-weight:700; padding:5px 2px; font-size:11px;">28±1</td>
                   <td style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-weight:700; padding:5px 2px; font-size:11px;">28±1</td>
                   <td style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-weight:700; padding:5px 2px; font-size:11px;">121±1</td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">초</td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_초" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH1_초')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_초" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH2_초')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_초" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH1_초')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_초" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH2_초')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">중</td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_중" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH1_중')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_중" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH2_중')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_중" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH1_중')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH2_중" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH2_중')}"></td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">종</td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH1_종" data-wheel-parsed-spec="121" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH1_종')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_LH2_종" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_LH2_종')}"></td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtc_clip_RH1_종" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${g('clip_RH1_종')}"></td>
@@ -141,13 +141,13 @@ import { store } from './LegacyFormWrapper.jsx';
                 </tr>
                 <tr>
                   ${isQuad ? `
-                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size:11px; padding:4px;">3호</th>
-                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size:11px; padding:4px;">2호</th>
+                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size: 10px; padding: 2px 0px;">3호</th>
+                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size: 10px; padding: 2px 0px;">2호</th>
                   ` : `
-                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size:11px; padding:4px;">3호</th>
-                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size:11px; padding:4px;">4호</th>
-                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size:11px; padding:4px;">2호</th>
-                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size:11px; padding:4px;">4호</th>
+                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size: 10px; padding: 2px 0px;">3호</th>
+                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size: 10px; padding: 2px 0px;">4호</th>
+                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size: 10px; padding: 2px 0px;">2호</th>
+                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size: 10px; padding: 2px 0px;">4호</th>
                   `}
                 </tr>
               </thead>
@@ -155,25 +155,25 @@ import { store } from './LegacyFormWrapper.jsx';
                 <!-- 전장길이 -->
                 <tr>
                   <td rowspan="4" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">전장길이</td>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">스펙(mm)</td>
                   <td colspan="${isQuad ? '2' : '4'}" style="border:1px solid var(--border-color); background:#fef9c3; color:#a16207; font-weight:800; padding:6px;">${totalLenSpecB}</td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">초</td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_초" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH3_초')}"></td>
                   ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_초" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH4_초')}"></td>`}
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_초" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH2_초')}"></td>
                   ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_초" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH4_초')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">중</td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_중" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH3_중')}"></td>
                   ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_중" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH4_중')}"></td>`}
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_중" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH2_중')}"></td>
                   ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH4_중" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH4_중')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">종</td>
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH3_종" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH3_종')}"></td>
                   ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_LH4_종" data-wheel-parsed-spec="2699" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_LH4_종')}"></td>`}
                   <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_len_RH2_종" data-wheel-parsed-spec="${isQuad ? 2463 : 2699}" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('len_RH2_종')}"></td>
@@ -183,47 +183,47 @@ import { store } from './LegacyFormWrapper.jsx';
                 <!-- 끝단 클립 -->
                 <tr>
                   <td rowspan="7" style="border:1px solid var(--border-color); background:#f1f5f9; color:var(--text-main); font-weight:800; vertical-align:middle; padding:6px 4px;">끝단 클립</td>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">스펙(mm)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">스펙(mm)</td>
                   <td colspan="${isQuad ? '1' : '2'}" style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-weight:700; padding:5px 2px; font-size:11px;">(좌측) 28±1</td>
                   <td colspan="${isQuad ? '1' : '2'}" style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-weight:700; padding:5px 2px; font-size:11px;">(우측) 28±1</td>
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초(좌)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">초(좌)</td>
                   <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_초좌')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_초좌')}"></td>`}
                   <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_초좌')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_초좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_초좌')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">초(우)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">초(우)</td>
                   <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_초우')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_초우')}"></td>`}
                   <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_초우')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_초우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_초우')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중(좌)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">중(좌)</td>
                   <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_중좌')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_중좌')}"></td>`}
                   <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_중좌')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_중좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_중좌')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">중(우)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">중(우)</td>
                   <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_중우')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_중우')}"></td>`}
                   <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_중우')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH4_중우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_중우')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종(좌)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">종(좌)</td>
                   <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH3_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_종좌')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_LH4_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_종좌')}"></td>`}
                   <td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH2_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_종좌')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-bottom:none; padding:3px;"><input type="number" id="dtcb_clip_RH4_종좌" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH4_종좌')}"></td>`}
                 </tr>
                 <tr>
-                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size:11px; padding:4px;">종(우)</td>
+                  <td style="border:1px solid var(--border-color); background:#f8fafc; color:var(--text-muted); font-size: 10px; padding: 2px 0px;">종(우)</td>
                   <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH3_종우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH3_종우')}"></td>
                   ${isQuad ? '' : `<td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_LH4_종우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_LH4_종우')}"></td>`}
                   <td style="border:1px dashed #94a3b8; border-top:none; padding:3px; background:#f8fafc;"><input type="number" id="dtcb_clip_RH2_종우" data-wheel-parsed-spec="28" class="form-control" style="font-size:11px; padding:3px; text-align:center;" placeholder="-" value="${gb('clip_RH2_종우')}"></td>
@@ -333,10 +333,10 @@ import { store } from './LegacyFormWrapper.jsx';
                 ].map(row => `
                 <tr>
                   <td style="border:1px solid var(--border-color); background:${row.bg}; color:${row.color}; font-weight:${row.bold ? '800' : '600'}; text-align:center; padding:6px 4px; font-size:11px;">${row.label}</td>
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH3" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : (isQuad ? '2호' : '3호')}" value="${gb(row.id+'_LH3') || gb(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH4" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : '4호'}" value="${gb(row.id+'_LH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
-                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH2" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : (isQuad ? '3호' : '2호')}" value="${gb(row.id+'_RH2') || gb(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
-                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH4" class="form-control" style="font-size:11px; padding:4px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : '4호'}" value="${gb(row.id+'_RH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH3" class="form-control" style="font-size: 10px; padding: 2px 0px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : (isQuad ? '2호' : '3호')}" value="${gb(row.id+'_LH3') || gb(row.id+'_LH')}" ${row.readonly ? 'readonly' : ''}></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_LH4" class="form-control" style="font-size: 10px; padding: 2px 0px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : '4호'}" value="${gb(row.id+'_LH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
+                  <td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH2" class="form-control" style="font-size: 10px; padding: 2px 0px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : (isQuad ? '3호' : '2호')}" value="${gb(row.id+'_RH2') || gb(row.id+'_RH')}" ${row.readonly ? 'readonly' : ''}></td>
+                  ${isQuad ? '' : `<td style="border:1px solid var(--border-color); padding:3px;"><input type="number" id="dtcb_${row.id}_RH4" class="form-control" style="font-size: 10px; padding: 2px 0px; text-align:center; ${row.readonly ? 'background:#ffe4e6; font-weight:800; color:#be123c;' : ''}" placeholder="${row.readonly ? '자동계산' : '4호'}" value="${gb(row.id+'_RH4')}" ${row.readonly ? 'readonly' : ''}></td>`}
                 </tr>`).join('')}
               </tbody>
             </table>
@@ -385,21 +385,21 @@ import { store } from './LegacyFormWrapper.jsx';
               <tbody>
                 <tr>
                   <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">초</td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_LH_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_LH_초')}" /></td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_MID_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_MID_초')}" /></td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_RH_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_RH_초')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_LH_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_LH_초')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_MID_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_MID_초')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_RH_초" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_RH_초')}" /></td>
                 </tr>
                 <tr>
                   <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">중</td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_LH_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_LH_중')}" /></td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_MID_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_MID_중')}" /></td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_RH_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_RH_중')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_LH_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_LH_중')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_MID_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_MID_중')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_RH_중" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_RH_중')}" /></td>
                 </tr>
                 <tr>
                   <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">종</td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_LH_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_LH_종')}" /></td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_MID_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_MID_종')}" /></td>
-                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_RH_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('cut_len_RH_종')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_LH_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_LH_종')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_MID_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_MID_종')}" /></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="kmkx_cut_len_RH_종" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('cut_len_RH_종')}" /></td>
                 </tr>
               </tbody>
             </table>
@@ -437,40 +437,40 @@ import { store } from './LegacyFormWrapper.jsx';
                 <!-- 초 -->
                 <tr>
                   <td rowspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">초</td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_초_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_LH_초_좌')}" placeholder="좌" /></td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_초_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_MID_초_좌')}" placeholder="좌" /></td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_초_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_RH_초_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_초_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_LH_초_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_초_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_MID_초_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_초_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_RH_초_좌')}" placeholder="좌" /></td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_초_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_LH_초_우')}" placeholder="우" /></td>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_초_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_MID_초_우')}" placeholder="우" /></td>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_초_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_RH_초_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_초_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_LH_초_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_초_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_MID_초_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_초_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_RH_초_우')}" placeholder="우" /></td>
                 </tr>
 
                 <!-- 중 -->
                 <tr>
                   <td rowspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">중</td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_중_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_LH_중_좌')}" placeholder="좌" /></td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_중_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_MID_중_좌')}" placeholder="좌" /></td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_중_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_RH_중_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_중_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_LH_중_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_중_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_MID_중_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_중_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_RH_중_좌')}" placeholder="좌" /></td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_중_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_LH_중_우')}" placeholder="우" /></td>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_중_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_MID_중_우')}" placeholder="우" /></td>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_중_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_RH_중_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_중_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_LH_중_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_중_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_MID_중_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_중_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_RH_중_우')}" placeholder="우" /></td>
                 </tr>
 
                 <!-- 종 -->
                 <tr>
                   <td rowspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">종</td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_종_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_LH_종_좌')}" placeholder="좌" /></td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_종_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_MID_종_좌')}" placeholder="좌" /></td>
-                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_종_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_RH_종_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_종_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_LH_종_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_종_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_MID_종_좌')}" placeholder="좌" /></td>
+                  <td style="border: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_종_좌" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_RH_종_좌')}" placeholder="좌" /></td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_종_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_LH_종_우')}" placeholder="우" /></td>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_종_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_MID_종_우')}" placeholder="우" /></td>
-                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_종_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${g('hole_gap_RH_종_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_LH_종_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_LH_종_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_MID_종_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_MID_종_우')}" placeholder="우" /></td>
+                  <td style="border: 1px solid #000; border-top: 1px dotted #000; padding: 2px;"><input type="text" id="kmkx_hole_gap_RH_종_우" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${g('hole_gap_RH_종_우')}" placeholder="우" /></td>
                 </tr>
               </tbody>
             </table>
@@ -589,19 +589,19 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td rowspan="3" colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; width: 24%;">제품수량</td>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; width: 46%;">작 업 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="자동계산" />
+                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="자동계산" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_work_RH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_RH ?? ''}" placeholder="자동계산" />
+                  <input type="number" id="dtc_pqty_work_RH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; background: #f1f5f9;" value="${prod.work_RH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">정 품 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="자동계산" />
+                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="자동계산" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_good_RH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_RH ?? ''}" placeholder="자동계산" />
+                  <input type="number" id="dtc_pqty_good_RH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_RH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
@@ -774,13 +774,13 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td rowspan="3" colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle; width: 24%;">제품수량</td>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; width: 51%;">작 업 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="자동계산" />
+                  <input type="number" id="dtc_pqty_work_LH" readonly class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; background: #f1f5f9;" value="${prod.work_LH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
                 <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">정 품 수</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="자동계산" />
+                  <input type="number" id="dtc_pqty_good_LH" class="form-control dtc-post-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${prod.good_LH ?? ''}" placeholder="자동계산" />
                 </td>
               </tr>
               <tr>
@@ -942,19 +942,19 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">생산량</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">계획</td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${planVal1}" placeholder="${defaultPlan}" />
+                  <input type="number" id="dtc_jqty_plan_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${planVal1}" placeholder="${defaultPlan}" />
                 </td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${planVal2}" placeholder="${defaultPlan}" />
+                  <input type="number" id="dtc_jqty_plan_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${planVal2}" placeholder="${defaultPlan}" />
                 </td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">실적</td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.act ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.act ?? ''}" placeholder="0" />
                 </td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q2.act ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q2.act ?? ''}" placeholder="0" />
                 </td>
               </tr>
 
@@ -1051,19 +1051,19 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">생산량</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">계획</td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${planVal1}" placeholder="${defaultPlan}" />
+                  <input type="number" id="dtc_jqty_plan_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${planVal1}" placeholder="${defaultPlan}" />
                 </td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${planVal2}" placeholder="${defaultPlan}" />
+                  <input type="number" id="dtc_jqty_plan_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${planVal2}" placeholder="${defaultPlan}" />
                 </td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">실적</td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.act ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.act ?? ''}" placeholder="0" />
                 </td>
                 <td colspan="3" style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q2.act ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q2.act ?? ''}" placeholder="0" />
                 </td>
               </tr>
 
@@ -1152,31 +1152,31 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">생산량</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">계획</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.plan_1 ?? q1.plan ?? 300}" placeholder="300" />
+                  <input type="number" id="dtc_jqty_plan_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.plan_1 ?? q1.plan ?? 300}" placeholder="300" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.plan_2 ?? q1.plan ?? 300}" placeholder="300" />
+                  <input type="number" id="dtc_jqty_plan_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.plan_2 ?? q1.plan ?? 300}" placeholder="300" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.plan_3 ?? q1.plan ?? 300}" placeholder="300" />
+                  <input type="number" id="dtc_jqty_plan_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.plan_3 ?? q1.plan ?? 300}" placeholder="300" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_plan_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.plan_4 ?? q1.plan ?? 300}" placeholder="300" />
+                  <input type="number" id="dtc_jqty_plan_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.plan_4 ?? q1.plan ?? 300}" placeholder="300" />
                 </td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">실적</td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.act_1 ?? q1.act ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.act_1 ?? q1.act ?? ''}" placeholder="0" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.act_2 ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.act_2 ?? ''}" placeholder="0" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.act_3 ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.act_3 ?? ''}" placeholder="0" />
                 </td>
                 <td style="border: 1px solid #000; padding: 2px;">
-                  <input type="number" id="dtc_jqty_act_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q1.act_4 ?? ''}" placeholder="0" />
+                  <input type="number" id="dtc_jqty_act_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q1.act_4 ?? ''}" placeholder="0" />
                 </td>
               </tr>
 
@@ -1242,49 +1242,49 @@ import { store } from './LegacyFormWrapper.jsx';
               <tr>
                 <td rowspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #e2e8f0; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle; width: 20%;">생산량</td>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; width: 15%;">계획</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_LH_A ?? q.targetQty ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_LH_A ?? q.targetQty ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">실적</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_LH_A ?? q.actualQty ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_LH_A ?? q.actualQty ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 압출소재 불량 -->
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px 4px; background: #e2e8f0; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">압출소재<br>불량</td>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">스 코 치</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_LH_A ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_LH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">외면오염</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_LH_A ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_LH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">기타[ ]</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_other_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_other_LH_A ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_other_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_other_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_other_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_other_LH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_other_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_other_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 공정간불량 -->
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px 4px; background: #e2e8f0; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">공정간불량</td>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">길이불량</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_LH_A ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_LH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">단면불량</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_sec_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_sec_LH_A ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_sec_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_sec_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_sec_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_sec_LH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_sec_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_sec_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">기타[ ]</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_other_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_other_LH_A ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_other_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_other_RH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_other_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_other_LH_A ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_other_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_other_RH_A ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 불량 합계 -->
@@ -1318,58 +1318,62 @@ import { store } from './LegacyFormWrapper.jsx';
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">구 분(Division)</th>
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
+                  구 분(Division)
+                </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 70%;">Frunk</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">생산량(Q,TY)</td>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
+                  생산량(Q,TY)
+                </td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 13%;">계획</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? '300'}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? '300'}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">실적</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">압출소재불량<br>(Extrusion Badness)</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">스코치(Scortch)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">외면흠 (Scratch)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">후로킹 (Flock,g)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">오염 (Contamination)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">공정간불량<br>(Process Badness)</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">길이 (Length)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">컷팅 (Cutting)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">찍힘/변형</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_deform_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_deform_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_deform_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_deform_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">기타불량<br>(Etc Badness)</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">조인트 (Joint)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_etc_joint_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.etc_joint_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_etc_joint_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.etc_joint_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타 (Etc)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_etc_other_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.etc_other_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_etc_other_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.etc_other_FL ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">합계</td>
@@ -1408,7 +1412,7 @@ import { store } from './LegacyFormWrapper.jsx';
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
@@ -1418,22 +1422,22 @@ import { store } from './LegacyFormWrapper.jsx';
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? (formCode === 1013 ? '60' : formCode === 1024 ? '200' : '')}" placeholder="${formCode === 1013 ? '60' : formCode === 1024 ? '200' : '0'}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? (formCode === 1013 ? '60' : formCode === 1024 ? '200' : '')}" placeholder="${formCode === 1013 ? '60' : formCode === 1024 ? '200' : '0'}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? (formCode === 1013 ? '60' : formCode === 1024 ? '200' : '')}" placeholder="${formCode === 1013 ? '60' : formCode === 1024 ? '200' : '0'}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FR ?? (formCode === 1013 ? '60' : formCode === 1024 ? '200' : '')}" placeholder="${formCode === 1013 ? '60' : formCode === 1024 ? '200' : '0'}" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -1445,50 +1449,50 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   조인트불량<br>(joint N.G)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_joint_FL ?? q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_joint_FR ?? q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_joint_FL ?? q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_joint_FR ?? q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   사상불량<br>(trimming N.G)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_trim_FL ?? q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_trim_FR ?? q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_trim_FL ?? q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_trim_FR ?? q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠<br>(external blemish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_blemish_FL ?? q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_blemish_FR ?? q.ext_flock_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_blemish_FL ?? q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_blemish_FR ?? q.ext_flock_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치<br>(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_scorch_FL ?? q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_scorch_FR ?? q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_scorch_FL ?? q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_scorch_FR ?? q.ext_contam_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   클립누락<br>(Missing Pad)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_pad_FL ?? q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_pad_FR ?? q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_pad_FL ?? q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_pad_FR ?? q.proc_len_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이불량<br>(Bad length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_len_FL ?? q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_len_FR ?? q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_len_FL ?? q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_len_FR ?? q.proc_cut_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타<br>(etc)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_etc_FL ?? q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.def_1013_etc_FR ?? q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_etc_FL ?? q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.def_1013_etc_FR ?? q.proc_oth_FR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 4. 불량합계(Total) -->
@@ -1529,7 +1533,7 @@ import { store } from './LegacyFormWrapper.jsx';
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
@@ -1539,21 +1543,21 @@ import { store } from './LegacyFormWrapper.jsx';
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? '200'}" placeholder="200" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? '200'}" placeholder="200" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? '200'}" placeholder="200" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FR ?? '200'}" placeholder="200" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 2. 압출소재불량(Extrusion Badness) -->
@@ -1564,29 +1568,29 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 3. 공정간불량(Process Badness) -->
@@ -1597,22 +1601,22 @@ import { store } from './LegacyFormWrapper.jsx';
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 (Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅 (Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (The others)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 4. 불량합계(Total) -->
@@ -1652,37 +1656,37 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">FRT LH</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">FRT RH</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">RR LH</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">RR RH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">FRT LH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">FRT RH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">RR LH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">RR RH</th>
               </tr>
             </thead>
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FL ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_FR ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_RL ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.plan_RR ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FR ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_RL ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_RR ?? defaultPlan}" placeholder="${defaultPlaceholder}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_RR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 2. 압출소재불량(Extrusion Badness) -->
@@ -1693,37 +1697,37 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_RR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_RR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_RR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_RR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 3. 공정간불량(Process Badness) -->
@@ -1734,28 +1738,28 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 (Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_RR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅 (Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_RR ?? ''}" placeholder="0" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (The others)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_RL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_RR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_RL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_RR ?? ''}" placeholder="0" /></td>
               </tr>
 
               <!-- 4. 불량합계(Total) -->
@@ -1812,7 +1816,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">계획(P)</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : '200'}" placeholder="200" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : '200'}" placeholder="200" />
                   </td>
                 `).join('')}
               </tr>
@@ -1820,7 +1824,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">실적(O)</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
                   </td>
                 `).join('')}
               </tr>
@@ -1831,35 +1835,35 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                   공정간불량<br>(Process<br>Badness)
                 </td>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">떨어짐</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">밀림</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">양부족</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">씹힘</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_chew_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['chew_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_chew_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['chew_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기포</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">이물질</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_foreign_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['foreign_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_foreign_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['foreign_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">찢어짐</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_torn_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['torn_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_torn_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['torn_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기타(   )</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
 
               <!-- 3. 불량합계 (Total) -->
@@ -1953,7 +1957,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">계획(P)</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : '200'}" placeholder="200" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : '200'}" placeholder="200" />
                   </td>
                 `).join('')}
               </tr>
@@ -1961,7 +1965,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">실적(O)</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
                   </td>
                 `).join('')}
               </tr>
@@ -2063,7 +2067,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : (formCode === 1011 ? '60' : (formCode === 1022 || formCode === 3003) ? '200' : '')}" placeholder="${formCode === 1011 ? '60' : (formCode === 1022 || formCode === 3003) ? '200' : '0'}" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : (formCode === 1011 ? '60' : (formCode === 1022 || formCode === 3003) ? '200' : (formCode === 4002 ? '300' : ''))}" placeholder="${formCode === 1011 ? '60' : (formCode === 1022 || formCode === 3003) ? '200' : (formCode === 4002 ? '300' : '0')}" />
                   </td>
                 `).join('')}
               </tr>
@@ -2073,7 +2077,7 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
                   </td>
                 `).join('')}
               </tr>
@@ -2086,49 +2090,49 @@ export function getStandardQtyHTML(ed, container, formCode = null) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   떨어짐(Split)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   밀림(Push)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   양부족<br><span style="font-size: 9px; font-weight: normal;">(lack of quantity)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   넘침(overflowing)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['over_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['over_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기포 (Air bubbles)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   찌꺼기(worthless)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   삽입불량(Bad insert)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['insert_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['insert_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기타(The others)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
 
               <!-- 3. 불량합계 (Total) -->
@@ -2184,7 +2188,7 @@ export function getJointQty1032HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['plan_'+c.id] ?? '30'}" placeholder="30" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['plan_'+c.id] ?? '30'}" placeholder="30" />
                   </td>
                 `).join('')}
               </tr>
@@ -2194,7 +2198,7 @@ export function getJointQty1032HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_act_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['act_'+c.id] || ''}" />
+                    <input type="number" id="jqty_act_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['act_'+c.id] || ''}" />
                   </td>
                 `).join('')}
               </tr>
@@ -2209,37 +2213,37 @@ export function getJointQty1032HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jdef_split_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['split_'+c.id] || ''}" />
+                    <input type="number" id="jdef_split_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['split_'+c.id] || ''}" />
                   </td>
                 `).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">밀림(Push)</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['push_'+c.id] || ''}" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['push_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">양부족<br>(lack of quantity)</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['lack_'+c.id] || ''}" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['lack_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">넘침(overflowing)</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['over_'+c.id] || ''}" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['over_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기포 (Air bubbles)</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['bubble_'+c.id] || ''}" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['bubble_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">찌꺼기(worthless)</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['scrap_'+c.id] || ''}" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['scrap_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">삽입불량(Bad insert)</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['insert_'+c.id] || ''}" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['insert_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">기타(The others)</td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q['oth_'+c.id] || ''}" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q['oth_'+c.id] || ''}" /></td>`).join('')}
               </tr>
               <tr style="background: #f8fafc; font-weight: 700;">
                 <td style="border: 1px solid #000; padding: 6px; color: var(--accent-red);">불량계</td>
@@ -2327,7 +2331,7 @@ export function getJointQty1032HTML(ed, container) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; width: 10%;">계획(P)</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : '200'}" placeholder="200" />
+                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q['plan_' + c.id] !== undefined && q['plan_' + c.id] !== '' ? q['plan_' + c.id] : '200'}" placeholder="200" />
                   </td>
                 `).join('')}
               </tr>
@@ -2335,7 +2339,7 @@ export function getJointQty1032HTML(ed, container) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">실적(O)</td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_act_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="pqty_act_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
                   </td>
                 `).join('')}
               </tr>
@@ -2422,7 +2426,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? ((formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : (formCode === 1033 ? '30' : '')))}" placeholder="${(formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : (formCode === 1033 ? '30' : '0'))}" />
+                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q['plan_' + c.id] ?? ((formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : (formCode === 1033 ? '30' : '')))}" placeholder="${(formCode === 1003 || formCode === 1004) ? '60' : (formCode === 1023 ? '200' : (formCode === 1033 ? '30' : '0'))}" />
                   </td>
                 `).join('')}
               </tr>
@@ -2432,7 +2436,7 @@ export function getPostQtyHTML(ed, container, formCode) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_act_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="pqty_act_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
                   </td>
                 `).join('')}
               </tr>
@@ -2445,43 +2449,43 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   떨어짐<br><span style="font-size: 9px; font-weight: normal;">(Dropped)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_drop_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_drop_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_drop_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_drop_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   양부족<br><span style="font-size: 9px; font-weight: normal;">(lack of quantity)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_lack_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_lack_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   단차<br><span style="font-size: 9px; font-weight: normal;">(a step difference)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_step_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_step_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_step_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_step_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기포<br><span style="font-size: 9px; font-weight: normal;">(Air bubbles)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_bubble_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_bubble_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   씹힘<br><span style="font-size: 9px; font-weight: normal;">(Chewing)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_chew_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_chew_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_chew_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_chew_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   찌꺼기<br><span style="font-size: 9px; font-weight: normal;">(worthless)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_scrap_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_scrap_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기타(etc)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
 
               <!-- 4. 후가공 불량 (Bad post-processing) -->
@@ -2492,19 +2496,19 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   사상불량<br><span style="font-size: 9px; font-weight: normal;">(trimming N.G)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_trim_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_trim_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_trim_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['p_trim_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   오염<br><span style="font-size: 9px; font-weight: normal;">(Pollution)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_poll_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_poll_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_poll_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['p_poll_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기타(etc)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['p_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
 
               <!-- 5. 후가공 불량 합계 (Sum Defects) -->
@@ -2912,7 +2916,7 @@ export function getPostQtyHTML(ed, container, formCode) {
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
@@ -2923,22 +2927,22 @@ export function getPostQtyHTML(ed, container, formCode) {
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -2950,48 +2954,48 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scorch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면 흠<br>(external blemish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염(Pollution)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 미달<br>(short of length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_short_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_short_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_short_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_short_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_short_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_short_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_short_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_short_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   단면이상<br>(cross-section abnormality)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_cross_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_cross_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_cross_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_cross_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_cross_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_cross_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_cross_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_cross_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (etc)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_etc_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_etc_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_etc_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_etc_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_etc_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_etc_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_etc_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_etc_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3003,24 +3007,24 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이(Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅(Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (etc)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3059,7 +3063,7 @@ export function getForm4004QtyHTML(ed, container) {
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
@@ -3070,22 +3074,22 @@ export function getForm4004QtyHTML(ed, container) {
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3097,32 +3101,32 @@ export function getForm4004QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3134,24 +3138,24 @@ export function getForm4004QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 (Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅 (Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (The others)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3191,7 +3195,7 @@ export function getForm4012QtyHTML(ed, container) {
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 70%;">Frunk</th>
@@ -3200,19 +3204,19 @@ export function getForm4012QtyHTML(ed, container) {
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
                 </tr>
 
               <!-- 2. 압출소재불량(Extrusion Badness) -->
@@ -3223,25 +3227,25 @@ export function getForm4012QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
                 </tr>
 
               <!-- 3. 공정간불량(Process Badness) -->
@@ -3252,19 +3256,19 @@ export function getForm4012QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 (Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅 (Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (The others)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
                 </tr>
 
               <!-- 4. 불량합계(Total) -->
@@ -3301,7 +3305,7 @@ export function getForm4013QtyHTML(ed, container) {
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 70%;">Frunk</th>
@@ -3310,19 +3314,19 @@ export function getForm4013QtyHTML(ed, container) {
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
                 </tr>
 
               <!-- 2. 압출소재불량(Extrusion Badness) -->
@@ -3333,25 +3337,25 @@ export function getForm4013QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
                 </tr>
 
               <!-- 3. 공정간불량(Process Badness) -->
@@ -3362,19 +3366,19 @@ export function getForm4013QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 (Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅 (Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (The others)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
                 </tr>
 
               <!-- 4. 불량합계(Total) -->
@@ -3412,7 +3416,7 @@ export function getForm4003QtyHTML(ed, container) {
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
@@ -3423,22 +3427,22 @@ export function getForm4003QtyHTML(ed, container) {
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3450,32 +3454,32 @@ export function getForm4003QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3487,24 +3491,24 @@ export function getForm4003QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 (Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅 (Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (The others)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3544,7 +3548,7 @@ export function getForm4002QtyHTML(ed, container) {
           <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">LH</th>
@@ -3554,22 +3558,22 @@ export function getForm4002QtyHTML(ed, container) {
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   실적
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.act_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3581,32 +3585,32 @@ export function getForm4002QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   스코치(Scortch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scorch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   외면흠 (Scratch)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_scratch_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   후로킹 (Flock,g)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_flock_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   오염 (Contamination)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.ext_contam_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3618,24 +3622,24 @@ export function getForm4002QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   길이 (Length)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_len_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   컷팅 (Cutting)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_cut_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
                   기타 (The others)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FL ?? ''}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.proc_oth_FR ?? ''}" placeholder="0" /></td>
                 
               </tr>
 
@@ -3695,7 +3699,7 @@ export function getJointQty1002HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? '60'}" placeholder="60" />
+                    <input type="number" id="jqty_plan_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q['plan_' + c.id] ?? '60'}" placeholder="60" />
                   </td>
                 `).join('')}
               </tr>
@@ -3705,7 +3709,7 @@ export function getJointQty1002HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="jqty_act_${c.id}" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
                   </td>
                 `).join('')}
               </tr>
@@ -3718,49 +3722,49 @@ export function getJointQty1002HTML(ed, container) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   떨어짐(Split)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['split_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   밀림(Push)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['push_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   양부족<br><span style="font-size: 9px; font-weight: normal;">(lack of quantity)</span>
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   넘침(overflowing)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['over_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['over_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기포 (Air bubbles)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   찌꺼기(worthless)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   삽입불량(Bad insert)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['insert_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['insert_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기타(The others)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_${c.id}" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
 
               <!-- 3. 불량합계 (Total) -->
@@ -3817,7 +3821,7 @@ export function getPostQty1012HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700;" value="${q['plan_' + c.id] ?? '60'}" placeholder="60" />
+                    <input type="number" id="pqty_plan_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="${q['plan_' + c.id] ?? '60'}" placeholder="60" />
                   </td>
                 `).join('')}
               </tr>
@@ -3827,7 +3831,7 @@ export function getPostQty1012HTML(ed, container) {
                 </td>
                 ${cols.map(c => `
                   <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="number" id="pqty_act_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
+                    <input type="number" id="pqty_act_${c.id}" class="form-control pqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="${q['act_' + c.id] ?? ''}" placeholder="0" />
                   </td>
                 `).join('')}
               </tr>
@@ -3840,43 +3844,43 @@ export function getPostQty1012HTML(ed, container) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   떨어짐(Split)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_drop_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_drop_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_drop_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_drop_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   양부족(Lack)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_lack_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_lack_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_lack_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   단차(Step)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_step_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_step_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_step_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_step_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기포(Bubble)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_bubble_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_bubble_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_bubble_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   씹힘(Chew)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_chew_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_chew_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_chew_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_chew_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   찌꺼기(Scrap)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_scrap_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_scrap_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_scrap_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기타(Other)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['j_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_j_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['j_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
 
               <!-- 3. 공정간불량 (후가공) -->
@@ -3887,19 +3891,19 @@ export function getPostQty1012HTML(ed, container) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   사상불량(Trim)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_trim_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_trim_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_trim_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['p_trim_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   오염(Pollution)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_poll_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_poll_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_poll_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['p_poll_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   기타(Other)
                 </td>
-                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size:11px; padding:4px;" value="${q['p_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
+                ${cols.map(c => `<td style="border: 1px solid #000; padding: 2px;"><input type="number" id="pdef_p_oth_${c.id}" class="form-control pqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="${q['p_oth_' + c.id] ?? ''}" placeholder="0" /></td>`).join('')}
               </tr>
               <tr style="background: #fffde7; font-weight: 700;">
                 <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose); font-size: 13px;">
@@ -3939,7 +3943,7 @@ export function getForm3004QtyHTML(ed, container) {
     </script>
   `;
   
-  const inp = (prefix, pos) => `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${q[`${prefix}_${pos}`] ?? ''}" placeholder="0" />`;
+  const inp = (prefix, pos) => `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q[`${prefix}_${pos}`] ?? ''}" placeholder="0" />`;
   const sum = (prefix, pos) => `<span id="qtyd_${prefix}_sum_${pos}">자동계산</span>`;
 
   const cols = ['w1', 'w2', 'w3', 'w4'];
@@ -4147,7 +4151,7 @@ export function getForm3001QtyHTML(ed, container) {
     const inp = (prefix, pos) => {
       const defaultVal = prefix === 'plan' ? '200' : '';
       const val = q[`${prefix}_${pos}`] !== undefined && q[`${prefix}_${pos}`] !== '' ? q[`${prefix}_${pos}`] : defaultVal;
-      return `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="${val}" placeholder="${prefix === 'plan' ? '200' : '0'}" />`;
+      return `<input type="number" id="qtyd_${prefix}_${pos}" class="form-control qty-calc-input qty-input-dynamic" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${val}" placeholder="${prefix === 'plan' ? '200' : '0'}" />`;
     };
     const sum = (pos) => `<span id="qtyd_def_sum_${pos}">0</span>`;
 
@@ -4155,7 +4159,7 @@ export function getForm3001QtyHTML(ed, container) {
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; margin-bottom: 16px;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 30%;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
                 <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 17.5%;">${cols[0].label}</th>
@@ -4167,10 +4171,12 @@ export function getForm3001QtyHTML(ed, container) {
             <tbody>
               <!-- 1. 생산량(Q,TY) -->
               <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 16%;">
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
                   생산량(Q,TY)
                 </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 14%;">계획</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
+                  계획
+                </td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('plan', cols[0].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('plan', cols[1].key)}</td>
                 <td style="border: 1px solid #000; padding: 2px;">${inp('plan', cols[2].key)}</td>

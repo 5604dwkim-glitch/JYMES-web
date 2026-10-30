@@ -304,7 +304,7 @@ export async function processMoldStrokes(reportData, existingReport = null) {
   if (Object.keys(strokeUpdates).length > 0) {
     const allMolds = await fetchMolds(); // 캐시 적용: 이미 읽었으면 Firestore 호출 없음
     const moldMap = {};
-    allMolds.forEach(m => { if (m.code) moldMap[m.code] = m; });
+    allMolds.forEach(m => { if (m.code) moldMap[m.code] = m; if (m.moldNumber) moldMap[m.moldNumber] = m; });
 
     const batch = writeBatch(db);
     let hasBatch = false;
@@ -331,6 +331,21 @@ export async function processMoldStrokes(reportData, existingReport = null) {
 }
 
 async function applyStatsUpdate(oldReport, newReport) {
+  try {
+    // 작업일자가 변경된 경우: 이전 날짜 통계에서는 전량 차감, 새 날짜 통계에는 전량 가산
+    // (기존에는 새 날짜 문서에서 차이만 계산해 이전 날짜 통계가 남고 새 날짜가 음수/중복되는 오류 발생)
+    if (oldReport && newReport && oldReport.date && newReport.date && oldReport.date !== newReport.date) {
+      await applyStatsUpdateSingleDate(oldReport, null);
+      await applyStatsUpdateSingleDate(null, newReport);
+      return;
+    }
+    await applyStatsUpdateSingleDate(oldReport, newReport);
+  } catch (error) {
+    console.error('Failed to update daily_stats:', error);
+  }
+}
+
+async function applyStatsUpdateSingleDate(oldReport, newReport) {
   try {
     const diff = buildStatsUpdate(oldReport, newReport);
     if (Object.keys(diff).length === 0) return;

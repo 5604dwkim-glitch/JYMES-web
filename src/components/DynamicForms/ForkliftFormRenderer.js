@@ -184,7 +184,8 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
       const workDetailsText = container.querySelector('#forkWorkDetails')?.value || '';
 
       const currentUserRole = store.getUserRole();
-      const currentWorkerName = currentUserRole?.workerName || loggedInWorkerName || '작업자';
+      // 기존 일보를 수정(관리자 포함)하는 경우 원래 작성자를 유지 (신규 작성 시에만 로그인 사용자 적용)
+      const currentWorkerName = existingData?.workerName || currentUserRole?.workerName || loggedInWorkerName || '작업자';
 
       const reportData = {
         date: fullDate,
@@ -194,7 +195,7 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
         processName: '지게차작업',
         line: '1라인',
         workerName: currentWorkerName,
-        workerId: 'EMP001',
+        workerId: existingData?.workerId || 'EMP001',
         itemCode: '공통',
         itemName: '공통',
         targetQty: 0,
