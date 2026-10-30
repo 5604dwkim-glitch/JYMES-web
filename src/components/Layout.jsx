@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
+import { isFluidPage } from '../constants/layoutPages';
 
 export default function Layout() {
   const { userRole, logout } = useAuth();
@@ -197,7 +198,8 @@ export default function Layout() {
           </div>
         </header>
 
-        <main className="content-body" id="contentBody">
+        {/* data-wide-page="1": 작업일보 외 화면은 최소 가로폭 유지 + 가로 스크롤 (index.css 참고) */}
+        <main className="content-body" id="contentBody" data-wide-page={isFluidPage(location.pathname) ? undefined : '1'}>
           <div className="tab-view active" style={{ display: 'block' }}>
             <Outlet />
           </div>

@@ -1158,3 +1158,28 @@ body.mobile-preview-mode .content-body {
   width: 100% !important;
   max-width: 100% !important;
 }
+
+
+/* ============================================================
+   [가로 스크롤 화면] 작업일보(/form, /drafts, /reports) 외 모든 화면
+   - Layout.jsx 가 <main.content-body data-wide-page="1"> 을 부여한 화면에만 적용
+   - 최소 가로폭(--wide-page-min-width) 아래로는 줄어들지 않고 가로 스크롤
+   - PC/모바일(실기기·미리보기) 공통 값. 변경 시 src/constants/layoutPages.js 도 함께 수정
+   ============================================================ */
+#app .content-body[data-wide-page="1"] {
+  --wide-page-min-width: 1280px; /* 모바일: 화면 전체 기준 1280px */
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+#app .content-body[data-wide-page="1"] > .tab-view {
+  min-width: var(--wide-page-min-width);
+}
+
+/* PC: 가로 스크롤바가 긴 목록의 맨 아래가 아니라 화면 하단에 보이도록 영역 안에서 스크롤 */
+@media (min-width: 769px) {
+  body:not(.mobile-preview-mode) #app .content-body[data-wide-page="1"] {
+    max-height: calc(100vh - 60px); /* 60px = .top-header 높이 */
+    /* PC: 왼쪽 사이드바(260px)를 포함해 화면 전체가 1280px 아래로 줄어들지 않도록 */
+    --wide-page-min-width: calc(1280px - 260px);
+  }
+}
