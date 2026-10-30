@@ -134,7 +134,8 @@ try {
   for (const e of entries) {
     const html = await renderForm(e);
     const file = path.join(SNAP_DIR, `${e.code}.html`);
-    const prev = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
+    // git autocrlf 로 기준선이 CRLF 로 체크아웃되어도 오탐하지 않도록 줄바꿈 정규화
+    const prev = fs.existsSync(file) ? fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n') : null;
     if (prev === null) { fs.writeFileSync(file, html, 'utf8'); created.push(e.code); continue; }
     if (prev === html) { same.push(e.code); continue; }
     if (UPDATE) { fs.writeFileSync(file, html, 'utf8'); changed.push(e.code); continue; }

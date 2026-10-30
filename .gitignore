@@ -35,3 +35,7 @@ temp/
 
 # form snapshot diff outputs (baseline *.html files ARE committed)
 tests/form-snapshots/*.actual.html
+
+# local scratch work & Firestore data backups (not source)
+scratch/
+scripts/utils/daily_stats_backup_*.json
