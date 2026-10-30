@@ -1,0 +1,387 @@
+<!-- form 2025 | DS CREW_D/SIDE_조인트 V부 -->
+<!-- ERRORS: none -->
+<!-- [section4LotTable] -->
+<div id="section4Card" style="display: block;"><div id="section4LotTableContainer">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #ffffff; font-weight: 700;">
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">구분</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 37.5%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">LH D</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 37.5%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">RH D</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">초</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LH_D_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RH_D_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">중</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LH_D_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RH_D_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">종</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LH_D_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RH_D_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div></div>
+<!-- [section5] -->
+<div id="section5DynamicContainer">
+
+        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
+            🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+          </label>
+          <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
+          <input type="text" id="jointRubberLotNo" class="form-control lot-datetime-input" style="max-width: 280px; font-family: monospace;" placeholder="년월일시분 (예: 2607251330)" value="">
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+            ♨️ <span class="sec-num"></span> 설비 가류온도 &amp; 가류시간 입력
+          </label>
+
+        <div style="overflow-x: auto; ">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif; table-layout: fixed;">
+            <colgroup>
+              <col style="width: 14%;">
+              <col style="width: 10%;">
+              <col style="width: 19%;">
+              <col style="width: 19%;">
+              <col style="width: 19%;">
+              <col style="width: 19%;">
+            </colgroup>
+            <thead>
+              <!-- 부위 -->
+              <tr style="background: #f1f5f9; font-weight: 700; color: #000;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">부위</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 19%;">V부(L/R)</th>
+              </tr>
+              <!-- 금형 No. -->
+              <tr style="background: #ffffff; font-weight: 700; color: #000;">
+                <td colspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700;">금형 No. [ 호기 ]</td>
+                <td style="border: 1px solid #000; padding: 2px;"><select id="vulc_mold_1" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;"><option value="">금형선택</option></select></td>
+                <td style="border: 1px solid #000; padding: 2px;"><select id="vulc_mold_2" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;"><option value="">금형선택</option></select></td>
+                <td style="border: 1px solid #000; padding: 2px;"><select id="vulc_mold_3" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;"><option value="">금형선택</option></select></td>
+                <td style="border: 1px solid #000; padding: 2px;"><select id="vulc_mold_4" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;"><option value="">금형선택</option></select></td>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 가류 온도 (상/하, ℃) -->
+              <tr>
+                <td rowspan="7" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle; width: 18%;">가류 온도<br>[ 상/하, ℃ ]</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #e2e8f0; font-weight: 700; color: #000; width: 14%;">규 격</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">210 ± 10</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">210 ± 10</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">210 ± 10</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">210 ± 10</td>
+              </tr>
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">초 물</td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_1_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_2_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_3_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_4_초_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_1_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_2_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_3_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_4_초_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+              </tr>
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">중 물</td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_1_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_2_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_3_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_4_중_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_1_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_2_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_3_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_4_중_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+              </tr>
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">종 물</td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_1_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_2_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_3_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[상]</span><input type="text" id="vulc_temp_4_종_상" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_1_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_2_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_3_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+                <td style="border: 1px solid #000; padding: 2px;"><div style="display: flex; align-items: center; justify-content: center; gap: 2px;"><span style="font-size: 10px; color: #555;">[하]</span><input type="text" id="vulc_temp_4_종_하" data-wheel-parsed-spec="210" class="form-control" style="width: 70%; border: none; text-align: center; font-size: 11px; padding: 3px;" value=""></div></td>
+              </tr>
+
+              <!-- 가류 시간 [ 초 ] -->
+              <tr>
+                <td rowspan="4" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">가류 시간<br>[ 초 ]</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #e2e8f0; font-weight: 700; color: #000;">규 격</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">90 ± 10</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">90 ± 10</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">90 ± 10</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; background: #e2e8f0;">90 ± 10</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">초 물</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_1_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_2_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_3_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_4_초" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">중 물</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_1_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_2_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_3_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_4_중" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">종 물</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_1_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_2_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_3_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_time_4_종" data-wheel-parsed-spec="90" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        </div>
+
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              🔄 <span class="sec-num"></span> 금일 금형 타수
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #e2e8f0; font-weight: 700; color: #000;">
+                    <th style="border: 1px solid #000; padding: 6px; width: 50%;">금형 부위</th>
+                    <th style="border: 1px solid #000; padding: 6px; width: 50%;">금일 타수 (Stroke)</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+            <tr>
+              <td id="stroke_label_vulc_stroke_1" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">V부(L/R)</td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <input type="number" id="vulc_stroke_1" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="" placeholder="금일 타수 입력">
+              </td>
+            </tr>
+
+            <tr>
+              <td id="stroke_label_vulc_stroke_2" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">V부(L/R)</td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <input type="number" id="vulc_stroke_2" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="" placeholder="금일 타수 입력">
+              </td>
+            </tr>
+
+            <tr>
+              <td id="stroke_label_vulc_stroke_3" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">V부(L/R)</td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <input type="number" id="vulc_stroke_3" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="" placeholder="금일 타수 입력">
+              </td>
+            </tr>
+
+            <tr>
+              <td id="stroke_label_vulc_stroke_4" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">V부(L/R)</td>
+              <td style="border: 1px solid #000; padding: 4px;">
+                <input type="number" id="vulc_stroke_4" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="" placeholder="금일 타수 입력">
+              </td>
+            </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+<!-- [qtySection] -->
+<div id="qtySection">
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 12px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
+        </label>
+        <div style="overflow-x: auto;">
+          <table id="dtCrewJointEndQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #e2e8f0; font-weight: 700; color: #000;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px; font-size: 12px; width: 28%;">구분</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 18%;">1호</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 18%;">2호</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 18%;">3호</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 18%;">4호</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 생산량 -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000; vertical-align: middle;">생산량</td>
+                <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">계획</td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_plan_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="300" placeholder="300">
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_plan_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="300" placeholder="300">
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_plan_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="300" placeholder="300">
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_plan_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="300" placeholder="300">
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #ffffff; font-weight: 700; color: #000;">실적</td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_act_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="" placeholder="0">
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_act_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="" placeholder="0">
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_act_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="" placeholder="0">
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;">
+                  <input type="number" id="dtc_jqty_act_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="" placeholder="0">
+                </td>
+              </tr>
+
+              <!-- 폐기 불량현황 -->
+              <tr style="background: #f1f5f9; font-weight: 700; color: #000;">
+                <td colspan="2" style="border: 1px solid #000; padding: 6px;">폐기 불량현황</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 18%;">1호</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 18%;">2호</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 18%;">3호</td>
+                <td style="border: 1px solid #000; padding: 6px; width: 18%;">4호</td>
+              </tr>
+
+              <!-- 10개 불량 항목 -->
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">떨어짐/찢어짐</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_tear_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_tear_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_tear_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_tear_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">양 부 족</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_lack_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_lack_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_lack_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_lack_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">밀림 / 크랙</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_push_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_push_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_push_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_push_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">기 포</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_bubble_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_bubble_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_bubble_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_bubble_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">씹힘/삽입불량</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_chew_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_chew_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_chew_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_chew_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">넘침/오버랩</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_overflow_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_overflow_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_overflow_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_overflow_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">후 변 형</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_deform_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_deform_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_deform_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_deform_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">이 물 질</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_foreign_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_foreign_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_foreign_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_foreign_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">꼬 임</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_twist_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_twist_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_twist_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_twist_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+                <tr>
+                  <td colspan="2" style="border: 1px solid #000; padding: 5px; background: #ffffff; font-weight: 700; color: #000;">기 타</td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_oth_1_1" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_oth_1_2" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_oth_1_3" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                  <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="dtc_jdef_oth_1_4" class="form-control dtc-jqty-input" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 3px;" value="" placeholder="0"></td>
+                </tr>
+
+              <!-- 불량합계 -->
+              <tr style="background: #f1f5f9; font-weight: 700;">
+                <td colspan="2" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">불량합계</td>
+                <td id="dtc_jdef_sum_1_1" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="dtc_jdef_sum_1_2" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="dtc_jdef_sum_1_3" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="dtc_jdef_sum_1_4" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <input type="hidden" id="targetQty" value="1200">
+        <input type="hidden" id="actualQty" value="0">
+        <input type="hidden" id="defectQty" value="0">
+      </div>
+    </div>
+<!-- [downtime] -->
+<div id="downtimeCard" style="display: block;"><label id="downtimeTitleLabel">📝 <span class="sec-num"></span> 작업 특이사항</label><div id="downtimeList"></div></div>

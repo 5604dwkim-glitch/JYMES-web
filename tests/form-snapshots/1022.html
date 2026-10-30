@@ -1,0 +1,303 @@
+<!-- form 1022 | JG1_G/RUN 'E'_조인트 -->
+<!-- ERRORS: none -->
+<!-- [section4LotTable] -->
+<div id="section4Card" style="display: block;"><div id="section4LotTableContainer">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #ffffff; font-weight: 700;">
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 20%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">구분</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 40%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">LH</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 40%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">RH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">초물</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LH_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="월일시"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RH_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="월일시"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">중물</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LH_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="월일시"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RH_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="월일시"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">종물</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LH_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="월일시"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RH_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="월일시"></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div></div>
+<!-- [section5] -->
+<div id="section5DynamicContainer">
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+            </label>
+            <input type="text" id="jointRubberLotNo" class="form-control" style="width: 100%; border: 1px solid var(--border-color); text-align: center; font-size: 12px; padding: 10px; border-radius: 6px; box-sizing: border-box;" placeholder="조인트 고무 LOT 입력" value="">
+          </div>
+
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              ♨️ <span class="sec-num"></span> 설비 사출온도 입력
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #cfd8dc; font-weight: 700; color: #000;">
+                    <th colspan="2" style="border: 1px solid #000; padding: 8px;">구분</th>
+                    <th style="border: 1px solid #000; padding: 8px;">노즐<br>(Nozzle)</th>
+                    <th style="border: 1px solid #000; padding: 8px;">실린더 1<br>(H1)</th>
+                    <th style="border: 1px solid #000; padding: 8px;">실린더 2<br>(H2)</th>
+                    <th style="border: 1px solid #000; padding: 8px;">실린더 3<br>(H1)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td rowspan="2" style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; width: 40px; vertical-align: middle;">사출<br>온도<br>(Temp)</td>
+                    <td style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; border-bottom: 1px dotted #000;">설정값(set)</td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_nozzle" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_h1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_h2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="number" id="vulc_set_h3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; border-top: 1px dotted #000;">실측치(act)</td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_nozzle" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_h1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_h2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="number" id="vulc_act_h3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              ♨️ <span class="sec-num"></span> 설비 사출설정값 입력
+            </label>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #cfd8dc; font-weight: 700; color: #000;">
+                    <th colspan="2" style="border: 1px solid #000; padding: 8px;">구분</th>
+                    <th style="border: 1px solid #000; padding: 8px;">사출(Injection) 1</th>
+                    <th style="border: 1px solid #000; padding: 8px;">사출(Injection) 2</th>
+                    <th style="border: 1px solid #000; padding: 8px;">사출(Injection) 3</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; width: 40px; vertical-align: middle;">초물</td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">압력</td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_초물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_초물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_초물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">속도</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_초물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_초물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_초물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">시간</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_초물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_초물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_초물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700;">위치</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_초물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_초물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_초물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; width: 40px; vertical-align: middle;">중물</td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">압력</td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_중물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_중물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_중물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">속도</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_중물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_중물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_중물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">시간</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_중물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_중물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_중물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700;">위치</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_중물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_중물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_중물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700; width: 40px; vertical-align: middle;">종물</td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">압력</td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_종물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_종물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_press_종물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">속도</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_종물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_종물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_speed_종물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 8px; background: #cfd8dc; font-weight: 700;">시간</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_종물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_종물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px;"><input type="text" id="inj_time_종물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 8px; background: #cfd8dc; font-weight: 700;">위치</td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_종물_1" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_종물_2" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                    <td style="border: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px;"><input type="text" id="inj_pos_종물_3" class="form-control" style="width:100%; border:none; text-align:center; background:transparent;" value=""></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+<!-- [qtySection] -->
+<div id="qtySection">
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
+        </label>
+
+        <input type="hidden" id="targetQty" value="400">
+        <input type="hidden" id="actualQty" value="0">
+        <input type="hidden" id="defectQty" value="0">
+
+        <div style="overflow-x: auto;">
+          <table id="jointQtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700; color: #000;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
+                <th style="border: 1px solid #000; padding: 6px; width: 16%;">LH</th><th style="border: 1px solid #000; padding: 6px; width: 16%;">RH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량 (Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  계획(P)
+                </td>
+
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_plan_frt_p" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="200" placeholder="200">
+                  </td>
+
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_plan_frt_q" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700;" value="200" placeholder="200">
+                  </td>
+
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  실적(O)
+                </td>
+
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_act_frt_p" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="" placeholder="0">
+                  </td>
+
+                  <td style="border: 1px solid #000; padding: 2px;">
+                    <input type="number" id="jqty_act_frt_q" class="form-control jqty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; color: var(--accent-blue);" value="" placeholder="0">
+                  </td>
+
+              </tr>
+
+              <!-- 2. 공정간불량 (Process Badness) -->
+              <tr>
+                <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
+                  공정간불량<br>(Process<br>Badness)
+                </td>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  떨어짐(Split)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_split_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  밀림(Push)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_push_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  양부족<br><span style="font-size: 9px; font-weight: normal;">(lack of quantity)</span>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_lack_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  넘침(overflowing)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_over_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  기포 (Air bubbles)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_bubble_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  찌꺼기(worthless)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_scrap_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  삽입불량(Bad insert)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_insert_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
+                  기타(The others)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_frt_p" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td><td style="border: 1px solid #000; padding: 2px;"><input type="number" id="jdef_oth_frt_q" class="form-control jqty-calc-input" style="width:100%; border:none; text-align:center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+
+              <!-- 3. 불량합계 (Total) -->
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
+                  불량합계(Total)
+                </td>
+                <td id="jdef_sum_frt_p" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td><td id="jdef_sum_frt_q" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+<!-- [downtime] -->
+<div id="downtimeCard" style="display: block;"><label id="downtimeTitleLabel">📝 <span class="sec-num"></span> 작업 특이사항</label><div id="downtimeList"></div></div>

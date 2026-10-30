@@ -1,0 +1,124 @@
+<!-- form 1013 | JG1_RR C PART'G_검사포장 -->
+<!-- ERRORS: none -->
+<!-- [section4LotTable] -->
+<div id="section4Card" style="display: none;"><div id="section4LotTableContainer"></div></div>
+<!-- [section5] -->
+<div id="section5DynamicContainer"></div>
+<!-- [qtySection] -->
+<div id="qtySection">
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
+        </label>
+
+        <input type="hidden" id="targetQty" value="120">
+        <input type="hidden" id="actualQty" value="0">
+        <input type="hidden" id="defectQty" value="0">
+
+        <div style="text-align: center; margin-bottom: 12px;">
+          <img src="/images/form1013_guide.jpg" alt="1013 Guide" style="max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #fffde7; font-weight: 700;">
+                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
+                  구 분(Division)
+                </th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">LH</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">RH</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 1. 생산량(Q,TY) -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
+                  생산량(Q,TY)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
+                  계획
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="60" placeholder="60"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="60" placeholder="60"></td>
+
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  실적
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+
+              </tr>
+
+              <!-- 2. 검사항목(inspection category) -->
+              <tr>
+                <td rowspan="7" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
+                  검사항목<br>(inspection<br>category)
+                </td>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  조인트불량<br>(joint N.G)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_joint_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  사상불량<br>(trimming N.G)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_trim_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  외면흠<br>(external blemish)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_blemish_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  스코치<br>(Scortch)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  클립누락<br>(Missing Pad)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_pad_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  길이불량<br>(Bad length)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
+                  기타<br>(etc)
+                </td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_1013_etc_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+
+              <!-- 4. 불량합계(Total) -->
+              <tr style="background: #fffde7; font-weight: 700;">
+                <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
+                  불량합계(Total)
+                </td>
+                <td id="def_sum_FL" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+                <td id="def_sum_FR" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+<!-- [downtime] -->
+<div id="downtimeCard" style="display: none;"><label id="downtimeTitleLabel"></label><div id="downtimeList"></div></div>

@@ -1,0 +1,241 @@
+<!-- form 2022 | DS CREW_D/SIDE_소재준비(C) -->
+<!-- ERRORS: none -->
+<!-- [section4LotTable] -->
+<div id="section4Card" style="display: block;"><div id="section4LotTableContainer">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #ffffff; font-weight: 700;">
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">구분</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 37.5%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">LH A</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 37.5%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">RH A</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">초</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LHA_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RHA_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">중</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LHA_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RHA_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">종</td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_LHA_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="lotNo_RHA_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div></div>
+<!-- [section5] -->
+<div id="section5DynamicContainer">
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+              📐 <span class="sec-num"></span> 치수확인
+            </label>
+            <div style="max-width: 650px; margin: 0 auto 14px auto;">
+              <img src="images/dt_crew_dimension.png" alt="DS CREW D/SIDE 치수확인 도면" style="width: 100%; height: auto; display: block; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">
+            </div>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+                <thead>
+                  <tr style="background: #ffffff; font-weight: 700;">
+                    <th style="border: 1px solid #000; padding: 6px 2px; width: 15%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">구분</th>
+                    <th style="border: 1px solid #000; padding: 6px 2px; width: 12%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">위치</th>
+                    <th style="border: 1px solid #000; padding: 6px 2px; width: 25%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">스펙(mm)</th>
+                    <th style="border: 1px solid #000; padding: 6px 2px; width: 24%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">LH</th>
+                    <th style="border: 1px solid #000; padding: 6px 2px; width: 24%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">RH</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- 초물 -->
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">초물</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">①</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">779 ± 5</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_1_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(초)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_1_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(초)"></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">②</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">28 ± 1</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_2_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(초)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_2_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(초)"></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">③</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">28 ± 1</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_3_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(초)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_3_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(초)"></td>
+                  </tr>
+
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">④</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">93 ± 0.5</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_4_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_초_4_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                  </tr>
+
+                  <!-- 중물 -->
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">중물</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">①</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">779 ± 5</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_1_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(중)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_1_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(중)"></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">②</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">28 ± 1</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_2_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(중)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_2_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(중)"></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">③</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">28 ± 1</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_3_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(중)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_3_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(중)"></td>
+                  </tr>
+
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">④</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">93 ± 0.5</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_4_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_중_4_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                  </tr>
+
+                  <!-- 종물 -->
+                  <tr>
+                    <td rowspan="4" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">종물</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">①</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">779 ± 5</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_1_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(종)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_1_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(종)"></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">②</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">28 ± 1</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_2_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(종)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_2_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(종)"></td>
+                  </tr>
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">③</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">28 ± 1</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_3_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(종)"></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_3_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value="" placeholder="(종)"></td>
+                  </tr>
+
+                  <tr>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">④</td>
+                    <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700;">93 ± 0.5</td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_4_LH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                    <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="dim_dt_종_4_RH" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 11px; padding: 4px;" value=""></td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+<!-- [qtySection] -->
+<div id="qtySection">
+      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
+        </label>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <thead>
+              <tr style="background: #ffffff; font-weight: 700;">
+                <th colspan="2" style="border: 1px solid #000; padding: 6px 2px; width: 35%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">구분</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 32.5%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">LH A</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 32.5%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">RH A</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 생산량 -->
+              <tr>
+                <td rowspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #e2e8f0; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle; width: 20%;">생산량</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; width: 15%;">계획</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">실적</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+
+              <!-- 압출소재 불량 -->
+              <tr>
+                <td rowspan="3" style="border: 1px solid #000; padding: 6px 4px; background: #e2e8f0; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">압출소재<br>불량</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">스 코 치</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">외면오염</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">기타[ ]</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_other_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_other_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+
+              <!-- 공정간불량 -->
+              <tr>
+                <td rowspan="3" style="border: 1px solid #000; padding: 6px 4px; background: #e2e8f0; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">공정간불량</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">길이불량</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">단면불량</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_sec_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_sec_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000;">기타[ ]</td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_other_LH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_other_RH_A" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+              </tr>
+
+              <!-- 불량 합계 -->
+              <tr>
+                <td colspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #e2e8f0; font-weight: 700; color: #000; font-size: 12px;">불량 합계</td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; color: var(--accent-rose); font-size: 12px;"><span id="def_sum_LH_A">0</span></td>
+                <td style="border: 1px solid #000; padding: 6px 2px; font-weight: 700; color: var(--accent-rose); font-size: 12px;"><span id="def_sum_RH_A">0</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <input type="hidden" id="targetQty" value="0">
+        <input type="hidden" id="actualQty" value="0">
+        <input type="hidden" id="defectQty" value="0">
+      </div>
+    </div>
+<!-- [downtime] -->
+<div id="downtimeCard" style="display: block;"><label id="downtimeTitleLabel">📝 <span class="sec-num"></span> 작업 특이사항</label><div id="downtimeList"></div></div>

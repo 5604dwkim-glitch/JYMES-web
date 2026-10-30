@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint src",
+    "test:forms": "node scripts/utils/form-snapshot.mjs",
+    "test:forms:update": "node scripts/utils/form-snapshot.mjs --update",
     "preview": "vite preview"
   },
   "dependencies": {
