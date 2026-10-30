@@ -133,39 +133,53 @@ export default function MasterData() {
     }
   };
 
-  const handleReset = async () => {
-    if (window.confirm('시스템 데이터를 리셋하고 작업자 명부 데이터를 클라우드에 재생성하시겠습니까? (기존 데이터 삭제)')) {
-      const pwd = window.prompt("보안을 위해 관리자 비밀번호를 입력해 주세요.");
-      if (pwd !== '0000' && pwd !== '1111') {
-        alert("비밀번호가 일치하지 않아 초기화를 취소합니다.");
-        return;
-      }
-      setLoading(true);
-      try {
-        // Delete all
-        for (const w of workers) {
-          await firestoreDeleteWorker(w.id);
-        }
-        // Add new
-        const initial = generate50Workers();
-        for (const w of initial) {
-          await firestoreAddWorker(w);
-        }
-        setWorkers(initial.sort((a, b) => a.id.localeCompare(b.id)));
-        alert('데이터가 리셋되었습니다.');
-      } catch (_e) {
-        alert("초기화 중 오류 발생");
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
   const filteredWorkers = workers.filter(w => 
     w.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     w.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
     w.process.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // 사원 리스트 엑셀 저장 (현재 화면에 표시된 목록 = 검색 결과 기준)
+  const handleExportExcel = async () => {
+    if (filteredWorkers.length === 0) {
+      alert('저장할 사원 데이터가 없습니다.');
+      return;
+    }
+    try {
+      const ExcelJS = (await import('exceljs')).default;
+      const fileSaver = await import('file-saver');
+      const saveAs = fileSaver.saveAs || fileSaver.default;
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('사원 리스트');
+      ws.columns = [
+        { header: '사번', key: 'id', width: 14 },
+        { header: '성함', key: 'name', width: 14 },
+        { header: '직급', key: 'role', width: 12 },
+        { header: '소속 부서', key: 'dept', width: 16 },
+        { header: '공정', key: 'process', width: 18 },
+        { header: '상태', key: 'status', width: 10 },
+        { header: '연락처', key: 'phone', width: 18 },
+        { header: '입사일', key: 'hireDate', width: 14 }
+      ];
+      filteredWorkers.forEach(w => ws.addRow({
+        id: w.id, name: w.name, role: w.role || '', dept: w.dept || '',
+        process: w.process || '', status: w.status || '', phone: w.phone || '', hireDate: w.hireDate || ''
+      }));
+      const headerRow = ws.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+      headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE2E8F0' } };
+      ws.views = [{ state: 'frozen', ySplit: 1 }];
+
+      const now = new Date();
+      const ymd = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
+      const buffer = await wb.xlsx.writeBuffer();
+      saveAs(new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), `사원리스트_${ymd}.xlsx`);
+    } catch (e) {
+      console.error(e);
+      alert('엑셀 저장 중 오류가 발생했습니다: ' + e.message);
+    }
+  };
 
   return (
     <div className="master-data-view" style={{ maxWidth: '1200px', margin: '0 auto', paddingBottom: '40px' }}>
@@ -175,15 +189,16 @@ export default function MasterData() {
             className={`btn ${activeTab === 'workers' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setActiveTab('workers')}
           >
-            👷 현장 작업자 명부 ({workers.length}명)
+            👷 사원 리스트 ({workers.length}명)
           </button>
-          
-          
+          <button
+            className="btn btn-success"
+            onClick={handleExportExcel}
+            disabled={loading}
+          >
+            📥 엑셀로 저장
+          </button>
         </div>
-
-        <button className="btn btn-danger btn-sm" onClick={handleReset} disabled={loading}>
-          {loading ? '⏳ 처리 중...' : <><span>🔄</span> 시스템 초기 데이터 리셋</>}
-        </button>
       </div>
 
       {activeTab === 'workers' && (
