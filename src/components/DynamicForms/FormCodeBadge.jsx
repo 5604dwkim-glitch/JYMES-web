@@ -1,7 +1,9 @@
 import React from 'react';
 import { getCurrentFormCode } from '../../constants/formCodes';
+import { useI18n } from '../../contexts/I18nContext';
 
 const FormCodeBadge = ({ carModel, part, process }) => {
+  const { td } = useI18n();
   if (!process) return null;
   const codeNum = getCurrentFormCode(carModel, part, process);
 
@@ -17,7 +19,7 @@ const FormCodeBadge = ({ carModel, part, process }) => {
       marginBottom: '16px'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--accent-blue)' }}>🏷️ 양식 고유번호:</span>
+        <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--accent-blue)' }}>{td('🏷️ 양식 고유번호:')}</span>
         <span style={{
           fontSize: '14px', fontWeight: 900, color: '#0284c7', background: '#ffffff',
           padding: '2px 10px', borderRadius: '6px', border: '1px solid #0284c7',
@@ -25,7 +27,7 @@ const FormCodeBadge = ({ carModel, part, process }) => {
         }}>#{codeNum}</span>
       </div>
       <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>
-        ({carModel}{part ? ' - ' + part : ''}{process ? ' - ' + process : ''})
+        ({td(carModel)}{part ? ' - ' + td(part) : ''}{process ? ' - ' + td(process) : ''})
       </span>
     </div>
   );

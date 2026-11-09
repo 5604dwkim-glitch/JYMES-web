@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import LeaderMonthlyDashboard from './LeaderMonthlyDashboard';
 
@@ -43,14 +44,19 @@ export function renderAnalytics(container) {
   container.innerHTML = `
     <div class="analytics-tabs-wrapper">
       <div style="display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); flex-wrap: wrap;">
-        <button class="analytics-tab-btn active" data-tab="tab-weekly" style="padding: 12px 24px; font-weight: 700; background: #059669; color: #fff; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📊 주간 통합 요약</button>
+        <button class="analytics-tab-btn active" data-tab="tab-charts" style="padding: 12px 24px; font-weight: 700; background: #059669; color: #fff; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📈 공정 및 불량 분석</button>
+        <button class="analytics-tab-btn" data-tab="tab-weekly" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📊 주간 통합 요약</button>
         <button class="analytics-tab-btn" data-tab="tab-leader" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📋 반장 작업일보</button>
         <button class="analytics-tab-btn" data-tab="tab-dtclip" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">🛠️ DT 클립머신 실적</button>
-        <button class="analytics-tab-btn" data-tab="tab-charts" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📈 공정 및 불량 분석</button>
       </div>
 
-      <!-- Tab 0: Weekly Integrated Summary -->
-      <div id="tab-weekly" class="analytics-tab-content" style="display: block;">
+      <!-- Tab 0: Process & Defect Analysis (React Portal Mount) -->
+      <div id="tab-charts" class="analytics-tab-content" style="display: block;">
+        <div id="reactProcessDefectAnalysisMount" data-analytics-react-mount="1"></div>
+      </div>
+
+      <!-- Tab 1: Weekly Integrated Summary -->
+      <div id="tab-weekly" class="analytics-tab-content" style="display: none;">
         <div class="card" style="border: 2px solid #059669;">
           <div class="card-header" style="flex-wrap: wrap; gap: 10px;">
             <div class="card-title">
@@ -133,29 +139,6 @@ export function renderAnalytics(container) {
           </div>
         </div>
       </div>
-
-      <!-- Tab 3: Charts -->
-      <div id="tab-charts" class="analytics-tab-content" style="display: none;">
-        <div class="grid-2">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">🚨 공정별 불량 원인 파레토 모니터링</div>
-            </div>
-            <div style="position: relative; height: 240px; width: 100%;">
-              <canvas id="defectParetoChart" height="240"></canvas>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">📊 1차 차종별 월간 생산 비중</div>
-            </div>
-            <div style="position: relative; height: 240px; width: 100%;">
-              <canvas id="carModelShareChart" height="240"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 `;
 
@@ -166,7 +149,7 @@ export function renderAnalytics(container) {
     'tab-weekly': '#059669',
     'tab-leader': 'var(--accent-purple)',
     'tab-dtclip': 'var(--accent-blue)',
-    'tab-charts': 'var(--text-main)',
+    'tab-charts': '#059669',
   };
 
   tabBtns.forEach(btn => {
@@ -276,8 +259,6 @@ export function renderAnalytics(container) {
     });
   }
 
-  drawParetoChart(container.querySelector('#defectParetoChart'), allReports);
-  drawShareChart(container.querySelector('#carModelShareChart'), allReports);
   i18n.applyTranslations(container);
 }
 
@@ -893,78 +874,58 @@ function exportLeaderMonthlyCsv(reports, selectedMonth) {
   document.body.removeChild(link);
 }
 
-function drawParetoChart(canvas, reports) {
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const processes = ['소재준비', '조인트', '후가공', '검사포장', '클립머신'];
-  const data = [42, 28, 18, 8, 4];
-
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: processes,
-      datasets: [{
-        label: '불량 발생 건수',
-        data: data,
-        backgroundColor: 'rgba(225, 29, 72, 0.7)',
-        borderColor: '#e11d48',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } }
-    }
-  });
-}
-
-function drawShareChart(canvas, reports) {
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const labels = ['JG1', 'NE1a', 'OV1K', 'DT CREW', '9BQC', '기타'];
-  const data = [35, 25, 15, 12, 8, 5];
-
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: [
-          '#0284c7', '#059669', '#d97706', '#e11d48', '#7c3aed', '#64748b'
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } }
-    }
-  });
-}
-
-
 import { useI18n } from '../../contexts/I18nContext';
 
-export default function LegacyAnalyticsWrapper({ reports }) {
+export default function LegacyAnalyticsWrapper({ reports, initialActiveTab, chartsContent }) {
   const containerRef = useRef(null);
   const { lang } = useI18n();
+  const [chartsMount, setChartsMount] = useState(null);
+  const [activeTabId, setActiveTabId] = useState(initialActiveTab || 'tab-charts');
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    const rootEl = containerRef.current;
+    if (!rootEl) return;
+    i18n.setLang(lang, false);
     setLegacyAnalyticsContext({ reports });
     window.Chart = Chart;
 
     try {
-      renderAnalytics(containerRef.current);
+      renderAnalytics(rootEl);
     } catch (e) {
       console.error(e);
     }
 
-  }, [reports, lang]);
+    const mountEl = rootEl.querySelector('#reactProcessDefectAnalysisMount');
+    setChartsMount(mountEl);
 
-  return <div ref={containerRef} className="legacy-analytics-container"></div>;
+    const tabBtns = rootEl.querySelectorAll('.analytics-tab-btn');
+    const onTabClick = (e) => {
+      const tabId = e.currentTarget?.dataset?.tab;
+      if (tabId) setActiveTabId(tabId);
+    };
+    tabBtns.forEach((btn) => btn.addEventListener('click', onTabClick));
+
+    const targetTab = initialActiveTab || 'tab-charts';
+    if (targetTab !== 'tab-charts') {
+      const targetBtn = rootEl.querySelector(`.analytics-tab-btn[data-tab="${targetTab}"]`);
+      if (targetBtn) targetBtn.click();
+    } else {
+      setActiveTabId('tab-charts');
+    }
+
+    return () => {
+      tabBtns.forEach((btn) => btn.removeEventListener('click', onTabClick));
+    };
+  }, [reports, lang, initialActiveTab]);
+
+  return (
+    <>
+      <div ref={containerRef} className="legacy-analytics-container"></div>
+      {chartsMount && activeTabId === 'tab-charts' && chartsContent
+        ? createPortal(chartsContent, chartsMount)
+        : null}
+    </>
+  );
 }
 
 

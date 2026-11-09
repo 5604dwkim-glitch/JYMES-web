@@ -24,10 +24,13 @@ jobs:
           cache: 'npm'
 
       - name: 📦 Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: 🔍 Code Linting (문법 및 에러 검사)
         run: npm run lint
+
+      - name: 🧪 Form Snapshot Regression Test (87종 양식 간섭 검사)
+        run: npm run test:forms
 
       - name: 🏗️ Build Test (빌드 안정성 검사)
         run: npm run build
@@ -42,9 +45,15 @@ jobs:
     steps:
       - name: 📂 Checkout Repository
         uses: actions/checkout@v4
-        
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
       - name: 📦 Install Dependencies & Build
-        run: npm install && npm run build
+        run: npm ci && npm run build
 
       - name: 🌐 Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0

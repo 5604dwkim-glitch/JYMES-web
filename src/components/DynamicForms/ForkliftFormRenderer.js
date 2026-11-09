@@ -1,4 +1,5 @@
 import { store, bindTimeWheelPicker, windowMock } from "./LegacyFormWrapper.jsx";
+import { i18n } from "../../constants/translations.js";
 
 export function renderForkliftPaperForm(container, existingData, loggedInWorkerName) {
   const todayStr = new Date().toLocaleDateString('sv-SE');
@@ -152,6 +153,9 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
   if (hideStandardFixedBar) hideStandardFixedBar.style.display = 'none';
   const hideLeaderFixedBar = document.getElementById('leaderFixedActionBar');
   if (hideLeaderFixedBar) hideLeaderFixedBar.style.display = 'none';
+
+  i18n.applyTranslations(container);
+  i18n.applyTranslations(forkliftFixedBar);
 
   bindTimeWheelPicker(container.querySelector('#forkStartTime'), '시작시간 선택');
   bindTimeWheelPicker(container.querySelector('#forkEndTime'), '종료시간 선택');

@@ -1,4 +1,11 @@
 import * as Templates from '../FormTemplates.jsx';
+import { renderF5001QtySection } from '../forms/f5001/qtySection';
+import { renderF5002QtySection } from '../forms/f5002/qtySection';
+import { renderF5004QtySection } from '../forms/f5004/qtySection';
+import { renderF5005QtySection } from '../forms/f5005/qtySection';
+import { renderF5006QtySection } from '../forms/f5006/qtySection';
+import { renderF5007QtySection } from '../forms/f5007/qtySection';
+import { renderF5011QtySection } from '../forms/f5011/qtySection';
 
 /**
  * 생산실적(수량) 섹션 렌더러
@@ -886,6 +893,27 @@ export function renderQtySection(ctx) {
     }
 
     switch (formCode) {
+      case 5001:
+        renderF5001QtySection(qtySection, ctx);
+        break;
+      case 5002:
+        renderF5002QtySection(qtySection, ctx);
+        break;
+      case 5004:
+        renderF5004QtySection(qtySection, ctx);
+        break;
+      case 5005:
+        renderF5005QtySection(qtySection, ctx);
+        break;
+      case 5006:
+        renderF5006QtySection(qtySection, ctx);
+        break;
+      case 5007:
+        renderF5007QtySection(qtySection, ctx);
+        break;
+      case 5011:
+        renderF5011QtySection(qtySection, ctx);
+        break;
 
       // ── 조인트 (#1002) ──
       case 1002:
@@ -1066,8 +1094,6 @@ export function renderQtySection(ctx) {
       default:
         if (curProc === '조인트') {
           if (formCode === 3002) {
-            qtySection.innerHTML = Templates.getJointQty3002HTML(existingData, container);
-          } else if (formCode === 3002) {
             qtySection.innerHTML = Templates.getJointQty3002HTML(existingData, container);
           } else if (formCode === 3003) {
             qtySection.innerHTML = Templates.getJointQty3003HTML(existingData, container);

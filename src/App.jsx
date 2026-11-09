@@ -93,6 +93,11 @@ export default function App() {
               <EquipmentManagement />
             </Suspense>
           } />
+          <Route path="equipment/:category" element={
+            <Suspense fallback={<PageLoader />}>
+              <EquipmentManagement />
+            </Suspense>
+          } />
           <Route path="change-point" element={
             <Suspense fallback={<PageLoader />}>
               <ChangePointManagement />

@@ -3,15 +3,17 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { isFluidPage } from '../constants/layoutPages';
+import { EQUIPMENT_CATEGORIES, getCategoryMeta } from '../constants/equipmentCategories';
 
 export default function Layout() {
   const { userRole, logout } = useAuth();
-  const { t, lang, setLang } = useI18n();
+  const { t, td, lang, setLang } = useI18n();
   const navigate = useNavigate();
   const [time, setTime] = useState(new Date());
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const location = useLocation();
   const [isReportMenuOpen, setIsReportMenuOpen] = useState(true);
+  const [isEquipmentMenuOpen, setIsEquipmentMenuOpen] = useState(false);
 
   useEffect(() => {
     if (isMobilePreview) {
@@ -39,13 +41,26 @@ export default function Layout() {
   }, [location.pathname]);
 
   const getPageTitle = () => {
+    if (location.pathname === '/equipment' || location.pathname.startsWith('/equipment/')) {
+      const slug = location.pathname.split('/')[2] || 'joint';
+      const meta = getCategoryMeta(slug);
+      return {
+        title: `${t('nav_equipment')} · ${td(meta.label)}`,
+        sub: td(meta.subtitle)
+      };
+    }
+    if (location.pathname.startsWith('/tpm-check')) {
+      return {
+        title: td('가동 전 설비 셋트 TPM 일지 작성'),
+        sub: ''
+      };
+    }
     switch (location.pathname) {
       case '/': return { title: t('title_dashboard'), sub: t('subtitle_dashboard') };
       case '/form': return { title: t('title_form'), sub: t('subtitle_form') };
-      case '/drafts': return { title: t('title_drafts') || '작성중인 작업일보', sub: '' };
-      
-      case '/equipment': return { title: '설비 관리', sub: '설비 리스트 및 이력 관리' };
-      case '/mold': return { title: '금형 리스트', sub: '' };
+      case '/drafts': return { title: t('title_drafts') || td('작성중인 작업일보'), sub: t('subtitle_drafts') };
+      case '/mold': return { title: td('금형 리스트'), sub: '' };
+      case '/change-point': return { title: td('변동점 관리'), sub: td('4M 변동점 등록 및 이력 관리') };
       case '/reports': return { title: t('title_reports'), sub: t('subtitle_reports') };
       case '/analytics': return { title: t('title_analytics'), sub: t('subtitle_analytics') };
       case '/master': return { title: t('title_master'), sub: t('subtitle_master') };
@@ -54,6 +69,9 @@ export default function Layout() {
   };
 
   const { title, sub } = getPageTitle();
+  const formattedClock = lang === 'ko'
+    ? time.toLocaleTimeString('ko-KR', { hour12: false })
+    : `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
 
   return (
     <div id="app">
@@ -68,10 +86,10 @@ export default function Layout() {
         <div style={{ padding: '10px 16px', borderBottom: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="user-role-badge">
-              {userRole?.role === 'admin' ? t('badge_admin') : `${t('badge_worker')} ${userRole?.workerName || ''}`}
+              {userRole?.role === 'admin' ? t('badge_admin') : `${t('badge_worker')} ${userRole?.workerName ? td(userRole.workerName) : ''}`}
             </span>
             <span className="live-clock">
-              {time.toLocaleTimeString('ko-KR', { hour12: false })}
+              {formattedClock}
             </span>
           </div>
           <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
@@ -87,26 +105,81 @@ export default function Layout() {
                 className="btn btn-primary btn-sm"
                 style={{ flex: 1, fontSize: '11px', padding: '4px 8px', background: isMobilePreview ? 'var(--accent-emerald)' : 'var(--accent-blue)', color: 'white' }}
                 onClick={() => setIsMobilePreview(!isMobilePreview)}
-                title="PC 화면에서도 모바일 크기로 미리 봅니다"
+                title={td('PC 화면에서도 모바일 크기로 미리 봅니다')}
               >
-                {isMobilePreview ? '🖥️ PC 모드' : '📱 모바일 모드'}
+                {isMobilePreview ? td('🖥️ PC 모드') : td('📱 모바일 모드')}
               </button>
             )}
           </div>
         </div>
 
         <nav className="sidebar-nav">
+          {/* 1. 메인 대시보드 */}
           <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
             <span>📊</span>
             <span>{t('nav_dashboard')}</span>
           </NavLink>
+
           {userRole?.role !== 'worker' && (
-            <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-              <span>📈</span>
-              <span>{t('nav_analytics')}</span>
-            </NavLink>
+            <>
+              {/* 2. 공정 및 불량 분석 */}
+              <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>📈</span>
+                <span>{t('nav_analytics')}</span>
+              </NavLink>
+
+              {/* 3. 변동점 관리 */}
+              <NavLink to="/change-point" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>🔍</span>
+                <span>{td('변동점 관리')}</span>
+              </NavLink>
+
+              {/* 4. 설비 관리 */}
+              <div className="nav-group" style={{ margin: '4px 0' }}>
+                <div
+                  className="nav-item nav-group-header"
+                  onClick={() => setIsEquipmentMenuOpen(!isEquipmentMenuOpen)}
+                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', paddingRight: '16px', background: 'rgba(255,255,255,0.03)', fontWeight: 'bold' }}
+                >
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <span>⚙️</span>
+                    <span>{t('nav_equipment') || td('설비 관리')}</span>
+                  </div>
+                  <span style={{ fontSize: '10px', transform: isEquipmentMenuOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', marginTop: '4px' }}>▶</span>
+                </div>
+
+                {isEquipmentMenuOpen && (
+                  <div className="nav-group-children" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.15)', borderLeft: '2px solid rgba(255,255,255,0.1)', marginLeft: '12px' }}>
+                    {EQUIPMENT_CATEGORIES.map((cat) => (
+                      <NavLink
+                        key={cat.id}
+                        to={`/equipment/${cat.id}`}
+                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                        style={{ paddingLeft: '24px' }}
+                      >
+                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
+                        <span>{td(cat.label)}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 5. 금형 관리 */}
+              <NavLink to="/mold" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>🗜️</span>
+                <span>{t('nav_mold') || td('금형 관리')}</span>
+              </NavLink>
+
+              {/* 6. 작업자 관리 */}
+              <NavLink to="/master" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <span>👥</span>
+                <span>{t('nav_master')}</span>
+              </NavLink>
+            </>
           )}
-          
+
+          {/* 7. 작업일보 */}
           <div className="nav-group" style={{ margin: '4px 0' }}>
             <div 
               className="nav-item nav-group-header" 
@@ -115,7 +188,7 @@ export default function Layout() {
             >
               <div style={{ display: 'flex', gap: '12px' }}>
                 <span>📁</span>
-                <span>작업일보</span>
+                <span>{td('작업일보')}</span>
               </div>
               <span style={{ fontSize: '10px', transform: isReportMenuOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', marginTop: '4px' }}>▶</span>
             </div>
@@ -124,41 +197,21 @@ export default function Layout() {
               <div className="nav-group-children" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.15)', borderLeft: '2px solid rgba(255,255,255,0.1)', marginLeft: '12px' }}>
                 <NavLink to="/form" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
                   <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
-                  <span>신규작성</span>
+                  <span>{td('신규작성')}</span>
                 </NavLink>
                 <NavLink to="/drafts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
                   <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
-                  <span>이어작성</span>
+                  <span>{td('이어작성')}</span>
                 </NavLink>
                 {userRole?.role !== 'worker' && (
                   <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
                     <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
-                    <span>조회 및 승인</span>
+                    <span>{td('조회 및 승인')}</span>
                   </NavLink>
                 )}
               </div>
             )}
           </div>
-          {userRole?.role !== 'worker' && (
-            <>
-              <NavLink to="/equipment" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>⚙️</span>
-                <span>{t('nav_equipment') || '설비 관리'}</span>
-              </NavLink>
-              <NavLink to="/mold" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>🗜️</span>
-                <span>{t('nav_mold') || '금형 관리'}</span>
-              </NavLink>
-              <NavLink to="/change-point" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>🔍</span>
-                <span>변동점 관리</span>
-              </NavLink>
-              <NavLink to="/master" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>👥</span>
-                <span>{t('nav_master')}</span>
-              </NavLink>
-            </>
-          )}
         </nav>
 
         <div className="sidebar-footer">
@@ -179,17 +232,17 @@ export default function Layout() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="lang-select-container">
+            <div className="lang-select-container" translate="no">
               <select 
                 className="lang-select" 
+                translate="no"
                 value={lang} 
                 onChange={(e) => setLang(e.target.value)}
               >
-                <option value="ko">🇰🇷 {t('lang_ko') || '한국어'}</option>
-                <option value="en">🇺🇸 {t('lang_en') || 'English'}</option>
-                <option value="th">🇹🇭 {t('lang_th') || 'ภาษาไทย'}</option>
-                <option value="tl">🇵🇭 {t('lang_tl') || 'Tagalog'}</option>
-                <option value="vi">🇻🇳 {t('lang_vi') || 'Tiếng Việt'}</option>
+                <option value="ko">🇰🇷 한국어</option>
+                <option value="en">🇺🇸 English</option>
+                <option value="th">🇹🇭 ภาษาไทย</option>
+                <option value="vi">🇻🇳 Tiếng Việt</option>
               </select>
             </div>
             <button className="btn btn-primary btn-sm" onClick={() => navigate('/form')}>

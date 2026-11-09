@@ -1,5 +1,6 @@
 import { DEFAULT_LEADER_ITEMS } from "../../constants/masterData.js";
 import { store, bindTimeWheelPicker, windowMock } from "./LegacyFormWrapper.jsx";
+import { i18n } from "../../constants/translations.js";
 
 export function renderLeaderPaperForm(container, existingData, loggedInWorkerName) {
   const todayStr = new Date().toLocaleDateString('sv-SE');

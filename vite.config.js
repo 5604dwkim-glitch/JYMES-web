@@ -10,16 +10,16 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            if (/[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/.test(id)) {
               return 'vendor_react';
             }
-            if (id.includes('exceljs') || id.includes('xlsx') || id.includes('file-saver') || id.includes('jszip')) {
+            if (/[\\/]node_modules[\\/](exceljs|file-saver|jszip)[\\/]/.test(id)) {
               return 'vendor_excel';
             }
-            if (id.includes('chart.js') || id.includes('react-chartjs-2')) {
+            if (/[\\/]node_modules[\\/](chart\.js|react-chartjs-2|@kurkle)[\\/]/.test(id)) {
               return 'vendor_chart';
             }
-            if (id.includes('firebase')) {
+            if (/[\\/]node_modules[\\/](firebase|@firebase)[\\/]/.test(id)) {
               return 'vendor_firebase';
             }
             return 'vendor';

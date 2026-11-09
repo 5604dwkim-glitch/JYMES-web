@@ -1,4 +1,11 @@
 import { DOWNTIME_REASONS } from '../../../constants/masterData.js';
+import { applyF5001DowntimeSection, restoreDefaultDowntimeReasonsIfNeeded } from '../forms/f5001/downtimeSection.js';
+import { applyF5002DowntimeSection } from '../forms/f5002/downtimeSection.js';
+import { applyF5004DowntimeSection } from '../forms/f5004/downtimeSection.js';
+import { applyF5005DowntimeSection } from '../forms/f5005/downtimeSection.js';
+import { applyF5006DowntimeSection } from '../forms/f5006/downtimeSection.js';
+import { applyF5007DowntimeSection } from '../forms/f5007/downtimeSection.js';
+import { applyF5011DowntimeSection } from '../forms/f5011/downtimeSection.js';
 
 /**
  * 비가동 시간 섹션 업데이트
@@ -14,6 +21,41 @@ export function updateDowntimeSection(ctx) {
       if (downtimeCard) downtimeCard.style.display = 'none';
       return;
     }
+
+    if (formCode === 5001) {
+      applyF5001DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5002) {
+      applyF5002DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5004) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF5004DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5005) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF5005DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5006) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF5006DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5007) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF5007DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5011) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF5011DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
 
     if (formCode === 1021 || formCode === 1041 || formCode === 4013 || formCode === 4014 || formCode === 4004 || (curProc === '후가공' || curProc === '검사포장' || curProc === '검사/포장')) {
       if (downtimeCard) downtimeCard.style.display = 'none';

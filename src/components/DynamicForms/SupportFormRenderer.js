@@ -1,5 +1,6 @@
 import { store, windowMock } from "./LegacyFormWrapper.jsx";
 import { CAR_MODELS, CAR_MODEL_PARTS } from "../../constants/masterData.js";
+import { i18n } from "../../constants/translations.js";
 
 export function renderSupportPaperForm(container, existingData, loggedInWorkerName) {
   const todayStr = new Date().toLocaleDateString('sv-SE');
@@ -145,6 +146,7 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
       const carCode = sel.value;
       if (!carCode) {
         pSel.innerHTML = '<option value="">차종을 선택하세요</option>';
+        i18n.applyTranslations(pSel);
         return;
       }
       const parts = modelPartsMap[carCode] || [];
@@ -152,11 +154,14 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
       if (supportItems[i].part && supportItems[i].carModel === carCode) {
         pSel.value = supportItems[i].part;
       }
+      i18n.applyTranslations(pSel);
     };
     
     sel.addEventListener('change', updateParts);
     updateParts();
   });
+
+  i18n.applyTranslations(container);
 
   const btnSuppDraftSave = container.querySelector('#btnSuppDraftSave');
   const btnSuppFinalSubmit = container.querySelector('#btnSuppFinalSubmit');

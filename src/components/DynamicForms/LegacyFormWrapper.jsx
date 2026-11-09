@@ -1,4 +1,3 @@
-import { renderLeaderPaperForm } from "./LeaderFormRenderer.js";
 /**
  * 50인 제조업체 공정별 작업일보 관리 시스템 - Report Form Component (Refactored)
  * (store.js 공통 마스터 상수를 참조하도록 로직 경량화)
@@ -188,6 +187,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
 
       <!-- 🏷️ 양식 고유번호 표시 바 (Form Variant Code) -->
       <div id="formCodeBadgeContainer"></div>
+      <div id="jointTpmGateContainer" data-joint-tpm-gate="1"></div>
 
       <!-- 5. 소재 LOT 번호 입력 (차종/부품/공정에 따른 동적 양식) -->
       <div id="section4Card" class="card" style="padding: 16px; margin-bottom: 16px;">
@@ -443,7 +443,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
   function _getCtx() {
     return { container, processValue, carModelValue, currentCarCode, partValueInput, existingData,
-             getCurrentFormCode, bindNumberWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, 
+             getCurrentFormCode, bindNumberWheelPicker, bindTimeWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, 
              get qtySection() { return container.querySelector('#qtySection'); },
              isDtCrewClip, currentMakerName, molds: store.getMolds() };
   }
@@ -634,9 +634,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
     // 공통 차종이 아닐 경우 반장, 지게차, 출하지원 제외, 공통 차종일 경우 3가지만 표시
     if (carCode !== '공통') {
-      processList = processList.filter(p => p !== '반장 작업일보' && p !== '지게차작업' && p !== '출하지원');
+      processList = processList.filter(p => p !== '반장 작업일보' && p !== '지게차작업' && p !== '출하지원' && p !== 'FMB보관실');
     } else {
-      processList = ['반장 작업일보', '지게차작업', '출하지원'];
+      processList = ['반장 작업일보', '지게차작업', '출하지원', 'FMB보관실'];
     }
 
     // KM/KX 선택 시 소재준비 공정 제외
@@ -700,15 +700,26 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         const isLeader = chip.dataset.name === '반장 작업일보';
         const isForklift = chip.dataset.name === '지게차작업';
         const isSupport = chip.dataset.name === '출하지원';
-        const elsToToggle = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
+        const isFmb = chip.dataset.name === 'FMB보관실';
+        const elsToToggle = ['#formCodeBadgeContainer', '#jointTpmGateContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
         
         // 공정 전환 시 이전 날짜/시간 동기화 리스너 정리
-        ['#leaderFormContainer', '#forkliftFormContainer', '#supportFormContainer'].forEach(sel => {
+        if (!isFmb) {
+          const prevFmb = container.querySelector('#f9004FormContainer');
+          if (prevFmb) prevFmb.style.display = 'none';
+        }
+        ['#leaderFormContainer', '#forkliftFormContainer', '#supportFormContainer', '#f9004FormContainer'].forEach(sel => {
           const prev = container.querySelector(sel);
           if (prev && prev._syncAbort) { prev._syncAbort.abort(); prev._syncAbort = null; }
         });
 
-        if (isLeader || isForklift || isSupport) {
+        if (isFmb) {
+          elsToToggle.forEach(id => {
+            const el = container.querySelector(id);
+            if (el) el.style.display = 'none';
+          });
+          import('./forms/f9004/f9004Renderer.js').then(m => m.mountF9004InReportForm(container, existingData, loggedInWorkerName));
+        } else if (isLeader || isForklift || isSupport) {
           elsToToggle.forEach(id => {
             const el = container.querySelector(id);
             if (el) el.style.display = 'none';
@@ -881,6 +892,8 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
           });
           const leaderContainer = container.querySelector('#leaderFormContainer');
           if (leaderContainer) leaderContainer.style.display = 'none';
+          const fmbContainer = container.querySelector('#f9004FormContainer');
+          if (fmbContainer) fmbContainer.style.display = 'none';
           const forkliftContainer = container.querySelector('#forkliftFormContainer');
           if (forkliftContainer) forkliftContainer.style.display = 'none';
           const supportContainer = container.querySelector('#supportFormContainer');
@@ -902,8 +915,15 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
     // 초기 로딩 시에도 반장 작업일보나 지게차작업이 선택되어 있는지 확인하여 동일하게 분기처리
     const isLeaderInit = activeProcess === '반장 작업일보';
     const isForkliftInit = activeProcess === '지게차작업';
-    const elsToToggleInit = ['#formCodeBadgeContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
-    if (isLeaderInit || isForkliftInit) {
+    const isFmbInit = activeProcess === 'FMB보관실' || Boolean(existingData?.isFmbForm);
+    const elsToToggleInit = ['#formCodeBadgeContainer', '#jointTpmGateContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
+    if (isFmbInit) {
+      elsToToggleInit.forEach(id => {
+        const el = container.querySelector(id);
+        if (el) el.style.display = 'none';
+      });
+      import('./forms/f9004/f9004Renderer.js').then(m => m.mountF9004InReportForm(container, existingData, loggedInWorkerName));
+    } else if (isLeaderInit || isForkliftInit) {
       elsToToggleInit.forEach(id => {
         const el = container.querySelector(id);
         if (el) el.style.display = 'none';
@@ -1009,6 +1029,10 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       });
       const leaderContainer = container.querySelector('#leaderFormContainer');
       if (leaderContainer) leaderContainer.style.display = 'none';
+      const fmbContainer = container.querySelector('#f9004FormContainer');
+      if (fmbContainer) fmbContainer.style.display = 'none';
+      const standardFixedBar = document.getElementById('standardFixedActionBar');
+      if (standardFixedBar) standardFixedBar.style.display = 'flex';
 
       renderFormCodeBadge();
       updateSectionNumbers();
@@ -1195,6 +1219,14 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         }
       });
 
+      // 격리 양식(f{코드}_* 등): 명시적 data-save-group="materialLots" 속성이 붙은 입력칸/체크박스를 id 그대로 저장 (GEMINI.md 원칙 2·10)
+      container.querySelectorAll('[data-save-group="materialLots"]').forEach(el => {
+        if (!el.id) return;
+        materialLots[el.id] = el.type === 'checkbox'
+          ? el.checked
+          : autoFormatDateTimeString(el.value || '');
+      });
+
       const itemCodeVal = curPartValueInput?.value || curItemSelect?.value || '인벨트';
       const itemNameVal = curPartValueInput?.value || selectedItemOption?.dataset?.name || curItemSelect?.value || itemCodeVal;
 
@@ -1329,6 +1361,12 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         }
       });
 
+      // 격리 양식(f{코드}_* 등): 명시적 data-save-group="dimData" 속성이 붙은 입력칸을 id 그대로 저장 (GEMINI.md 원칙 2·10)
+      container.querySelectorAll('[data-save-group="dimData"]').forEach(el => {
+        if (!el.id) return;
+        dimData[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+      });
+
       const dim2005Data = {
         cho_A_lh: container.querySelector('#dim2005_cho_A_lh')?.value || '',
         cho_A_rh: container.querySelector('#dim2005_cho_A_rh')?.value || '',
@@ -1429,6 +1467,12 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         if (qtyTable[key] === undefined) {
           qtyTable[key] = el.type === 'checkbox' ? el.checked : el.value;
         }
+      });
+
+      // 격리 양식(f{코드}_* 등): 명시적 data-save-group="qtyTable" 속성이 붙은 입력칸을 id 그대로 저장 (GEMINI.md 원칙 2·10)
+      container.querySelectorAll('[data-save-group="qtyTable"]').forEach(el => {
+        if (!el.id) return;
+        qtyTable[el.id] = el.type === 'checkbox' ? el.checked : el.value;
       });
 
       const vulcData = {
@@ -1696,6 +1740,13 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         vulcData2[key] = el.type === 'checkbox' ? el.checked : el.value;
       });
 
+      // 금형 호기 번호(1~7)는 금형 간 중복되므로, 선택한 금형의 고유 ID를 별도 필드(moldRefs)로 함께 저장 (신규 필드 · 기존 구조 유지)
+      const moldRefs = {};
+      container.querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]').forEach(sel => {
+        const refId = sel.options[sel.selectedIndex]?.dataset?.moldId;
+        if (sel.value && refId) moldRefs[sel.id] = refId;
+      });
+
       const jointQtyTable = {
         plan_frt_p: container.querySelector('#jqty_plan_frt_p')?.value || '',
         plan_frt_q: container.querySelector('#jqty_plan_frt_q')?.value || '',
@@ -1883,6 +1934,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         vulcTable: vulcData,
         vulcData2: vulcData2,
         vulcTable2: vulcData2,
+        moldRefs: moldRefs,
         injSetData: injSetData,
         qtyTable: qtyTable,
         jointQtyTable: jointQtyTable,
@@ -2372,6 +2424,7 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
   `;
 
   document.body.appendChild(modal);
+  i18n.applyTranslations(modal);
 
   const numWheel = modal.querySelector('#wnpNumberWheel');
   const ITEM_HEIGHT = 40;
@@ -2461,7 +2514,7 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
 
   modal.querySelector('#wnpConfirmBtn').addEventListener('click', () => {
     if (tolerance !== null && (selectedNumber < defaultCenter - tolerance || selectedNumber > defaultCenter + tolerance)) {
-      if (!window.confirm("스펙을 벗어납니다. 그래도 입력하시겠습니까?")) {
+      if (!window.confirm(i18n.translateDisplay("스펙을 벗어납니다. 그래도 입력하시겠습니까?"))) {
         return;
       }
     }
@@ -2551,6 +2604,7 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
   `;
 
   document.body.appendChild(modal);
+  i18n.applyTranslations(modal);
 
   const hourWheel = modal.querySelector('#wtpHourWheel');
   const minWheel = modal.querySelector('#wtpMinWheel');
@@ -2862,6 +2916,7 @@ function openLotDateWheelPicker(initialValue = '', title = '소재 LOT 날짜/�
   `;
 
   document.body.appendChild(modal);
+  i18n.applyTranslations(modal);
 
   const ITEM_HEIGHT = 40;
   const yearWheel = modal.querySelector('#wlpYearWheel');
@@ -3025,6 +3080,7 @@ export function autoBindAllDimensionInputs(container) {
     if (input.type === 'checkbox' || input.type === 'radio' || input.type === 'hidden') return;
     if (input.classList.contains('lot-datetime-input') || (input.id && input.id.startsWith('lotNo_'))) return;
     if (input.id && (input.id.startsWith('vulc_stroke_') || input.id.startsWith('vulc2_stroke_'))) return; // 3002 양식 타수 입력 예외
+    if (input.dataset.wheelSkip === '1') return; // 명시적 휠 피커 제외 (GEMINI.md 원칙 2)
 
     let defVal = 0;
     let foundSpec = false;
@@ -3070,9 +3126,16 @@ export function autoBindAllDimensionInputs(container) {
     const tr = input.closest('tr');
     const table = input.closest('table');
 
+    const hasSpecKeyword = (txt) =>
+      txt.includes('규격') ||
+      txt.includes('Spec') ||
+      txt.includes('스펙') ||
+      txt.includes('สเปค') ||
+      txt.includes('Tiêu chuẩn');
+
     // B. Check same row for 규격 / Spec / ±
     if (!foundSpec && tr) {
-      const isSpecRow = tr.textContent.includes('규격') || tr.textContent.includes('Spec') || tr.textContent.includes('스펙');
+      const isSpecRow = hasSpecKeyword(tr.textContent);
       const tds = Array.from(tr.querySelectorAll('td, th'));
       for (let td of tds) {
         const text = td.textContent;
@@ -3106,7 +3169,7 @@ export function autoBindAllDimensionInputs(container) {
 
       while (prevTr && lookback > 0 && !foundSpec) {
         const rowText = prevTr.textContent;
-        const isSpecRow = rowText.includes('규격') || rowText.includes('Spec') || rowText.includes('스펙');
+        const isSpecRow = hasSpecKeyword(rowText);
         const prevCells = Array.from(prevTr.querySelectorAll('td, th'));
 
         if (isSpecRow) {
@@ -3133,7 +3196,7 @@ export function autoBindAllDimensionInputs(container) {
           // 2) Any cell in this spec row with ± or number
           for (let cell of prevCells) {
             const cText = cell.textContent;
-            if (cText.includes('규격') || cText.includes('Spec') || cText.includes('스펙') || cText.includes('구분') || cText.includes('단컷팅') || cText.includes('전방') || cText.includes('후방')) continue;
+            if (hasSpecKeyword(cText) || cText.includes('구분') || cText.includes('단컷팅') || cText.includes('전방') || cText.includes('후방')) continue;
             const pmMatch = cText.match(/([\d.]+)\s*±\s*([\d.]+)?/);
             if (pmMatch && !isNaN(parseFloat(pmMatch[1]))) {
               defVal = parseFloat(pmMatch[1]);
@@ -3261,6 +3324,18 @@ export function autoBindAllDimensionInputs(container) {
         defVal = 100;
         range = 30;
       }
+    }
+
+    // 명시적 data-wheel-* 속성이 있으면 광범위 추정값을 최우선으로 덮어씀 (GEMINI.md 원칙 2)
+    if (input.dataset.wheelTitle !== undefined) {
+      titleText = input.dataset.wheelTitle;
+    }
+    if (input.dataset.wheelUnit !== undefined) {
+      unit = input.dataset.wheelUnit;
+    }
+    if (input.dataset.wheelRange !== undefined) {
+      const parsedRange = parseFloat(input.dataset.wheelRange);
+      if (!isNaN(parsedRange) && parsedRange > 0) range = parsedRange;
     }
 
     bindNumberWheelPicker(input, titleText, defVal, range, unit, toleranceVal);

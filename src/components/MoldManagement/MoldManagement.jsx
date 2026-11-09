@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import MoldHistoryCardModal from './MoldHistoryCardModal';
 import MoldRepairRequestModal from './MoldRepairRequestModal';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { CAR_MODELS, CAR_MODEL_PARTS } from '../../constants/masterData';
 import { getCurrentFormCode } from '../../constants/formCodes';
+import { invalidateMoldsCache } from '../../services/firestore';
+import { syncMoldRepairToChangePoint } from '../../services/changePointAutoSync';
 
 const MOLD_TYPE_MAP = {
   1002: ["FRT(P)_L/R", "FRT(Q)_L/R", "RR(R)_L/R", "RR(S)_LH", "RR(S)_RH"],
@@ -95,6 +97,19 @@ export default function MoldManagement() {
     fetchMolds();
   }, []);
 
+  // 대시보드 "비가동 → 수리 → 변동점 연계 현황" 등에서 이동해 온 경우 해당 금형의 이력카드를 바로 연다
+  const routeLocation = useLocation();
+  const routeNavigate = useNavigate();
+  const historyDeepLinkDoneRef = useRef(false);
+  useEffect(() => {
+    const target = routeLocation.state?.openHistory;
+    if (!target?.moldId || historyDeepLinkDoneRef.current || molds.length === 0) return;
+    historyDeepLinkDoneRef.current = true;
+    const mold = molds.find((m) => m.id === target.moldId);
+    if (mold) setHistoryMold(mold);
+    routeNavigate(routeLocation.pathname, { replace: true, state: null });
+  }, [routeLocation, routeNavigate, molds]);
+
   const fetchMolds = async () => {
     setLoading(true);
     try {
@@ -129,11 +144,12 @@ export default function MoldManagement() {
   const handleSaveRepairRequest = async (repairData) => {
     try {
       const newHistoryRow = {
+        syncId: `moldrep_${Date.now()}`,
         date: repairData.requestDate || new Date().toLocaleDateString('sv-SE'),
         issue: repairData.requestContent || '',
         action: repairData.actionContent || '',
         attachment: '수리의뢰서',
-        confirmed: false,
+        confirmed: Boolean(repairData.qualityPic || repairData.verificationResult),
         repairDetails: repairData
       };
       
@@ -141,9 +157,17 @@ export default function MoldManagement() {
       
       const moldRef = doc(db, 'molds', repairMold.id);
       await updateDoc(moldRef, { history: updatedHistory });
+      invalidateMoldsCache();
+
+      try {
+        await syncMoldRepairToChangePoint(repairMold, newHistoryRow, updatedHistory.length - 1);
+      } catch (syncErr) {
+        console.error('Failed to auto-sync mold repair to changePoint:', syncErr);
+      }
       
       setMolds(molds.map(m => m.id === repairMold.id ? { ...m, history: updatedHistory } : m));
       setRepairMold(null);
+      alert('금형 수리 요청이 저장되었으며 변동점 관리에 자동 반영되었습니다.');
     } catch (e) {
       console.error('Failed to save repair request:', e);
       alert('저장 실패!');
@@ -317,6 +341,7 @@ export default function MoldManagement() {
           mold={historyMold} 
           onClose={() => setHistoryMold(null)}
           onUpdate={(updatedMold) => {
+            if (updatedMold) setHistoryMold(updatedMold);
             setMolds(molds.map(m => m.id === updatedMold.id ? updatedMold : m));
           }}
         />

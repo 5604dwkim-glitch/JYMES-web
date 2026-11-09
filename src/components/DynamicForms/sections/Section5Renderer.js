@@ -1,5 +1,12 @@
 import * as Templates from '../FormTemplates.jsx';
 import { autoFormatDateTimeString } from './formUtils.js';
+import { renderF5001Section5 } from '../forms/f5001/section5.js';
+import { renderF5002Section5 } from '../forms/f5002/section5.js';
+import { renderF5004Section5 } from '../forms/f5004/section5.js';
+import { renderF5005Section5 } from '../forms/f5005/section5.js';
+import { renderF5006Section5 } from '../forms/f5006/section5.js';
+import { renderF5011Section5 } from '../forms/f5011/section5.js';
+import { renderJointMoldStrokeCard } from './jointMoldStrokeCard.js';
 
 /**
  * Section 5 동적 렌더러 (가류온도/치수확인 등)
@@ -13,96 +20,61 @@ export function renderSection5(ctx) {
     const curProc = processValue ? processValue.value : '';
     const formCode = getCurrentFormCode();
 
+    const molds = ctx.molds || [];
     const _carModel = carModelValue ? carModelValue.value : '';
     const _partName = partValueInput ? partValueInput.value : '';
     const getMoldOptions = (moldType, selectedVal) => {
       if (!moldType) return '<option value="">금형선택</option>';
       const filtered = molds.filter(m => m.carModel === _carModel && m.partName === _partName && (m.moldType === moldType || (m.moldType && (m.moldType.includes(moldType) || moldType.includes(m.moldType)))));
       let options = '<option value="">금형선택</option>';
+      let hasSelected = false;
       filtered.forEach(m => {
         const moldNo = m.moldNumber || m.code;
-        options += `<option value="${moldNo}" ${selectedVal === moldNo ? 'selected' : ''}>${moldNo}</option>`;
+        if (selectedVal === moldNo) hasSelected = true;
+        // data-mold-id: 호기 번호(1~7)는 금형 간 중복되므로 금형 문서 고유 ID를 함께 보관 (타수 누적·수리 연동용)
+        options += `<option value="${moldNo}" data-mold-id="${m.id || ''}" ${selectedVal === moldNo ? 'selected' : ''}>${moldNo}</option>`;
       });
+      if (selectedVal && !hasSelected) {
+        options += `<option value="${selectedVal}" selected>${selectedVal}</option>`;
+      }
       return options;
     };
-    const registeredMolds = [];
     const renderMoldSelect = (id, moldType, selVal) => {
-      registeredMolds.push({ id, label: moldType });
       return `<select id="${id}" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;">${getMoldOptions(moldType, selVal)}</select>`;
     };
-    
-    setTimeout(() => {
-      if ((curProc === '조인트' || curProc === '조인트 V부') && registeredMolds.length > 0) {
-        const v = existingData && existingData.vulcTable ? existingData.vulcTable : {};
-        let strokeTableHTML = `
-          <div class="card" style="padding: 16px; margin-bottom: 16px;">
-            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
-              🔄 <span class="sec-num"></span> 금일 금형 타수
-            </label>
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-                <thead>
-                  <tr style="background: #e2e8f0; font-weight: 700; color: #000;">
-                    <th style="border: 1px solid #000; padding: 6px; width: 50%;">금형 부위</th>
-                    <th style="border: 1px solid #000; padding: 6px; width: 50%;">금일 타수 (Stroke)</th>
-                  </tr>
-                </thead>
-                <tbody>
-        `;
-        
-        const uniqueMolds = [];
-        const seenIds = new Set();
-        for (const m of registeredMolds) {
-          if (!seenIds.has(m.id)) {
-            seenIds.add(m.id);
-            uniqueMolds.push(m);
-          }
-        }
 
-        uniqueMolds.forEach(m => {
-          const strokeId = m.id.replace('vulc_mold_', 'vulc_stroke_').replace('vulc2_mold_', 'vulc2_stroke_');
-          const strokeVal = v[strokeId.replace('vulc_', '').replace('vulc2_', '')] || '';
-          strokeTableHTML += `
-            <tr>
-              <td id="stroke_label_${strokeId}" style="border: 1px solid #000; padding: 6px; background: #f8fafc; font-weight: 700;">${m.label}</td>
-              <td style="border: 1px solid #000; padding: 4px;">
-                <input type="number" id="${strokeId}" class="form-control vulc-input-dynamic" style="width: 100%; height: 26px; text-align: center; font-size: 12px; padding: 2px;" value="${strokeVal}" placeholder="금일 타수 입력" />
-              </td>
-            </tr>
-          `;
-        });
-
-        strokeTableHTML += `
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-
-        section5.insertAdjacentHTML('beforeend', strokeTableHTML);
-        
-        // Dynamically update mold label with selected machine number
-        uniqueMolds.forEach(m => {
-          const strokeId = m.id.replace('vulc_mold_', 'vulc_stroke_').replace('vulc2_mold_', 'vulc2_stroke_');
-          const selEl = document.getElementById(m.id);
-          const labelEl = document.getElementById('stroke_label_' + strokeId);
-          
-          if (selEl && labelEl) {
-            // Initial setting
-            if (selEl.value) {
-              labelEl.innerText = m.label + ' (' + selEl.value + ')';
-            }
-            // Add change listener
-            selEl.addEventListener('change', (e) => {
-              labelEl.innerText = e.target.value ? m.label + ' (' + e.target.value + ')' : m.label;
-            });
-          }
-        });
-      }
-    }, 0);
-
-    const molds = ctx.molds || [];
     const d = existingData?.dimData || {};
+
+    // 양식별 전용 모듈 위임 (GEMINI.md 원칙 8)
+    if (formCode === 5001 && curProc) {
+      renderF5001Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5002 && curProc) {
+      renderF5002Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5004 && curProc) {
+      renderF5004Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5005 && curProc) {
+      renderF5005Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5006 && curProc) {
+      renderF5006Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5011 && curProc) {
+      renderF5011Section5(section5, ctx);
+      return;
+    }
 
     // ★ 차종/공정 변경 시 이전 내용 잔류 방지: 항상 초기화 후 재렌더링
     section5.innerHTML = '';
@@ -256,9 +228,11 @@ export function renderSection5(ctx) {
         </div>
       `;
 
+      renderJointMoldStrokeCard(section5, existingData);
+
       setTimeout(() => {
         section5.querySelectorAll('.vulc-input-dynamic').forEach(input => {
-          if (input.type === 'hidden' || input.tagName === 'SELECT') return;
+          if (input.type === 'hidden' || input.tagName === 'SELECT' || input.dataset.wheelSkip === '1' || input.id.includes('stroke_')) return;
           const isTime = input.id.includes('time_');
           const isUpper = input.id.includes('_상');
           let defVal = isTime ? 90 : 200;
@@ -2091,13 +2065,6 @@ export function renderSection5(ctx) {
               const curVal = moldT.value;
               moldT.innerHTML = getMoldOptions(sidePrefix + 'T[직선]', curVal);
             }
-            
-            const strokeLabelR = section5.querySelector(`#stroke_label_${pfx}_stroke_R`);
-            if (strokeLabelR) strokeLabelR.innerText = sidePrefix + 'R[직각]';
-            const strokeLabelS = section5.querySelector(`#stroke_label_${pfx}_stroke_S`);
-            if (strokeLabelS) strokeLabelS.innerText = sidePrefix + 'S[둔각]';
-            const strokeLabelT = section5.querySelector(`#stroke_label_${pfx}_stroke_T`);
-            if (strokeLabelT) strokeLabelT.innerText = sidePrefix + 'T[직선]';
           };
           lhEl.addEventListener('change', (e) => {
             if (e.target.checked && rhEl.checked) rhEl.checked = false;
@@ -2266,6 +2233,8 @@ export function renderSection5(ctx) {
           });
         });
       }
+
+      renderJointMoldStrokeCard(section5, existingData);
     } else if (curProc === '소재준비' || curProc.startsWith('소재준비')) {
       if (formCode === 1021 || formCode === 1041) {
         const d = existingData?.dimData || {};

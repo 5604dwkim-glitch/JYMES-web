@@ -1,7 +1,8 @@
 /**
  * 50인 제조업체 공정별 작업일보 관리 시스템 - i18n Translation Manager
- * Supports: Korean (ko), English (en), Thai (th), Tagalog (tl)
+ * Supports: Korean (ko), English (en), Thai (th), Vietnamese (vi)
  */
+import { PHRASE_TUPLES, DYNAMIC_PATTERNS } from './i18nPhraseDictionary.js';
 
 export const TRANSLATIONS = {
   ko: {
@@ -339,6 +340,7 @@ export const TRANSLATIONS = {
     proc_leader: "반장 작업일보",
     proc_forklift: "지게차작업",
     proc_support: "출하지원",
+    proc_fmb: "FMB보관실",
     form_variant_id: "양식 고유번호:",
     joint_lot_hint: "조인트 고무 소재의 LOT 번호를 입력하세요.",
     lot_format_hint: "년월일시분 (예 : 2507251330)",
@@ -352,7 +354,12 @@ export const TRANSLATIONS = {
     rh_r_right: "RH R[직각]",
     rh_s_obtuse: "RH S[둔각]",
     rh_t_straight: "RH T[직선]",
-
+    status_draft: "임시저장",
+    select_process_guide: "상단에서 생산공정을 선택해 주세요",
+    dim_meas_mm: "측정(mm)",
+    form_variant_badge: "입력창 양식 고유번호",
+    sec_downtime: "설비 가류온도 & 가류시간 입력",
+    step2_part: "[3단계] 세부 부품 선택"
   },
 
   en: {
@@ -621,7 +628,93 @@ export const TRANSLATIONS = {
     proc_prep_d: "Material Prep (D)",
     proc_join: "Joint",
     proc_post: "Post-Processing",
-    proc_insp: "Inspection/Packing"
+    proc_insp: "Inspection/Packing",
+    lang_ko: "Korean",
+    lang_en: "English",
+    lang_th: "Thai",
+    lang_tl: "Tagalog",
+    lang_vi: "Vietnamese",
+    insp_trim_over: "Over-Trim",
+    insp_trim_under: "Under-Trim",
+    insp_bond_contam: "Bond Contam.",
+    insp_ext_contam: "Surface Contam.",
+    insp_clip_miss: "Missing/Half Clip",
+    insp_clip_hole: "Missing Clip Hole",
+    insp_drain_hole: "Drain Hole NG",
+    insp_wrong_clip: "Wrong Clip Type",
+    insp_cut_miss: "Missed Cut",
+    insp_bond_miss: "Missing Bond",
+    insp_len_excess: "Over Length",
+    insp_clip_pitch: "Clip Pitch NG",
+    insp_oth: "Others",
+    insp_post_spaced: "Post-Proc",
+    insp_bad_spaced: "Defect",
+    insp_worker: "Worker",
+    insp_worker_sel: "Select Worker",
+    insp_auto_calc: "Auto Calc",
+    insp_defect_qty_spaced: "Defect Qty",
+    qty_plan: "Plan",
+    qty_act: "Actual",
+    def_poor_joint: "Joint",
+    def_bad: "Defects",
+    def_poor_joint_eng: "(Poor joint)",
+    def_dropped: "Dropped",
+    def_dropped_eng: "(Dropped)",
+    def_lack_qty: "Short Shot",
+    def_lack_qty_eng: "(lack of quantity)",
+    def_step: "Step Diff.",
+    def_step_eng: "(a step difference)",
+    def_bubble_kor: "Air Bubbles",
+    def_bubble_eng: "(Air bubbles)",
+    def_chewing_kor: "Chewing",
+    def_chewing_eng2: "(Chewing)",
+    def_worthless_kor: "Residue",
+    def_worthless_eng: "(worthless)",
+    def_etc_kor: "Others (etc)",
+    def_sum: "Total Defects",
+    def_post: "Post-Proc",
+    def_bad_post1: "(Bad post-",
+    def_bad_post2: "processing)",
+    def_trimming: "Trimming NG",
+    def_trimming_eng: "(trimming N.G)",
+    def_pollution: "Contamination",
+    def_pollution_eng: "(Pollution)",
+    qty_prod1: "Output",
+    qty_prod2: "(the amount of",
+    qty_prod3: "production)",
+    car_genesis: "Genesis",
+    car_hyundai: "Hyundai (HMC)",
+    car_kia: "Kia (KMC)",
+    car_stellantis: "Stellantis",
+    car_gm: "GM",
+    car_renault: "Renault",
+    car_common: "Common",
+    car_common_short: "Common",
+    step_part_sel: "[Select Part by Step]",
+    step_part_sel_sub: "Select Sub-Part",
+    step2_part: "[Step 3] Select Sub-Part",
+    proc_leader: "Leader Report",
+    proc_forklift: "Forklift Work",
+    proc_support: "Shipping Support",
+    proc_fmb: "FMB Storage",
+    form_variant_id: "Form Code:",
+    joint_lot_hint: "Enter LOT number of joint rubber material.",
+    lot_format_hint: "YYMMDDHHMM (e.g. 2507251330)",
+    part_angle_type: "Part (Right/Obtuse/Straight/End)",
+    vulc_temp_topbot: "Vulc. Temp [Upper/Lower, ℃]",
+    vulc_top: "Upper",
+    vulc_bot: "Lower",
+    lh_r_right: "LH R [Right]",
+    lh_s_obtuse: "LH S [Obtuse]",
+    lh_t_straight: "LH T [Straight]",
+    rh_r_right: "RH R [Right]",
+    rh_s_obtuse: "RH S [Obtuse]",
+    rh_t_straight: "RH T [Straight]",
+    status_draft: "Draft",
+    select_process_guide: "Please select a production process above",
+    dim_meas_mm: "Meas. (mm)",
+    form_variant_badge: "Form Code",
+    sec_downtime: "Vulc. Temp & Time Input"
   },
 
     vi: {
@@ -896,10 +989,87 @@ export const TRANSLATIONS = {
     proc_join: "Nối",
     proc_post: "Gia công sau",
     proc_insp: "Kiểm tra/Đóng gói",
-
-    // New mappings
     form_variant_badge: "Mã Form",
-    sec_downtime: "Nhiệt độ & Thời gian"
+    sec_downtime: "Nhiệt độ & Thời gian lưu hóa",
+    insp_trim_over: "Gọt quá tay",
+    insp_trim_under: "Gọt thiếu",
+    insp_bond_contam: "Bẩn keo",
+    insp_ext_contam: "Bẩn bề mặt",
+    insp_clip_miss: "Thiếu/Kẹp nửa",
+    insp_clip_hole: "Thiếu lỗ kẹp",
+    insp_drain_hole: "Lỗi lỗ thoát nước",
+    insp_wrong_clip: "Sai loại kẹp",
+    insp_cut_miss: "Bỏ sót cắt",
+    insp_bond_miss: "Thiếu keo/Bong",
+    insp_len_excess: "Dư chiều dài",
+    insp_clip_pitch: "Sai khoảng cách kẹp",
+    insp_oth: "Khác",
+    insp_post_spaced: "Gia công sau",
+    insp_bad_spaced: "Lỗi",
+    insp_worker: "Công nhân",
+    insp_worker_sel: "Chọn công nhân",
+    insp_auto_calc: "Tự động tính",
+    insp_defect_qty_spaced: "SL Lỗi",
+    qty_plan: "Kế hoạch",
+    qty_act: "Thực tế",
+    def_poor_joint: "Mối nối",
+    def_bad: "Lỗi",
+    def_poor_joint_eng: "(Poor joint)",
+    def_dropped: "Rơi/Tách",
+    def_dropped_eng: "(Dropped)",
+    def_lack_qty: "Thiếu liệu",
+    def_lack_qty_eng: "(lack of quantity)",
+    def_step: "Lệch bậc",
+    def_step_eng: "(a step difference)",
+    def_bubble_kor: "Bọt khí",
+    def_bubble_eng: "(Air bubbles)",
+    def_chewing_kor: "Bị cắn",
+    def_chewing_eng2: "(Chewing)",
+    def_worthless_kor: "Bavia/Cặn",
+    def_worthless_eng: "(worthless)",
+    def_etc_kor: "Khác (etc)",
+    def_sum: "Tổng lỗi",
+    def_post: "Gia công sau",
+    def_bad_post1: "(Bad post-",
+    def_bad_post2: "processing)",
+    def_trimming: "Lỗi gọt bavia",
+    def_trimming_eng: "(trimming N.G)",
+    def_pollution: "Ô nhiễm/Bẩn",
+    def_pollution_eng: "(Pollution)",
+    qty_prod1: "Sản lượng",
+    qty_prod2: "(the amount of",
+    qty_prod3: "production)",
+    car_genesis: "Genesis",
+    car_hyundai: "Hyundai (HMC)",
+    car_kia: "Kia (KMC)",
+    car_stellantis: "Stellantis",
+    car_gm: "GM",
+    car_renault: "Renault",
+    car_common: "Chung (Common)",
+    car_common_short: "Chung",
+    step_part_sel: "[Chọn phụ tùng theo bước]",
+    step_part_sel_sub: "Chọn chi tiết phụ tùng",
+    step2_part: "[Bước 3] Chọn chi tiết phụ tùng",
+    proc_leader: "BC Tổ trưởng",
+    proc_forklift: "Xe nâng",
+    proc_support: "Hỗ trợ xuất hàng",
+    proc_fmb: "Kho FMB",
+    form_variant_id: "Mã biểu mẫu:",
+    joint_lot_hint: "Nhập số LOT cao su mối nối.",
+    lot_format_hint: "YYMMDDHHMM (VD: 2507251330)",
+    part_angle_type: "Vị trí (Vuông/Tù/Thẳng/Đầu)",
+    vulc_temp_topbot: "Nhiệt độ lưu hóa [Trên/Dưới, ℃]",
+    vulc_top: "Trên",
+    vulc_bot: "Dưới",
+    lh_r_right: "LH R [Góc vuông]",
+    lh_s_obtuse: "LH S [Góc tù]",
+    lh_t_straight: "LH T [Thẳng]",
+    rh_r_right: "RH R [Góc vuông]",
+    rh_s_obtuse: "RH S [Góc tù]",
+    rh_t_straight: "RH T [Thẳng]",
+    status_draft: "Bản nháp",
+    select_process_guide: "Vui lòng chọn công đoạn sản xuất ở trên",
+    dim_meas_mm: "Đo (mm)"
   },
 
   th: {
@@ -1168,7 +1338,93 @@ export const TRANSLATIONS = {
     proc_prep_d: "เตรียมวัสดุ (D)",
     proc_join: "ข้อต่อ",
     proc_post: "การจัดการภายหลัง",
-    proc_insp: "ตรวจสอบ/บรรจุภัณฑ์"
+    proc_insp: "ตรวจสอบ/บรรจุภัณฑ์",
+    lang_ko: "ภาษาเกาหลี",
+    lang_en: "ภาษาอังกฤษ",
+    lang_th: "ภาษาไทย",
+    lang_tl: "ภาษาตากาล็อก",
+    lang_vi: "ภาษาเวียดนาม",
+    insp_trim_over: "ตัดแต่งเกิน",
+    insp_trim_under: "ตัดแต่งไม่หมด",
+    insp_bond_contam: "เปื้อนกาว",
+    insp_ext_contam: "คราบสกปรกภายนอก",
+    insp_clip_miss: "คลิปหล่น/ครึ่งคลิป",
+    insp_clip_hole: "รูคลิปตกหล่น",
+    insp_drain_hole: "รูระบายน้ำเสีย",
+    insp_wrong_clip: "คลิปผิดรุ่น",
+    insp_cut_miss: "ลืมตัด/ตัดไม่ครบ",
+    insp_bond_miss: "ลืมทากาว/ติดไม่แน่น",
+    insp_len_excess: "ความยาวเกิน",
+    insp_clip_pitch: "ระยะห่างคลิปเสีย",
+    insp_oth: "อื่นๆ",
+    insp_post_spaced: "หลังกระบวนการ",
+    insp_bad_spaced: "ของเสีย",
+    insp_worker: "พนักงาน",
+    insp_worker_sel: "เลือกพนักงาน",
+    insp_auto_calc: "คำนวณอัตโนมัติ",
+    insp_defect_qty_spaced: "จำนวนของเสีย",
+    qty_plan: "แผน",
+    qty_act: "ผลจริง",
+    def_poor_joint: "ข้อต่อ",
+    def_bad: "ของเสีย",
+    def_poor_joint_eng: "(Poor joint)",
+    def_dropped: "หลุด/แยก",
+    def_dropped_eng: "(Dropped)",
+    def_lack_qty: "เนื้อยางไม่เต็ม",
+    def_lack_qty_eng: "(lack of quantity)",
+    def_step: "ต่างระดับ",
+    def_step_eng: "(a step difference)",
+    def_bubble_kor: "ฟองอากาศ",
+    def_bubble_eng: "(Air bubbles)",
+    def_chewing_kor: "รอยขบ",
+    def_chewing_eng2: "(Chewing)",
+    def_worthless_kor: "เศษยาง",
+    def_worthless_eng: "(worthless)",
+    def_etc_kor: "อื่นๆ (etc)",
+    def_sum: "รวมของเสีย",
+    def_post: "หลังกระบวนการ",
+    def_bad_post1: "(Bad post-",
+    def_bad_post2: "processing)",
+    def_trimming: "ตกแต่งขอบเสีย",
+    def_trimming_eng: "(trimming N.G)",
+    def_pollution: "การปนเปื้อน",
+    def_pollution_eng: "(Pollution)",
+    qty_prod1: "ยอดการผลิต",
+    qty_prod2: "(the amount of",
+    qty_prod3: "production)",
+    car_genesis: "Genesis (เจเนซิส)",
+    car_hyundai: "Hyundai (HMC)",
+    car_kia: "Kia (KMC)",
+    car_stellantis: "Stellantis (สเตลแลนทิส)",
+    car_gm: "GM (จีเอ็ม)",
+    car_renault: "Renault (เรโนลต์)",
+    car_common: "ทั่วไป (Common)",
+    car_common_short: "ทั่วไป",
+    step_part_sel: "[เลือกชิ้นส่วนตามขั้นตอน]",
+    step_part_sel_sub: "เลือกชิ้นส่วนย่อย",
+    step2_part: "[ขั้นตอนที่ 3] เลือกชิ้นส่วนย่อย",
+    proc_leader: "รายงานหัวหน้า",
+    proc_forklift: "งานรถโฟร์คลิฟท์",
+    proc_support: "งานสนับสนุนจัดส่ง",
+    proc_fmb: "ห้องจัดเก็บ FMB",
+    form_variant_id: "รหัสแบบฟอร์ม:",
+    joint_lot_hint: "กรุณากรอกหมายเลข LOT ของยางข้อต่อ",
+    lot_format_hint: "ปปดดววชม.นาที (เช่น 2507251330)",
+    part_angle_type: "ส่วน (มุมฉาก/มุมป้าน/เส้นตรง/ปลาย)",
+    vulc_temp_topbot: "อุณหภูมิวัลคาไนซ์ [บน/ล่าง, ℃]",
+    vulc_top: "บน",
+    vulc_bot: "ล่าง",
+    lh_r_right: "LH R [มุมฉาก]",
+    lh_s_obtuse: "LH S [มุมป้าน]",
+    lh_t_straight: "LH T [เส้นตรง]",
+    rh_r_right: "RH R [มุมฉาก]",
+    rh_s_obtuse: "RH S [มุมป้าน]",
+    rh_t_straight: "RH T [เส้นตรง]",
+    status_draft: "ร่าง",
+    select_process_guide: "กรุณาเลือกกระบวนการผลิตด้านบน",
+    dim_meas_mm: "วัดจริง (มม.)",
+    form_variant_badge: "รหัสแบบฟอร์ม",
+    sec_downtime: "กรอกอุณหภูมิและเวลาวัลคาไนซ์"
   },
 
   tl: {
@@ -1534,38 +1790,27 @@ export const STRING_TO_KEY_MAP = {
   '기 타': 'insp_oth',
   '후 가 공': 'insp_post_spaced',
   '불 량': 'insp_bad_spaced',
-  '작업자': 'insp_worker',
   '작업자 선택': 'insp_worker_sel',
   '자동계산': 'insp_auto_calc',
-  '불 량 수': 'insp_defect_qty_spaced',
 
-  '계획': 'qty_plan',
-  '실적': 'qty_act',
-  '조인트': 'def_poor_joint',
   '불량': 'def_bad',
   '(Poor joint)': 'def_poor_joint_eng',
-  '떨어짐': 'def_dropped',
   '(Dropped)': 'def_dropped_eng',
-  '양부족': 'def_lack_qty',
   '(lack of quantity)': 'def_lack_qty_eng',
   '단차': 'def_step',
   '(a step difference)': 'def_step_eng',
-  '기포': 'def_bubble_kor',
   '(Air bubbles)': 'def_bubble_eng',
   '씹힘': 'def_chewing_kor',
   '(Chewing)': 'def_chewing_eng2',
-  '찌꺼기': 'def_worthless_kor',
   '(worthless)': 'def_worthless_eng',
   '기타(etc)': 'def_etc_kor',
   '불량 합계(Sum Defects)': 'def_sum',
-  '후가공': 'def_post',
   '(Bad post-': 'def_bad_post1',
   'processing)': 'def_bad_post2',
   '사상불량': 'def_trimming',
   '(trimming N.G)': 'def_trimming_eng',
   '오염': 'def_pollution',
   '(Pollution)': 'def_pollution_eng',
-  '생산량': 'qty_prod1',
   '(the amount of': 'qty_prod2',
   'production)': 'qty_prod3',
 
@@ -1582,6 +1827,7 @@ export const STRING_TO_KEY_MAP = {
   '반장 작업일보': 'proc_leader',
   '지게차작업': 'proc_forklift',
   '출하지원': 'proc_support',
+  'FMB보관실': 'proc_fmb',
   '양식 고유번호:': 'form_variant_id',
   '조인트 고무 소재의 LOT 번호를 입력하세요.': 'joint_lot_hint',
   '년월일시분 (예 : 2507251330)': 'lot_format_hint',
@@ -1622,7 +1868,6 @@ export const STRING_TO_KEY_MAP = {
   '검사포장': 'proc_insp',
   '입력창 양식 고유번호': 'form_variant_badge',
   '소재 LOT 번호 입력': 'step4_1_lot',
-  '생산실적 (': 'sec_prod_results',
   '생산실적 및 폐기 불량현황 입력': 'sec_prod_results',
   '생산실적 및 불량 현황': 'sec_prod_results',
   '비가동 시간 & 원터치 특이사항 작성': 'step6_downtime',
@@ -1636,8 +1881,12 @@ export const STRING_TO_KEY_MAP = {
   '구분': 'th_category',
   '구 분': 'th_category',
   '구 분(Division)': 'th_category',
+  '구분 (Division)': 'th_category',
+  '구분(Division)': 'th_category',
   '구분 (FRT)': 'th_category',
   '구분 (RR)': 'th_category',
+  '구 분 (FRT)': 'th_category',
+  '구 분 (RR)': 'th_category',
   '위치': 'th_position',
   '스펙': 'th_spec',
   '스펙(mm)': 'th_spec',
@@ -1733,10 +1982,13 @@ export const STRING_TO_KEY_MAP = {
   '출근': 'leader_present',
   '결근': 'leader_absent',
   '연차': 'leader_annual_leave',
+  '연차:': 'leader_annual_leave',
   '연차 :': 'leader_annual_leave',
   '병가': 'leader_sick_leave',
+  '병가:': 'leader_sick_leave',
   '병가 :': 'leader_sick_leave',
   '반차': 'leader_half_leave',
+  '반차:': 'leader_half_leave',
   '반차 :': 'leader_half_leave',
   '근태 사유:': 'leader_att_reason',
   '근태 사유': 'leader_att_reason',
@@ -1785,7 +2037,7 @@ export const STRING_TO_KEY_MAP = {
   '일보 작성': 'quick_report',
   '선택 항목 일괄 승인': 'btn_bulk_approve',
   '선택 항목 일괄 삭제': 'btn_bulk_delete',
-  '임시저장': 'status_pending',
+  '임시저장': 'status_draft',
   '승인 대기': 'status_pending',
   '승인 완료': 'status_approved',
   '반려': 'status_rejected',
@@ -1794,6 +2046,7 @@ export const STRING_TO_KEY_MAP = {
   '비가동/점검': 'status_maintenance',
   '수정': 'btn_edit',
   '삭제': 'btn_delete',
+  '취소': 'btn_cancel',
   '이어서 작성': 'draft_continue',
   '작업일보 중간 저장': 'btn_draft_save',
   '작업일보 등록 완료': 'btn_final_submit',
@@ -1823,22 +2076,118 @@ export const STRING_TO_KEY_MAP = {
   '특이사항 / 작업 메모': 'form_remarks'
 };
 
+// Merge PHRASE_TUPLES into TRANSLATIONS & STRING_TO_KEY_MAP
+PHRASE_TUPLES.forEach(([kr, en, th, vi], idx) => {
+  const existingKey = STRING_TO_KEY_MAP[kr];
+  const key = existingKey || `_p${idx}`;
+  if (!existingKey) {
+    TRANSLATIONS.ko[key] = kr;
+    TRANSLATIONS.en[key] = en;
+    TRANSLATIONS.th[key] = th;
+    TRANSLATIONS.vi[key] = vi;
+    STRING_TO_KEY_MAP[kr] = key;
+  } else {
+    if (!TRANSLATIONS.ko[key]) TRANSLATIONS.ko[key] = kr;
+    if (!TRANSLATIONS.en[key]) TRANSLATIONS.en[key] = en;
+    if (!TRANSLATIONS.th[key]) TRANSLATIONS.th[key] = th;
+    if (!TRANSLATIONS.vi[key]) TRANSLATIONS.vi[key] = vi;
+  }
+});
+
+function collapseHangulSpaces(str) {
+  return str.replace(/\s+/g, ' ').replace(/([가-힣])\s+(?=[가-힣])/g, '$1');
+}
+
+const COLLAPSED_STRING_TO_KEY_MAP = {};
+Object.entries(STRING_TO_KEY_MAP).forEach(([kr, key]) => {
+  const c = collapseHangulSpaces(kr.trim());
+  if (!COLLAPSED_STRING_TO_KEY_MAP[c]) {
+    COLLAPSED_STRING_TO_KEY_MAP[c] = key;
+  }
+});
+
+// Pre-sorted multi-character phrases (>= 2 chars) for safe bounded replacement
+const SORTED_PHRASE_KEYS = Object.keys(STRING_TO_KEY_MAP)
+  .filter(k => k.length >= 2 && /[가-힣]/.test(k))
+  .sort((a, b) => b.length - a.length);
+
+function isHangulCode(c) {
+  return (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0x3131 && c <= 0x318E);
+}
+
+/**
+ * Replaces `phrase` with `replacement` inside `text` ONLY when Hangul syllable
+ * boundaries are respected (prevents corrupting words like '초과', '오상민', '제품명').
+ */
+function replaceBoundedPhrase(text, phrase, replacement) {
+  let idx = text.indexOf(phrase);
+  if (idx === -1) return text;
+  const pLen = phrase.length;
+  const startsHangul = isHangulCode(phrase.charCodeAt(0));
+  const endsHangul = isHangulCode(phrase.charCodeAt(pLen - 1));
+
+  let result = '';
+  let lastIdx = 0;
+  while (idx !== -1) {
+    const prevOk = !startsHangul || idx === 0 || !isHangulCode(text.charCodeAt(idx - 1));
+    const nextOk = !endsHangul || (idx + pLen >= text.length) || !isHangulCode(text.charCodeAt(idx + pLen));
+    if (prevOk && nextOk) {
+      result += text.slice(lastIdx, idx) + replacement;
+      lastIdx = idx + pLen;
+      idx = text.indexOf(phrase, lastIdx);
+    } else {
+      idx = text.indexOf(phrase, idx + 1);
+    }
+  }
+  if (lastIdx === 0) return text;
+  return result + text.slice(lastIdx);
+}
+
+function isWorkerOptionElement(elem) {
+  if (!elem || elem.tagName !== 'OPTION') return false;
+  const val = elem.getAttribute('value');
+  if (!val) return false; // empty value placeholder like '작업자 선택' should be translated
+  const sel = elem.parentElement;
+  if (!sel || sel.tagName !== 'SELECT') return false;
+  const id = sel.id || '';
+  return (
+    id === 'workerSelect' ||
+    id.startsWith('insp_worker') ||
+    sel.classList.contains('worker-select')
+  );
+}
+
 class I18nManager {
   constructor() {
-    this.currentLang = typeof localStorage !== 'undefined' ? (localStorage.getItem('mes_lang') || 'ko') : 'ko';
+    const saved = typeof localStorage !== 'undefined'
+      ? (localStorage.getItem('mfg_lang_v12') || localStorage.getItem('mes_lang') || 'ko')
+      : 'ko';
+    this.currentLang = TRANSLATIONS[saved] ? saved : 'ko';
+    this.origTextMap = new WeakMap();
+    this.origPlaceholderMap = new WeakMap();
+    this.origTitleMap = new WeakMap();
+    this.autoValuedOptions = new WeakSet();
+    this._observer = null;
+  }
+
+  registerObserver(obs) {
+    this._observer = obs;
   }
 
   getLang() {
     return this.currentLang;
   }
 
-  setLang(lang) {
+  setLang(lang, applyNow = false) {
     if (TRANSLATIONS[lang]) {
       this.currentLang = lang;
       if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('mfg_lang_v12', lang);
         localStorage.setItem('mes_lang', lang);
       }
-      this.applyTranslations();
+      if (applyNow) {
+        this.applyTranslations();
+      }
       return true;
     }
     return false;
@@ -1849,111 +2198,360 @@ class I18nManager {
     return langDict[key] || TRANSLATIONS['ko'][key] || fallback || key;
   }
 
-  applyTranslations(container = document) {
+  /**
+   * Pure string translator for dynamic UI labels (status, processName, criteria, etc.).
+   * Does not mutate data; returns original string when currentLang === 'ko'.
+   */
+  translateDisplay(rawStr) {
+    if (rawStr === null || rawStr === undefined) return '';
+    const str = String(rawStr);
+    if (this.currentLang === 'ko' || !str.trim()) return str;
+    return this.translateString(str);
+  }
+
+  translateString(rawText) {
+    if (!rawText || this.currentLang === 'ko') return rawText;
+    const trimmed = rawText.trim();
+    if (!trimmed) return rawText;
+
+    const leadMatch = rawText.match(/^\s*/);
+    const trailMatch = rawText.match(/\s*$/);
+    const leading = leadMatch ? leadMatch[0] : '';
+    const trailing = trailMatch ? trailMatch[0] : '';
+
+    // 1. Direct match
+    if (STRING_TO_KEY_MAP[trimmed]) {
+      return leading + this.t(STRING_TO_KEY_MAP[trimmed]) + trailing;
+    }
+
+    // 2. Normalized space match
+    const normalized = trimmed.replace(/\s+/g, ' ');
+    if (STRING_TO_KEY_MAP[normalized]) {
+      return leading + this.t(STRING_TO_KEY_MAP[normalized]) + trailing;
+    }
+
+    // 3. Collapsed Hangul inter-character space match (e.g. '스 코 치' -> '스코치')
+    const collapsed = collapseHangulSpaces(normalized);
+    if (COLLAPSED_STRING_TO_KEY_MAP[collapsed]) {
+      return leading + this.t(COLLAPSED_STRING_TO_KEY_MAP[collapsed]) + trailing;
+    }
+
+    // Fast exit if there is no Korean Hangul in the string
+    if (!/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(trimmed)) {
+      return rawText;
+    }
+
+    // 4. Structured dynamic patterns (dates, step counters, units, etc.)
+    for (let i = 0; i < DYNAMIC_PATTERNS.length; i++) {
+      const pat = DYNAMIC_PATTERNS[i];
+      const m = normalized.match(pat.regex);
+      if (m) {
+        return leading + pat.format(m, this.currentLang, (sub) => this.translateString(sub)) + trailing;
+      }
+    }
+
+    // 5. Safe bounded phrase replacement (never splits Hangul words or worker names)
+    let work = rawText;
+    for (let i = 0; i < SORTED_PHRASE_KEYS.length; i++) {
+      const krStr = SORTED_PHRASE_KEYS[i];
+      if (!work.includes(krStr)) continue;
+      const translated = this.t(STRING_TO_KEY_MAP[krStr]);
+      if (!translated || translated === krStr || /[가-힣]/.test(translated)) continue;
+      work = replaceBoundedPhrase(work, krStr, translated);
+      if (!/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(work)) break;
+    }
+
+    // 6. Safe inline unit & part-code token replacement (e.g. "1호기", "3호", "V부(L/R)", "150분")
+    if (/[가-힣]/.test(work)) {
+      work = this._replaceInlineTokens(work);
+    }
+    return work;
+  }
+
+  _replaceInlineTokens(str) {
+    const L = this.currentLang;
+    let out = str;
+    // "1호기" -> Unit #1 / เครื่อง #1 / Máy #1
+    out = out.replace(/(\d+)\s*호기(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `Unit #${n}` : L === 'th' ? `เครื่อง #${n}` : `Máy #${n}`
+    );
+    // "3호" -> #3 / เครื่อง 3 / Số 3
+    out = out.replace(/(\d+)\s*호(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `#${n}` : L === 'th' ? `เครื่อง ${n}` : `Số ${n}`
+    );
+    // "V부(L/R)", "Q부", "S부/R부" -> V-Part(L/R) / จุด V(L/R) / Vị trí V(L/R)
+    out = out.replace(/\b([A-Z])부(?![가-힣])/g, (_, ch) =>
+      L === 'en' ? `${ch}-Part` : L === 'th' ? `จุด ${ch}` : `Vị trí ${ch}`
+    );
+    // Numeric counters & time units when preceded by digits and not followed by Hangul
+    out = out.replace(/(\d+)\s*개사(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `${n} makers` : L === 'th' ? `${n} บริษัท` : `${n} hãng`
+    );
+    out = out.replace(/(\d+)\s*차종(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `${n} models` : L === 'th' ? `${n} รุ่น` : `${n} dòng xe`
+    );
+    out = out.replace(/(\d+)\s*대(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `${n} units` : L === 'th' ? `${n} เครื่อง` : `${n} máy`
+    );
+    out = out.replace(/(\d+)\s*건(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `${n} cases` : L === 'th' ? `${n} รายการ` : `${n} mục`
+    );
+    out = out.replace(/(\d+)\s*명(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `${n} staff` : L === 'th' ? `${n} คน` : `${n} người`
+    );
+    out = out.replace(/(\d+)\s*개(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `${n} pcs` : L === 'th' ? `${n} รายการ` : `${n} mục`
+    );
+    out = out.replace(/(\d{1,2})\s*월(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `M${n}` : L === 'th' ? `เดือน ${n}` : `Tháng ${n}`
+    );
+    out = out.replace(/(\d{1,2})\s*일(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `D${n}` : L === 'th' ? `วันที่ ${n}` : `Ngày ${n}`
+    );
+    out = out.replace(/(\d+)\s*분(?![가-힣])/g, (_, n) =>
+      L === 'en' ? `${n}m` : L === 'th' ? `${n} นาที` : `${n}p`
+    );
+    return out;
+  }
+
+  _applyDataI18nElement(elem) {
+    const key = elem.getAttribute('data-i18n');
+    if (!key) return;
+    const secNumSpan = elem.querySelector('.sec-num');
+    const translatedText = this.t(key);
+    if (secNumSpan) {
+      let textSpan = elem.querySelector('[data-i18n-label="1"]');
+      if (!textSpan) {
+        Array.from(elem.childNodes).forEach(ch => {
+          if (ch !== secNumSpan) elem.removeChild(ch);
+        });
+        const doc = elem.ownerDocument || document;
+        textSpan = doc.createElement('span');
+        textSpan.setAttribute('data-i18n-label', '1');
+        elem.appendChild(textSpan);
+      }
+      const nextLabel = ' ' + translatedText;
+      if (textSpan.textContent !== nextLabel) {
+        textSpan.textContent = nextLabel;
+      }
+    } else if (elem.textContent !== translatedText) {
+      elem.textContent = translatedText;
+    }
+  }
+
+  applyTranslations(container = typeof document !== 'undefined' ? document : null) {
     if (!container) return;
 
     // 1. Explicit data-i18n attributes
-    const elements = container.querySelectorAll('[data-i18n]');
-    elements.forEach(elem => {
-      const key = elem.getAttribute('data-i18n');
-      if (key) {
-        const secNumSpan = elem.querySelector('.sec-num');
-        const translatedText = this.t(key);
-        if (secNumSpan) {
-          const currentNum = secNumSpan.textContent;
-          elem.innerHTML = '';
-          const newSpan = document.createElement('span');
-          newSpan.className = 'sec-num';
-          newSpan.textContent = currentNum;
-          elem.appendChild(newSpan);
-          
-          const textSpan = document.createElement('span');
-          textSpan.innerHTML = ' ' + translatedText;
-          elem.appendChild(textSpan);
-        } else {
-          elem.innerHTML = translatedText;
+    if (container.nodeType === 1 && container.hasAttribute('data-i18n')) {
+      this._applyDataI18nElement(container);
+    }
+    if (container.querySelectorAll) {
+      const elements = container.querySelectorAll('[data-i18n]');
+      elements.forEach(elem => this._applyDataI18nElement(elem));
+
+      // 2. Explicit data-i18n-placeholder attributes
+      const placeholderElements = container.querySelectorAll('[data-i18n-placeholder]');
+      placeholderElements.forEach(elem => {
+        const key = elem.getAttribute('data-i18n-placeholder');
+        if (key) {
+          const nextPh = this.t(key, elem.getAttribute('placeholder') || '');
+          if (elem.getAttribute('placeholder') !== nextPh) {
+            elem.setAttribute('placeholder', nextPh);
+          }
         }
-      }
-    });
-
-    // 2. Explicit data-i18n-placeholder attributes
-    const placeholderElements = container.querySelectorAll('[data-i18n-placeholder]');
-    placeholderElements.forEach(elem => {
-      const key = elem.getAttribute('data-i18n-placeholder');
-      if (key) {
-        elem.setAttribute('placeholder', this.t(key, elem.getAttribute('placeholder') || ''));
-      }
-    });
-
-    // 3. Recursive auto-translation of text nodes throughout the DOM tree if non-Korean language is selected
-    if (this.currentLang !== 'ko') {
-      this.translateNode(container);
+      });
     }
 
+    // 3. Reversible recursive DOM text & attribute translation (restores Korean when lang === 'ko')
+    this.translateNode(container);
+
     // Update html lang attribute
-    document.documentElement.lang = this.currentLang;
+    if (typeof document !== 'undefined' && document.documentElement) {
+      document.documentElement.lang = this.currentLang;
+    }
+
+    // Flush self-caused mutation records so MutationObserver does not re-fire
+    if (this._observer) {
+      this._observer.takeRecords();
+    }
+  }
+
+  _translateAttr(elem, attrName, weakMap) {
+    if (!elem.hasAttribute(attrName)) return;
+    if (attrName === 'placeholder' && elem.hasAttribute('data-i18n-placeholder')) return;
+    const cur = elem.getAttribute(attrName) || '';
+    if (!cur.trim()) return;
+
+    const rec = weakMap.get(elem);
+    const orig = (rec && cur === rec.last) ? rec.orig : cur;
+
+    if (this.currentLang === 'ko') {
+      if (cur !== orig) elem.setAttribute(attrName, orig);
+      if (rec) weakMap.set(elem, { orig, last: orig });
+      return;
+    }
+
+    const next = this.translateString(orig);
+    if (next !== cur) {
+      elem.setAttribute(attrName, next);
+    }
+    if (next !== orig || rec) {
+      weakMap.set(elem, { orig, last: next });
+    }
+  }
+
+  _handleSplitBrHeaderCell(cell) {
+    // Handles vertical split headers such as '조인<br>트<br>불량' and '후가<br>공<br>불량'
+    const textNodes = [];
+    for (let i = 0; i < cell.childNodes.length; i++) {
+      const ch = cell.childNodes[i];
+      if (ch.nodeType === 3 && (ch.nodeValue.trim() || this.origTextMap.has(ch))) {
+        textNodes.push(ch);
+      } else if (ch.nodeType === 1 && ch.tagName !== 'BR' && ch.tagName !== 'WBR') {
+        return false;
+      }
+    }
+    if (textNodes.length < 2) return false;
+
+    const getOrig = (tn) => {
+      const r = this.origTextMap.get(tn);
+      return (r && tn.nodeValue === r.last) ? r.orig : tn.nodeValue;
+    };
+
+    const o0 = getOrig(textNodes[0]);
+    const o1 = getOrig(textNodes[1]);
+    const t0 = o0.trim();
+    const t1 = o1.trim();
+
+    let combinedKey = null;
+    if (t0 === '조인' && t1 === '트') combinedKey = 'proc_join';
+    else if (t0 === '후가' && t1 === '공') combinedKey = 'proc_post';
+    if (!combinedKey) return false;
+
+    if (this.currentLang === 'ko') {
+      textNodes.forEach(tn => {
+        const orig = getOrig(tn);
+        if (tn.nodeValue !== orig) tn.nodeValue = orig;
+        this.origTextMap.set(tn, { orig, last: orig });
+      });
+      return true;
+    }
+
+    const firstWord = this.t(combinedKey);
+    textNodes[0].nodeValue = firstWord;
+    this.origTextMap.set(textNodes[0], { orig: o0, last: firstWord });
+
+    textNodes[1].nodeValue = '';
+    this.origTextMap.set(textNodes[1], { orig: o1, last: '' });
+
+    for (let i = 2; i < textNodes.length; i++) {
+      this.translateNode(textNodes[i]);
+    }
+    return true;
   }
 
   translateNode(node) {
-    if (this.currentLang === 'ko') return;
+    if (!node) return;
 
     if (node.nodeType === 3) { // Node.TEXT_NODE
-      let rawText = node.nodeValue;
-      if (!rawText) return;
-      let trimmed = rawText.trim();
-      if (!trimmed) return;
+      const cur = node.nodeValue;
+      const rec = this.origTextMap.get(node);
+      if ((!cur || !cur.trim()) && !rec) return;
 
-      // Direct match
-      if (STRING_TO_KEY_MAP[trimmed]) {
-        const key = STRING_TO_KEY_MAP[trimmed];
-        const translated = this.t(key);
-        node.nodeValue = rawText.replace(trimmed, translated);
+      const orig = (rec && cur === rec.last) ? rec.orig : cur;
+
+      if (this.currentLang === 'ko') {
+        if (cur !== orig) {
+          node.nodeValue = orig;
+        }
+        if (rec) {
+          this.origTextMap.set(node, { orig, last: orig });
+        }
         return;
       }
 
-      // Normalized space match
-      let normalized = trimmed.replace(/\s+/g, ' ');
-      if (STRING_TO_KEY_MAP[normalized]) {
-        const key = STRING_TO_KEY_MAP[normalized];
-        const translated = this.t(key);
-        node.nodeValue = rawText.replace(trimmed, translated);
-        return;
+      const translated = this.translateString(orig);
+      if (translated !== cur) {
+        node.nodeValue = translated;
       }
+      if (translated !== orig || rec) {
+        this.origTextMap.set(node, { orig, last: translated });
+      }
+      return;
+    }
 
-      // Partial phrase replacements for Korean strings
-      if (/[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(trimmed)) {
-        let modified = false;
-        // Sort keys by length descending to match longer phrases first
-        const sortedKeys = Object.keys(STRING_TO_KEY_MAP).sort((a, b) => b.length - a.length);
-        for (const krStr of sortedKeys) {
-          if (krStr.length >= 1 && rawText.includes(krStr)) {
-            const key = STRING_TO_KEY_MAP[krStr];
-            const translated = this.t(key);
-            rawText = rawText.replaceAll(krStr, translated);
-            modified = true;
-          }
-        }
-        if (modified) {
-          node.nodeValue = rawText;
-        }
+    if (node.nodeType === 9 || node.nodeType === 11) { // Document or DocumentFragment
+      const children = node.childNodes;
+      for (let i = 0; i < children.length; i++) {
+        this.translateNode(children[i]);
       }
-    } else if (node.nodeType === 1) { // Node.ELEMENT_NODE
+      return;
+    }
+
+    if (node.nodeType === 1) { // Node.ELEMENT_NODE
       const tagName = node.tagName ? node.tagName.toLowerCase() : '';
-      if (tagName === 'script' || tagName === 'style' || tagName === 'textarea') {
+      if (
+        tagName === 'script' ||
+        tagName === 'style' ||
+        tagName === 'noscript' ||
+        tagName === 'code' ||
+        tagName === 'svg'
+      ) {
         return;
       }
 
-      if (tagName === 'input' && node.hasAttribute('placeholder')) {
-        const ph = node.getAttribute('placeholder').trim();
-        if (ph && STRING_TO_KEY_MAP[ph]) {
-          node.setAttribute('placeholder', this.t(STRING_TO_KEY_MAP[ph]));
+      // Skip language selector dropdown options so native language names remain clear
+      if (node.classList && node.classList.contains('lang-select')) {
+        return;
+      }
+
+      // Skip worker human name <option> entries
+      if (tagName === 'option') {
+        if (isWorkerOptionElement(node)) {
+          return;
+        }
+        // Preserve original Korean option value if an <option> lacks an explicit value attribute
+        if (!node.hasAttribute('value') && this.currentLang !== 'ko') {
+          node.setAttribute('value', (node.textContent || '').trim());
+          this.autoValuedOptions.add(node);
+        } else if (this.currentLang === 'ko' && this.autoValuedOptions.has(node)) {
+          node.removeAttribute('value');
+          this.autoValuedOptions.delete(node);
+        }
+      }
+
+      // Translate title tooltip if present
+      if (node.hasAttribute('title')) {
+        this._translateAttr(node, 'title', this.origTitleMap);
+      }
+
+      // Translate placeholder on <input> and <textarea>; never touch textarea value/children
+      if (tagName === 'input' || tagName === 'textarea') {
+        if (node.hasAttribute('placeholder')) {
+          this._translateAttr(node, 'placeholder', this.origPlaceholderMap);
         }
         return;
       }
 
-      // Traverse child nodes
-      const children = Array.from(node.childNodes);
-      children.forEach(child => this.translateNode(child));
+      // Skip elements already managed by explicit data-i18n
+      if (
+        node.hasAttribute('data-i18n') ||
+        node.hasAttribute('data-i18n-label') ||
+        (node.classList && node.classList.contains('sec-num'))
+      ) {
+        return;
+      }
+
+      // Special handling for split <br> vertical table headers
+      if ((tagName === 'td' || tagName === 'th') && this._handleSplitBrHeaderCell(node)) {
+        return;
+      }
+
+      const children = node.childNodes;
+      for (let i = 0; i < children.length; i++) {
+        this.translateNode(children[i]);
+      }
     }
   }
 }

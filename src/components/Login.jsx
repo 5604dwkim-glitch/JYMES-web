@@ -6,7 +6,7 @@ import { fetchWorkers } from '../services/firestore';
 
 export default function Login() {
   const { login } = useAuth();
-  const { t, lang, setLang } = useI18n();
+  const { t, td, lang, setLang } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -61,7 +61,7 @@ export default function Login() {
     if (role === 'worker') {
       const name = workerName.trim();
       if (!name) {
-        setError('작업자 성함 또는 사번을 입력해주세요.');
+        setError(td('작업자 성함 또는 사번을 입력해주세요.'));
         return;
       }
       
@@ -72,14 +72,14 @@ export default function Login() {
         const matched = workers.find(w => (w.name && String(w.name).toUpperCase().trim() === nameUpper) || (w.id && String(w.id).toUpperCase().trim() === nameUpper));
         
         if (!matched) {
-          setError('등록되지 않은 작업자/사번입니다.');
+          setError(td('등록되지 않은 작업자/사번입니다.'));
           setIsLoading(false);
           return;
         }
 
         const expectedPin = matched.pin || '0000';
         if (password !== expectedPin && password !== '1111') {
-          setError('비밀번호가 올바르지 않습니다.');
+          setError(t('toast_auth_failed'));
           setIsLoading(false);
           return;
         }
@@ -87,13 +87,13 @@ export default function Login() {
         login('worker', matched.name);
         navigate('/');
       } catch (e) {
-        setError('서버와 통신 중 오류가 발생했습니다.');
+        setError(td('서버와 통신 중 오류가 발생했습니다.'));
         setIsLoading(false);
         return;
       }
     } else {
       if (password !== '1111') {
-        setError('관리자 비밀번호가 올바르지 않습니다.');
+        setError(td('관리자 비밀번호가 올바르지 않습니다.'));
         return;
       }
       login('admin', '관리자');
@@ -105,8 +105,8 @@ export default function Login() {
     return (
       <div className="login-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#f8fafc' }}>
         <div style={{ width: '40px', height: '40px', border: '4px solid #cbd5e1', borderTop: '4px solid #2563eb', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <p style={{ marginTop: '20px', fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>QR 자동 로그인 처리 중...</p>
-        <p style={{ marginTop: '8px', fontSize: '14px', color: '#64748b' }}>네트워크 상태에 따라 1~3초 정도 소요될 수 있습니다.</p>
+        <p style={{ marginTop: '20px', fontSize: '18px', fontWeight: 'bold', color: '#1e293b' }}>{td('QR 자동 로그인 처리 중...')}</p>
+        <p style={{ marginTop: '8px', fontSize: '14px', color: '#64748b' }}>{td('네트워크 상태에 따라 1~3초 정도 소요될 수 있습니다.')}</p>
         <style>
           {`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}
         </style>
@@ -124,14 +124,14 @@ export default function Login() {
             </h3>
             <select 
               className="lang-select lang-select-sm"
+              translate="no"
               value={lang}
               onChange={(e) => setLang(e.target.value)}
             >
-              <option value="ko">🇰🇷 {t('lang_ko') || '한국어'}</option>
-              <option value="en">🇺🇸 {t('lang_en') || 'English'}</option>
-              <option value="th">🇹🇭 {t('lang_th') || 'ภาษาไทย'}</option>
-              <option value="tl">🇵🇭 {t('lang_tl') || 'Tagalog'}</option>
-              <option value="vi">🇻🇳 {t('lang_vi') || 'Tiếng Việt'}</option>
+              <option value="ko">🇰🇷 한국어</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="th">🇹🇭 ภาษาไทย</option>
+              <option value="vi">🇻🇳 Tiếng Việt</option>
             </select>
           </div>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>

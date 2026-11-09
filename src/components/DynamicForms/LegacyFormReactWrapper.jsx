@@ -6,19 +6,32 @@ import { useNavigate } from 'react-router-dom';
 import { addReport, updateReport, fetchWorkers, fetchMolds, fetchEquipments } from '../../services/firestore';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { useI18n } from '../../contexts/I18nContext';
+import { i18n } from '../../constants/translations';
 import FormCodeBadge from './FormCodeBadge';
+import JointTpmGateCard from './JointTpmGateCard';
+import JointTpmCheckModal from './JointTpmCheckModal';
 
-export default function LegacyFormReactWrapper({ existingData }) {
+export default function LegacyFormReactWrapper({ existingData, initialTpmSummary = null }) {
   const containerRef = useRef(null);
   const { userRole } = useAuth();
-  const { lang } = useI18n();
+  const { lang, td } = useI18n();
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = useState('');
   const [isReady, setIsReady] = useState(false);
-  
+
   // Step 1: Hybrid State to bridge Vanilla JS and React JSX
   const [formSelections, setFormSelections] = useState({ carModel: '', part: '', process: '' });
   const [badgeContainerElement, setBadgeContainerElement] = useState(null);
+  const [tpmGateContainerElement, setTpmGateContainerElement] = useState(null);
+
+  // 조인트 공정 가동 전 설비 셋트 TPM 점검 상태
+  const [tpmSummary, setTpmSummary] = useState(() => existingData?.tpmCheckSummary || initialTpmSummary || null);
+  const [tpmSkipped, setTpmSkipped] = useState(false);
+  const tpmSummaryRef = useRef(tpmSummary);
+  tpmSummaryRef.current = tpmSummary;
+
+  const [showTpmModal, setShowTpmModal] = useState(false);
+  const [modalMeta, setModalMeta] = useState({ reportDate: '', workerName: '' });
 
   useEffect(() => {
     setIsReady(false);
@@ -28,13 +41,12 @@ export default function LegacyFormReactWrapper({ existingData }) {
         if (!workers || workers.length === 0) {
           workers = generate50Workers();
         }
-        
-        // [개선①②] 캐시된 함수 사용 — 이미 읽어온 적 있으면 Firestore 호출 없음
+
         const [equipments, molds] = await Promise.all([
           fetchEquipments(),
           fetchMolds()
         ]);
-        
+
         setLegacyFormContext({
           userRoleInfo: userRole,
           existingData: existingData,
@@ -47,19 +59,22 @@ export default function LegacyFormReactWrapper({ existingData }) {
           },
           onSave: async (id, data) => {
             try {
+              const payload = tpmSummaryRef.current
+                ? { ...data, tpmCheckSummary: tpmSummaryRef.current }
+                : data;
               if (id) {
-                await updateReport(id, data);
+                await updateReport(id, payload);
               } else {
-                await addReport(data);
+                await addReport(payload);
               }
-              alert(`작업일보가 저장되었습니다.`);
-              if (data.status === '임시저장') {
+              alert(payload.status === '임시저장' ? i18n.t('toast_saved_draft') : i18n.t('toast_submitted'));
+              if (payload.status === '임시저장') {
                 navigate('/drafts');
               } else {
                 navigate('/reports');
               }
             } catch (error) {
-              alert('저장 중 오류 발생: ' + error.message);
+              alert(i18n.translateDisplay('저장 중 오류 발생:') + ' ' + error.message);
             }
           },
           onNavigate: (tab) => {
@@ -78,7 +93,7 @@ export default function LegacyFormReactWrapper({ existingData }) {
         setIsReady(true);
       } catch (e) {
         console.error('Legacy Form Init Error:', e);
-        setErrorMsg(e.toString() + '\\n' + e.stack);
+        setErrorMsg(e.toString() + '\n' + e.stack);
       }
     }
     initForm();
@@ -89,53 +104,143 @@ export default function LegacyFormReactWrapper({ existingData }) {
       containerRef.current.innerHTML = '';
       try {
         renderReportForm(containerRef.current, existingData?.id || null);
-        
-        // Find the placeholder container for the badge portal
+
+        // Find the placeholder containers for React portals
         setTimeout(() => {
+          if (!containerRef.current) return;
           const badgeEl = containerRef.current.querySelector('#formCodeBadgeContainer');
           if (badgeEl) setBadgeContainerElement(badgeEl);
+          const tpmGateEl = containerRef.current.querySelector('#jointTpmGateContainer');
+          if (tpmGateEl) setTpmGateContainerElement(tpmGateEl);
         }, 50);
       } catch (e) {
         console.error('Legacy Form Render Error:', e);
-        setErrorMsg(e.toString() + '\\n' + e.stack);
+        setErrorMsg(e.toString() + '\n' + e.stack);
       }
     }
-    
+
     return () => {
       const BAR_IDS = ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'];
       BAR_IDS.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       });
-      
+
       // Clean up any stray vanilla modals
       ['wheelNumberPickerModal', 'wheelListPickerModal', 'wheelTimePickerModal', 'wheelLotDatePickerModal'].forEach(id => {
         const modal = document.getElementById(id);
         if (modal) modal.remove();
       });
     };
-  }, [isReady, existingData, lang]);
+  }, [isReady, existingData]);
+
+  // Apply reversible in-place DOM translations on language switch without wiping unsaved form state
+  useEffect(() => {
+    if (isReady && containerRef.current) {
+      i18n.setLang(lang, false);
+      i18n.applyTranslations(containerRef.current);
+      ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) i18n.applyTranslations(el);
+      });
+    }
+  }, [isReady, lang]);
+
+  const isJointProcess = typeof formSelections.process === 'string' && formSelections.process.startsWith('조인트');
+  const isJointTpmLocked = isJointProcess && !existingData && !tpmSummary && !tpmSkipped;
+
+  const scrollToNextReportStep = () => {
+    setTimeout(() => {
+      const sec4 = containerRef.current?.querySelector('#section4Card');
+      const sec5 = containerRef.current?.querySelector('#section5DynamicContainer');
+      const targetEl = sec4 && sec4.style.display !== 'none' ? sec4 : sec5;
+      if (targetEl && typeof targetEl.scrollIntoView === 'function') {
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 80);
+  };
+
+  const handleOpenTpmModal = () => {
+    const curDate = containerRef.current?.querySelector('#reportDate')?.value || new Date().toLocaleDateString('sv-SE');
+    const curWorker = containerRef.current?.querySelector('#workerSelect')?.value || userRole?.workerName || '';
+    setModalMeta({ reportDate: curDate, workerName: curWorker });
+    setShowTpmModal(true);
+  };
+
+  const handleSkipTpm = () => {
+    setTpmSkipped(true);
+    setShowTpmModal(false);
+    scrollToNextReportStep();
+  };
+
+  const handleTpmComplete = (summary) => {
+    setTpmSummary(summary);
+    setTpmSkipped(false);
+    setShowTpmModal(false);
+    scrollToNextReportStep();
+  };
 
   return (
     <div>
+      {isJointTpmLocked && (
+        <style>{`
+          .legacy-form-container[data-joint-tpm-locked="1"] #section4Card,
+          .legacy-form-container[data-joint-tpm-locked="1"] #section5DynamicContainer,
+          .legacy-form-container[data-joint-tpm-locked="1"] #qtySection,
+          .legacy-form-container[data-joint-tpm-locked="1"] #downtimeCard {
+            display: none !important;
+          }
+          #standardFixedActionBar {
+            display: none !important;
+          }
+        `}</style>
+      )}
+
       {errorMsg && (
         <div style={{ padding: '20px', color: 'red', border: '1px solid red', background: '#ffe6e6', whiteSpace: 'pre-wrap' }}>
           <h3>렌더링 에러가 발생했습니다:</h3>
           {errorMsg}
         </div>
       )}
-      {!isReady && !errorMsg && <div style={{ padding: '40px', textAlign: 'center' }}>로딩 중...</div>}
-      
-      <div ref={containerRef} className="legacy-form-container" style={{ display: isReady ? 'block' : 'none' }}></div>
+      {!isReady && !errorMsg && <div style={{ padding: '40px', textAlign: 'center' }}>{td('로딩 중...')}</div>}
 
-      {/* Step 2: Render React component into Vanilla JS DOM via Portal */}
+      <div
+        ref={containerRef}
+        className="legacy-form-container"
+        data-joint-tpm-locked={isJointTpmLocked ? '1' : undefined}
+        style={{ display: isReady ? 'block' : 'none' }}
+      ></div>
+
+      {/* Step 2: Render React components into Vanilla JS DOM via Portal */}
       {badgeContainerElement && createPortal(
-        <FormCodeBadge 
-          carModel={formSelections.carModel} 
-          part={formSelections.part} 
-          process={formSelections.process} 
+        <FormCodeBadge
+          carModel={formSelections.carModel}
+          part={formSelections.part}
+          process={formSelections.process}
         />,
         badgeContainerElement
+      )}
+
+      {tpmGateContainerElement && createPortal(
+        <JointTpmGateCard
+          isJointProcess={isJointProcess}
+          tpmSummary={tpmSummary}
+          tpmSkipped={tpmSkipped}
+          isLocked={isJointTpmLocked}
+          onOpenTpmModal={handleOpenTpmModal}
+          onSkipTpm={handleSkipTpm}
+        />,
+        tpmGateContainerElement
+      )}
+
+      {showTpmModal && (
+        <JointTpmCheckModal
+          reportDate={modalMeta.reportDate}
+          workerName={modalMeta.workerName}
+          onClose={() => setShowTpmModal(false)}
+          onSkip={handleSkipTpm}
+          onComplete={handleTpmComplete}
+        />
       )}
     </div>
   );

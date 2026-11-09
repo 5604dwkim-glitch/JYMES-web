@@ -1,6 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { DEFAULT_LEADER_ITEMS, DEFAULT_ATTENDANCE, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
+import { buildFmbDetailHTML } from './forms/f9004/f9004Renderer.js';
+import { useI18n } from '../../contexts/I18nContext';
+import { i18n } from '../../constants/translations';
 
 export function printIsolatedReport(element, title = '공정작업일보') {
   if (!element) return;
@@ -269,6 +272,7 @@ export function printIsolatedReport(element, title = '공정작업일보') {
 
 export default function LegacyDetailModal({ report, onClose }) {
   const modalBodyRef = useRef(null);
+  const { lang, td } = useI18n();
 
   useEffect(() => {
     if (!report || !modalBodyRef.current) return;
@@ -588,6 +592,10 @@ export default function LegacyDetailModal({ report, onClose }) {
           </div>
         `;
       } else {
+        if (r.isFmbForm || r.formCode === 9004 || r.processName === 'FMB보관실') {
+          modalBodyRef.current.innerHTML = buildFmbDetailHTML(r);
+          return;
+        }
         const cardDateTime = `
           <div class="card" style="padding: 3px 6px; margin-bottom: 3px; border: 1px solid #94a3b8; background: #fff;">
             <label style="font-size: 14px; font-weight: 700; color: #0284c7; margin-bottom: 2px; display: block;">
@@ -672,9 +680,14 @@ export default function LegacyDetailModal({ report, onClose }) {
             span.style.padding = '0 2px';
             
             if (input.tagName === 'SELECT') {
-               span.textContent = input.options[input.selectedIndex]?.text || '';
+               span.textContent = (input.dataset.emptyBlank === '1' && !input.value) ? '' : (input.options[input.selectedIndex]?.text || '');
             } else if (input.type === 'checkbox' || input.type === 'radio') {
-               span.textContent = input.checked ? '[O]' : '[X]';
+               if (input.dataset.checkSymbol === '1') {
+                 span.style.fontSize = '12px';
+                 span.textContent = input.checked ? '☑' : '☐';
+               } else {
+                 span.textContent = input.checked ? '[O]' : '[X]';
+               }
             } else {
                span.textContent = input.value || '';
             }
@@ -774,11 +787,13 @@ export default function LegacyDetailModal({ report, onClose }) {
         el.textContent = currentSecIdx + '.';
         currentSecIdx++;
       });
+      i18n.setLang(lang, false);
+      i18n.applyTranslations(modalBodyRef.current);
     } catch (err) {
       alert("상세보기 오류: " + err.message);
       console.error(err);
     }
-  }, [report]);
+  }, [report, lang]);
 
   if (!report) return null;
 
@@ -786,7 +801,7 @@ export default function LegacyDetailModal({ report, onClose }) {
     <div className="modal-backdrop active" onClick={onClose}>
       <div className="modal-content" style={{ maxWidth: '820px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header" style={{ flexShrink: 0 }}>
-          <div className="modal-title">📄 공정 작업일보 상세 정보</div>
+          <div className="modal-title">📄 {td('공정 작업일보 상세 정보')}</div>
           <button className="modal-close" onClick={onClose}>&times;</button>
         </div>
         <div className="modal-body" ref={modalBodyRef} style={{ overflowY: 'auto', flex: 1 }}>
@@ -795,11 +810,11 @@ export default function LegacyDetailModal({ report, onClose }) {
         <div className="modal-footer" style={{ flexShrink: 0 }}>
           <button className="btn btn-secondary" onClick={() => {
             const printSheet = modalBodyRef.current.querySelector('.print-report-sheet');
-            printIsolatedReport(printSheet, '공정작업일보');
+            printIsolatedReport(printSheet, td('공정작업일보'));
           }}>
-            <span>🖨️</span> 인쇄 / PDF 출력
+            <span>🖨️</span> {td('인쇄 / PDF 출력')}
           </button>
-          <button className="btn btn-primary" onClick={onClose}>닫기</button>
+          <button className="btn btn-primary" onClick={onClose}>{td('닫기')}</button>
         </div>
       </div>
     </div>

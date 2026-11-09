@@ -2,227 +2,590 @@
 <!-- ERRORS: none -->
 <!-- [section4LotTable] -->
 <div id="section4Card" style="display: block;"><div id="section4LotTableContainer">
-          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+        <div class="f5007-lot-wrap" data-form-code="5007" style="width: 100%; overflow-x: hidden;">
+          <style>
+            .f5007-lot-wrap[data-form-code="5007"] textarea.lot-datetime-input {
+              font-size: 11px !important;
+              min-width: 0;
+              box-sizing: border-box;
+            }
+          </style>
+          <table data-form-code="5007" style="width: 100%; table-layout: fixed; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <colgroup>
+              <col style="width: 22%;">
+              <col style="width: 26%;">
+              <col style="width: 26%;">
+              <col style="width: 26%;">
+            </colgroup>
             <thead>
-              <tr style="background: #fffde7; font-weight: 700;">
-                <th rowspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 22%; vertical-align: middle; background: #fffde7;">
-                  구 분(Division)
-                </th>
-                <th colspan="3" style="border: 1px solid #000; padding: 8px 4px; font-size: 13px; color: #000; width: 39%;">
-                  FRT
-                </th>
-                <th colspan="3" style="border: 1px solid #000; padding: 8px 4px; font-size: 13px; color: #000; width: 39%;">
-                  RR
+              <tr>
+                <th colspan="4" style="border: 1px solid #000; padding: 7px 4px; background: #ffffff; color: #000; vertical-align: middle; line-height: 1.45;">
+                  <div style="font-size: 13px; font-weight: 700; margin-bottom: 2px;">압출소재 LOT NO.</div>
+                  <div style="font-size: 11px; font-weight: 700;">기록(Record) : 년(Y).월(M).일(D)/시(h):분(m)</div>
                 </th>
               </tr>
-              <tr style="background: #fffde7;">
-                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 13%;">초물</th>
-                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 13%;">중물</th>
-                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 13%;">종물</th>
-                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 13%;">초물</th>
-                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 13%;">중물</th>
-                <th style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; width: 13%;">종물</th>
+              <tr>
+                <th style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;"></th>
+                <th scope="col" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">초</th>
+                <th scope="col" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">중</th>
+                <th scope="col" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">종</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">
-                  LH
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_FRT_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 8px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle; white-space: nowrap;">D/V L H</th>
+                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                  <textarea id="f5007_DV_LH_초물" data-form-code="5007" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_FRT_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                  <textarea id="f5007_DV_LH_중물" data-form-code="5007" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_FRT_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
-시분"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_RR_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
-시분"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_RR_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
-시분"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_RR_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                  <textarea id="f5007_DV_LH_종물" data-form-code="5007" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
               </tr>
               <tr>
-                <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">
-                  RH
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_FRT_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 8px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle; white-space: nowrap;">D/V R H</th>
+                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                  <textarea id="f5007_DV_RH_초물" data-form-code="5007" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_FRT_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                  <textarea id="f5007_DV_RH_중물" data-form-code="5007" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_FRT_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                  <textarea id="f5007_DV_RH_종물" data-form-code="5007" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_RR_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
-시분"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_RR_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
-시분"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_RR_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
-시분"></textarea>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div></div>
-<!-- [section5] -->
-<div id="section5DynamicContainer"></div>
-<!-- [qtySection] -->
-<div id="qtySection">
-      <div class="card" style="padding: 16px; margin-bottom: 16px;">
-        <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
-          📊 <span class="sec-num"></span> 생산실적 및 불량 현황
-        </label>
-
-        <input type="hidden" id="targetQty" value="0">
-        <input type="hidden" id="actualQty" value="0">
-        <input type="hidden" id="defectQty" value="0">
-
-        <div style="overflow-x: auto;">
-          <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-            <thead>
-              <tr style="background: #fffde7; font-weight: 700;">
-                <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
-                  구 분(Division)
-                </th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">FRT LH</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">FRT RH</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">RR LH</th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 19%;">RR RH</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- 1. 생산량(Q,TY) -->
-              <tr>
-                <td rowspan="2" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle; width: 12%;">
-                  생산량(Q,TY)
-                </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
-                  계획
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  실적
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-
-              <!-- 2. 압출소재불량(Extrusion Badness) -->
-              <tr>
-                <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  압출소재불량<br>(Extrusion Badness)
-                </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  스코치(Scortch)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  외면흠 (Scratch)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  후로킹 (Flock,g)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  오염 (Contamination)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-
-              <!-- 3. 공정간불량(Process Badness) -->
-              <tr>
-                <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">
-                  공정간불량<br>(Process Badness)
-                </td>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  길이 (Length)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  컷팅 (Cutting)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
-                  기타 (The others)
-                </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_oth_RR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
-              </tr>
-
-              <!-- 4. 불량합계(Total) -->
-              <tr style="background: #fffde7; font-weight: 700;">
-                <td colspan="2" style="border: 1px solid #000; padding: 8px; color: var(--accent-rose);">
-                  불량합계(Total)
-                </td>
-                <td id="def_sum_FL" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
-                <td id="def_sum_FR" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
-                <td id="def_sum_RL" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
-                <td id="def_sum_RR" style="border: 1px solid #000; padding: 6px; color: var(--accent-rose);">0</td>
               </tr>
             </tbody>
           </table>
         </div>
+        </div></div>
+<!-- [section5] -->
+<div id="section5DynamicContainer"></div>
+<!-- [qtySection] -->
+<div id="qtySection" data-f5007-bound="1">
+        <div class="card f5007-qty-card" data-form-code="5007" style="padding: 14px 10px; margin-bottom: 16px;">
+          <style>
+            .f5007-qty-card[data-form-code="5007"] input[type="number"]::-webkit-outer-spin-button,
+            .f5007-qty-card[data-form-code="5007"] input[type="number"]::-webkit-inner-spin-button {
+              -webkit-appearance: none;
+              margin: 0;
+            }
+            .f5007-qty-card[data-form-code="5007"] input[type="number"] {
+              -moz-appearance: textfield;
+              appearance: textfield;
+              min-width: 0;
+              font-size: 11px !important;
+            }
+            .f5007-qty-card[data-form-code="5007"] .f5007-etc-note-input {
+              width: 34px;
+              height: 18px;
+              border: none;
+              text-align: center;
+              font-size: 9.5px !important;
+              font-weight: 700;
+              color: #000;
+              padding: 0 1px;
+              background: transparent;
+              outline: none;
+            }
+            .f5007-qty-card[data-form-code="5007"] .f5007-etc-note-input:focus {
+              border-bottom: 1px solid #2563eb;
+              background: #eff6ff;
+            }
+          </style>
+          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; padding: 0 4px; display: block;">
+            📊 <span class="sec-num"></span> 생산실적 및 불량 현황
+          </label>
+          <input type="hidden" id="targetQty" value="4800">
+          <input type="hidden" id="actualQty" value="0">
+          <input type="hidden" id="defectQty" value="0">
+          <div style="width: 100%; overflow-x: hidden;">
+            <table data-form-code="5007" style="width: 100%; table-layout: fixed; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <colgroup>
+                <col style="width: 9.5%;">
+                <col style="width: 22.5%;">
+                <col style="width: 17%;">
+                <col style="width: 17%;">
+                <col style="width: 17%;">
+                <col style="width: 17%;">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th colspan="2" rowspan="2" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">구 분</th>
+                  <th colspan="2" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">LH</th>
+                  <th colspan="2" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">RH</th>
+                </tr>
+                <tr>
+                  <th scope="col" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">D/V</th>
+                  <th scope="col" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">RR가공</th>
+                  <th scope="col" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">D/V</th>
+                  <th scope="col" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">RR가공</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="rowgroup" rowspan="4" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; line-height: 1.25; vertical-align: middle;">제품<br>수량</th>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10.5px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">계 획</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_plan" data-form-code="5007" data-save-group="qtyTable" data-qty-role="plan" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="1200">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_plan" data-form-code="5007" data-save-group="qtyTable" data-qty-role="plan" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="1200">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_plan" data-form-code="5007" data-save-group="qtyTable" data-qty-role="plan" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="1200">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_plan" data-form-code="5007" data-save-group="qtyTable" data-qty-role="plan" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="1200">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10.5px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">정 품</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_good" data-form-code="5007" data-save-group="qtyTable" data-qty-role="good" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_good" data-form-code="5007" data-save-group="qtyTable" data-qty-role="good" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_good" data-form-code="5007" data-save-group="qtyTable" data-qty-role="good" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_good" data-form-code="5007" data-save-group="qtyTable" data-qty-role="good" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 9.5px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">공정불량(리워크)</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_rework" data-form-code="5007" data-save-group="qtyTable" data-qty-role="rework" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_rework" data-form-code="5007" data-save-group="qtyTable" data-qty-role="rework" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_rework" data-form-code="5007" data-save-group="qtyTable" data-qty-role="rework" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_rework" data-form-code="5007" data-save-group="qtyTable" data-qty-role="rework" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 9.5px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">완전불량(폐기)</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_scrap" data-form-code="5007" data-save-group="qtyTable" data-qty-role="scrap" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_scrap" data-form-code="5007" data-save-group="qtyTable" data-qty-role="scrap" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_scrap" data-form-code="5007" data-save-group="qtyTable" data-qty-role="scrap" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_scrap" data-form-code="5007" data-save-group="qtyTable" data-qty-role="scrap" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="rowgroup" rowspan="7" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; line-height: 1.25; vertical-align: middle;">압출<br>소재<br>불량</th>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">스코치</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_ext_scorch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_ext_scorch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_ext_scorch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_ext_scorch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">외면 흠</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_ext_scratch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_ext_scratch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_ext_scratch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_ext_scratch" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">오 염</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_ext_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_ext_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_ext_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_ext_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">코팅 불량</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_ext_coat" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_ext_coat" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_ext_coat" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_ext_coat" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">단면 불량</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_ext_cross" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_ext_cross" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_ext_cross" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_ext_cross" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;"><span style="display: inline-flex; align-items: center; justify-content: center;">기타(&nbsp;<input type="text" id="f5007_def_ext_etc_note" data-form-code="5007" data-save-group="qtyTable" data-qty-role="etc-note" class="f5007-etc-note-input" value="" aria-label="ext 기타 사유">&nbsp;)</span></th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_ext_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_ext_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_ext_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_ext_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="ext" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10.5px; vertical-align: middle;">소 계</th>
+                  <td id="f5007_LH_DV_ext_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="ext" data-col="LH_DV" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_LH_RR_ext_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="ext" data-col="LH_RR" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_DV_ext_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="ext" data-col="RH_DV" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_RR_ext_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="ext" data-col="RH_RR" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                </tr>
+                <tr>
+                  <th scope="rowgroup" rowspan="10" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; line-height: 1.25; vertical-align: middle;">조인<br>트<br>불량</th>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">떨어짐</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_split" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_split" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_split" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_split" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">양부족</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_short" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_short" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_short" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_short" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">밀 림</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_push" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_push" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_push" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_push" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">단 차</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_step" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_step" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_step" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_step" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">기 포</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_bubble" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_bubble" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_bubble" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_bubble" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">씹 힘</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_dent" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_dent" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_dent" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_dent" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">삽입 불량</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_insert" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_insert" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_insert" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_insert" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">수 축</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_sink" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_sink" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_sink" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_sink" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;"><span style="display: inline-flex; align-items: center; justify-content: center;">기타(&nbsp;<input type="text" id="f5007_def_joint_etc_note" data-form-code="5007" data-save-group="qtyTable" data-qty-role="etc-note" class="f5007-etc-note-input" value="" aria-label="joint 기타 사유">&nbsp;)</span></th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_joint_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_joint_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_joint_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_joint_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="joint" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10.5px; vertical-align: middle;">소 계</th>
+                  <td id="f5007_LH_DV_joint_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="joint" data-col="LH_DV" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_LH_RR_joint_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="joint" data-col="LH_RR" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_DV_joint_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="joint" data-col="RH_DV" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_RR_joint_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="joint" data-col="RH_RR" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                </tr>
+                <tr>
+                  <th scope="rowgroup" rowspan="10" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; line-height: 1.25; vertical-align: middle;">후가<br>공<br>불량</th>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">길이 불량</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_len" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_len" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_len" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_len" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">외면 오염</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">과사상</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_overtrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_overtrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_overtrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_overtrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">미사상</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_undertrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_undertrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_undertrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_undertrim" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">마킹 누락</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_mark_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_mark_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_mark_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_mark_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">PAD 누락</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_pad_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_pad_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_pad_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_pad_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 8.5px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">PROTECT FILM 누락</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_film_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_film_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_film_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_film_miss" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;">본드 오염</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_bond_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_bond_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_bond_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_bond_contam" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10px; letter-spacing: -0.3px; white-space: nowrap; vertical-align: middle;"><span style="display: inline-flex; align-items: center; justify-content: center;">기타(&nbsp;<input type="text" id="f5007_def_post_etc_note" data-form-code="5007" data-save-group="qtyTable" data-qty-role="etc-note" class="f5007-etc-note-input" value="" aria-label="post 기타 사유">&nbsp;)</span></th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_DV_def_post_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_LH_RR_def_post_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="LH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_DV_def_post_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_DV" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 0; background: #ffffff; vertical-align: middle;">
+                    <input type="number" min="0" inputmode="numeric" id="f5007_RH_RR_def_post_etc" data-form-code="5007" data-save-group="qtyTable" data-qty-role="defect" data-def-group="post" data-col="RH_RR" class="form-control" style="width: 100%; min-width: 0; height: 25px; border: none; text-align: center; font-size: 11px; font-weight: 700; color: #000; padding: 1px 0; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10.5px; vertical-align: middle;">소 계</th>
+                  <td id="f5007_LH_DV_post_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="post" data-col="LH_DV" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_LH_RR_post_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="post" data-col="LH_RR" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_DV_post_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="post" data-col="RH_DV" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_RR_post_sum" data-form-code="5007" data-qty-role="defect-subtotal" data-def-group="post" data-col="RH_RR" style="border: 1px solid #000; padding: 3px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11px; height: 25px; vertical-align: middle;"></td>
+                </tr>
+                <tr>
+                  <th scope="row" colspan="2" style="border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">불량 합계</th>
+                  <td id="f5007_LH_DV_def_total" data-form-code="5007" data-qty-role="defect-total" data-col="LH_DV" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11.5px; height: 26px; vertical-align: middle;"></td>
+                  <td id="f5007_LH_RR_def_total" data-form-code="5007" data-qty-role="defect-total" data-col="LH_RR" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11.5px; height: 26px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_DV_def_total" data-form-code="5007" data-qty-role="defect-total" data-col="RH_DV" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11.5px; height: 26px; vertical-align: middle;"></td>
+                  <td id="f5007_RH_RR_def_total" data-form-code="5007" data-qty-role="defect-total" data-col="RH_RR" style="border: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: var(--accent-rose); font-size: 11.5px; height: 26px; vertical-align: middle;"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </div>
 <!-- [downtime] -->
-<div id="downtimeCard" style="display: block;"><label id="downtimeTitleLabel">📝 <span class="sec-num"></span> 작업 특이사항</label><div id="downtimeList"></div></div>
+<div id="downtimeCard" style="display: none;"><label id="downtimeTitleLabel"></label><div id="downtimeList"></div></div>

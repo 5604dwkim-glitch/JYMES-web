@@ -122,7 +122,8 @@ export const DEFAULT_PROCESSES = [
   { id: 'PROC_INSP', name: '검사포장', code: 'INSP', lines: ['1라인'], leadTimeMinutes: 20, manager: '장수미' },
   { id: 'PROC_LEADER', name: '반장 작업일보', code: 'LEADER', lines: ['1라인'], leadTimeMinutes: 0, manager: '반장' },
   { id: 'PROC_FORKLIFT', name: '지게차작업', code: 'FORK', lines: ['1라인'], leadTimeMinutes: 0, manager: '작업자' },
-  { id: 'PROC_SUPPORT', name: '출하지원', code: 'SUPP', lines: ['1라인'], leadTimeMinutes: 0, manager: '작업자' }
+  { id: 'PROC_SUPPORT', name: '출하지원', code: 'SUPP', lines: ['1라인'], leadTimeMinutes: 0, manager: '작업자' },
+  { id: 'PROC_FMB', name: 'FMB보관실', code: 'FMB', lines: ['1라인'], leadTimeMinutes: 0, manager: '작업자' }
 ];
 
 export const DEFAULT_ITEMS = [
@@ -188,6 +189,7 @@ export const DEFECT_TYPES = [
 export const DOWNTIME_REASONS = [
   { id: 'DOWN_DEFECT', name: '소재 불량' },
   { id: 'DOWN_EQUIP', name: '설비 고장' },
+  { id: 'DOWN_MOLD', name: '금형 이상' },
   { id: 'DOWN_NOMAT', name: '소재 없음' }
 ];
 
@@ -703,6 +705,292 @@ export function generate50Workers() {
       status: '근무중',
       phone: '010-0000-0000',
       hireDate: '2026-07-13',
+      shift: '주간'
+    },
+    {
+      id: 'HW21001',
+      name: '황수현',
+      role: '책임',
+      dept: '관리팀',
+      process: '관리',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2021-11-01',
+      shift: '주간'
+    },
+    {
+      id: 'HW23001',
+      name: '위간',
+      role: '사원',
+      dept: '생산팀',
+      process: '소재준비',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2023-05-02',
+      shift: '주간'
+    },
+    {
+      id: 'HW23002',
+      name: '언',
+      role: '사원',
+      dept: '품질팀',
+      process: '검사',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2023-08-02',
+      shift: '주간'
+    },
+    {
+      id: 'HW23003',
+      name: '박종미',
+      role: '반장',
+      dept: '관리팀',
+      process: '관리',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2023-08-04',
+      shift: '주간'
+    },
+    {
+      id: 'HW23004',
+      name: '프랭클린',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2023-08-16',
+      shift: '주간'
+    },
+    {
+      id: 'HW24001',
+      name: '마크',
+      role: '사원',
+      dept: '품질팀',
+      process: '검사',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-01-08',
+      shift: '주간'
+    },
+    {
+      id: 'HW24002',
+      name: '로렉스',
+      role: '사원',
+      dept: '품질팀',
+      process: '검사',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-01-08',
+      shift: '주간'
+    },
+    {
+      id: 'HW24003',
+      name: '마이클',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-02-16',
+      shift: '주간'
+    },
+    {
+      id: 'HW24004',
+      name: '무피드',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-04-08',
+      shift: '주간'
+    },
+    {
+      id: 'HW24005',
+      name: '마틴',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-06-20',
+      shift: '주간'
+    },
+    {
+      id: 'HW24006',
+      name: '박민정',
+      role: '사원',
+      dept: '생산팀',
+      process: '소재준비',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-07-08',
+      shift: '주간'
+    },
+    {
+      id: 'HW24007',
+      name: '지라완',
+      role: '사원',
+      dept: '품질팀',
+      process: '검사',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-10-02',
+      shift: '주간'
+    },
+    {
+      id: 'HW24008',
+      name: '레이놀드',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2024-10-28',
+      shift: '주간'
+    },
+    {
+      id: 'HW25001',
+      name: '맥',
+      role: '사원',
+      dept: '생산팀',
+      process: '소재준비',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2025-02-19',
+      shift: '주간'
+    },
+    {
+      id: 'HW25002',
+      name: '알프레도',
+      role: '사원',
+      dept: '생산팀',
+      process: '소재준비',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2025-04-01',
+      shift: '주간'
+    },
+    {
+      id: 'HW25003',
+      name: '에릭',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2025-04-07',
+      shift: '주간'
+    },
+    {
+      id: 'HW25004',
+      name: '조제인',
+      role: '사원',
+      dept: '생산팀',
+      process: '후가공',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2025-09-01',
+      shift: '주간'
+    },
+    {
+      id: 'HW25005',
+      name: '아이린',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2025-10-20',
+      shift: '주간'
+    },
+    {
+      id: 'HW25007',
+      name: '니사낫',
+      role: '사원',
+      dept: '생산팀',
+      process: '후가공',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2025-11-21',
+      shift: '주간'
+    },
+    {
+      id: 'HW25008',
+      name: '새드릭',
+      role: '사원',
+      dept: '생산팀',
+      process: '소재준비',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2025-11-21',
+      shift: '주간'
+    },
+    {
+      id: 'HW26001',
+      name: '수파따',
+      role: '사원',
+      dept: '품질팀',
+      process: '검사',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2026-03-04',
+      shift: '주간'
+    },
+    {
+      id: 'HW26002',
+      name: '와히드',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2026-04-17',
+      shift: '주간'
+    },
+    {
+      id: 'HW26003',
+      name: '에일리',
+      role: '사원',
+      dept: '생산팀',
+      process: '후가공',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2026-04-22',
+      shift: '주간'
+    },
+    {
+      id: 'HW26004',
+      name: '마이카',
+      role: '사원',
+      dept: '품질팀',
+      process: '검사',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2026-05-19',
+      shift: '주간'
+    },
+    {
+      id: 'HW26005',
+      name: '찬티마',
+      role: '사원',
+      dept: '생산팀',
+      process: '후가공',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2026-06-24',
+      shift: '주간'
+    },
+    {
+      id: 'HW26006',
+      name: '데이브',
+      role: '사원',
+      dept: '생산팀',
+      process: '조인트',
+      status: '근무중',
+      phone: '010-0000-0000',
+      hireDate: '2026-08-18',
       shift: '주간'
     },
   ];

@@ -1,57 +1,38 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { fetchChangePoints, addChangePoint, updateChangePoint, deleteChangePoint } from '../services/firestore';
+import React, { useState, useEffect, useMemo, useRef, Suspense, lazy } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  fetchChangePoints,
+  addChangePoint,
+  updateChangePoint,
+  deleteChangePoint,
+  fetchEquipments,
+  fetchMolds,
+  fetchDowntimeReports,
+  invalidateEquipmentsCache,
+  invalidateMoldsCache
+} from '../services/firestore';
 import { CAR_MODELS, DEFAULT_ITEMS } from '../constants/masterData';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, LineElement, PointElement } from 'chart.js';
-import { Pie, Bar, Line } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, PieController, Tooltip, Legend, CategoryScale, LinearScale, BarElement, BarController, Title, LineElement, LineController, PointElement } from 'chart.js';
+import { Pie, Bar } from 'react-chartjs-2';
 import QPointFormModal from './QPointFormModal';
+import DeepChangePointDashboard from './ChangePointParts/DeepChangePointDashboard';
+import LinkedIssueTrackerTab from './ChangePointParts/LinkedIssueTrackerTab';
+import {
+  buildFullLinkedIssueBoard,
+  buildChangePointLinkLookup,
+  REPAIR_STATE_LABEL
+} from '../services/downtimeChain';
 import { exportQPointToExcel } from '../utils/qPointExcelExport';
+import { HYUNDAI_ISSUE_CATEGORY_MAP } from '../services/changePointAutoSync';
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, LineElement, PointElement);
+const LegacyDetailModal = lazy(() => import('./DynamicForms/LegacyDetailModal'));
+const EquipmentHistoryCardModal = lazy(() => import('./EquipmentManagement/EquipmentHistoryCardModal'));
+const MoldHistoryCardModal = lazy(() => import('./MoldManagement/MoldHistoryCardModal'));
 
-// 엑셀에서 확인한 컬럼 목록
+ChartJS.register(ArcElement, PieController, Tooltip, Legend, CategoryScale, LinearScale, BarElement, BarController, Title, LineElement, LineController, PointElement);
 
-const ISSUE_CATEGORY_MAP = {
-  '4M': [
-    '특별특성 공정 작업자 변경',
-    '실명제 제외 인원 공정 투입',
-    '금형, 지그 신작',
-    '장기 유휴 설비,금형,지그 사용',
-    '설비 용량 변경',
-    'SUB품 재질 변경',
-    'ALT 재질 적용',
-    '특수강/철분말 공급처 변경',
-    '원자재 사급 변경',
-    '고객 포장 사양 변경',
-    '공급사 변경',
-    '근무형태 조건 변경',
-    '작업방법 변경',
-    '생산라인 위치 변경',
-    '공장 생산 위치 변경',
-    '공정조건 변경',
-    '미승인된 협력사 자체도면',
-    '관리계획서 상이한 기준',
-    '검사협정서 상이한 기준'
-  ],
-  '변동점': [
-    '작업자 임시 대체',
-    '작업자 근무 교대시간 변경',
-    '작업자 역할 분담 변경',
-    '툴(공구) 변경',
-    '동일 조건의 설비/라인 변경',
-    '도장/토출 조건 변경',
-    '작업 속도/주기 변경',
-    '설비 온도/압력 변경',
-    '작업 각도/방식 변경',
-    '그리스/윤활유 정기보충(교체)',
-    '냉각수/워터호스 정기보충(교체)',
-    '설비 부자재 정기교체',
-    '단전/단수 발생',
-    '파업 발생',
-    '물류/파레트 변경',
-    '2/3차사 입고품 변경',
-    '상기 16항목 외'
-  ]
-};
+// 현대자동차 4M / 변동점 표준 카테고리 (설비·TPM·금형·비가동 자동연동 항목 통합)
+const ISSUE_CATEGORY_MAP = HYUNDAI_ISSUE_CATEGORY_MAP;
 
 const COLUMNS = [
   { key: 'date', label: '작성일자', type: 'date', width: '120px' },
@@ -81,45 +62,158 @@ const isLegacyChecked = (val) => {
 };
 
 export default function ChangePointManagement() {
-  const [activeTab, setActiveTab] = useState('data'); // 'dashboard' or 'data'
+  const routeLocation = useLocation();
+  const routeNavigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState(() => {
+    const reqTab = routeLocation.state?.initialTab;
+    if (reqTab === 'linked' || reqTab === 'data' || reqTab === 'dashboard' || reqTab === 'dashboard2') {
+      return reqTab;
+    }
+    return 'dashboard2';
+  });
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
+  // 설비·금형·비가동 작업일보 연계 자산 상태
+  const [linkedAssets, setLinkedAssets] = useState({
+    reports: [],
+    equipments: [],
+    molds: []
+  });
+  const [linkedLoading, setLinkedLoading] = useState(false);
+  const [includeManualEquipMold, setIncludeManualEquipMold] = useState(false);
+  const [savingCpIds, setSavingCpIds] = useState({});
+
+  // 페이지 이탈 없는 원스톱 상세 확인 모달 상태
+  const [openReportModal, setOpenReportModal] = useState(null);
+  const [openEquipmentModal, setOpenEquipmentModal] = useState(null);
+  const [openMoldModal, setOpenMoldModal] = useState(null);
+
   // Data Grid States
   const [formData, setFormData] = useState({ ...INIT_FORM });
   const [editingId, setEditingId] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
+  const [dataQuickFilter, setDataQuickFilter] = useState('ALL'); // 'ALL' | 'AUTO' | 'UNCOMPLETED' | 'COMPLETED'
+  const [dataSearchKeyword, setDataSearchKeyword] = useState('');
   const [isQPointModalOpen, setIsQPointModalOpen] = useState(false);
   const [currentQPointRow, setCurrentQPointRow] = useState(null);
 
-  // Dashboard Filters
+  // Dashboard Filters (기본 대시보드 전용)
   const [filterMonth, setFilterMonth] = useState('전체');
   const [filterWeek, setFilterWeek] = useState('전체');
 
+  const loadLinkedAssets = async (forceRefresh = false) => {
+    setLinkedLoading(true);
+    try {
+      if (forceRefresh) {
+        invalidateEquipmentsCache();
+        invalidateMoldsCache();
+      }
+      const [reportsRes, eqRes, moldsRes] = await Promise.all([
+        fetchDowntimeReports('', forceRefresh),
+        fetchEquipments(),
+        fetchMolds()
+      ]);
+      setLinkedAssets({
+        reports: reportsRes || [],
+        equipments: eqRes || [],
+        molds: moldsRes || []
+      });
+    } catch (err) {
+      console.error('Failed to load linked assets for ChangePointManagement:', err);
+    } finally {
+      setLinkedLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
+    loadLinkedAssets(false);
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
+  // 외부에서 initialTab 으로 재진입한 경우 탭 동기화
+  useEffect(() => {
+    const reqTab = routeLocation.state?.initialTab;
+    if (!reqTab || routeLocation.state?.focusChangePointId) return;
+    if (reqTab === 'linked' || reqTab === 'data' || reqTab === 'dashboard' || reqTab === 'dashboard2') {
+      setActiveTab(reqTab);
+      routeNavigate(routeLocation.pathname, { replace: true, state: null });
+    }
+  }, [routeLocation, routeNavigate]);
+
+  // 대시보드 "비가동 → 수리 → 변동점 연계 현황" 등에서 이동해 온 경우 해당 변동점 행으로 이동·강조
+  const [focusedCpId, setFocusedCpId] = useState(null);
+  const focusHandledRef = useRef(false);
+  useEffect(() => {
+    const targetId = routeLocation.state?.focusChangePointId;
+    if (!targetId || focusHandledRef.current || loading || data.length === 0) return undefined;
+    focusHandledRef.current = true;
+    routeNavigate(routeLocation.pathname, { replace: true, state: null });
+    if (!data.some((r) => r.id === targetId)) return undefined;
+    setDataQuickFilter('ALL');
+    setDataSearchKeyword('');
+    setActiveTab('data');
+    setFocusedCpId(targetId);
+    // 주의: 위의 routeNavigate(state: null) 로 이 effect 가 다시 실행되므로, 타이머를 cleanup 에서 취소하면 안 된다
+    setTimeout(() => {
+      document.getElementById('cp-row-' + targetId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+    setTimeout(() => setFocusedCpId(null), 6000);
+    return undefined;
+  }, [routeLocation, routeNavigate, loading, data]);
+
+  const handleJumpToDataRow = (targetId) => {
+    setDataQuickFilter('ALL');
+    setDataSearchKeyword('');
+    setActiveTab('data');
+    setFocusedCpId(targetId);
+    setTimeout(() => {
+      document.getElementById('cp-row-' + targetId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
+    setTimeout(() => setFocusedCpId(null), 6000);
+  };
+
+  const loadData = async (forceRefresh = false, silent = false) => {
+    if (!silent) setLoading(true);
     try {
-      const res = await fetchChangePoints();
+      const res = await fetchChangePoints(forceRefresh);
       // 작성일자(date) 내림차순 정렬 (기본값)
       res.sort((a, b) => {
         const dateA = a.date || '';
         const dateB = b.date || '';
         if (dateA === dateB) {
-          // 작성일자가 같으면 생성일시(createdAt) 오름차순이나 기타 조건 사용 (현재는 그대로 유지)
           return 0;
         }
-        // 작성일자(date) 내림차순 정렬 (최신 날짜가 위로)
         return dateB.localeCompare(dateA);
       });
       setData(res);
-    } catch (e) {
-      alert('데이터를 불러오는데 실패했습니다.');
+    } catch {
+      if (!silent) alert('데이터를 불러오는데 실패했습니다.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
+    }
+  };
+
+  const handleQuickToggleCheck = async (cpRow, fieldKey, nextBool) => {
+    if (!cpRow?.id) return;
+    setSavingCpIds((prev) => ({ ...prev, [cpRow.id]: true }));
+    setData((prev) =>
+      prev.map((item) => (item.id === cpRow.id ? { ...item, [fieldKey]: nextBool } : item))
+    );
+    try {
+      const { id, createdAt: _createdAt, ...rest } = cpRow;
+      await updateChangePoint(id, { ...rest, [fieldKey]: nextBool });
+      await loadData(true, true);
+    } catch {
+      alert('상태 저장에 실패했습니다.');
+      await loadData(true, true);
+    } finally {
+      setSavingCpIds((prev) => {
+        const next = { ...prev };
+        delete next[cpRow.id];
+        return next;
+      });
     }
   };
 
@@ -186,23 +280,23 @@ export default function ChangePointManagement() {
         alert('중간저장 되었습니다. (새 항목 추가됨)');
         setFormData({ ...INIT_FORM }); // Still clear to avoid duplicate additions
       }
-      loadData();
-    } catch (e) {
+      loadData(true, true);
+    } catch {
       alert('등록 실패');
     }
   };
 
   const handleUpdate = async (item, keepEditing = false) => {
     try {
-      const { id, createdAt, ...updateData } = item;
+      const { id, createdAt: _createdAt, ...updateData } = item;
       await updateChangePoint(id, updateData);
       if (!keepEditing) {
         setEditingId(null);
       } else {
         alert('중간저장 되었습니다.');
       }
-      loadData();
-    } catch (e) {
+      loadData(true, true);
+    } catch {
       alert('수정 실패');
     }
   };
@@ -215,11 +309,11 @@ export default function ChangePointManagement() {
     } else {
       // Update existing row
       try {
-        const { id, createdAt, ...updateData } = currentQPointRow;
+        const { id, createdAt: _createdAt, ...updateData } = currentQPointRow;
         await updateChangePoint(id, { ...updateData, qPointData });
         setIsQPointModalOpen(false);
-        loadData();
-      } catch (e) {
+        loadData(true, true);
+      } catch {
         alert('Q.POINT 저장 실패');
       }
     }
@@ -229,8 +323,8 @@ export default function ChangePointManagement() {
     if (!window.confirm('삭제하시겠습니까?')) return;
     try {
       await deleteChangePoint(id);
-      loadData();
-    } catch (e) {
+      loadData(true, true);
+    } catch {
       alert('삭제 실패');
     }
   };
@@ -327,106 +421,58 @@ export default function ChangePointManagement() {
     return { total, ceoO, ceoX, qualityO, qualityX, qPointO, qPointX, issueCounts };
   }, [data, filterMonth, filterWeek]);
 
-
-  const dash2Data = useMemo(() => {
-    let filtered = data;
-    if (filterMonth !== '전체') {
-      filtered = filtered.filter(d => {
-        if (!d.date) return false;
-        const parts = d.date.split('-');
-        if (parts.length < 2) return false;
-        const monthNum = parseInt(parts[1], 10);
-        return (monthNum + '월') === filterMonth;
-      });
-    }
-
-    if (filterWeek !== '전체') {
-      filtered = filtered.filter(d => {
-        if (!d.date) return false;
-        const dateObj = new Date(d.date);
-        if (isNaN(dateObj.getTime())) return false;
-        
-        const startOfMonth = new Date(dateObj.getFullYear(), dateObj.getMonth(), 1);
-        let startDay = startOfMonth.getDay();
-        startDay = startDay === 0 ? 7 : startDay;
-        
-        const dateDay = dateObj.getDate();
-        const weekNumber = Math.ceil((dateDay + startDay - 1) / 7);
-        return (weekNumber + '주차') === filterWeek;
-      });
-    }
-
-    const total = filtered.length;
-    const ceoO = filtered.filter(d => isLegacyChecked(d.ceoCheck)).length;
-    const qualityO = filtered.filter(d => isLegacyChecked(d.qualityCheck)).length;
-    const qPointO = filtered.filter(d => !!d.qPointInstall).length;
-
-    // Trend: count by Month (sorted)
-    const trendMap = {};
-    const trendDetailsMap = {};
-    filtered.forEach(d => {
-      const fullDate = d.date || 'Unknown';
-      const monthKey = fullDate !== 'Unknown' ? fullDate.substring(0, 7) : 'Unknown';
-      trendMap[monthKey] = (trendMap[monthKey] || 0) + 1;
-      
-      if (!trendDetailsMap[monthKey]) trendDetailsMap[monthKey] = {};
-      trendDetailsMap[monthKey][fullDate] = (trendDetailsMap[monthKey][fullDate] || 0) + 1;
+  const linkedBoard = useMemo(() => {
+    return buildFullLinkedIssueBoard({
+      reports: linkedAssets.reports,
+      equipments: linkedAssets.equipments,
+      molds: linkedAssets.molds,
+      changePoints: data,
+      includeManualEquipMold
     });
-    const trendDatesRaw = Object.keys(trendMap).sort();
-    const trendCounts = trendDatesRaw.map(k => trendMap[k]);
-    const trendTooltips = trendDatesRaw.map(k => {
-      const details = trendDetailsMap[k];
-      return Object.keys(details).sort().map(date => `${date}: ${details[date]}건`);
+  }, [linkedAssets, data, includeManualEquipMold]);
+
+  const cpLinkLookup = useMemo(
+    () => buildChangePointLinkLookup(linkedBoard.items),
+    [linkedBoard.items]
+  );
+
+  const linkedInProgressCount = useMemo(
+    () =>
+      linkedBoard.items.filter(
+        (it) => it.stageStatus === 'awaiting_repair' || it.stageStatus === 'awaiting_approval'
+      ).length,
+    [linkedBoard.items]
+  );
+
+  const dataTabCounts = useMemo(() => {
+    let autoCount = 0;
+    let uncompletedCount = 0;
+    let completedCount = 0;
+    data.forEach((r) => {
+      const isAuto = Boolean(r.autoSourceKey || r.autoSourceType || String(r.id || '').startsWith('cp_auto_'));
+      if (isAuto) autoCount += 1;
+      const done = isLegacyChecked(r.qualityCheck) && isLegacyChecked(r.ceoCheck);
+      if (done) completedCount += 1;
+      else uncompletedCount += 1;
     });
-    
-    let lastYear = null;
-    const trendDates = trendDatesRaw.map((k, idx) => {
-      if (k === 'Unknown') return k;
-      const [year, month] = k.split('-');
-      const monthNum = parseInt(month, 10);
-      if (idx === 0 || year !== lastYear) {
-        lastYear = year;
-        return `${year}년 ${monthNum}월`;
+    return { total: data.length, autoCount, uncompletedCount, completedCount };
+  }, [data]);
+
+  const filteredSortedData = useMemo(() => {
+    const kw = dataSearchKeyword.trim().toLowerCase();
+    return sortedData.filter((r) => {
+      const isAuto = Boolean(r.autoSourceKey || r.autoSourceType || String(r.id || '').startsWith('cp_auto_'));
+      const done = isLegacyChecked(r.qualityCheck) && isLegacyChecked(r.ceoCheck);
+      if (dataQuickFilter === 'AUTO' && !isAuto) return false;
+      if (dataQuickFilter === 'UNCOMPLETED' && done) return false;
+      if (dataQuickFilter === 'COMPLETED' && !done) return false;
+      if (kw) {
+        const hay = `${r.date || ''} ${r.type || ''} ${r.issueItem || ''} ${r.carModel || ''} ${r.partName || ''} ${r.details || ''} ${r.actionResult || ''} ${r.note || ''}`.toLowerCase();
+        if (!hay.includes(kw)) return false;
       }
-      return `${monthNum}월`;
+      return true;
     });
-
-    // Matrix: Car Model vs Issue Type
-    const matrixMap = {};
-    filtered.forEach(d => {
-      const car = d.carModel || '미분류';
-      const type = d.type || '미상';
-      if (!matrixMap[car]) matrixMap[car] = {};
-      matrixMap[car][type] = (matrixMap[car][type] || 0) + 1;
-    });
-    const cars = Object.keys(matrixMap);
-    const typesSet = new Set();
-    cars.forEach(c => Object.keys(matrixMap[c]).forEach(t => typesSet.add(t)));
-    const allTypes = Array.from(typesSet);
-    
-    // Datasets for Matrix Stacked Bar
-    const colors = ['#ef4444', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6'];
-    const matrixDatasets = allTypes.map((t, i) => {
-      return {
-        label: t,
-        data: cars.map(c => matrixMap[c][t] || 0),
-        backgroundColor: colors[i % colors.length]
-      };
-    });
-
-    return {
-      total,
-      ceoRate: total ? Math.round((ceoO/total)*100) : 0,
-      qualityRate: total ? Math.round((qualityO/total)*100) : 0,
-      qPointRate: total ? Math.round((qPointO/total)*100) : 0,
-      trendDates,
-      trendCounts,
-      trendTooltips,
-      matrixCars: cars,
-      matrixDatasets,
-      ceoO, qualityO, qPointO
-    };
-  }, [data, filterMonth, filterWeek]);
+  }, [sortedData, dataQuickFilter, dataSearchKeyword]);
 
   const pieOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'left' } } };
 
@@ -434,15 +480,8 @@ export default function ChangePointManagement() {
     <div style={{ padding: '4px', height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#f8fafc' }}>
       <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px', color: '#1e293b' }}>변동점(4M) 대시보드 및 데이터 관리</h2>
       
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        
-        <button 
-          onClick={() => setActiveTab('dashboard')}
-          style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'dashboard' ? '#2563eb' : '#e2e8f0', color: activeTab === 'dashboard' ? '#fff' : '#475569', fontWeight: 'bold', cursor: 'pointer' }}
-        >
-          📊 기본 대시보드
-        </button>
+      {/* Tabs: 1. 심층 대시보드 -> 2. 기본 대시보드 -> 3. 설비·금형 연계 현황 -> 4. 대시보드 데이터 관리 */}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
         <button 
           onClick={() => setActiveTab('dashboard2')}
           style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'dashboard2' ? '#10b981' : '#e2e8f0', color: activeTab === 'dashboard2' ? '#fff' : '#475569', fontWeight: 'bold', cursor: 'pointer' }}
@@ -450,12 +489,44 @@ export default function ChangePointManagement() {
           📈 심층 대시보드 (트렌드&매트릭스)
         </button>
         <button 
+          onClick={() => setActiveTab('dashboard')}
+          style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'dashboard' ? '#2563eb' : '#e2e8f0', color: activeTab === 'dashboard' ? '#fff' : '#475569', fontWeight: 'bold', cursor: 'pointer' }}
+        >
+          📊 기본 대시보드
+        </button>
+        <button 
+          onClick={() => setActiveTab('linked')}
+          style={{ padding: '10px 18px', borderRadius: '8px', border: 'none', background: activeTab === 'linked' ? '#0f172a' : '#e2e8f0', color: activeTab === 'linked' ? '#fff' : '#475569', fontWeight: 'bold', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          <span>🔗 설비·금형 연계 현황</span>
+          {linkedInProgressCount > 0 ? (
+            <span style={{ padding: '1px 7px', borderRadius: '999px', fontSize: '11px', fontWeight: 800, background: '#ef4444', color: '#ffffff' }}>
+              조치필요 {linkedInProgressCount}
+            </span>
+          ) : (
+            <span style={{ padding: '1px 7px', borderRadius: '999px', fontSize: '11px', fontWeight: 800, background: activeTab === 'linked' ? '#334155' : '#cbd5e1', color: activeTab === 'linked' ? '#ffffff' : '#334155' }}>
+              {linkedBoard.items.length}
+            </span>
+          )}
+        </button>
+        <button 
           onClick={() => setActiveTab('data')}
-
           style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: activeTab === 'data' ? '#2563eb' : '#e2e8f0', color: activeTab === 'data' ? '#fff' : '#475569', fontWeight: 'bold', cursor: 'pointer' }}
         >
           📝 대시보드 데이터 관리
         </button>
+        <button
+          onClick={() => {
+            loadData(true);
+            loadLinkedAssets(true);
+          }}
+          style={{ padding: '8px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#334155', fontWeight: '600', fontSize: '12px', cursor: 'pointer' }}
+        >
+          🔄 새로고침
+        </button>
+        <span style={{ fontSize: '12px', color: '#1d4ed8', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '6px 12px', borderRadius: '999px', fontWeight: 600 }}>
+          ⚡ 현대차 4M·변동점 자동연동 적용중 (TPM 이상·수리 / 설비·금형 수리 / 작업일보 설비·금형 비가동)
+        </span>
       </div>
 
       {loading ? (
@@ -548,136 +619,102 @@ export default function ChangePointManagement() {
         </div>
 
       ) : activeTab === 'dashboard2' ? (
-        /* DASHBOARD 2 TAB (Concept 1+3) */
-        <div style={{ display: 'flex', gap: '20px', flex: 1, minHeight: 0 }}>
-          {/* Filters Sidebar (Reused) */}
-          <div style={{ width: '200px', background: '#fff', padding: '16px', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflowY: 'auto' }}>
-            <h3 style={{ fontWeight: 'bold', marginBottom: '12px' }}>필터</h3>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>월별</label>
-              <select 
-                value={filterMonth} 
-                onChange={e => { setFilterMonth(e.target.value); setFilterWeek('전체'); }}
-                style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-              >
-                <option value="전체">전체 보기</option>
-                {[...Array(12)].map((_, i) => (
-                  <option key={i+1} value={`${i+1}월`}>{i+1}월</option>
-                ))}
-              </select>
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '4px' }}>주차별 (월~일 기준)</label>
-              <select 
-                value={filterWeek} 
-                onChange={e => setFilterWeek(e.target.value)}
-                style={{ width: '100%', padding: '8px', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                disabled={filterMonth === '전체'}
-              >
-                <option value="전체">전체 보기</option>
-                {weekOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', overflowY: 'auto' }}>
-            {/* KPI Cards (Concept 1) */}
-            <div style={{ display: 'flex', gap: '20px', height: '120px' }}>
-              <div style={{ flex: 1, background: '#fff', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', padding: '20px', borderLeft: '5px solid #3b82f6', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ fontSize: '14px', color: '#64748b' }}>총 발생 건수</div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#0f172a' }}>{dash2Data.total}<span style={{fontSize:'16px', color:'#94a3b8', marginLeft:'5px'}}>건</span></div>
-              </div>
-              <div style={{ flex: 1, background: '#fff', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', padding: '20px', borderLeft: '5px solid #10b981', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ fontSize: '14px', color: '#64748b' }}>공장장 승인 완료율</div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#0f172a' }}>{dash2Data.ceoRate}<span style={{fontSize:'16px', color:'#94a3b8', marginLeft:'5px'}}>%</span></div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop:'4px' }}>({dash2Data.ceoO} / {dash2Data.total})</div>
-              </div>
-              <div style={{ flex: 1, background: '#fff', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', padding: '20px', borderLeft: '5px solid #8b5cf6', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ fontSize: '14px', color: '#64748b' }}>품질 검증 완료율</div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#0f172a' }}>{dash2Data.qualityRate}<span style={{fontSize:'16px', color:'#94a3b8', marginLeft:'5px'}}>%</span></div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop:'4px' }}>({dash2Data.qualityO} / {dash2Data.total})</div>
-              </div>
-              <div style={{ flex: 1, background: '#fff', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', padding: '20px', borderLeft: '5px solid #f59e0b', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ fontSize: '14px', color: '#64748b' }}>Q-Point 설치율</div>
-                <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#0f172a' }}>{dash2Data.qPointRate}<span style={{fontSize:'16px', color:'#94a3b8', marginLeft:'5px'}}>%</span></div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop:'4px' }}>({dash2Data.qPointO} / {dash2Data.total})</div>
-              </div>
-            </div>
-
-            {/* Middle Row (Line Chart + Stacked Bar) */}
-            <div style={{ display: 'flex', gap: '20px', flex: 1, minHeight: '300px' }}>
-              <div style={{ flex: 2, background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
-                <h3 style={{ fontSize: '16px', color: '#64748b', marginBottom: '20px' }}>발생 추이 (월별 트렌드)</h3>
-                <div style={{ height: 'calc(100% - 40px)' }}>
-                  <Line 
-                    data={{
-                      labels: dash2Data.trendDates,
-                      datasets: [{
-                        label: '발생 건수',
-                        data: dash2Data.trendCounts,
-                        borderColor: '#2563eb',
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        tension: 0.3,
-                        fill: true
-                      }]
-                    }}
-                    options={{ 
-                      responsive: true, 
-                      maintainAspectRatio: false,
-                      plugins: {
-                        tooltip: {
-                          callbacks: {
-                            afterBody: (context) => {
-                              if (context.length > 0) {
-                                const index = context[0].dataIndex;
-                                const details = dash2Data.trendTooltips[index];
-                                return details && details.length > 0 ? ['\n[일자별 상세]', ...details] : [];
-                              }
-                              return [];
-                            }
-                          }
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              
-              <div style={{ flex: 3, background: '#fff', padding: '20px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
-                <h3 style={{ fontSize: '16px', color: '#64748b', marginBottom: '20px' }}>차종별 변동점 발생 분석 (Matrix View)</h3>
-                <div style={{ height: 'calc(100% - 40px)' }}>
-                  <Bar 
-                    data={{
-                      labels: dash2Data.matrixCars,
-                      datasets: dash2Data.matrixDatasets
-                    }}
-                    options={{ 
-                      responsive: true, 
-                      maintainAspectRatio: false, 
-                      scales: { 
-                        x: { 
-                          stacked: true,
-                          ticks: {
-                            maxRotation: 0,
-                            minRotation: 0,
-                            autoSkip: false
-                          }
-                        }, 
-                        y: { stacked: true } 
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        /* 심층 대시보드 (트렌드 & 매트릭스 & 클릭 드릴다운) */
+        <DeepChangePointDashboard
+          data={data}
+          isLegacyChecked={isLegacyChecked}
+          onJumpToDataRow={handleJumpToDataRow}
+          onOpenQPointModal={(row) => {
+            setCurrentQPointRow(row);
+            setIsQPointModalOpen(true);
+          }}
+        />
+      ) : activeTab === 'linked' ? (
+        /* 🔗 설비·금형 연계 현황 (진행중 + 완료 원스톱 통합 추적 보드) */
+        <LinkedIssueTrackerTab
+          boardItems={linkedBoard.items}
+          manualAvailableCount={linkedBoard.manualAvailableCount}
+          includeManualEquipMold={includeManualEquipMold}
+          onToggleIncludeManual={() => setIncludeManualEquipMold((prev) => !prev)}
+          linkedLoading={linkedLoading}
+          savingCpIds={savingCpIds}
+          onOpenReportModal={(rep) => setOpenReportModal(rep)}
+          onOpenEquipmentModal={(eq) => setOpenEquipmentModal(eq)}
+          onOpenMoldModal={(mold) => setOpenMoldModal(mold)}
+          onQuickToggleCheck={handleQuickToggleCheck}
+          onOpenQPointModal={(row) => {
+            setCurrentQPointRow(row);
+            setIsQPointModalOpen(true);
+          }}
+          onJumpToDataRow={handleJumpToDataRow}
+        />
       ) : (
 
         /* DATA MANAGEMENT TAB */
         <div style={{ background: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* 데이터 관리 상단 빠른 필터 & 검색 바 */}
+          <div style={{ padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#334155' }}>빠른 보기:</span>
+              {[
+                { id: 'ALL', label: `전체 (${dataTabCounts.total})` },
+                { id: 'AUTO', label: `⚡ 설비·금형 자동연동 (${dataTabCounts.autoCount})` },
+                { id: 'UNCOMPLETED', label: `🚨 미검증·미승인 (${dataTabCounts.uncompletedCount})` },
+                { id: 'COMPLETED', label: `✅ 완료 (${dataTabCounts.completedCount})` }
+              ].map((btn) => {
+                const active = dataQuickFilter === btn.id;
+                return (
+                  <button
+                    key={btn.id}
+                    type="button"
+                    onClick={() => setDataQuickFilter(btn.id)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      border: active ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+                      background: active ? '#1d4ed8' : '#ffffff',
+                      color: active ? '#ffffff' : '#475569',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {btn.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                value={dataSearchKeyword}
+                onChange={(e) => setDataSearchKeyword(e.target.value)}
+                placeholder="차종·품명·항목·내용 검색..."
+                style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', width: '200px' }}
+              />
+              {(dataQuickFilter !== 'ALL' || dataSearchKeyword.trim() !== '') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDataQuickFilter('ALL');
+                    setDataSearchKeyword('');
+                  }}
+                  style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#ffffff', color: '#334155', fontSize: '11px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  ✕ 초기화
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setActiveTab('linked')}
+                style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #93c5fd', background: '#eff6ff', color: '#1d4ed8', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
+              >
+                🔗 3단계 연계 보드로 보기 →
+              </button>
+            </div>
+          </div>
+
           <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1 }}>
             <table style={{ width: '100%', minWidth: '1700px', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'center' }}>
               <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
@@ -787,7 +824,6 @@ export default function ChangePointManagement() {
                           <select 
                             value={formData[c.key] || ''} 
                             onChange={(e) => {
-                               const selectedItem = options.find(it => it.name === e.target.value);
                                setFormData({...formData, [c.key]: e.target.value});
                             }}
                             style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
@@ -844,10 +880,10 @@ export default function ChangePointManagement() {
                 </tr>
 
                 {/* Data Rows */}
-                {sortedData.map((row, index) => {
+                {filteredSortedData.map((row, index) => {
                   const isEditing = editingId === row.id;
                   return (
-                    <tr key={row.id} style={{ '&:hover': { background: '#f8fafc' } }}>
+                    <tr key={row.id} id={'cp-row-' + row.id} style={{ '&:hover': { background: '#f8fafc' }, ...(focusedCpId === row.id ? { background: '#fef9c3', outline: '2px solid #f59e0b' } : {}) }}>
                       <td style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
                         {isEditing ? (
                           <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -882,11 +918,15 @@ export default function ChangePointManagement() {
                           }
                           if (c.key === 'issueItem') {
                             const currentType = data.find(d => d.id === editingId)?.type || '';
-                            const options = currentType ? ISSUE_CATEGORY_MAP[currentType] || [] : [];
+                            const baseOptions = currentType ? ISSUE_CATEGORY_MAP[currentType] || [] : [];
+                            const curIssueVal = row[c.key] || '';
+                            const options = curIssueVal && !baseOptions.includes(curIssueVal)
+                              ? [curIssueVal, ...baseOptions]
+                              : baseOptions;
                             return (
                               <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
                                 <select 
-                                  value={row[c.key] || ''} 
+                                  value={curIssueVal} 
                                   onChange={(e) => handleInputChange(e, true, c.key)}
                                   style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
                                 >
@@ -897,14 +937,17 @@ export default function ChangePointManagement() {
                             );
                           }
                           if (c.key === 'carModel') {
+                            const curCarVal = row[c.key] || '';
+                            const hasCarOption = CAR_MODELS.some(car => car.code === curCarVal);
                             return (
                               <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
                                 <select 
-                                  value={row[c.key] || ''} 
+                                  value={curCarVal} 
                                   onChange={(e) => handleInputChange(e, true, c.key)}
                                   style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
                                 >
                                   <option value="">선택</option>
+                                  {curCarVal && !hasCarOption && <option value={curCarVal}>{curCarVal}</option>}
                                   {CAR_MODELS.map(car => <option key={car.code} value={car.code}>{car.name}</option>)}
                                 </select>
                               </td>
@@ -913,18 +956,19 @@ export default function ChangePointManagement() {
                           if (c.key === 'partName') {
                             const currentCarModel = data.find(d => d.id === editingId)?.carModel || '';
                             const options = currentCarModel ? DEFAULT_ITEMS.filter(it => it.carModel === currentCarModel) : [];
+                            const curPartVal = row[c.key] || '';
+                            const hasPartOption = options.some(opt => opt.name === curPartVal);
                             return (
                               <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
                                 <select 
-                                  value={row[c.key] || ''} 
+                                  value={curPartVal} 
                                   onChange={(e) => {
-                                      handleInputChange(e, true, c.key);
-                                      const selectedItem = options.find(it => it.name === e.target.value);
-                                      
+                                    handleInputChange(e, true, c.key);
                                   }}
                                   style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
                                 >
                                   <option value="">선택</option>
+                                  {curPartVal && !hasPartOption && <option value={curPartVal}>{curPartVal}</option>}
                                   {options.map(opt => <option key={opt.name} value={opt.name}>{opt.name}</option>)}
                                 </select>
                               </td>
@@ -1035,6 +1079,49 @@ export default function ChangePointManagement() {
                               </td>
                             );
                           }
+                          if (c.key === 'note') {
+                            const linkInfo = cpLinkLookup.get(row.id);
+                            return (
+                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
+                                <span style={{ wordBreak: 'break-all' }}>{row[c.key]}</span>
+                                {linkInfo && (linkInfo.report || linkInfo.repair?.owner) && (
+                                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap', marginTop: row[c.key] ? '4px' : '0' }}>
+                                    {linkInfo.report && (
+                                      <button
+                                        type="button"
+                                        onClick={() => setOpenReportModal(linkInfo.report)}
+                                        style={{ padding: '2px 6px', borderRadius: '4px', border: '1px solid #93c5fd', background: '#eff6ff', color: '#1d4ed8', fontSize: '10px', fontWeight: 700, cursor: 'pointer' }}
+                                      >
+                                        📄 일보
+                                      </button>
+                                    )}
+                                    {linkInfo.repair?.owner && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          if (linkInfo.kind === 'mold') setOpenMoldModal(linkInfo.repair.owner);
+                                          else setOpenEquipmentModal(linkInfo.repair.owner);
+                                        }}
+                                        style={{
+                                          padding: '2px 6px',
+                                          borderRadius: '4px',
+                                          border: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '1px solid #fca5a5' : '1px solid #cbd5e1',
+                                          background: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '#fef2f2' : '#f8fafc',
+                                          color: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '#b91c1c' : '#334155',
+                                          fontSize: '10px',
+                                          fontWeight: 700,
+                                          cursor: 'pointer'
+                                        }}
+                                      >
+                                        {linkInfo.kind === 'mold' ? '🗜️ 금형이력' : '🔧 설비이력'}
+                                        {linkInfo.hasRepairRow ? `(${REPAIR_STATE_LABEL[linkInfo.repairState]})` : ''}
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </td>
+                            );
+                          }
                           return (
                             <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
                               <span style={{ wordBreak: 'break-all' }}>{row[c.key]}</span>
@@ -1045,9 +1132,9 @@ export default function ChangePointManagement() {
                     </tr>
                   );
                 })}
-                {sortedData.length === 0 && (
+                {filteredSortedData.length === 0 && (
                   <tr>
-                    <td colSpan={COLUMNS.length + 3} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>등록된 데이터가 없습니다.</td>
+                    <td colSpan={COLUMNS.length + 3} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>조회 조건에 일치하는 데이터가 없습니다.</td>
                   </tr>
                 )}
               </tbody>
@@ -1067,6 +1154,54 @@ export default function ChangePointManagement() {
         initialData={currentQPointRow?.qPointData || null}
         rowData={currentQPointRow}
       />
+
+      {/* 원스톱 연계 팝업: 작업일보 상세 / 설비 이력카드 / 금형 이력카드 */}
+      {openReportModal && (
+        <Suspense fallback={null}>
+          <LegacyDetailModal
+            report={openReportModal}
+            onClose={() => setOpenReportModal(null)}
+          />
+        </Suspense>
+      )}
+
+      {openEquipmentModal && (
+        <Suspense fallback={null}>
+          <EquipmentHistoryCardModal
+            equipment={openEquipmentModal}
+            onClose={() => setOpenEquipmentModal(null)}
+            onUpdate={(updatedEq) => {
+              setOpenEquipmentModal(updatedEq);
+              setLinkedAssets((prev) => ({
+                ...prev,
+                equipments: prev.equipments.map((item) =>
+                  item.id === updatedEq.id ? updatedEq : item
+                )
+              }));
+              loadData(true, true);
+            }}
+          />
+        </Suspense>
+      )}
+
+      {openMoldModal && (
+        <Suspense fallback={null}>
+          <MoldHistoryCardModal
+            mold={openMoldModal}
+            onClose={() => setOpenMoldModal(null)}
+            onUpdate={(updatedMold) => {
+              if (updatedMold) setOpenMoldModal(updatedMold);
+              setLinkedAssets((prev) => ({
+                ...prev,
+                molds: prev.molds.map((item) =>
+                  item.id === updatedMold.id ? updatedMold : item
+                )
+              }));
+              loadData(true, true);
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

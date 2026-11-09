@@ -772,6 +772,7 @@ export default function LegacyDashboardWrapper({ reports, summary, userRoleInfo,
   const { lang } = useI18n();
   useEffect(() => {
     if (!containerRef.current) return;
+    i18n.setLang(lang, false);
     setLegacyDashboardContext({ reports, summary, userRoleInfo, onNavigate });
     
     const originalAppInstance = window.appInstance;

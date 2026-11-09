@@ -8,14 +8,15 @@
  */
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { readFileSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 import { buildStatsUpdate } from '../../src/services/statsAggregator.js';
+import { loadServiceAccount } from './loadServiceAccount.mjs';
 
 const APPLY = process.argv.includes('--apply');
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const serviceAccount = JSON.parse(readFileSync(resolve(__dirname, '../../serviceAccountKey.json'), 'utf8'));
+const serviceAccount = loadServiceAccount();
 initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
 

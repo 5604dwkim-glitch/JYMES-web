@@ -1,12 +1,9 @@
 // 읽기 전용: 클립머신 일보의 생산수량(actualQty) 점검. 사용: node scripts/utils/check_clip_qty.mjs 2026-08-01 2026-10-31
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { loadServiceAccount } from './loadServiceAccount.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const serviceAccount = JSON.parse(readFileSync(resolve(__dirname, '../../serviceAccountKey.json'), 'utf8'));
+const serviceAccount = loadServiceAccount();
 initializeApp({ credential: cert(serviceAccount) });
 const db = getFirestore();
 

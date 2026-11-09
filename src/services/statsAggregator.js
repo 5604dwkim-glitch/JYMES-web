@@ -250,6 +250,141 @@ export function extractDefectBreakdown(r) {
       addDefect('[검사/조인트] 불량',     r.qtyTable[`etc_joint_${c}`]);
       addDefect('[검사/후가공] 기타',     r.qtyTable[`etc_other_${c}`]);
     });
+
+    // #5001 (GM 9BQC G/RUN 소재준비-글라스본딩)
+    ['PRI_LH', 'PRI_RH', 'TIN_LH', 'TIN_RH'].forEach(prod => {
+      addDefect('[글라스본딩] 곡률',             r.qtyTable[`f5001_${prod}_def_curv`]);
+      addDefect('[글라스본딩] 스크래치',         r.qtyTable[`f5001_${prod}_def_scratch`]);
+      addDefect('[글라스본딩] 도트(세라믹)불량', r.qtyTable[`f5001_${prod}_def_dot`]);
+      addDefect('[글라스본딩] 면취불량',         r.qtyTable[`f5001_${prod}_def_chamfer`]);
+      addDefect('[글라스본딩] 조개피(유리깨짐)', r.qtyTable[`f5001_${prod}_def_chip`]);
+    });
+
+    // #5004 (GM 9BQC G/RUN 조인트-FRT) — FRT LH / FRT RH, 폐기불량 A·B·C + 공정간불량(P)
+    const F5004_DEFECT_NAMES = [
+      ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'], ['bubble', '기포'],
+      ['dent', '씹힘'], ['contam', '오염'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
+    ];
+    ['LH', 'RH'].forEach(side => {
+      ['A', 'B', 'C', 'R', 'P'].forEach(col => {
+        const prefix = col === 'P' ? '[조인트-FRT 공정간]' : (col === 'R' ? '[조인트-FRT 재조인트]' : '[조인트-FRT]');
+        F5004_DEFECT_NAMES.forEach(([key, label]) => {
+          addDefect(`${prefix} ${label}`, r.qtyTable[`f5004_FRT_${side}_def_${key}_${col}`]);
+        });
+      });
+    });
+
+    // #5005 (GM 9BQC G/RUN 조인트-RR R부) — RR LH / RR RH, 불량 10종
+    {
+      const F5005_DEFECT_NAMES = [
+        ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'], ['bubble', '기포'],
+        ['dent', '씹힘'], ['contam', '오염'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
+      ];
+      ['LH', 'RH'].forEach(side => {
+        ['A', 'B', 'C', 'R', 'P'].forEach(col => {
+          const prefix = col === 'P' ? '[조인트-RR R부 공정간]' : (col === 'R' ? '[조인트-RR R부 재조인트]' : '[조인트-RR R부]');
+          F5005_DEFECT_NAMES.forEach(([key, label]) => {
+            const val = r.qtyTable[`f5005_RR_${side}_def_${key}_${col}`] ?? r.qtyTable[`f5005_FRT_${side}_def_${key}_${col}`];
+            addDefect(`${prefix} ${label}`, val);
+          });
+        });
+      });
+    }
+
+    // #5006 (GM 9BQC G/RUN 조인트-RR Fixed) — 동일 방향 2표(u1/u2) + 구버전 단일 표/분리 표 하위 호환 (GEMINI.md 원칙 9·11)
+    {
+      const F5006_DEFECT_NAMES = [
+        ['split', '떨어짐'], ['dv_split', 'D/V 떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'],
+        ['bubble', '기포'], ['dent', '씹힘'], ['contam', '오염'], ['glass_break', '글라스 파손'],
+        ['insert', '삽입불량'], ['sink', '수축'], ['cut_ng', '단컷팅불량'], ['etc', '기타']
+      ];
+      const qtyKeys = Object.keys(r.qtyTable);
+      const hasUnitKeys = qtyKeys.some(k => k.startsWith('f5006_RR_u1_') || k.startsWith('f5006_RR_u2_'));
+      const hasSingleEquipKeys = !hasUnitKeys && qtyKeys.some(k => k.startsWith('f5006_RR_def_'));
+
+      if (hasUnitKeys) {
+        ['u1', 'u2'].forEach(unit => {
+          ['A', 'B', 'D', 'R', 'P'].forEach(col => {
+            const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : (col === 'R' ? '[조인트-RR Fixed 재조인트]' : '[조인트-RR Fixed]');
+            F5006_DEFECT_NAMES.forEach(([key, label]) => {
+              addDefect(`${prefix} ${label}`, r.qtyTable[`f5006_RR_${unit}_def_${key}_${col}`]);
+            });
+          });
+        });
+      } else if (hasSingleEquipKeys) {
+        ['A', 'B', 'D', 'R', 'P'].forEach(col => {
+          const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : (col === 'R' ? '[조인트-RR Fixed 재조인트]' : '[조인트-RR Fixed]');
+          F5006_DEFECT_NAMES.forEach(([key, label]) => {
+            addDefect(`${prefix} ${label}`, r.qtyTable[`f5006_RR_def_${key}_${col}`]);
+          });
+        });
+      } else {
+        ['LH', 'RH'].forEach(side => {
+          ['A', 'B', 'C', 'D', 'R', 'P'].forEach(col => {
+            const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : (col === 'R' ? '[조인트-RR Fixed 재조인트]' : '[조인트-RR Fixed]');
+            F5006_DEFECT_NAMES.forEach(([key, label]) => {
+              const val = r.qtyTable[`f5006_RR_${side}_def_${key}_${col}`] ?? r.qtyTable[`f5006_FRT_${side}_def_${key}_${col}`];
+              addDefect(`${prefix} ${label}`, val);
+            });
+          });
+        });
+      }
+    }
+
+    // #5002 (GM 9BQC G/RUN 소재준비-정치절단)
+    ['FRT_A', 'FRT_B', 'FRT_C', 'RR_A', 'RR_B'].forEach(sec => {
+      addDefect('[정치절단] 스코치',       r.qtyTable[`f5002_${sec}_def_ext_scorch`]);
+      addDefect('[정치절단] 외면흠',       r.qtyTable[`f5002_${sec}_def_ext_scratch`]);
+      addDefect('[정치절단] 오염',         r.qtyTable[`f5002_${sec}_def_ext_contam`]);
+      addDefect('[정치절단] 길이미달',     r.qtyTable[`f5002_${sec}_def_ext_len_short`]);
+      addDefect('[정치절단] 와이어노출',   r.qtyTable[`f5002_${sec}_def_ext_wire`]);
+      addDefect('[정치절단] 압출기타',     r.qtyTable[`f5002_${sec}_def_ext_etc`]);
+      addDefect('[정치절단] 공정길이불량', r.qtyTable[`f5002_${sec}_def_proc_len`]);
+      addDefect('[정치절단] 공정기타',     r.qtyTable[`f5002_${sec}_def_proc_etc`]);
+    });
+
+    // #5007 (GM 9BQC G/RUN 후가공-D/V) — LH/RH × D/V·RR가공 (압출·조인트·후가공 불량)
+    {
+      const F5007_EXT = [
+        ['scorch', '스코치'], ['scratch', '외면흠'], ['contam', '오염'],
+        ['coat', '코팅불량'], ['cross', '단면불량'], ['etc', '기타']
+      ];
+      const F5007_JOINT = [
+        ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'],
+        ['bubble', '기포'], ['dent', '씹힘'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
+      ];
+      const F5007_POST = [
+        ['len', '길이불량'], ['contam', '외면오염'], ['overtrim', '과사상'], ['undertrim', '미사상'],
+        ['mark_miss', '마킹누락'], ['pad_miss', 'PAD누락'], ['film_miss', 'PROTECT FILM누락'],
+        ['bond_contam', '본드오염'], ['etc', '기타']
+      ];
+      ['LH_DV', 'LH_RR', 'RH_DV', 'RH_RR'].forEach(col => {
+        F5007_EXT.forEach(([k, name]) => addDefect(`[후가공-D/V 압출] ${name}`, r.qtyTable[`f5007_${col}_def_ext_${k}`]));
+        F5007_JOINT.forEach(([k, name]) => addDefect(`[후가공-D/V 조인트] ${name}`, r.qtyTable[`f5007_${col}_def_joint_${k}`]));
+        F5007_POST.forEach(([k, name]) => addDefect(`[후가공-D/V 후가공] ${name}`, r.qtyTable[`f5007_${col}_def_post_${k}`]));
+      });
+    }
+
+    // #5011 (GM 9BQC G/RUN 검사포장-FRT) — FRT LH / FRT RH (압출·조인트·후가공 불량)
+    {
+      const F5011_EXT = [
+        ['scorch', '스코치'], ['scratch', '외면흠'], ['contam', '오염'],
+        ['coat', '코팅불량'], ['cross', '단면불량'], ['etc', '기타']
+      ];
+      const F5011_JOINT = [
+        ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'],
+        ['bubble', '기포'], ['dent', '씹힘'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
+      ];
+      const F5011_POST = [
+        ['len', '길이불량'], ['mark_miss', '마킹누락'], ['overtrim', '과사상'], ['undertrim', '미사상'],
+        ['contam', '외면오염'], ['rim_cut_miss', '림컷팅누락'], ['pad_miss', '패드누락'], ['etc', '기타']
+      ];
+      ['FRT_LH', 'FRT_RH'].forEach(col => {
+        F5011_EXT.forEach(([k, name]) => addDefect(`[검사포장-FRT 압출] ${name}`, r.qtyTable[`f5011_${col}_def_ext_${k}`]));
+        F5011_JOINT.forEach(([k, name]) => addDefect(`[검사포장-FRT 조인트] ${name}`, r.qtyTable[`f5011_${col}_def_joint_${k}`]));
+        F5011_POST.forEach(([k, name]) => addDefect(`[검사포장-FRT 후가공] ${name}`, r.qtyTable[`f5011_${col}_def_post_${k}`]));
+      });
+    }
   }
 
   // 9. dtCrewPrepQty (스텔란티스 소재준비 — LH_A / RH_A)
@@ -372,16 +507,17 @@ export function buildStatsUpdate(oldReport, newReport) {
 
   const addCombo = (report, mult) => {
     if (!report) return;
-    // 반장/지게차/출하지원 일보는 차종·품목과 무관하므로 '공통'으로 통일 (구버전 데이터가 특정 차종 통계에 섞이는 오류 방지)
-    const isCommonForm = report.isLeaderForm || report.isForkliftForm || report.isSupportForm
-      || ['반장 작업일보', '지게차작업', '출하지원'].includes(report.processName);
+    // 반장/지게차/출하지원/FMB보관실 일보는 차종·품목과 무관하므로 '공통'으로 통일 (구버전 데이터가 특정 차종 통계에 섞이는 오류 방지)
+    const isCommonForm = report.isLeaderForm || report.isForkliftForm || report.isSupportForm || report.isFmbForm
+      || ['반장 작업일보', '지게차작업', '출하지원', 'FMB보관실'].includes(report.processName);
     const car = isCommonForm ? '공통' : (report.carModel || '기타');
     const item = isCommonForm ? '공통' : (report.itemCode || report.itemName || '기타');
     const proc = report.isLeaderForm ? '반장 작업일보'
       : report.isForkliftForm ? '지게차작업'
       : report.isSupportForm ? '출하지원'
+      : report.isFmbForm ? 'FMB보관실'
       : (report.processName || '기타');
-      const key = `${car}::${item}::${proc}`.replace(/[\.\\/\[\]]/g, '_');
+      const key = `${car}::${item}::${proc}`.replace(/[.\\/[\]]/g, '_');
     
     if (!updates.items[key]) updates.items[key] = {};
     const combo = updates.items[key];
@@ -395,7 +531,7 @@ export function buildStatsUpdate(oldReport, newReport) {
     if (Object.keys(defects).length > 0) {
       if (!combo.defects) combo.defects = {};
       Object.entries(defects).forEach(([k, v]) => {
-        const dk = k.replace(/[\.\\/]/g, '_');
+        const dk = k.replace(/[.\\/]/g, '_');
         combo.defects[dk] = (combo.defects[dk] || 0) + (v * mult);
       });
     }

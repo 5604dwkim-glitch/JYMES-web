@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
-export default function MoldRepairRequestModal({ mold, initialData, onClose, onSave }) {
+export default function MoldRepairRequestModal({ mold, initialData, onClose, onSave, readOnly = false }) {
   const [formData, setFormData] = useState(initialData || {
     department: '오록 신천',
     requestDate: new Date().toLocaleDateString('sv-SE'),
@@ -31,6 +31,7 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
   };
 
   const handleImageUpload = (e, field) => {
+    if (readOnly) return;
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -93,6 +94,7 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
             <span style={{ fontSize: '18px' }}>▣</span> 양산 금형 수리 의뢰서
           </h2>
 
+          <fieldset disabled={readOnly} style={{ border: 'none', padding: 0, margin: 0, minWidth: 0 }}>
           <div style={{ border: '1px solid #94a3b8', width: '100%' }}>
             {/* Top Table */}
             <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
@@ -126,7 +128,7 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
                       <div style={{ display: 'flex', gap: '6px' }}>
                         {['수리', '설변'].map(type => (
-                          <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
+                          <label key={type} style={{ cursor: readOnly ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
                             <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
                             {type}
                           </label>
@@ -134,7 +136,7 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
                       </div>
                       <div style={{ display: 'flex', gap: '6px' }}>
                         {['파손', '습합'].map(type => (
-                          <label key={type} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
+                          <label key={type} style={{ cursor: readOnly ? 'default' : 'pointer', display: 'flex', alignItems: 'center', gap: '2px', whiteSpace: 'nowrap' }}>
                             <input type="radio" name="requestType" checked={formData.requestType === type} onChange={() => setFormData({...formData, requestType: type})} style={{ margin: 0 }} />
                             {type}
                           </label>
@@ -170,28 +172,28 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
             <div style={{ display: 'flex', borderTop: '1px solid #94a3b8' }}>
               <div style={{ flex: 1, padding: '8px', borderRight: '1px solid #94a3b8', minHeight: '300px' }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리전 사진</div>
-                <label style={{ display: 'block', width: '100%', height: '280px', background: '#f8fafc', border: '1px dashed #cbd5e1', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+                <label style={{ display: 'block', width: '100%', height: '280px', background: '#f8fafc', border: '1px dashed #cbd5e1', cursor: readOnly ? 'default' : 'pointer', position: 'relative', overflow: 'hidden' }}>
                   {formData.beforeImage ? (
                     <img src={formData.beforeImage} alt="수리전 사진" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   ) : (
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>클릭하여 수리전 사진 업로드</span>
+                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>{readOnly ? '등록된 사진 없음' : '클릭하여 수리전 사진 업로드'}</span>
                     </div>
                   )}
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'beforeImage')} />
+                  {!readOnly && <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'beforeImage')} />}
                 </label>
               </div>
               <div style={{ flex: 1, padding: '8px', minHeight: '300px' }}>
                 <div style={{ fontWeight: 'bold', marginBottom: '4px', fontSize: '13px' }}>수리후 사진</div>
-                <label style={{ display: 'block', width: '100%', height: '280px', background: '#f8fafc', border: '1px dashed #cbd5e1', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+                <label style={{ display: 'block', width: '100%', height: '280px', background: '#f8fafc', border: '1px dashed #cbd5e1', cursor: readOnly ? 'default' : 'pointer', position: 'relative', overflow: 'hidden' }}>
                   {formData.afterImage ? (
                     <img src={formData.afterImage} alt="수리후 사진" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   ) : (
                     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>클릭하여 수리후 사진 업로드</span>
+                      <span style={{ color: '#94a3b8', fontSize: '13px' }}>{readOnly ? '등록된 사진 없음' : '클릭하여 수리후 사진 업로드'}</span>
                     </div>
                   )}
-                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'afterImage')} />
+                  {!readOnly && <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleImageUpload(e, 'afterImage')} />}
                 </label>
               </div>
             </div>
@@ -206,18 +208,23 @@ export default function MoldRepairRequestModal({ mold, initialData, onClose, onS
                 협력업체<br/>품질 담당
               </div>
               <div style={{ width: '150px', borderLeft: '1px solid #94a3b8', padding: '8px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <input type="text" style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', outline: 'none', fontWeight: 'bold' }} placeholder="담당자명" value={formData.qualityPic} onChange={e => setFormData({...formData, qualityPic: e.target.value})} />
+                <input type="text" style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'center', outline: 'none', fontWeight: 'bold' }} placeholder={readOnly ? '' : '담당자명'} value={formData.qualityPic} onChange={e => setFormData({...formData, qualityPic: e.target.value})} />
               </div>
             </div>
           </div>
+          </fieldset>
 
         </div>
 
         {/* Modal Footer */}
         <div className="modal-footer" style={{ padding: '16px 24px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-          <button className="btn btn-secondary" onClick={onClose} style={{ padding: '8px 24px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>닫기</button>
-          <button className="btn" onClick={() => { onSave({ ...formData, repairStatus: '요청' }) }} style={{ padding: '8px 24px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>수리요청</button>
-          <button className="btn btn-primary" onClick={() => { onSave({ ...formData, repairStatus: '완료' }) }} style={{ padding: '8px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>수리완료</button>
+          <button type="button" className="btn btn-secondary" onClick={onClose} style={{ padding: '8px 24px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>닫기</button>
+          {!readOnly && (
+            <>
+              <button type="button" className="btn" onClick={() => { onSave({ ...formData, repairStatus: '요청' }); }} style={{ padding: '8px 24px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>수리요청</button>
+              <button type="button" className="btn btn-primary" onClick={() => { onSave({ ...formData, repairStatus: '완료' }); }} style={{ padding: '8px 24px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>수리완료</button>
+            </>
+          )}
         </div>
         
       </div>

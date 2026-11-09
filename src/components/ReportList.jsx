@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { fetchReports, deleteReport, bulkApproveReports, bulkDeleteReports, fetchWorkers } from '../services/firestore';
@@ -8,7 +8,7 @@ import LegacyDetailModal from './DynamicForms/LegacyDetailModal';
 
 export default function ReportList({ initialStatus = 'ALL' }) {
   const { userRole } = useAuth();
-  const { t } = useI18n();
+  const { t, td, lang } = useI18n();
   const navigate = useNavigate();
 
   const [reports, setReports] = useState([]);
@@ -59,10 +59,38 @@ export default function ReportList({ initialStatus = 'ALL' }) {
     });
   }, []);
 
+  const searchQueryRef = useRef(searchQuery);
+  searchQueryRef.current = searchQuery;
+
+  const loadReports = useCallback(async () => {
+    setLoading(true);
+    const filters = { startDate, endDate, carModel, processName, status };
+    // 작업자 계정인 경우 자신의 일보만 표시
+    if (userRole && userRole.role === 'worker') {
+      filters.workerName = userRole.workerName;
+    }
+    const data = await fetchReports(filters);
+    const curQuery = searchQueryRef.current;
+
+    setReports(data);
+    setFilteredReports(curQuery
+      ? data.filter(r => {
+          const kw = curQuery.toLowerCase();
+          return (r.id && r.id.toLowerCase().includes(kw)) ||
+            (r.carModel && r.carModel.toLowerCase().includes(kw)) ||
+            (r.itemName && r.itemName.toLowerCase().includes(kw)) ||
+            (r.workerName && r.workerName.toLowerCase().includes(kw)) ||
+            (r.notes && r.notes.toLowerCase().includes(kw));
+        })
+      : data
+    );
+    setLoading(false);
+  }, [startDate, endDate, carModel, processName, status, userRole]);
+
   // Firestore 호출: 날짜/차종/공정/상태 변경 시에만 실행 (searchQuery 제외)
   useEffect(() => {
     loadReports();
-  }, [startDate, endDate, carModel, processName, status]);
+  }, [loadReports]);
 
   // searchQuery 변경은 클라이언트 필터만 재적용 (Firestore 호출 없음)
   useEffect(() => {
@@ -79,30 +107,6 @@ export default function ReportList({ initialStatus = 'ALL' }) {
       (r.notes && r.notes.toLowerCase().includes(kw))
     ));
   }, [searchQuery, reports]);
-
-  async function loadReports() {
-    setLoading(true);
-    const filters = { startDate, endDate, carModel, processName, status };
-    // 작업자 계정인 경우 자신의 일보만 표시
-    if (userRole && userRole.role === 'worker') {
-      filters.workerName = userRole.workerName;
-    }
-    let data = await fetchReports(filters);
-
-    setReports(data);
-    setFilteredReports(searchQuery
-      ? data.filter(r => {
-          const kw = searchQuery.toLowerCase();
-          return (r.id && r.id.toLowerCase().includes(kw)) ||
-            (r.carModel && r.carModel.toLowerCase().includes(kw)) ||
-            (r.itemName && r.itemName.toLowerCase().includes(kw)) ||
-            (r.workerName && r.workerName.toLowerCase().includes(kw)) ||
-            (r.notes && r.notes.toLowerCase().includes(kw));
-        })
-      : data
-    );
-    setLoading(false);
-  }
 
   const handleResetFilters = () => {
     setStartDate(initialStartDate);
@@ -450,40 +454,40 @@ export default function ReportList({ initialStatus = 'ALL' }) {
       <div className="filter-bar">
         <div className="filter-group">
           <div className="form-group" style={{ minWidth: '120px' }}>
-            <label style={{ fontSize: '11px' }}>시작일</label>
+            <label style={{ fontSize: '11px' }}>{t('filter_start_date')}</label>
             <input type="date" max="9999-12-31" className="form-control" value={startDate} onChange={e => setStartDate(e.target.value)} />
           </div>
           <div className="form-group" style={{ minWidth: '120px' }}>
-            <label style={{ fontSize: '11px' }}>종료일</label>
+            <label style={{ fontSize: '11px' }}>{t('filter_end_date')}</label>
             <input type="date" max="9999-12-31" className="form-control" value={endDate} onChange={e => setEndDate(e.target.value)} />
           </div>
           <div className="form-group" style={{ minWidth: '110px' }}>
-            <label style={{ fontSize: '11px', color: 'var(--accent-emerald)' }}>차종</label>
+            <label style={{ fontSize: '11px', color: 'var(--accent-emerald)' }}>{t('th_vehicle')}</label>
             <select className="form-control" value={carModel} onChange={e => setCarModel(e.target.value)}>
-              <option value="ALL">전체 차종</option>
-              {CAR_MODELS.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+              <option value="ALL">{t('filter_all_cars')}</option>
+              {CAR_MODELS.map(c => <option key={c.code} value={c.code}>{td(c.code)}</option>)}
             </select>
           </div>
           <div className="form-group" style={{ minWidth: '120px' }}>
-            <label style={{ fontSize: '11px', color: 'var(--accent-cyan)' }}>공정</label>
+            <label style={{ fontSize: '11px', color: 'var(--accent-cyan)' }}>{t('form_process')}</label>
             <select className="form-control" value={processName} onChange={e => setProcessName(e.target.value)}>
-              <option value="ALL">전체 공정</option>
-              {DEFAULT_PROCESSES.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}
+              <option value="ALL">{t('report_filter_all')}</option>
+              {DEFAULT_PROCESSES.map(p => <option key={p.name} value={p.name}>{td(p.name)}</option>)}
             </select>
           </div>
           <div className="form-group" style={{ minWidth: '110px' }}>
-            <label style={{ fontSize: '11px' }}>상태</label>
+            <label style={{ fontSize: '11px' }}>{t('th_status')}</label>
             <select className="form-control" value={status} onChange={e => setStatus(e.target.value)}>
-              <option value="ALL">전체 상태</option>
-              <option value="임시저장">임시저장만</option>
-              <option value="승인 대기">승인 대기만</option>
-              <option value="승인 완료">승인 완료만</option>
-              <option value="반려">반려 건만</option>
+              <option value="ALL">{t('report_filter_status')}</option>
+              <option value="임시저장">{t('filter_draft_only')}</option>
+              <option value="승인 대기">{t('filter_pending_only')}</option>
+              <option value="승인 완료">{t('filter_approved_only')}</option>
+              <option value="반려">{t('filter_rejected_only')}</option>
             </select>
           </div>
           <div className="form-group" style={{ minWidth: '160px' }}>
-            <label style={{ fontSize: '11px' }}>검색</label>
-            <input type="text" className="form-control" placeholder="작업자, 품목, 일보ID" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+            <label style={{ fontSize: '11px' }}>{td('검색')}</label>
+            <input type="text" className="form-control" placeholder={td('작업자, 품목, 일보ID')} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
           </div>
         </div>
 
@@ -496,7 +500,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
               setEndDate(dStr);
             }}
           >
-            {getOffsetDateStr(-2).substring(5).replace('-', '.')} 조회
+            {td(`${getOffsetDateStr(-2).substring(5).replace('-', '.')} 조회`)}
           </button>
           
           <button 
@@ -507,7 +511,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
               setEndDate(dStr);
             }}
           >
-            {getOffsetDateStr(-1).substring(5).replace('-', '.')} 조회
+            {td(`${getOffsetDateStr(-1).substring(5).replace('-', '.')} 조회`)}
           </button>
 
           <button 
@@ -519,36 +523,37 @@ export default function ReportList({ initialStatus = 'ALL' }) {
             }}
             style={{ borderColor: 'var(--accent-emerald)', color: 'var(--accent-emerald)' }}
           >
-            {getOffsetDateStr(0).substring(5).replace('-', '.')} 조회
+            {td(`${getOffsetDateStr(0).substring(5).replace('-', '.')} 조회`)}
           </button>
           {userRole?.role !== 'worker' && (
             <button className="btn btn-outline-primary btn-sm" onClick={toggleViewMode}>
-              {viewMode === 'list' ? '🪧 제출 현황 보드' : '📋 리스트 보기'}
+              {viewMode === 'list' ? td('🪧 제출 현황 보드') : td('📋 리스트 보기')}
             </button>
           )}
 
           <button className="btn btn-primary btn-sm" onClick={() => navigate('/form')}>
-            <span>➕</span> 신규 일보 작성
+            <span>➕</span> {t('nav_form')}
           </button>
         </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontSize: '13px', color: 'var(--text-muted)' }}>
         <div>
-          <span>조회 결과: </span>
-          <strong style={{ color: 'var(--accent-cyan)' }}>{filteredReports.length}</strong>건
+          <span>{td('조회 결과:')} </span>
+          <strong style={{ color: 'var(--accent-cyan)' }}>{filteredReports.length}</strong>
+          {lang === 'ko' ? '건' : ''}
           {searchQuery && reports.length !== filteredReports.length && (
-            <span style={{ marginLeft: '6px', color: 'var(--text-muted)' }}>(전체 {reports.length}건 중 검색)</span>
+            <span style={{ marginLeft: '6px', color: 'var(--text-muted)' }}>{td(`(전체 ${reports.length}건 중 검색)`)}</span>
           )}
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           {userRole?.role !== 'worker' && (
             <>
               <button className="btn btn-info btn-sm" onClick={handleBulkDownloadZIP} style={{ backgroundColor: '#0284c7', color: 'white', border: 'none' }}>
-            선택항목 다운로드 (ZIP)
-          </button>
-          <button className="btn btn-success btn-sm" onClick={handleBulkApprove}>선택 항목 일괄 승인</button>
-          <button className="btn btn-danger btn-sm" onClick={handleBulkDelete}>선택 항목 일괄 삭제</button>
+                {td('선택항목 다운로드 (ZIP)')}
+              </button>
+              <button className="btn btn-success btn-sm" onClick={handleBulkApprove}>{t('btn_bulk_approve')}</button>
+              <button className="btn btn-danger btn-sm" onClick={handleBulkDelete}>{t('btn_bulk_delete')}</button>
             </>
           )}
         </div>
@@ -579,6 +584,11 @@ export default function ReportList({ initialStatus = 'ALL' }) {
             carModel = '공통';
             itemName = '공통';
             processName = '출하지원';
+          }
+          if (r.isFmbForm || processName === 'FMB보관실') {
+            carModel = '공통';
+            itemName = '공통';
+            processName = 'FMB보관실';
           }
           
           submittedWorkers.add(r.workerName);
@@ -632,29 +642,29 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                   <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#334155' }}>{w.name}</div>
                   <div style={{ fontSize: '12px', color: hasSubmitted ? '#166534' : (hasDraft ? '#0369a1' : '#991b1b'), fontWeight: '700' }}>
-                    {hasSubmitted ? '제출 완료' : (hasDraft ? '작성 중' : '미제출')}
+                    {hasSubmitted ? td('제출 완료') : (hasDraft ? td('작성 중') : td('미제출'))}
                   </div>
                 </div>
               </div>
 
 
-              {!hasSubmitted && hasDraft && !userReports.some(r => r.isLeaderForm || r.processName === '반장 작업일보' || r.isForkliftForm || r.processName === '지게차작업' || r.isSupportForm || r.processName === '출하지원') && (
+              {!hasSubmitted && hasDraft && !userReports.some(r => r.isLeaderForm || r.processName === '반장 작업일보' || r.isForkliftForm || r.processName === '지게차작업' || r.isSupportForm || r.processName === '출하지원' || r.isFmbForm || r.processName === 'FMB보관실') && (
                 <div style={{ fontSize: '11px', textAlign: 'left', background: '#fff', padding: '8px', borderRadius: '6px', width: '100%', marginTop: '4px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ color: hasLotCho ? '#15803d' : '#94a3b8', fontWeight: hasLotCho ? 'bold' : 'normal' }}>
-                    {hasLotCho ? '✅' : '⏳'} 소재 LOT (초물)
+                    {hasLotCho ? '✅' : '⏳'} {td('소재 LOT (초물)')}
                   </div>
                   <div style={{ color: hasDimCho ? '#15803d' : '#94a3b8', fontWeight: hasDimCho ? 'bold' : 'normal' }}>
-                    {hasDimCho ? '✅' : '⏳'} 치수검사 (초물)
+                    {hasDimCho ? '✅' : '⏳'} {td('치수검사 (초물)')}
                   </div>
                   
                   {(hasLotJung || hasDimJung) && (
                     <>
                       <div style={{ borderTop: '1px dashed #e2e8f0', margin: '2px 0' }}></div>
                       <div style={{ color: hasLotJung ? '#15803d' : '#94a3b8', fontWeight: hasLotJung ? 'bold' : 'normal' }}>
-                        {hasLotJung ? '✅' : '⏳'} 소재 LOT (중물)
+                        {hasLotJung ? '✅' : '⏳'} {td('소재 LOT (중물)')}
                       </div>
                       <div style={{ color: hasDimJung ? '#15803d' : '#94a3b8', fontWeight: hasDimJung ? 'bold' : 'normal' }}>
-                        {hasDimJung ? '✅' : '⏳'} 치수검사 (중물)
+                        {hasDimJung ? '✅' : '⏳'} {td('치수검사 (중물)')}
                       </div>
                     </>
                   )}
@@ -663,10 +673,10 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                     <>
                       <div style={{ borderTop: '1px dashed #e2e8f0', margin: '2px 0' }}></div>
                       <div style={{ color: hasLotJong ? '#15803d' : '#94a3b8', fontWeight: hasLotJong ? 'bold' : 'normal' }}>
-                        {hasLotJong ? '✅' : '⏳'} 소재 LOT (종물)
+                        {hasLotJong ? '✅' : '⏳'} {td('소재 LOT (종물)')}
                       </div>
                       <div style={{ color: hasDimJong ? '#15803d' : '#94a3b8', fontWeight: hasDimJong ? 'bold' : 'normal' }}>
-                        {hasDimJong ? '✅' : '⏳'} 치수검사 (종물)
+                        {hasDimJong ? '✅' : '⏳'} {td('치수검사 (종물)')}
                       </div>
                     </>
                   )}
@@ -783,33 +793,33 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                 <th style={{ width: '40px', textAlign: 'center' }}>
                   <input type="checkbox" onChange={handleSelectAll} checked={filteredReports.length > 0 && selectedIds.length === filteredReports.length} />
                 </th>
-                <th>일보 ID</th>
-                <th>작업일자</th>
-                <th>차종</th>
-                <th>공정명</th>
-                <th>작업자</th>
-                <th>생산 품목</th>
-                <th style={{ textAlign: 'right' }}>완료</th>
-                <th style={{ textAlign: 'right' }}>불량</th>
-                <th style={{ textAlign: 'right' }}>달성률</th>
-                <th>상태</th>
-                <th style={{ textAlign: 'center' }}>관리</th>
+                <th>{td('일보 ID')}</th>
+                <th>{td('작업일자')}</th>
+                <th>{t('th_vehicle')}</th>
+                <th>{t('form_process')}</th>
+                <th>{t('th_worker')}</th>
+                <th>{t('label_item_select')}</th>
+                <th style={{ textAlign: 'right' }}>{td('완료')}</th>
+                <th style={{ textAlign: 'right' }}>{t('th_defect')}</th>
+                <th style={{ textAlign: 'right' }}>{t('kpi_target_rate')}</th>
+                <th>{t('th_status')}</th>
+                <th style={{ textAlign: 'center' }}>{t('th_action')}</th>
               </tr>
 
               {/* 모바일 헤더 */}
               <tr className="mobile-row mobile-row-top">
-                <th rowSpan="2" style={{ textAlign: 'center', borderRight: 'none', width: '80px', verticalAlign: 'middle' }}>관리</th>
-                <th style={{ borderBottom: 'none' }}>작업일자</th>
-                <th style={{ borderBottom: 'none' }}>공정명</th>
-                <th style={{ borderBottom: 'none' }}>생산품목</th>
-                <th style={{ textAlign: 'right', borderBottom: 'none' }}>완료</th>
-                <th rowSpan="2" style={{ textAlign: 'center', borderLeft: 'none', verticalAlign: 'middle' }}>일보 아이디</th>
+                <th rowSpan="2" style={{ textAlign: 'center', borderRight: 'none', width: '80px', verticalAlign: 'middle' }}>{t('th_action')}</th>
+                <th style={{ borderBottom: 'none' }}>{td('작업일자')}</th>
+                <th style={{ borderBottom: 'none' }}>{t('form_process')}</th>
+                <th style={{ borderBottom: 'none' }}>{td('생산품목')}</th>
+                <th style={{ textAlign: 'right', borderBottom: 'none' }}>{td('완료')}</th>
+                <th rowSpan="2" style={{ textAlign: 'center', borderLeft: 'none', verticalAlign: 'middle' }}>{td('일보 아이디')}</th>
               </tr>
               <tr className="mobile-row mobile-row-bottom">
-                <th style={{ borderTop: 'none' }}>차 종</th>
-                <th style={{ borderTop: 'none' }}>작업자</th>
-                <th style={{ borderTop: 'none' }}>상 태</th>
-                <th style={{ borderTop: 'none', textAlign: 'right' }}>불량</th>
+                <th style={{ borderTop: 'none' }}>{t('th_vehicle')}</th>
+                <th style={{ borderTop: 'none' }}>{t('th_worker')}</th>
+                <th style={{ borderTop: 'none' }}>{t('th_status')}</th>
+                <th style={{ borderTop: 'none', textAlign: 'right' }}>{t('th_defect')}</th>
               </tr>
             </thead>
             <tbody>
@@ -822,23 +832,23 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                     </td>
                     <td style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-cyan)' }}>{r.id}</td>
                     <td>{r.date}</td>
-                    <td><span style={{ fontWeight: 700, color: 'var(--accent-emerald)', background: 'rgba(5,150,105,0.12)', padding: '2px 6px', borderRadius: '4px', fontSize: '11px' }}>{r.carModel}</span></td>
-                    <td><span style={{ fontWeight: 700 }}>{r.processName}</span></td>
+                    <td><span style={{ fontWeight: 700, color: 'var(--accent-emerald)', background: 'rgba(5,150,105,0.12)', padding: '2px 6px', borderRadius: '4px', fontSize: '11px' }}>{td(r.carModel)}</span></td>
+                    <td><span style={{ fontWeight: 700 }}>{td(r.processName)}</span></td>
                     <td style={{ fontWeight: 700 }}>{r.workerName}</td>
-                    <td><div style={{ fontWeight: 600 }}>{r.itemName || '기본 품목'}</div></td>
+                    <td><div style={{ fontWeight: 600 }}>{td(r.itemName || '기본 품목')}</div></td>
                     <td style={{ textAlign: 'right', fontWeight: 700, color: 'var(--accent-emerald)' }}>{r.actualQty?.toLocaleString()} EA</td>
                     <td style={{ textAlign: 'right', color: r.defectQty > 0 ? 'var(--accent-rose)' : 'var(--text-muted)' }}>{r.defectQty?.toLocaleString()} EA</td>
                     <td style={{ textAlign: 'right', fontWeight: 700 }}>{r.attainmentRate}%</td>
                     <td>
                       <span className={`status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : r.status === '임시저장' ? 'draft' : 'pending'}`}>
-                        {r.status}
+                        {td(r.status)}
                       </span>
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                        <button className="btn btn-secondary btn-sm" onClick={() => setSelectedReportForModal(r)} title="상세보기(인쇄)">👁️</button>
-                        <button className="btn btn-secondary btn-sm" onClick={() => navigate('/form', { state: { existingData: r } })} title="수정">✏️</button>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r.id)} title="삭제">🗑️</button>
+                        <button className="btn btn-secondary btn-sm" onClick={() => setSelectedReportForModal(r)} title={td('상세보기(인쇄)')}>👁️</button>
+                        <button className="btn btn-secondary btn-sm" onClick={() => navigate('/form', { state: { existingData: r } })} title={t('btn_edit')}>✏️</button>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDelete(r.id)} title={t('btn_delete')}>🗑️</button>
                       </div>
                     </td>
                   </tr>
@@ -849,21 +859,21 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
                         <button className="btn btn-sm" onClick={() => setSelectedReportForModal(r)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0', fontSize: '12px', background: 'transparent', border: 'none', color: 'var(--text-main)', boxShadow: 'none' }}>
                           <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#164e63', border: '1px solid #083344', flexShrink: 0 }}></div>
-                          <span style={{ width: '45px', textAlign: 'center' }}>상세보기</span>
+                          <span style={{ minWidth: '45px', textAlign: 'center' }}>{td('상세보기')}</span>
                         </button>
                         <button className="btn btn-sm" onClick={() => navigate('/form', { state: { existingData: r } })} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0', fontSize: '12px', background: 'transparent', border: 'none', color: 'var(--text-main)', boxShadow: 'none' }}>
-                          <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#164e63', border: '1px solid #083344', flexShrink: 0 }}></div>
-                          <span style={{ width: '45px', textAlign: 'center' }}>이어작성</span>
+                          <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#164e63', border: '1px solid #083344', flexShrink: '0' }}></div>
+                          <span style={{ minWidth: '45px', textAlign: 'center' }}>{td('이어작성')}</span>
                         </button>
                         <button className="btn btn-sm" onClick={() => handleDelete(r.id)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '0', fontSize: '12px', background: 'transparent', border: 'none', color: 'var(--text-main)', boxShadow: 'none' }}>
                           <div style={{ width: '14px', height: '14px', borderRadius: '50%', background: '#164e63', border: '1px solid #083344', flexShrink: 0 }}></div>
-                          <span style={{ width: '45px', display: 'flex', justifyContent: 'space-between' }}><span>삭</span><span>제</span></span>
+                          <span style={{ minWidth: '45px', textAlign: 'center' }}>{t('btn_delete')}</span>
                         </button>
                       </div>
                     </td>
                     <td style={{ borderBottom: 'none', padding: '6px', fontSize: '11px' }}>{r.date}</td>
-                    <td style={{ borderBottom: 'none', padding: '6px', fontSize: '11px' }}><span style={{ fontWeight: 700 }}>{r.processName}</span></td>
-                    <td style={{ borderBottom: 'none', padding: '6px', fontSize: '11px' }}><div style={{ fontWeight: 600 }}>{r.itemName || '기본 품목'}</div></td>
+                    <td style={{ borderBottom: 'none', padding: '6px', fontSize: '11px' }}><span style={{ fontWeight: 700 }}>{td(r.processName)}</span></td>
+                    <td style={{ borderBottom: 'none', padding: '6px', fontSize: '11px' }}><div style={{ fontWeight: 600 }}>{td(r.itemName || '기본 품목')}</div></td>
                     <td style={{ borderBottom: 'none', padding: '6px', fontSize: '11px', textAlign: 'right', fontWeight: 700, color: 'var(--accent-emerald)' }}>{r.actualQty?.toLocaleString()} EA</td>
                     <td rowSpan="2" style={{ borderLeft: 'none', padding: '6px', verticalAlign: 'middle', textAlign: 'center', fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-cyan)', fontSize: '11px' }}>
                       <div style={{ wordBreak: 'break-all' }}>{r.id}</div>
@@ -873,12 +883,12 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                   {/* 모바일 데이터 행 2 */}
                   <tr className="mobile-row mobile-row-bottom">
                     <td style={{ borderTop: 'none', padding: '6px', fontSize: '11px' }}>
-                      <span style={{ fontWeight: 700, color: 'var(--accent-emerald)', background: 'rgba(5,150,105,0.12)', padding: '2px 4px', borderRadius: '4px' }}>{r.carModel}</span>
+                      <span style={{ fontWeight: 700, color: 'var(--accent-emerald)', background: 'rgba(5,150,105,0.12)', padding: '2px 4px', borderRadius: '4px' }}>{td(r.carModel)}</span>
                     </td>
                     <td style={{ borderTop: 'none', padding: '6px', fontSize: '11px', fontWeight: 700 }}>{r.workerName}</td>
                     <td style={{ borderTop: 'none', padding: '6px', fontSize: '11px' }}>
                       <span className={`status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : r.status === '임시저장' ? 'draft' : 'pending'}`} style={{ padding: '2px 4px', fontSize: '10px' }}>
-                        {r.status}
+                        {td(r.status)}
                       </span>
                     </td>
                     <td style={{ borderTop: 'none', padding: '6px', fontSize: '11px', textAlign: 'right', color: r.defectQty > 0 ? 'var(--accent-rose)' : 'var(--text-muted)' }}>
@@ -890,14 +900,14 @@ export default function ReportList({ initialStatus = 'ALL' }) {
               {filteredReports.length === 0 && (
                 <tr className="desktop-row">
                   <td colSpan="12" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-dim)' }}>
-                    조건에 일치하는 작업일보가 없습니다.
+                    {td('조건에 일치하는 작업일보가 없습니다.')}
                   </td>
                 </tr>
               )}
               {filteredReports.length === 0 && (
                 <tr className="mobile-row">
                   <td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: 'var(--text-dim)' }}>
-                    조건에 일치하는 작업일보가 없습니다.
+                    {td('조건에 일치하는 작업일보가 없습니다.')}
                   </td>
                 </tr>
               )}

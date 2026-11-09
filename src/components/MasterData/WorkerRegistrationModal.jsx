@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
-export default function WorkerRegistrationModal({ onClose, onSave, existingWorker }) {
+export default function WorkerRegistrationModal({ onClose, onSave, existingWorker, defaultPrefix = '' }) {
   const [formData, setFormData] = useState({
     name: '',
-    dept: '생산',
+    dept: '생산팀',
     process: '소재준비',
     hireDate: new Date().toLocaleDateString('sv-SE'),
     role: '사원',
-    id: '',
+    id: defaultPrefix ? `${defaultPrefix}` : '',
     photoData: null,
     status: '근무중'
   });
@@ -32,7 +32,15 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const nextVal = name === 'id' ? value.toUpperCase() : value;
+    setFormData(prev => ({ ...prev, [name]: nextVal }));
+  };
+
+  const applyIdPrefix = (prefix) => {
+    setFormData(prev => {
+      const rest = String(prev.id || '').trim().replace(/^[A-Z]{2}/i, '');
+      return { ...prev, id: `${prefix}${rest}` };
+    });
   };
 
   const handlePhotoUpload = (e) => {
@@ -64,11 +72,17 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
   };
 
   const handleSave = () => {
-    if (!formData.name || !formData.id) {
+    const cleanName = String(formData.name || '').trim();
+    const cleanId = String(formData.id || '').trim();
+    if (!cleanName || !cleanId) {
       alert('작업자 이름과 사번은 필수 입력 항목입니다.');
       return;
     }
-    onSave(formData);
+    if (/^(JY|HW|BL)$/i.test(cleanId)) {
+      alert(`사번 앞자리(${cleanId.toUpperCase()}) 뒤에 일련번호까지 입력해주세요. (예: ${cleanId.toUpperCase()}26001)`);
+      return;
+    }
+    onSave({ ...formData, name: cleanName, id: cleanId });
   };
 
   const loginUrl = `${window.location.origin}/login?id=${encodeURIComponent((formData.id || formData.name || '').trim())}&pw=0000&_t=${Date.now()}`; // cache buster
@@ -138,6 +152,7 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
                   <option value="조인트">조인트</option>
                   <option value="후가공">후가공</option>
                   <option value="검사">검사</option>
+                  <option value="관리">관리</option>
                   <option value="생산지원">생산지원</option>
                   <option value="연속 압출 및 열가황(Vulcanizing)">연속 압출 및 열가황</option>
                 </select>
@@ -170,7 +185,31 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
               </td>
               <td style={{ border: '1px solid #111', padding: '12px', fontWeight: 800, color: '#111' }}>사번</td>
               <td colSpan="3" style={{ border: '1px solid #111', padding: '12px' }}>
-                <input type="text" name="id" className="form-control" placeholder="문자 입력 (예: EMP001)" value={formData.id} onChange={handleChange} style={{ width: '100%', textAlign: 'center', textTransform: 'uppercase', fontWeight: 900, fontSize: '18px', color: '#111', letterSpacing: '1px' }} />
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginBottom: '8px' }}>
+                  {['JY', 'HW', 'BL'].map((pfx) => {
+                    const active = String(formData.id || '').toUpperCase().startsWith(pfx);
+                    return (
+                      <button
+                        key={pfx}
+                        type="button"
+                        onClick={() => applyIdPrefix(pfx)}
+                        style={{
+                          padding: '3px 10px',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          border: active ? '1.5px solid #2563eb' : '1px solid #cbd5e1',
+                          background: active ? '#eff6ff' : '#f8fafc',
+                          color: active ? '#1d4ed8' : '#475569'
+                        }}
+                      >
+                        {pfx} 선택
+                      </button>
+                    );
+                  })}
+                </div>
+                <input type="text" name="id" className="form-control" placeholder="사번 입력 (예: JY26001 / HW26001 / BL26001)" value={formData.id} onChange={handleChange} style={{ width: '100%', textAlign: 'center', textTransform: 'uppercase', fontWeight: 900, fontSize: '18px', color: '#111', letterSpacing: '1px' }} />
               </td>
             </tr>
           </tbody>

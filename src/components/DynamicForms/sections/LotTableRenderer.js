@@ -1,4 +1,11 @@
 import { autoFormatDateTimeString } from './formUtils.js';
+import { renderF5001LotTable } from '../forms/f5001/lotTable.js';
+import { renderF5002LotTable } from '../forms/f5002/lotTable.js';
+import { renderF5004LotTable } from '../forms/f5004/lotTable.js';
+import { renderF5005LotTable } from '../forms/f5005/lotTable.js';
+import { renderF5006LotTable } from '../forms/f5006/lotTable.js';
+import { renderF5007LotTable } from '../forms/f5007/lotTable.js';
+import { renderF5011LotTable } from '../forms/f5011/lotTable.js';
 
 /**
  * Section 4 소재 LOT 번호 테이블 렌더러
@@ -35,7 +42,13 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const noLotFormCodes = [1011, 1012, 1013]; // RR C PART'G 조인트/후가공 등
     const isStellantisInsp = [2005, 2015, 2027, 2035, 2044].includes(formCode);
     
-    if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 3004 && formCode !== 4014 && formCode !== 4004 && formCode !== 1004 && formCode !== 1034 && formCode !== 1024 && formCode !== 1044)) {
+    if (formCode === 5011) {
+      if (!curProc) {
+        if (section4Card) section4Card.style.display = 'none';
+        return;
+      }
+      if (section4Card) section4Card.style.display = 'block';
+    } else if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 3004 && formCode !== 4014 && formCode !== 4004 && formCode !== 1004 && formCode !== 1034 && formCode !== 1024 && formCode !== 1044)) {
       if (section4Card) section4Card.style.display = 'none';
       return;
     } else {
@@ -44,6 +57,41 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
 
     // [2] 고유번호(formCode)별 독립 LOT 템플릿 렌더러 분기
     switch (formCode) {
+
+      // #5001 (9BQC G/RUN 소재준비-글라스본딩): 전용 템플릿으로 위임 (forms/f5001/lotTable.js)
+      case 5001:
+        renderF5001LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #5002 (9BQC G/RUN 소재준비-정치절단): 전용 템플릿으로 위임 (forms/f5002/lotTable.js)
+      case 5002:
+        renderF5002LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #5004 (9BQC G/RUN 조인트-FRT): 전용 템플릿으로 위임 (forms/f5004/lotTable.js)
+      case 5004:
+        renderF5004LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #5005 (9BQC G/RUN 조인트-RR R부): #5004 양식틀 복사본 (forms/f5005/lotTable.js)
+      case 5005:
+        renderF5005LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #5006 (9BQC G/RUN 조인트-RR Fixed): 전용 템플릿으로 위임 (forms/f5006/lotTable.js)
+      case 5006:
+        renderF5006LotTable(lotContainer, curLots, materialLots, ctx);
+        break;
+
+      // #5007 (9BQC G/RUN 후가공-D/V): 전용 템플릿으로 위임 (forms/f5007/lotTable.js)
+      case 5007:
+        renderF5007LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #5011 (9BQC G/RUN 검사포장-FRT): 전용 템플릿으로 위임 (forms/f5011/lotTable.js)
+      case 5011:
+        renderF5011LotTable(lotContainer, curLots, materialLots);
+        break;
 
       
       case 1034:
