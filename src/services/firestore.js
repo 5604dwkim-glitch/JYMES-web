@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, documentId, writeBatch, limit, runTransaction, addDoc, serverTimestamp, increment } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, documentId, writeBatch, limit, runTransaction, addDoc, serverTimestamp, increment, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 import { buildStatsUpdate } from './statsAggregator';
@@ -961,5 +961,38 @@ export async function saveFmbInventory(items, meta = {}) {
   } catch (error) {
     console.error('Error saving FMB inventory:', error);
     throw error;
+  }
+}
+
+export function subscribeFmbInventory(onUpdate) {
+  try {
+    const ref = doc(db, 'fmb_inventory', FMB_INVENTORY_DOC_ID);
+    return onSnapshot(
+      ref,
+      async (snap) => {
+        if (snap.exists()) {
+          const data = snap.data() || {};
+          onUpdate({
+            items: Array.isArray(data.items) ? data.items : [],
+            alarmHistory: Array.isArray(data.alarmHistory) ? data.alarmHistory : [],
+            lastReportDate: data.lastReportDate || '',
+            updatedAt: data.updatedAt || ''
+          });
+        } else {
+          const seeded = await fetchFmbInventory();
+          onUpdate({
+            items: Array.isArray(seeded.items) ? seeded.items : [],
+            alarmHistory: Array.isArray(seeded.alarmHistory) ? seeded.alarmHistory : [],
+            lastReportDate: seeded.lastReportDate || '',
+            updatedAt: seeded.updatedAt || ''
+          });
+        }
+      },
+      (err) => {
+        console.warn('FMB inventory live listener warning:', err);
+      }
+    );
+  } catch {
+    return () => {};
   }
 }

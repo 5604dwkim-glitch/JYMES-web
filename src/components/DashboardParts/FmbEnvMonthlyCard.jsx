@@ -1,7 +1,25 @@
-import React, { useMemo, useState, Suspense, lazy } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, Suspense, lazy } from 'react';
 import { Bar } from 'react-chartjs-2';
+import { fetchFmbInventory, fetchFmbReports, subscribeFmbInventory } from '../../services/firestore';
+import { buildLiveStockSummary, buildMonthlyIoAndCheckSummary, formatKg } from './fmbBoardUtils';
+import FmbStatusBoardModal from './FmbStatusBoardModal';
 
 const LegacyDetailModal = lazy(() => import('../DynamicForms/LegacyDetailModal'));
+const FMB_LOCAL_CACHE_KEY = 'jymes_fmb_inventory_v1';
+
+function readCachedFmbInv() {
+  try {
+    const raw = localStorage.getItem(FMB_LOCAL_CACHE_KEY);
+    if (!raw) return { items: [], alarmHistory: [] };
+    const parsed = JSON.parse(raw);
+    return {
+      items: Array.isArray(parsed?.items) ? parsed.items : [],
+      alarmHistory: Array.isArray(parsed?.alarmHistory) ? parsed.alarmHistory : []
+    };
+  } catch {
+    return { items: [], alarmHistory: [] };
+  }
+}
 
 // 그래프 좌·우 Y축 폭과 하단 표 좌측(항목)·우측(월평균) 열 폭을 동일 픽셀로 고정해 1일~말일 세로선을 1:1 정렬
 const LEFT_AXIS_WIDTH = 72;
@@ -38,23 +56,66 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
 
   const [selectedMonth, setSelectedMonth] = useState(currentYm);
   const [detailReport, setDetailReport] = useState(null);
+  const [showStatusBoard, setShowStatusBoard] = useState(false);
+  const [liveReports, setLiveReports] = useState(fmbReports);
+  const [fmbInvState, setFmbInvState] = useState(() => readCachedFmbInv());
+
+  useEffect(() => {
+    setLiveReports(fmbReports);
+  }, [fmbReports]);
+
+  useEffect(() => {
+    const unsub = subscribeFmbInventory((next) => {
+      setFmbInvState({
+        items: Array.isArray(next?.items) ? next.items : [],
+        alarmHistory: Array.isArray(next?.alarmHistory) ? next.alarmHistory : []
+      });
+    });
+    return () => unsub?.();
+  }, []);
+
+  const handleRefreshFmbAll = useCallback(async () => {
+    const [freshReports, freshInv] = await Promise.all([
+      fetchFmbReports(true),
+      fetchFmbInventory()
+    ]);
+    if (Array.isArray(freshReports)) {
+      setLiveReports(freshReports);
+    }
+    if (freshInv && !freshInv.offlineError) {
+      setFmbInvState({
+        items: Array.isArray(freshInv.items) ? freshInv.items : [],
+        alarmHistory: Array.isArray(freshInv.alarmHistory) ? freshInv.alarmHistory : []
+      });
+    }
+  }, []);
+
+  const stockSummary = useMemo(
+    () => buildLiveStockSummary(fmbInvState.items, todayFull),
+    [fmbInvState.items, todayFull]
+  );
+
+  const ioCheckSummary = useMemo(
+    () => buildMonthlyIoAndCheckSummary(liveReports, selectedMonth, fmbInvState.alarmHistory),
+    [liveReports, selectedMonth, fmbInvState.alarmHistory]
+  );
 
   // 가장 최근 기록이 있는 월 안내용 (현재 선택 월에 기록이 없을 때 빠른 이동 지원)
   const latestRecordedMonth = useMemo(() => {
     let latest = '';
-    fmbReports.forEach((r) => {
+    liveReports.forEach((r) => {
       const ym = String(r?.date || '').slice(0, 7);
       if (/^\d{4}-\d{2}$/.test(ym) && ym > latest) latest = ym;
     });
     return latest;
-  }, [fmbReports]);
+  }, [liveReports]);
 
   const monthly = useMemo(() => {
     const [year, month] = selectedMonth.split('-').map(Number);
     const daysInMonth = new Date(year, month, 0).getDate();
 
     const byDay = new Map();
-    fmbReports.forEach((r) => {
+    liveReports.forEach((r) => {
       const dateStr = String(r?.date || '');
       if (!dateStr.startsWith(`${selectedMonth}-`)) return;
       const dayNum = Number(dateStr.slice(8, 10));
@@ -165,7 +226,7 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
       minHum,
       maxHum
     };
-  }, [fmbReports, selectedMonth, todayFull]);
+  }, [liveReports, selectedMonth, todayFull]);
 
   const chartData = useMemo(() => ({
     labels: monthly.labels,
@@ -426,6 +487,20 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
         [data-dashboard-card="fmb-env-monthly"] .fmb-day-clickable:hover {
           background: #ecfdf5 !important;
         }
+        [data-dashboard-card="fmb-env-monthly"] .fmb-card-main-split {
+          display: grid;
+          grid-template-columns: 238px minmax(0, 1fr);
+          gap: 14px;
+          align-items: stretch;
+        }
+        body.mobile-preview-mode [data-dashboard-card="fmb-env-monthly"] .fmb-card-main-split {
+          grid-template-columns: 1fr;
+        }
+        @media (max-width: 960px) {
+          [data-dashboard-card="fmb-env-monthly"] .fmb-card-main-split {
+            grid-template-columns: 1fr;
+          }
+        }
       `}</style>
 
       {/* ── 카드 헤더: 제목 + 월 선택기 + 요약 배지 ── */}
@@ -530,26 +605,127 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
           </div>
           <button
             type="button"
-            onClick={() => navigate('/form')}
+            onClick={() => setShowStatusBoard(true)}
             style={{
-              background: '#ecfdf5',
-              border: '1px solid #6ee7b7',
-              borderRadius: '6px',
-              padding: '5px 10px',
+              background: '#0f172a',
+              border: '1px solid #0f172a',
+              borderRadius: '7px',
+              padding: '6px 12px',
               fontSize: '12px',
-              fontWeight: 700,
-              color: '#047857',
+              fontWeight: 800,
+              color: '#ffffff',
               cursor: 'pointer',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              boxShadow: '0 2px 6px rgba(15, 23, 42, 0.16)'
             }}
           >
-            + FMB 일보 작성
+            <span>🖥️ 전체화면 현황판</span>
           </button>
         </div>
       </div>
 
-      {/* ── 본문: 그래프 + 표를 동일 폭 컨테이너에 묶어 1일~말일 세로선 1:1 정렬 ── */}
+      {/* ── 본문: 좌측 고무 종류별 재고 현황 + 우측 월간 온·습도 추이 그래프/기록표 ── */}
       <div style={{ padding: '12px 16px 16px 16px' }}>
+        <div className="fmb-card-main-split">
+          {/* 좌측면: 고무 종류별 실시간 재고 현황 */}
+          <div
+            style={{
+              background: '#f8fafc',
+              border: '1px solid #cbd5e1',
+              borderRadius: '10px',
+              padding: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              gap: '10px'
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>고무 종류별 재고 현황</span>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: stockSummary.totalKg > 0 ? '#047857' : '#64748b',
+                    background: '#ffffff',
+                    border: '1px solid #cbd5e1',
+                    borderRadius: '999px',
+                    padding: '1px 8px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <strong translate="no">{`${formatKg(stockSummary.totalKg)} kg`}</strong>
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                {stockSummary.grades.map((g) => {
+                  const active = g.kg > 0 || g.lotCount > 0;
+                  const ratio = stockSummary.totalKg > 0 ? Math.min(100, Math.round((g.kg / stockSummary.totalKg) * 100)) : 0;
+                  return (
+                    <div
+                      key={g.code}
+                      style={{
+                        background: '#ffffff',
+                        border: `1px solid ${active ? '#86efac' : '#e2e8f0'}`,
+                        borderRadius: '8px',
+                        padding: '8px 10px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
+                        <strong translate="no" style={{ fontSize: '12px', color: '#0f172a' }}>{g.code}</strong>
+                        <strong translate="no" style={{ fontSize: '13.5px', color: active ? '#047857' : '#94a3b8' }}>
+                          {`${formatKg(g.kg)} kg`}
+                        </strong>
+                      </div>
+                      <div style={{ height: '5px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden', marginBottom: '4px' }}>
+                        <div style={{ height: '100%', width: `${active ? Math.max(ratio, 8) : 0}%`, background: '#10b981', borderRadius: '999px' }} />
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
+                        <span>{`${g.lotCount}건`}</span>
+                        {g.earliestExpiry ? (
+                          <span><span>선입</span> <strong translate="no" style={{ color: '#dc2626' }}>{g.earliestExpiry}</strong></span>
+                        ) : (
+                          <span>보유 재고 없음</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 700 }}>
+                <span style={{ color: '#047857' }}><span>당월 입고</span> <strong translate="no">{`+${formatKg(ioCheckSummary.inTotalKg)}kg`}</strong></span>
+                <span style={{ color: '#be123c' }}><span>당월 출고</span> <strong translate="no">{`-${formatKg(ioCheckSummary.outTotalKg)}kg`}</strong></span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowStatusBoard(true)}
+                style={{
+                  width: '100%',
+                  background: '#eff6ff',
+                  border: '1px solid #bfdbfe',
+                  borderRadius: '6px',
+                  padding: '5px 8px',
+                  fontSize: '11.5px',
+                  fontWeight: 800,
+                  color: '#1d4ed8',
+                  cursor: 'pointer'
+                }}
+              >
+                <span>전체화면 현황판 열기 →</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 우측면: 월간 온·습도 추이 그래프 및 일자별 기록표 */}
+          <div style={{ minWidth: 0 }}>
         {!monthly.hasChartValues && (
           <div
             style={{
@@ -738,7 +914,34 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
             </table>
           </div>
         </div>
+          </div>
+        </div>
       </div>
+
+      {/* FMB 보관실 전체화면 통합 상황판 모달 */}
+      {showStatusBoard && (
+        <FmbStatusBoardModal
+          selectedMonth={selectedMonth}
+          currentYm={currentYm}
+          onPrevMonth={() => setSelectedMonth((prev) => shiftYearMonth(prev, -1))}
+          onNextMonth={() => setSelectedMonth((prev) => shiftYearMonth(prev, 1))}
+          onResetMonth={() => setSelectedMonth(currentYm)}
+          onChangeMonth={(val) => setSelectedMonth(val)}
+          monthly={monthly}
+          chartData={chartData}
+          chartOptions={chartOptions}
+          valueLabelsPlugin={valueLabelsPlugin}
+          stockSummary={stockSummary}
+          ioCheckSummary={ioCheckSummary}
+          onRefresh={handleRefreshFmbAll}
+          onNavigateForm={() => {
+            setShowStatusBoard(false);
+            navigate('/form');
+          }}
+          onOpenDetail={(r) => setDetailReport(r)}
+          onClose={() => setShowStatusBoard(false)}
+        />
+      )}
 
       {/* 일보 상세 조회 / 인쇄 모달 (클릭 시 지연 로드) */}
       {detailReport && (
