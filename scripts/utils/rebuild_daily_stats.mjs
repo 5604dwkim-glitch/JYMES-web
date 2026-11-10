@@ -37,11 +37,12 @@ function flatten(obj, prefix = '', out = {}) {
   return out;
 }
 
-// 반장/지게차/출하지원 일보는 앱(fetchReports)과 동일하게 '공통' 으로 통일 (품목코드도 '공통')
+// 반장/지게차/출하지원/FMB보관실 일보는 앱(fetchReports)과 동일하게 '공통' 으로 통일 (품목코드도 '공통')
 function normalize(r) {
   if (r.isLeaderForm || r.processName === '반장 작업일보') { r.carModel = '공통'; r.itemName = '공통'; r.itemCode = '공통'; r.processName = '반장 작업일보'; }
   if (r.isForkliftForm || r.processName === '지게차작업') { r.carModel = '공통'; r.itemName = '공통'; r.itemCode = '공통'; r.processName = '지게차작업'; }
   if (r.isSupportForm || r.processName === '출하지원') { r.carModel = '공통'; r.itemName = '공통'; r.itemCode = '공통'; r.processName = '출하지원'; }
+  if (r.isFmbForm || r.processName === 'FMB보관실') { r.carModel = '공통'; r.itemName = '공통'; r.itemCode = '공통'; r.processName = 'FMB보관실'; }
   return r;
 }
 
@@ -83,7 +84,7 @@ async function main() {
   if (!APPLY) { console.log('\n(드라이런) 반영하려면 --apply 옵션으로 다시 실행하세요.'); return; }
 
   // 반영 전 현재 daily_stats 백업 (문제 시 복원용)
-  const backupPath = resolve(__dirname, `daily_stats_backup_${Date.now()}.json`);
+  const backupPath = resolve(__dirname, `../archive/backups/daily_stats_backup_${Date.now()}.json`);
   writeFileSync(backupPath, JSON.stringify(existing, null, 1), 'utf8');
   console.log(`백업 저장: ${backupPath}`);
 

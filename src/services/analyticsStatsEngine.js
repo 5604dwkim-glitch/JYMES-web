@@ -109,10 +109,10 @@ export function extractStatDayMetrics(statDoc, filters = {}) {
   };
 
   if (isUnfiltered(filters)) {
-    const actual = Number(statDoc?.totalActualQty || 0);
-    const target = Number(statDoc?.totalTargetQty || 0);
-    const defect = Number(statDoc?.totalDefectQty || 0);
-    const reports = Number(statDoc?.totalReports || 0);
+    const actual = Math.max(0, Number(statDoc?.totalActualQty || 0));
+    const target = Math.max(0, Number(statDoc?.totalTargetQty || 0));
+    const defect = Math.max(0, Number(statDoc?.totalDefectQty || 0));
+    const reports = Math.max(0, Number(statDoc?.totalReports || 0));
     let detailed = 0;
     if (statDoc?.defectBreakdowns) {
       Object.entries(statDoc.defectBreakdowns).forEach(([k, v]) => {
@@ -133,8 +133,8 @@ export function extractStatDayMetrics(statDoc, filters = {}) {
   if (statDoc?.items) {
     Object.entries(statDoc.items).forEach(([comboKey, comboData]) => {
       if (!matchComboKey(comboKey, filters)) return;
-      actual += Number(comboData?.actualQty || 0);
-      defect += Number(comboData?.defectQty || 0);
+      actual += Math.max(0, Number(comboData?.actualQty || 0));
+      defect += Math.max(0, Number(comboData?.defectQty || 0));
       if (comboData?.defects) {
         Object.entries(comboData.defects).forEach(([k, v]) => {
           const val = Number(v || 0);
@@ -232,12 +232,14 @@ export function buildDashboardKpiSummary(dailyStats = []) {
   const targetStats = targetIdx >= 0 ? sorted[targetIdx] : null;
   const prevStats = targetIdx > 0 ? sorted[targetIdx - 1] : null;
 
-  const totalTarget = Number(targetStats?.totalTargetQty || 0);
-  const totalActual = Number(targetStats?.totalActualQty || 0);
-  const totalDefect = Number(targetStats?.totalDefectQty || 0);
-  const totalReports = Number(targetStats?.totalReports || 0);
+  const totalTarget = Math.max(0, Number(targetStats?.totalTargetQty || 0));
+  const totalActual = Math.max(0, Number(targetStats?.totalActualQty || 0));
+  const totalDefect = Math.max(0, Number(targetStats?.totalDefectQty || 0));
+  const totalReports = Math.max(0, Number(targetStats?.totalReports || 0));
   const attainPct = totalTarget > 0 ? +((totalActual / totalTarget) * 100).toFixed(1) : 0;
-  const defectRate = totalActual > 0 ? +((totalDefect / totalActual) * 100).toFixed(2) : 0;
+  const defectRate = totalActual > 0
+    ? +((totalDefect / totalActual) * 100).toFixed(2)
+    : (totalDefect > 0 ? 100 : 0);
 
   let prevDayLabel = null;
   let prevActual = null;
@@ -249,10 +251,10 @@ export function buildDashboardKpiSummary(dailyStats = []) {
     prevDayLabel = prevStats.date === yesterdayStr
       ? '어제'
       : `전 가동일(${prevStats.date.slice(5).replace('-', '/')})`;
-    prevActual = Number(prevStats.totalActualQty || 0);
+    prevActual = Math.max(0, Number(prevStats.totalActualQty || 0));
     actualDelta = totalActual - prevActual;
-    const pDef = Number(prevStats.totalDefectQty || 0);
-    prevDefectRate = prevActual > 0 ? +((pDef / prevActual) * 100).toFixed(2) : 0;
+    const pDef = Math.max(0, Number(prevStats.totalDefectQty || 0));
+    prevDefectRate = prevActual > 0 ? +((pDef / prevActual) * 100).toFixed(2) : (pDef > 0 ? 100 : 0);
     defectRateDelta = +(defectRate - prevDefectRate).toFixed(2);
   }
 
@@ -267,8 +269,8 @@ export function buildDashboardKpiSummary(dailyStats = []) {
     let aSum = 0;
     sorted.forEach((r) => {
       if (r.date >= from && r.date <= to) {
-        tSum += Number(r.totalTargetQty || 0);
-        aSum += Number(r.totalActualQty || 0);
+        tSum += Math.max(0, Number(r.totalTargetQty || 0));
+        aSum += Math.max(0, Number(r.totalActualQty || 0));
       }
     });
     return tSum > 0 ? +((aSum / tSum) * 100).toFixed(1) : null;

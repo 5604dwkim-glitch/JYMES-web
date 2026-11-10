@@ -29,6 +29,7 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
   const [tpmSkipped, setTpmSkipped] = useState(false);
   const tpmSummaryRef = useRef(tpmSummary);
   tpmSummaryRef.current = tpmSummary;
+  const isSavingRef = useRef(false);
 
   const [showTpmModal, setShowTpmModal] = useState(false);
   const [modalMeta, setModalMeta] = useState({ reportDate: '', workerName: '' });
@@ -65,6 +66,8 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
             return DEFAULT_ITEMS.filter(item => item.carModel === code);
           },
           onSave: async (id, data) => {
+            if (isSavingRef.current) return;
+            isSavingRef.current = true;
             try {
               const payload = tpmSummaryRef.current
                 ? { ...data, tpmCheckSummary: tpmSummaryRef.current }
@@ -82,9 +85,14 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
               }
             } catch (error) {
               alert(i18n.translateDisplay('저장 중 오류 발생:') + ' ' + error.message);
+            } finally {
+              isSavingRef.current = false;
             }
           },
           onNavigate: (tab) => {
+            // 저장(onSave) 비동기 처리가 진행 중일 때는 레거시 switchTab의 조기 화면 이탈을 차단하고
+            // onSave 완료 후 정확한 화면(/drafts 또는 /reports)으로 이동하도록 보장한다.
+            if (isSavingRef.current) return;
             navigate(`/${tab}`);
           },
           showToast: (msg, type) => {

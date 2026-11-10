@@ -589,33 +589,66 @@ async function applyStatsUpdate(oldReport, newReport) {
   }
 }
 
+function mergeStatsSum(target, src) {
+  for (const [k, v] of Object.entries(src)) {
+    if (typeof v === 'number') {
+      target[k] = (target[k] || 0) + v;
+    } else if (v && typeof v === 'object') {
+      if (!target[k]) target[k] = {};
+      mergeStatsSum(target[k], v);
+    }
+  }
+  return target;
+}
+
 async function applyStatsUpdateSingleDate(oldReport, newReport) {
+  const targetDate = (newReport && newReport.date) || (oldReport && oldReport.date);
+  if (!targetDate) return;
+
   try {
-    const diff = buildStatsUpdate(oldReport, newReport);
-    if (Object.keys(diff).length === 0) return;
-    
-    // 재귀적으로 숫자를 increment()로 변환
-    const convertToIncrements = (obj) => {
-      const result = {};
-      for (const [k, v] of Object.entries(obj)) {
-        if (typeof v === 'number') {
-          result[k] = increment(v);
-        } else if (v && typeof v === 'object') {
-          result[k] = convertToIncrements(v);
-        }
+    // 증분(increment) 누적 오차·음수 드리프트를 원천 차단하기 위해
+    // 해당 작업일자의 실제 reports 문서를 기준으로 daily_stats/{targetDate}를 멱등 재계산한다.
+    const q = query(collection(db, REPORTS_COLLECTION), where('date', '==', targetDate));
+    const snap = await getDocs(q);
+    const rebuilt = {};
+    snap.forEach((d) => {
+      const r = { id: d.id, ...d.data() };
+      const diff = buildStatsUpdate(null, r);
+      if (Object.keys(diff).length > 0) {
+        mergeStatsSum(rebuilt, diff);
       }
-      return result;
-    };
-    
-    const increments = convertToIncrements(diff);
-    
-    const targetDate = (newReport && newReport.date) || (oldReport && oldReport.date);
-    if (!targetDate) return;
-    
+    });
+
     const statsRef = doc(db, 'daily_stats', targetDate);
-    await setDoc(statsRef, increments, { merge: true });
+    if (Object.keys(rebuilt).length > 0) {
+      await setDoc(statsRef, rebuilt);
+    } else {
+      await deleteDoc(statsRef);
+    }
+    dailyStatsAllCache = null;
   } catch (error) {
-    console.error('Failed to update daily_stats:', error);
+    console.error('Failed to recompute daily_stats, falling back to increment:', error);
+    try {
+      const diff = buildStatsUpdate(oldReport, newReport);
+      if (Object.keys(diff).length === 0) return;
+      const convertToIncrements = (obj) => {
+        const result = {};
+        for (const [k, v] of Object.entries(obj)) {
+          if (typeof v === 'number') {
+            result[k] = increment(v);
+          } else if (v && typeof v === 'object') {
+            result[k] = convertToIncrements(v);
+          }
+        }
+        return result;
+      };
+      const increments = convertToIncrements(diff);
+      const statsRef = doc(db, 'daily_stats', targetDate);
+      await setDoc(statsRef, increments, { merge: true });
+      dailyStatsAllCache = null;
+    } catch (fallbackErr) {
+      console.error('Failed fallback daily_stats update:', fallbackErr);
+    }
   }
 }
 
@@ -715,8 +748,8 @@ export async function addReport(reportData) {
 
     invalidateReportsCache();
     
-    await processMoldStrokes(newReport);
     await applyStatsUpdate(null, newReport);
+    await processMoldStrokes(newReport);
     try {
       await syncReportDowntimeToRepairAndChangePoint(newReport, null);
     } catch (syncErr) {

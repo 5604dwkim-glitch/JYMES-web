@@ -227,7 +227,8 @@ function WorkerDashboard({ reports, reportsLoading, workerName, navigate, t }) {
 function CircleGauge({ pct, size = 62, color = '#3b82f6', trackColor = '#e2e8f0', children }) {
   const r = (size - 8) / 2;
   const circ = 2 * Math.PI * r;
-  const filled = (circ * Math.min(pct, 100)) / 100;
+  const safePct = Math.max(0, Math.min(Number(pct) || 0, 100));
+  const filled = (circ * safePct) / 100;
   return (
     <svg width={size} height={size} style={{ flexShrink: 0 }}>
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={trackColor} strokeWidth={6.5} />
@@ -263,7 +264,7 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
   const miniTrend = useMemo(() => buildLast7DaysMiniTrend(data.dailyStats || []), [data.dailyStats]);
   const top5Defects = useMemo(() => buildThisWeekTop5Defects(data.dailyStats || []), [data.dailyStats]);
 
-  const defectStatus = (kpi.totalActual === 0 && kpi.totalDefect > 0)
+  const defectStatus = (kpi.totalActual <= 0 && kpi.totalDefect > 0)
     ? 'danger'
     : kpi.defectRate === 0
       ? 'safe'
@@ -476,7 +477,7 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
               <div
                 style={{
                   height: '100%',
-                  width: `${Math.min(kpi.attainPct, 100)}%`,
+                  width: `${Math.max(0, Math.min(kpi.attainPct, 100))}%`,
                   background: kpi.attainPct >= 100 ? '#10b981' : '#3b82f6',
                   borderRadius: '3px',
                   transition: 'width .4s'
