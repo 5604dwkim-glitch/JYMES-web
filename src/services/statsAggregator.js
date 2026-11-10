@@ -385,6 +385,27 @@ export function extractDefectBreakdown(r) {
         F5011_POST.forEach(([k, name]) => addDefect(`[검사포장-FRT 후가공] ${name}`, r.qtyTable[`f5011_${col}_def_post_${k}`]));
       });
     }
+
+    // #5014 (GM 9BQC G/RUN 검사포장-길이) — #5011 양식틀 복사본 (FRT LH / FRT RH)
+    {
+      const F5014_EXT = [
+        ['scorch', '스코치'], ['scratch', '외면흠'], ['contam', '오염'],
+        ['coat', '코팅불량'], ['cross', '단면불량'], ['etc', '기타']
+      ];
+      const F5014_JOINT = [
+        ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'],
+        ['bubble', '기포'], ['dent', '씹힘'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
+      ];
+      const F5014_POST = [
+        ['len', '길이불량'], ['mark_miss', '마킹누락'], ['overtrim', '과사상'], ['undertrim', '미사상'],
+        ['contam', '외면오염'], ['rim_cut_miss', '림컷팅누락'], ['pad_miss', '패드누락'], ['etc', '기타']
+      ];
+      ['FRT_LH', 'FRT_RH'].forEach(col => {
+        F5014_EXT.forEach(([k, name]) => addDefect(`[검사포장-길이 압출] ${name}`, r.qtyTable[`f5014_${col}_def_ext_${k}`]));
+        F5014_JOINT.forEach(([k, name]) => addDefect(`[검사포장-길이 조인트] ${name}`, r.qtyTable[`f5014_${col}_def_joint_${k}`]));
+        F5014_POST.forEach(([k, name]) => addDefect(`[검사포장-길이 후가공] ${name}`, r.qtyTable[`f5014_${col}_def_post_${k}`]));
+      });
+    }
   }
 
   // 9. dtCrewPrepQty (스텔란티스 소재준비 — LH_A / RH_A)

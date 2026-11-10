@@ -6,6 +6,7 @@ import { applyF5005DowntimeSection } from '../forms/f5005/downtimeSection.js';
 import { applyF5006DowntimeSection } from '../forms/f5006/downtimeSection.js';
 import { applyF5007DowntimeSection } from '../forms/f5007/downtimeSection.js';
 import { applyF5011DowntimeSection } from '../forms/f5011/downtimeSection.js';
+import { applyF5014DowntimeSection } from '../forms/f5014/downtimeSection.js';
 
 /**
  * 비가동 시간 섹션 업데이트
@@ -53,6 +54,11 @@ export function updateDowntimeSection(ctx) {
     if (formCode === 5011) {
       restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
       applyF5011DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5014) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF5014DowntimeSection(container, downtimeCard, existingData);
       return;
     }
     restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);

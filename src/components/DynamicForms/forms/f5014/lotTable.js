@@ -1,0 +1,113 @@
+/**
+ * 양식 고유 번호 #5014 (GM 9BQC / G/RUN / 검사포장-길이)
+ * — #5011 양식틀 복사본
+ * "4. 소재 LOT 번호 입력" 전용 렌더러
+ *
+ * - 상단 헤더 1행: [좌상단 공란 rowspan=2] | FRT [colspan=3]
+ * - 상단 헤더 2행: 초물 | 중물 | 종물
+ * - 세로 행(6행, 실선 테두리 & 백색 배경): LH A / LH B / LH C / RH A / RH B / RH C
+ * - 모든 입력칸 ID 는 `f5014_` 접두사 + `초물`/`중물`/`종물` 키(`ReportList` 배지 호환) 및
+ *   `data-save-group="materialLots"` 사용 (GEMINI.md 원칙 2·8·9·10·11·12·16)
+ */
+
+export const F5014_LOT_ROWS = [
+  { key: 'LH_A', label: 'LH A', legacySide: 'LH' },
+  { key: 'LH_B', label: 'LH B' },
+  { key: 'LH_C', label: 'LH C' },
+  { key: 'RH_A', label: 'RH A', legacySide: 'RH' },
+  { key: 'RH_B', label: 'RH B' },
+  { key: 'RH_C', label: 'RH C' }
+];
+
+export const F5014_LOT_STAGES = ['초물', '중물', '종물'];
+
+const STAGE_TH_STYLE = 'border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;';
+const ROW_TH_STYLE = 'border: 1px solid #000; padding: 8px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle; white-space: nowrap;';
+const TD_STYLE = 'border: 1px solid #000; padding: 2px; background: #ffffff; vertical-align: middle;';
+const TEXTAREA_STYLE = 'width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;';
+
+function escapeHtml(val) {
+  return String(val ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
+ * LotTableRenderer.js 의 `case 5014` 에서 위임 호출.
+ * 현재 입력 중인 textarea 값은 DOM 에서 직접 읽어 재렌더 시에도 유지한다.
+ *
+ * @param {HTMLElement} lotContainer  #section4LotTableContainer
+ * @param {Object} curLots            공통 렌더러가 수집한 값 맵
+ * @param {Object} materialLots       저장된 일보에서 복원한 값 맵
+ */
+export function renderF5014LotTable(lotContainer, curLots = {}, materialLots = {}) {
+  const typed = { ...curLots };
+  lotContainer.querySelectorAll('textarea[data-form-code="5014"]').forEach(el => {
+    if (el.id) typed[el.id] = el.value;
+  });
+
+  lotContainer.innerHTML = renderF5014LotTableHTML(typed, materialLots);
+}
+
+/**
+ * @param {Object} curLots      현재 화면 입력값 맵
+ * @param {Object} materialLots 저장된 일보 복원값 맵
+ * @returns {string} LOT 표 HTML
+ */
+export function renderF5014LotTableHTML(curLots = {}, materialLots = {}) {
+  const stageHeaders = F5014_LOT_STAGES
+    .map(stage => `<th scope="col" style="${STAGE_TH_STYLE}">${stage}</th>`)
+    .join('\n                ');
+
+  const bodyRows = F5014_LOT_ROWS.map(row => {
+    const cells = F5014_LOT_STAGES.map(stage => {
+      const id = `f5014_FRT_${row.key}_${stage}`;
+      const legacyKey = row.legacySide ? `${row.legacySide}_FRT_${stage}` : undefined;
+      const val = curLots[id]
+        ?? materialLots[id]
+        ?? (legacyKey ? materialLots[legacyKey] : undefined)
+        ?? '';
+      return `<td style="${TD_STYLE}">
+                  <textarea id="${id}" data-form-code="5014" data-save-group="materialLots" class="form-control lot-datetime-input" style="${TEXTAREA_STYLE}" placeholder="년월일\n시분">${escapeHtml(val)}</textarea>
+                </td>`;
+    }).join('\n                ');
+
+    return `
+              <tr>
+                <th scope="row" style="${ROW_TH_STYLE}">${row.label}</th>
+                ${cells}
+              </tr>`;
+  }).join('');
+
+  return `
+        <div class="f5014-lot-wrap" data-form-code="5014" style="width: 100%; overflow-x: hidden;">
+          <style>
+            .f5014-lot-wrap[data-form-code="5014"] textarea.lot-datetime-input {
+              font-size: 11px !important;
+              min-width: 0;
+              box-sizing: border-box;
+            }
+          </style>
+          <table data-form-code="5014" style="width: 100%; table-layout: fixed; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <colgroup>
+              <col style="width: 22%;" />
+              <col style="width: 26%;" />
+              <col style="width: 26%;" />
+              <col style="width: 26%;" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th rowspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; vertical-align: middle;"></th>
+                <th colspan="3" style="border: 1px solid #000; padding: 6px 4px; font-size: 12.5px; font-weight: 700; color: #000; vertical-align: middle; background: #ffffff;">FRT</th>
+              </tr>
+              <tr>
+                ${stageHeaders}
+              </tr>
+            </thead>
+            <tbody>${bodyRows}
+            </tbody>
+          </table>
+        </div>
+        `;
+}
