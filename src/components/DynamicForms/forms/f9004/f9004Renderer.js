@@ -24,6 +24,20 @@ const F9004_IO_TYPES = ['입고', '불출', '반납', '재고', '보류'];
 export const F9004_RUBBER_OPTIONS = ['W60664$OS', 'W6082$NA', 'W60905'];
 const FMB_LOCAL_CACHE_KEY = 'jymes_fmb_inventory_v1';
 
+// 고무 압출(Piece) 및 고무 권선(Roll) 표준 사양
+export const F9004_EXTRUSION_SPECS = [
+  { key: 'w60664', code: 'W60664$OS', specLabel: '5.40 ± 0.5 g', min: 4.9, max: 5.9 },
+  { key: 'w6082', code: 'W6082$NA', specLabel: '20.2 ± 0.5 g', min: 19.7, max: 20.7 }
+];
+
+export const F9004_WINDING_SPECS = [
+  { key: 'w6082', code: 'W6082$NA' },
+  { key: 'w60905', code: 'W60905$OS' },
+  { key: 'w60664', code: 'W60664$$OS' }
+];
+
+export const F9004_INIT_PIECE_COUNT = 20;
+
 function normalizeIoType(raw) {
   const s = String(raw || '').trim();
   if (s === '불출(투입)') return '불출';
@@ -450,6 +464,383 @@ function buildDispatchedBoxHTML(dispatchedToday) {
   `;
 }
 
+export function evaluateExtrusionWeight(specKey, rawVal) {
+  const num = parseEnvNumber(rawVal);
+  if (num === null) return { val: null, ok: null };
+  const spec = F9004_EXTRUSION_SPECS.find((s) => s.key === specKey);
+  if (!spec) return { val: num, ok: null };
+  return { val: num, ok: num >= spec.min && num <= spec.max };
+}
+
+function buildFmbWorkSectionInputHTML(workLog) {
+  const extData = workLog?.extrusion || {};
+  const rollData = workLog?.winding || {};
+  const stages = [
+    { field: 'first', label: '초물' },
+    { field: 'mid', label: '중물' },
+    { field: 'last', label: '종물' }
+  ];
+
+  const init20Blocks = F9004_EXTRUSION_SPECS.map((spec, sIdx) => {
+    const savedArr = Array.isArray(extData[spec.key]?.initial20) ? extData[spec.key].initial20 : [];
+    const cellsHtml = Array.from({ length: F9004_INIT_PIECE_COUNT }, (_, i) => {
+      const n = i + 1;
+      const cellVal = String(savedArr[i] ?? '').trim();
+      return `
+        <div style="border-right: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 3px 3px 3px; background: #ffffff; display: flex; flex-direction: column; min-width: 0;">
+          <span translate="no" style="font-size: 10px; font-weight: 800; color: #475569; line-height: 1.1; margin-bottom: 1px;">${n}</span>
+          <input
+            type="text"
+            inputmode="decimal"
+            maxlength="6"
+            id="f9004_ext_${spec.key}_init_${n}"
+            name="f9004_ext_${spec.key}_init_${n}"
+            data-f9004-weight-spec="${spec.key}"
+            data-f9004-init-group="${spec.key}"
+            data-f9004-init-idx="${n}"
+            data-wheel-skip="1"
+            class="form-control"
+            value="${escapeHtml(cellVal)}"
+            placeholder="-"
+            style="font-size: 12px; font-weight: 700; padding: 3px 2px; height: auto; width: 100%; text-align: center; background: #ffffff;"
+          />
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div style="${sIdx > 0 ? 'border-top: 1.5px solid #1e293b;' : ''}">
+        <div style="background: #f8fafc; border-bottom: 1px solid #cbd5e1; padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12.5px;">
+            <strong translate="no" style="color: #0f172a; font-weight: 800;">${escapeHtml(spec.code)}</strong>
+            <span translate="no" style="font-size: 11.5px; color: #475569; font-weight: 700;">(${escapeHtml(spec.specLabel)})</span>
+          </div>
+          <span id="f9004_init20_badge_${spec.key}" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;">측정 0 / 20개</span>
+        </div>
+        <div class="f9004-init20-grid" style="border-right: 0; border-bottom: 0;">
+          ${cellsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="margin-bottom: 20px; container-type: inline-size;">
+      <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;">3. 고무 압출(Piece) · 권선(Roll) 작업 및 중량 측정 기록</h3>
+
+      <div class="f9004-work-split-grid">
+        <!-- 좌측(모바일 상단): 고무 압출(Piece) -->
+        <div style="border: 1.5px solid #000; border-radius: 4px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; border: 0;">
+            <colgroup>
+              <col style="width: 42px;" />
+              <col style="width: 48px;" />
+              <col />
+              <col />
+            </colgroup>
+            <tbody>
+              <tr style="background: #fef9c3;">
+                <th colspan="2" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 6px 4px; text-align: center; font-weight: 800; color: #0f172a;">작업방법</th>
+                <th colspan="2" style="border-bottom: 1px solid #000; padding: 6px 6px; text-align: center; font-size: 13px; font-weight: 800; color: #0f172a;">고무 압출(Piece)</th>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <th colspan="2" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">배합코드</th>
+                ${F9004_EXTRUSION_SPECS.map((sp, idx) => `
+                  <th translate="no" style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">${escapeHtml(sp.code)}</th>
+                `).join('')}
+              </tr>
+              <tr>
+                <th colspan="2" translate="no" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; background: #f8fafc; line-height: 1.2;">FMB<br/>LOT</th>
+                ${F9004_EXTRUSION_SPECS.map((sp, idx) => {
+                  const lotVal = extData[sp.key]?.lot || '';
+                  return `
+                    <td style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px;">
+                      <input type="text" id="f9004_ext_${sp.key}_lot" name="f9004_ext_${sp.key}_lot" data-wheel-skip="1" class="form-control" value="${escapeHtml(lotVal)}" placeholder="LOT 입력" style="font-size: 12px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%; text-align: center;" />
+                    </td>
+                  `;
+                }).join('')}
+              </tr>
+              <tr style="background: #fffbeb;">
+                <th colspan="2" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">작업중량</th>
+                ${F9004_EXTRUSION_SPECS.map((sp, idx) => `
+                  <td translate="no" style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 5px 4px; text-align: center; font-weight: 800; color: #1e293b;">${escapeHtml(sp.specLabel)}</td>
+                `).join('')}
+              </tr>
+              ${stages.map((st, stIdx) => {
+                const isLast = stIdx === stages.length - 1;
+                const btmBorder = isLast ? '0' : '1px dashed #64748b';
+                return `
+                  <tr>
+                    ${stIdx === 0 ? `
+                      <th rowspan="3" style="border-right: 1px solid #000; background: #fef9c3; padding: 4px 3px; text-align: center; font-weight: 800; line-height: 1.3; color: #0f172a; word-break: keep-all;">측정중량</th>
+                    ` : ''}
+                    <th style="border-bottom: ${btmBorder}; border-right: 1px solid #000; background: #e0f2fe; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">${st.label}</th>
+                    ${F9004_EXTRUSION_SPECS.map((sp, idx) => {
+                      const stageVal = extData[sp.key]?.[st.field] || '';
+                      return `
+                        <td style="border-bottom: ${btmBorder}; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px;">
+                          <div style="position: relative; display: flex; align-items: center;">
+                            <input
+                              type="text"
+                              inputmode="decimal"
+                              maxlength="6"
+                              id="f9004_ext_${sp.key}_${st.field}"
+                              name="f9004_ext_${sp.key}_${st.field}"
+                              data-f9004-weight-spec="${sp.key}"
+                              data-f9004-stage-seq="${sp.key}_${stIdx}"
+                              data-wheel-skip="1"
+                              class="form-control"
+                              value="${escapeHtml(stageVal)}"
+                              placeholder="0.00"
+                              style="font-size: 13px; font-weight: 800; padding: 4px 18px 4px 6px; height: auto; width: 100%; text-align: right; background: #ffffff;"
+                            />
+                            <span translate="no" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #64748b; pointer-events: none;">g</span>
+                          </div>
+                        </td>
+                      `;
+                    }).join('')}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 우측(모바일 하단): 고무 권선(Roll) -->
+        <div style="border: 1.5px solid #000; border-radius: 4px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
+          <table class="data-table" style="width: 100%; height: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; border: 0;">
+            <colgroup>
+              <col style="width: 68px;" />
+              <col />
+              <col />
+              <col />
+            </colgroup>
+            <tbody>
+              <tr style="background: #fef9c3;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 6px 4px; text-align: center; font-weight: 800; color: #0f172a;">작업방법</th>
+                <th colspan="3" style="border-bottom: 1px solid #000; padding: 6px 6px; text-align: center; font-size: 13px; font-weight: 800; color: #0f172a;">고무 권선(Roll)</th>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">배합코드</th>
+                ${F9004_WINDING_SPECS.map((sp, idx) => `
+                  <th translate="no" style="border-bottom: 1px solid #000; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 5px 2px; text-align: center; font-size: 11.5px; font-weight: 800; color: #0f172a;">${escapeHtml(sp.code)}</th>
+                `).join('')}
+              </tr>
+              <tr>
+                <th translate="no" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; background: #f8fafc; line-height: 1.2;">FMB<br/>LOT</th>
+                ${F9004_WINDING_SPECS.map((sp, idx) => {
+                  const lotVal = rollData[sp.key]?.lot || '';
+                  return `
+                    <td style="border-bottom: 1px solid #000; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 4px 3px;">
+                      <input type="text" id="f9004_roll_${sp.key}_lot" name="f9004_roll_${sp.key}_lot" data-wheel-skip="1" class="form-control" value="${escapeHtml(lotVal)}" placeholder="LOT 입력" style="font-size: 12px; font-weight: 700; padding: 4px 4px; height: auto; width: 100%; text-align: center;" />
+                    </td>
+                  `;
+                }).join('')}
+              </tr>
+              <tr style="background: #fef9c3;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">권선 수량</th>
+                <td colspan="3" style="border-bottom: 1px solid #000; padding: 5px 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span style="font-weight: 800; color: #0f172a;">※ 권선 수량 기록(EA)</span>
+                    <span id="f9004_rollTotalBadge" style="font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: #ffffff; color: #1d4ed8; border: 1px solid #cbd5e1;">총 권선: 0 EA</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th style="border-right: 1px solid #000; background: #e0f2fe; padding: 8px 4px; text-align: center; font-weight: 800; color: #0f172a;">수량<br/><span translate="no" style="font-size: 11px;">(EA)</span></th>
+                ${F9004_WINDING_SPECS.map((sp, idx) => {
+                  const qtyVal = String(rollData[sp.key]?.qty ?? '').replace(/\s*EA$/i, '').trim();
+                  return `
+                    <td style="${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 8px 4px; vertical-align: middle;">
+                      <div style="position: relative; display: flex; align-items: center;">
+                        <input
+                          type="text"
+                          inputmode="numeric"
+                          maxlength="5"
+                          id="f9004_roll_${sp.key}_qty"
+                          name="f9004_roll_${sp.key}_qty"
+                          data-f9004-roll-qty="1"
+                          data-wheel-skip="1"
+                          class="form-control"
+                          value="${escapeHtml(qtyVal)}"
+                          placeholder="0"
+                          style="font-size: 15px; font-weight: 800; padding: 8px 25px 8px 6px; height: auto; width: 100%; text-align: right; background: #ffffff;"
+                        />
+                        <span translate="no" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #475569; pointer-events: none;">EA</span>
+                      </div>
+                    </td>
+                  `;
+                }).join('')}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 압출 시작 후 최초 20개 전수 중량 측정 기록 -->
+      <div style="border: 1.5px solid #000; border-radius: 4px; overflow: hidden; background: #ffffff;">
+        <div style="background: #fef9c3; border-bottom: 1.5px solid #000; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;">⚖️ 압출 시작 후 최초 20개 중량 측정 기록 (초기허용불량 확인 · 단위: g)</span>
+          <span style="font-size: 11px; font-weight: 700; color: #475569;">Enter 입력 시 다음 번호(1→20)로 이동</span>
+        </div>
+        ${init20Blocks}
+      </div>
+    </div>
+  `;
+}
+
+function buildFmbWorkSectionDetailHTML(workLog) {
+  const extData = workLog?.extrusion || {};
+  const rollData = workLog?.winding || {};
+  const stages = [
+    { field: 'first', label: '초물' },
+    { field: 'mid', label: '중물' },
+    { field: 'last', label: '종물' }
+  ];
+
+  let rollTotal = 0;
+  F9004_WINDING_SPECS.forEach((sp) => {
+    const n = parseEnvNumber(rollData[sp.key]?.qty);
+    if (n !== null && n > 0) rollTotal += n;
+  });
+
+  const init20DetailBlocks = F9004_EXTRUSION_SPECS.map((spec, sIdx) => {
+    const savedArr = Array.isArray(extData[spec.key]?.initial20) ? extData[spec.key].initial20 : [];
+    const filledCount = savedArr.filter((v) => String(v ?? '').trim() !== '').length;
+    const cellsHtml = Array.from({ length: F9004_INIT_PIECE_COUNT }, (_, i) => {
+      const n = i + 1;
+      const raw = String(savedArr[i] ?? '').trim();
+      const { ok } = evaluateExtrusionWeight(spec.key, raw);
+      const valColor = ok === false ? '#dc2626' : '#0f172a';
+      const cellBg = ok === false ? '#fff1f2' : '#ffffff';
+      return `
+        <div style="border-right: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 3px; background: ${cellBg}; min-height: 30px; display: flex; flex-direction: column; justify-content: space-between;">
+          <span translate="no" style="font-size: 9.5px; font-weight: 700; color: #64748b; line-height: 1;">${n}</span>
+          <span translate="no" style="font-size: 11.5px; font-weight: 800; color: ${valColor}; text-align: center;">${escapeHtml(raw || '-')}</span>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div style="${sIdx > 0 ? 'border-top: 1.5px solid #000;' : ''}">
+        <div style="background: #f8fafc; border-bottom: 1px solid #cbd5e1; padding: 4px 8px; display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 11.5px;">
+          <div>
+            <strong translate="no" style="color: #0f172a;">${escapeHtml(spec.code)}</strong>
+            <span translate="no" style="color: #475569; font-weight: 700;"> (${escapeHtml(spec.specLabel)})</span>
+          </div>
+          <span style="font-weight: 800; color: ${filledCount === F9004_INIT_PIECE_COUNT ? '#047857' : '#475569'};">측정 ${filledCount} / ${F9004_INIT_PIECE_COUNT}개</span>
+        </div>
+        <div class="f9004-init20-grid" style="border-right: 0; border-bottom: 0;">
+          ${cellsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="margin-bottom: 14px; container-type: inline-size;">
+      <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">3. 고무 압출(Piece) · 권선(Roll) 작업 및 중량 측정 기록</div>
+      <div class="f9004-work-split-grid">
+        <div style="border: 1px solid #000; overflow: hidden; background: #ffffff;">
+          <table class="data-table print-table" style="width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; border: 0;">
+            <colgroup>
+              <col style="width: 58px;" />
+              <col />
+              <col />
+            </colgroup>
+            <tbody>
+              <tr style="background: #fef9c3;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center;">작업방법</th>
+                <th colspan="2" style="border-bottom: 1px solid #000; padding: 4px; text-align: center; font-weight: 800;">고무 압출(Piece)</th>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center;">배합코드</th>
+                ${F9004_EXTRUSION_SPECS.map((sp, idx) => `
+                  <th translate="no" style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px; text-align: center;">${escapeHtml(sp.code)}</th>
+                `).join('')}
+              </tr>
+              <tr>
+                <th translate="no" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center; background: #f8fafc;">FMB LOT</th>
+                ${F9004_EXTRUSION_SPECS.map((sp, idx) => `
+                  <td translate="no" style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px; text-align: center; font-weight: 700;">${escapeHtml(extData[sp.key]?.lot || '-')}</td>
+                `).join('')}
+              </tr>
+              <tr style="background: #fffbeb;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center;">작업중량</th>
+                ${F9004_EXTRUSION_SPECS.map((sp, idx) => `
+                  <td translate="no" style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px; text-align: center; font-weight: 800;">${escapeHtml(sp.specLabel)}</td>
+                `).join('')}
+              </tr>
+              ${stages.map((st, stIdx) => {
+                const btmBorder = stIdx === stages.length - 1 ? '0' : '1px solid #cbd5e1';
+                return `
+                  <tr>
+                    <th style="border-bottom: ${btmBorder}; border-right: 1px solid #000; background: #e0f2fe; padding: 4px; text-align: center;">${st.label}</th>
+                    ${F9004_EXTRUSION_SPECS.map((sp, idx) => {
+                      const raw = String(extData[sp.key]?.[st.field] || '').trim();
+                      const { ok } = evaluateExtrusionWeight(sp.key, raw);
+                      return `
+                        <td translate="no" style="border-bottom: ${btmBorder}; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px; text-align: center; font-weight: 800; color: ${ok === false ? '#dc2626' : '#0f172a'};">${escapeHtml(raw ? `${raw} g` : '-')}</td>
+                      `;
+                    }).join('')}
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="border: 1px solid #000; overflow: hidden; background: #ffffff;">
+          <table class="data-table print-table" style="width: 100%; height: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; border: 0;">
+            <colgroup>
+              <col style="width: 62px;" />
+              <col />
+              <col />
+              <col />
+            </colgroup>
+            <tbody>
+              <tr style="background: #fef9c3;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center;">작업방법</th>
+                <th colspan="3" style="border-bottom: 1px solid #000; padding: 4px; text-align: center; font-weight: 800;">고무 권선(Roll)</th>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center;">배합코드</th>
+                ${F9004_WINDING_SPECS.map((sp, idx) => `
+                  <th translate="no" style="border-bottom: 1px solid #000; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 4px 2px; text-align: center; font-size: 11px;">${escapeHtml(sp.code)}</th>
+                `).join('')}
+              </tr>
+              <tr>
+                <th translate="no" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center; background: #f8fafc;">FMB LOT</th>
+                ${F9004_WINDING_SPECS.map((sp, idx) => `
+                  <td translate="no" style="border-bottom: 1px solid #000; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 4px; text-align: center; font-weight: 700;">${escapeHtml(rollData[sp.key]?.lot || '-')}</td>
+                `).join('')}
+              </tr>
+              <tr style="background: #fef9c3;">
+                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 4px; text-align: center;">권선 수량</th>
+                <td colspan="3" style="border-bottom: 1px solid #000; padding: 4px 6px; font-weight: 800;">※ 권선 수량 기록(EA) · <span>총 권선: ${formatKgNumber(rollTotal)} EA</span></td>
+              </tr>
+              <tr>
+                <th style="border-right: 1px solid #000; background: #e0f2fe; padding: 6px 4px; text-align: center;">수량</th>
+                ${F9004_WINDING_SPECS.map((sp, idx) => {
+                  const q = String(rollData[sp.key]?.qty ?? '').replace(/\s*EA$/i, '').trim();
+                  return `
+                    <td translate="no" style="${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 6px 4px; text-align: center; font-size: 13px; font-weight: 800;">${escapeHtml(q ? `${q} EA` : '-')}</td>
+                  `;
+                }).join('')}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="border: 1px solid #000; overflow: hidden; background: #ffffff;">
+        <div style="background: #fef9c3; border-bottom: 1px solid #000; padding: 4px 8px; font-size: 12px; font-weight: 800;">⚖️ 압출 시작 후 최초 20개 중량 측정 기록 (단위: g)</div>
+        ${init20DetailBlocks}
+      </div>
+    </div>
+  `;
+}
+
 export function renderFmbPaperForm(container, existingData, loggedInWorkerName) {
   const todayStr = new Date().toLocaleDateString('sv-SE');
   let currentReportDate = existingData?.date || todayStr;
@@ -465,6 +856,7 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
 
   const envData = existingData?.f9004_env || {};
   const chkData = existingData?.f9004_checks || {};
+  const workLogData = existingData?.f9004_workLog || {};
   const workDetails = existingData?.workDetails || '';
 
   // 초기 재고 및 금일 불출 목록 구성
@@ -564,6 +956,19 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 6px;
           }
+          [data-form-code="9004"] .f9004-work-split-grid {
+            display: grid;
+            grid-template-columns: 1.04fr 1fr;
+            gap: 10px;
+            align-items: stretch;
+            margin-bottom: 10px;
+          }
+          [data-form-code="9004"] .f9004-init20-grid {
+            display: grid;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            border-top: 1px solid #000;
+            border-left: 1px solid #000;
+          }
           [data-form-code="9004"] input[data-f9004-date-picker="1"]::-webkit-calendar-picker-indicator {
             position: absolute;
             inset: 0;
@@ -574,15 +979,21 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
             opacity: 0;
             cursor: pointer;
           }
-          body.mobile-preview-mode [data-form-code="9004"] .f9004-env-split-grid {
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-env-split-grid,
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid,
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-work-split-grid {
             grid-template-columns: 1fr;
           }
-          body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid {
-            grid-template-columns: 1fr;
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-init20-grid {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
           }
           @container (max-width: 640px) {
-            [data-form-code="9004"] .f9004-env-split-grid {
+            [data-form-code="9004"] .f9004-env-split-grid,
+            [data-form-code="9004"] .f9004-work-split-grid {
               grid-template-columns: 1fr;
+            }
+            [data-form-code="9004"] .f9004-init20-grid {
+              grid-template-columns: repeat(5, minmax(0, 1fr));
             }
           }
           @container (max-width: 520px) {
@@ -596,11 +1007,13 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
             }
           }
           @media (max-width: 768px) {
-            [data-form-code="9004"] .f9004-env-split-grid {
+            [data-form-code="9004"] .f9004-env-split-grid,
+            [data-form-code="9004"] .f9004-stock-summary-grid,
+            [data-form-code="9004"] .f9004-work-split-grid {
               grid-template-columns: 1fr;
             }
-            [data-form-code="9004"] .f9004-stock-summary-grid {
-              grid-template-columns: 1fr;
+            [data-form-code="9004"] .f9004-init20-grid {
+              grid-template-columns: repeat(5, minmax(0, 1fr));
             }
           }
         </style>
@@ -737,9 +1150,12 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         </div>
       </div>
 
-      <!-- 3. 특이사항 -->
+      <!-- 3. 고무 압출(Piece) · 권선(Roll) 작업 및 중량 측정 기록 -->
+      ${buildFmbWorkSectionInputHTML(workLogData)}
+
+      <!-- 4. 특이사항 -->
       <div style="margin-bottom: 20px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;">3. 금일 주요 작업 내용 및 특이사항</h3>
+        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;">4. 금일 주요 작업 내용 및 특이사항</h3>
         <textarea id="f9004_workDetails" name="f9004_workDetails" class="form-control" rows="3" placeholder="유효기간 임박 원재료 현황, 항온항습 특이사항, 교대 전달사항 등을 입력하세요." style="font-size: 13px; resize: vertical; width: 100%; border: 1px solid #000; border-radius: 4px; padding: 8px;">${escapeHtml(workDetails)}</textarea>
       </div>
 
@@ -1163,8 +1579,93 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
     });
   }
 
+  const updateWorkLogFeedback = () => {
+    root.querySelectorAll('input[data-f9004-weight-spec]').forEach((inp) => {
+      const specKey = inp.getAttribute('data-f9004-weight-spec');
+      const { ok } = evaluateExtrusionWeight(specKey, inp.value);
+      if (ok === null) {
+        inp.style.borderColor = '';
+        inp.style.color = '#0f172a';
+        inp.style.background = '#ffffff';
+      } else if (ok) {
+        inp.style.borderColor = '#10b981';
+        inp.style.color = '#047857';
+        inp.style.background = '#ffffff';
+      } else {
+        inp.style.borderColor = '#ef4444';
+        inp.style.color = '#dc2626';
+        inp.style.background = '#fff1f2';
+      }
+    });
+
+    F9004_EXTRUSION_SPECS.forEach((sp) => {
+      const badge = root.querySelector(`#f9004_init20_badge_${sp.key}`);
+      if (!badge) return;
+      let filled = 0;
+      for (let i = 1; i <= F9004_INIT_PIECE_COUNT; i += 1) {
+        const val = (root.querySelector(`#f9004_ext_${sp.key}_init_${i}`)?.value || '').trim();
+        if (val !== '') filled += 1;
+      }
+      if (filled === F9004_INIT_PIECE_COUNT) {
+        badge.style.background = '#ecfdf5';
+        badge.style.color = '#047857';
+        badge.style.borderColor = '#6ee7b7';
+        setTranslatableText(badge, '✅ 20 / 20개 측정 완료');
+      } else if (filled > 0) {
+        badge.style.background = '#eff6ff';
+        badge.style.color = '#1d4ed8';
+        badge.style.borderColor = '#93c5fd';
+        setTranslatableText(badge, `측정 ${filled} / ${F9004_INIT_PIECE_COUNT}개`);
+      } else {
+        badge.style.background = '#e2e8f0';
+        badge.style.color = '#334155';
+        badge.style.borderColor = '#cbd5e1';
+        setTranslatableText(badge, `측정 0 / ${F9004_INIT_PIECE_COUNT}개`);
+      }
+    });
+
+    const rollTotalBadge = root.querySelector('#f9004_rollTotalBadge');
+    if (rollTotalBadge) {
+      let sum = 0;
+      root.querySelectorAll('input[data-f9004-roll-qty="1"]').forEach((inp) => {
+        const n = parseEnvNumber(inp.value);
+        if (n !== null && n > 0) sum += n;
+      });
+      setTranslatableText(rollTotalBadge, `총 권선: ${formatKgNumber(sum)} EA`);
+    }
+  };
+
+  root.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t?.hasAttribute?.('data-f9004-weight-spec') || t?.hasAttribute?.('data-f9004-roll-qty')) {
+      updateWorkLogFeedback();
+    }
+  });
+
+  root.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const t = e.target;
+    if (!t) return;
+    const initGroup = t.getAttribute?.('data-f9004-init-group');
+    if (initGroup) {
+      e.preventDefault();
+      const curIdx = Number(t.getAttribute('data-f9004-init-idx') || 0);
+      const nextInp = root.querySelector(`#f9004_ext_${initGroup}_init_${curIdx + 1}`);
+      nextInp?.focus?.();
+      return;
+    }
+    const stageSeq = t.getAttribute?.('data-f9004-stage-seq');
+    if (stageSeq) {
+      e.preventDefault();
+      const [spKey, stIdxStr] = stageSeq.split('_');
+      const nextStageInp = root.querySelector(`[data-f9004-stage-seq="${spKey}_${Number(stIdxStr) + 1}"]`);
+      nextStageInp?.focus?.();
+    }
+  });
+
   i18n.applyTranslations(root);
   updateEnvSpecFeedback();
+  updateWorkLogFeedback();
 
   const processFmbSave = (targetStatus) => {
     try {
@@ -1212,6 +1713,28 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         createdDate: it.createdDate || fullDate
       }));
 
+      const f9004_workLog = { extrusion: {}, winding: {} };
+      F9004_EXTRUSION_SPECS.forEach((sp) => {
+        const initial20 = Array.from({ length: F9004_INIT_PIECE_COUNT }, (_, i) => (
+          (root.querySelector(`#f9004_ext_${sp.key}_init_${i + 1}`)?.value || '').trim()
+        ));
+        f9004_workLog.extrusion[sp.key] = {
+          code: sp.code,
+          lot: (root.querySelector(`#f9004_ext_${sp.key}_lot`)?.value || '').trim(),
+          first: (root.querySelector(`#f9004_ext_${sp.key}_first`)?.value || '').trim(),
+          mid: (root.querySelector(`#f9004_ext_${sp.key}_mid`)?.value || '').trim(),
+          last: (root.querySelector(`#f9004_ext_${sp.key}_last`)?.value || '').trim(),
+          initial20
+        };
+      });
+      F9004_WINDING_SPECS.forEach((sp) => {
+        f9004_workLog.winding[sp.key] = {
+          code: sp.code,
+          lot: (root.querySelector(`#f9004_roll_${sp.key}_lot`)?.value || '').trim(),
+          qty: (root.querySelector(`#f9004_roll_${sp.key}_qty`)?.value || '').trim()
+        };
+      });
+
       const workDetailsText = root.querySelector('#f9004_workDetails')?.value || '';
       const currentUserRole = store.getUserRole();
       const currentWorkerName = existingData?.workerName || currentUserRole?.workerName || loggedInWorkerName || '작업자';
@@ -1236,6 +1759,7 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         f9004_checks,
         f9004_items,
         f9004_dispatched,
+        f9004_workLog,
         workDetails: workDetailsText,
         status: targetStatus,
         notes: targetStatus === '임시저장'
@@ -1419,14 +1943,35 @@ export function buildFmbDetailHTML(r) {
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 6px;
           }
+          [data-form-code="9004"] .f9004-work-split-grid {
+            display: grid;
+            grid-template-columns: 1.04fr 1fr;
+            gap: 8px;
+            align-items: stretch;
+            margin-bottom: 8px;
+          }
+          [data-form-code="9004"] .f9004-init20-grid {
+            display: grid;
+            grid-template-columns: repeat(10, minmax(0, 1fr));
+            border-top: 1px solid #000;
+            border-left: 1px solid #000;
+          }
           @media screen {
             body.mobile-preview-mode [data-form-code="9004"] .f9004-detail-split-grid,
-            body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid {
+            body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid,
+            body.mobile-preview-mode [data-form-code="9004"] .f9004-work-split-grid {
               grid-template-columns: 1fr;
             }
+            body.mobile-preview-mode [data-form-code="9004"] .f9004-init20-grid {
+              grid-template-columns: repeat(5, minmax(0, 1fr));
+            }
             @container (max-width: 640px) {
-              [data-form-code="9004"] .f9004-detail-split-grid {
+              [data-form-code="9004"] .f9004-detail-split-grid,
+              [data-form-code="9004"] .f9004-work-split-grid {
                 grid-template-columns: 1fr;
+              }
+              [data-form-code="9004"] .f9004-init20-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
               }
             }
             @container (max-width: 520px) {
@@ -1436,8 +1981,12 @@ export function buildFmbDetailHTML(r) {
             }
             @media (max-width: 768px) {
               [data-form-code="9004"] .f9004-detail-split-grid,
-              [data-form-code="9004"] .f9004-stock-summary-grid {
+              [data-form-code="9004"] .f9004-stock-summary-grid,
+              [data-form-code="9004"] .f9004-work-split-grid {
                 grid-template-columns: 1fr;
+              }
+              [data-form-code="9004"] .f9004-init20-grid {
+                grid-template-columns: repeat(5, minmax(0, 1fr));
               }
             }
           }
@@ -1574,8 +2123,10 @@ export function buildFmbDetailHTML(r) {
         ` : ''}
       </div>
 
+      ${buildFmbWorkSectionDetailHTML(r?.f9004_workLog)}
+
       <div style="margin-bottom: 14px;">
-        <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">3. 금일 주요 작업 내용 및 특이사항</div>
+        <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">4. 금일 주요 작업 내용 및 특이사항</div>
         <div style="border: 1px solid #000; padding: 10px; min-height: 90px; font-size: 12px; white-space: pre-wrap;">${escapeHtml(r?.workDetails || '입력된 내용 없음')}</div>
       </div>
     </div>

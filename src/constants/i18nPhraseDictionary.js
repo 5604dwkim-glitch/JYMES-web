@@ -1223,7 +1223,22 @@ export const PHRASE_TUPLES = [
   ['로컬 저장됨', 'Saved Locally', 'บันทึกในเครื่องแล้ว', 'Đã lưu cục bộ'],
   ['⚠️ 고무명을 선택해 주세요.', '⚠️ Please select a rubber name.', '⚠️ กรุณาเลือกชื่อยาง', '⚠️ Vui lòng chọn tên cao su.'],
   ['⚠️ 해당 고무명의 현재 재고가 없습니다.', '⚠️ No current stock found for this rubber.', '⚠️ ไม่มีสต็อกปัจจุบันสำหรับยางนี้', '⚠️ Không có tồn kho hiện tại cho loại cao su này.'],
-  ['[공통] 공통 - FMB보관실 공정 전용 양식', '[Common] Common - FMB Storage Room Dedicated Form', '[ทั่วไป] ทั่วไป - แบบฟอร์มเฉพาะห้องจัดเก็บ FMB', '[Chung] Chung - Biểu mẫu chuyên dụng kho FMB']
+  ['[공통] 공통 - FMB보관실 공정 전용 양식', '[Common] Common - FMB Storage Room Dedicated Form', '[ทั่วไป] ทั่วไป - แบบฟอร์มเฉพาะห้องจัดเก็บ FMB', '[Chung] Chung - Biểu mẫu chuyên dụng kho FMB'],
+  ['3. 고무 압출(Piece) · 권선(Roll) 작업 및 중량 측정 기록', '3. Rubber Extrusion (Piece) & Winding (Roll) Work / Weight Log', '3. บันทึกงานรีดยาง (Piece) · ม้วนยาง (Roll) และการชั่งน้ำหนัก', '3. Ghi nhận đùn cao su (Piece) · cuộn (Roll) & đo trọng lượng'],
+  ['4. 금일 주요 작업 내용 및 특이사항', '4. Key Work Details & Special Notes Today', '4. รายละเอียดงานหลักและหมายเหตุพิเศษวันนี้', '4. Nội dung công việc chính & lưu ý đặc biệt hôm nay'],
+  ['작업방법', 'Work Method', 'วิธีปฏิบัติงาน', 'Phương pháp thao tác'],
+  ['고무 압출(Piece)', 'Rubber Extrusion (Piece)', 'รีดยาง (Piece)', 'Đùn cao su (Piece)'],
+  ['고무 권선(Roll)', 'Rubber Winding (Roll)', 'ม้วนยาง (Roll)', 'Cuộn cao su (Roll)'],
+  ['배합코드', 'Compound Code', 'รหัสคอมปาวด์', 'Mã hỗn luyện'],
+  ['작업중량', 'Target Wt.', 'น้ำหนักมาตรฐาน', 'TL tiêu chuẩn'],
+  ['측정중량', 'Measured Wt.', 'น้ำหนักที่วัดได้', 'TL đo được'],
+  ['LOT 입력', 'Enter LOT', 'กรอก LOT', 'Nhập LOT'],
+  ['권선 수량', 'Roll Qty', 'จำนวนม้วน', 'SL cuộn'],
+  ['※ 권선 수량 기록(EA)', '※ Record Winding Qty (EA)', '※ บันทึกจำนวนม้วน (EA)', '※ Ghi số lượng cuộn (EA)'],
+  ['⚖️ 압출 시작 후 최초 20개 중량 측정 기록 (초기허용불량 확인 · 단위: g)', '⚖️ First 20 Extruded Pieces Weight Log (Startup Check · Unit: g)', '⚖️ บันทึกน้ำหนัก 20 ชิ้นแรกหลังเริ่มรีดยาง (ตรวจเช็คช่วงเริ่มเดินเครื่อง · หน่วย: g)', '⚖️ Đo trọng lượng 20 sản phẩm đầu sau khi bắt đầu đùn (KT đầu ca · ĐV: g)'],
+  ['⚖️ 압출 시작 후 최초 20개 중량 측정 기록 (단위: g)', '⚖️ First 20 Extruded Pieces Weight Log (Unit: g)', '⚖️ บันทึกน้ำหนัก 20 ชิ้นแรกหลังเริ่มรีดยาง (หน่วย: g)', '⚖️ Đo trọng lượng 20 sản phẩm đầu sau khi bắt đầu đùn (ĐV: g)'],
+  ['Enter 입력 시 다음 번호(1→20)로 이동', 'Press Enter to move to next (1→20)', 'กด Enter เพื่อไปลำดับถัดไป (1→20)', 'Nhấn Enter để sang số tiếp theo (1→20)'],
+  ['✅ 20 / 20개 측정 완료', '✅ 20 / 20 Measured', '✅ วัดครบ 20 / 20 ชิ้นแล้ว', '✅ Đã đo đủ 20 / 20 cái']
 ];
 
 /**
@@ -1479,6 +1494,26 @@ export const DYNAMIC_PATTERNS = [
       if (lang === 'en') return `) Monthly Daily TPM Log`;
       if (lang === 'th') return `) บันทึกตรวจเช็คเครื่องจักรประจำวัน`;
       if (lang === 'vi') return `) Nhật ký kiểm tra thiết bị hàng ngày`;
+      return m[0];
+    }
+  },
+  // e.g. "측정 0 / 20개" or "측정 14 / 20개"
+  {
+    regex: /^측정\s*(\d+)\s*\/\s*(\d+)개$/,
+    format: (m, lang) => {
+      if (lang === 'en') return `Measured ${m[1]} / ${m[2]}`;
+      if (lang === 'th') return `วัดแล้ว ${m[1]} / ${m[2]} ชิ้น`;
+      if (lang === 'vi') return `Đã đo ${m[1]} / ${m[2]} cái`;
+      return m[0];
+    }
+  },
+  // e.g. "총 권선: 45 EA"
+  {
+    regex: /^총\s*권선:\s*([\d.]+)\s*EA$/,
+    format: (m, lang) => {
+      if (lang === 'en') return `Total Rolls: ${m[1]} EA`;
+      if (lang === 'th') return `ม้วนรวม: ${m[1]} EA`;
+      if (lang === 'vi') return `Tổng cuộn: ${m[1]} EA`;
       return m[0];
     }
   }
