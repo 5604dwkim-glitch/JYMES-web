@@ -1248,7 +1248,17 @@ export const PHRASE_TUPLES = [
   ['현상', 'Symptom', 'อาการผิดปกติ', 'Hiện tượng'],
   ['조치이력', 'Action Taken', 'ประวัติการแก้ไข', 'Lịch sử xử lý'],
   ['특이사항', 'Special Notes', 'หมายเหตุพิเศษ', 'Ghi chú đặc biệt'],
-  ['날짜 선택', 'Select Date', 'เลือกวันที่', 'Chọn ngày']
+  ['날짜 선택', 'Select Date', 'เลือกวันที่', 'Chọn ngày'],
+  ['조치 현황', 'Action Status', 'สถานะการแก้ไข', 'Tình trạng xử lý'],
+  ['온도 상한 초과', 'Temp Upper Limit Exceeded', 'อุณหภูมิเกินเกณฑ์สูงสุด', 'Vượt ngưỡng nhiệt độ trên'],
+  ['온도 하한 미달', 'Temp Below Lower Limit', 'อุณหภูมิต่ำกว่าเกณฑ์ต่ำสุด', 'Dưới ngưỡng nhiệt độ dưới'],
+  ['습도 상한 초과', 'Humidity Upper Limit Exceeded', 'ความชื้นเกินเกณฑ์สูงสุด', 'Vượt ngưỡng độ ẩm trên'],
+  ['제습기 가동', 'Operate Dehumidifier', 'เปิดเครื่องลดความชื้น', 'Vận hành máy hút ẩm'],
+  ['에어컨 온도 조절', 'Adjust A/C Temp', 'ปรับอุณหภูมิแอร์', 'Điều chỉnh nhiệt độ điều hòa'],
+  ['난방/항온기 온도 조절', 'Adjust Heater/HVAC Temp', 'ปรับอุณหภูมิฮีตเตอร์/เครื่องควบคุม', 'Điều chỉnh máy sưởi/ổn nhiệt'],
+  ['기타 입력', 'Other (Manual Input)', 'อื่นๆ (กรอกเอง)', 'Khác (Tự nhập)'],
+  ['직접 입력', 'Enter manually', 'กรอกเอง', 'Nhập trực tiếp'],
+  ['승인완료', 'Approved', 'อนุมัติแล้ว', 'Đã duyệt']
 ];
 
 /**
