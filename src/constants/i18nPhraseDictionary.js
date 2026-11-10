@@ -1204,7 +1204,11 @@ export const PHRASE_TUPLES = [
   ['F/Proof 작동요령서 참조', 'See F/Proof Guide', 'ดูคู่มือ F/Proof', 'Xem HD F/Proof'],
   ['고무명', 'Rubber Name', 'ชื่อยาง', 'Tên cao su'],
   ['예: 조인트 고무', 'e.g. Joint Rubber', 'เช่น ยางข้อต่อ', 'VD: Cao su nối'],
-  ['예: 200kg / 2PLT', 'e.g. 200kg / 2PLT', 'เช่น 200kg / 2PLT', 'VD: 200kg / 2PLT']
+  ['예: 200kg / 2PLT', 'e.g. 200kg / 2PLT', 'เช่น 200kg / 2PLT', 'VD: 200kg / 2PLT'],
+  ['수량(kg)', 'Qty (kg)', 'จำนวน (kg)', 'SL (kg)'],
+  ['불출', 'Issue', 'เบิกจ่าย', 'Xuất'],
+  ['재고', 'Stock', 'สต็อก', 'Tồn kho'],
+  ['보류', 'Hold', 'กักกัน', 'Tạm giữ']
 ];
 
 /**

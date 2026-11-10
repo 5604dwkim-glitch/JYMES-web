@@ -19,7 +19,45 @@ const F9004_LEGACY_CHECKLIST_ITEMS = [
   { id: 'f9004_chk5', text: '보관실 통로 정리정돈 및 안전·소방 시설 이상 유무' }
 ];
 
-const F9004_IO_TYPES = ['입고', '불출(투입)', '반납', '재고점검', '보류·격리'];
+const F9004_IO_TYPES = ['입고', '불출', '반납', '재고', '보류'];
+export const F9004_RUBBER_OPTIONS = ['W60664$OS', 'W6082$NA', 'W60905'];
+
+function normalizeIoType(raw) {
+  const s = String(raw || '').trim();
+  if (s === '불출(투입)') return '불출';
+  if (s === '재고점검') return '재고';
+  if (s === '보류·격리') return '보류';
+  return s;
+}
+
+function formatExpiryMonthDay(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  // YYYY-MM-DD / YY-MM-DD -> MM/DD
+  const ymd = s.match(/^(?:\d{2}|\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
+  if (ymd) {
+    return `${ymd[1].padStart(2, '0')}/${ymd[2].padStart(2, '0')}`;
+  }
+  // M/D or MM-DD or MM.DD -> MM/DD
+  const md = s.match(/^(\d{1,2})[-./](\d{1,2})$/);
+  if (md) {
+    return `${md[1].padStart(2, '0')}/${md[2].padStart(2, '0')}`;
+  }
+  // 4 digits MMDD -> MM/DD
+  if (/^\d{4}$/.test(s)) {
+    return `${s.slice(0, 2)}/${s.slice(2, 4)}`;
+  }
+  return s;
+}
+
+function stripKgUnit(raw) {
+  return String(raw || '').replace(/\s*kg$/i, '').trim();
+}
+
+function formatQtyWithKg(raw) {
+  const clean = stripKgUnit(raw);
+  return clean ? `${clean}kg` : '';
+}
 
 const escapeHtml = (val) => String(val ?? '')
   .replace(/&/g, '&amp;')
@@ -92,31 +130,45 @@ function buildFmbStandardLeftBoxHTML(compact = false) {
 }
 
 function buildRowHTML(item, idx) {
-  const curType = item?.f9004_type || '';
-  const curRubber = item?.f9004_rubberName ?? item?.f9004_carModel ?? '';
-  const curExpiry = item?.f9004_expiryDate ?? item?.f9004_compoundLot ?? '';
-  const expiryInputType = curExpiry && !/^\d{4}-\d{2}-\d{2}$/.test(curExpiry) ? 'text' : 'date';
+  const curType = normalizeIoType(item?.f9004_type || '');
+  const curRubber = String(item?.f9004_rubberName ?? item?.f9004_carModel ?? '').trim();
+  const curExpiry = formatExpiryMonthDay(item?.f9004_expiryDate ?? item?.f9004_compoundLot ?? '');
+  const curQtyNum = stripKgUnit(item?.f9004_amount || '');
+
   const typeOptions = F9004_IO_TYPES.map((tp) => (
     `<option value="${escapeHtml(tp)}" ${curType === tp ? 'selected' : ''}>${escapeHtml(tp)}</option>`
   )).join('');
 
+  const rubberList = curRubber && !F9004_RUBBER_OPTIONS.includes(curRubber)
+    ? [curRubber, ...F9004_RUBBER_OPTIONS]
+    : F9004_RUBBER_OPTIONS;
+  const rubberOptions = rubberList.map((rb) => (
+    `<option value="${escapeHtml(rb)}" translate="no" ${curRubber === rb ? 'selected' : ''}>${escapeHtml(rb)}</option>`
+  )).join('');
+
   return `
     <tr data-f9004-row="${idx}">
-      <td data-f9004-col="no" style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 6px;">${idx + 1}</td>
-      <td style="border: 1px solid #000; padding: 5px;">
-        <select id="f9004_type_${idx}" name="f9004_type_${idx}" data-f9004-field="type" class="form-control" style="font-size: 12px; padding: 4px; height: auto;">
-          <option value="">선택</option>
+      <td data-f9004-col="no" style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 4px 2px;">${idx + 1}</td>
+      <td style="border: 1px solid #000; padding: 3px 2px;">
+        <select id="f9004_type_${idx}" name="f9004_type_${idx}" data-f9004-field="type" class="form-control" style="font-size: 12px; padding: 4px 2px; height: auto; width: 100%;">
+          <option value="">-</option>
           ${typeOptions}
         </select>
       </td>
-      <td style="border: 1px solid #000; padding: 5px;">
-        <input type="text" id="f9004_rubber_${idx}" name="f9004_rubber_${idx}" data-f9004-field="rubberName" data-wheel-skip="1" class="form-control" value="${escapeHtml(curRubber)}" placeholder="예: 조인트 고무" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%;" />
+      <td style="border: 1px solid #000; padding: 3px 4px;">
+        <select id="f9004_rubber_${idx}" name="f9004_rubber_${idx}" data-f9004-field="rubberName" class="form-control" style="font-size: 12.5px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%;">
+          <option value="">선택</option>
+          ${rubberOptions}
+        </select>
       </td>
-      <td style="border: 1px solid #000; padding: 5px;">
-        <input type="${expiryInputType}" max="9999-12-31" id="f9004_expiry_${idx}" name="f9004_expiry_${idx}" data-f9004-field="expiryDate" data-wheel-skip="1" class="form-control" value="${escapeHtml(curExpiry)}" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%; text-align: center;" />
+      <td style="border: 1px solid #000; padding: 3px 3px;">
+        <input type="text" inputmode="numeric" maxlength="5" id="f9004_expiry_${idx}" name="f9004_expiry_${idx}" data-f9004-field="expiryDate" data-wheel-skip="1" class="form-control" value="${escapeHtml(curExpiry)}" placeholder="MM/DD" style="font-size: 12.5px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center;" />
       </td>
-      <td style="border: 1px solid #000; padding: 5px;">
-        <input type="text" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" data-wheel-skip="1" class="form-control" value="${escapeHtml(item?.f9004_amount || '')}" placeholder="예: 200kg / 2PLT" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%; text-align: center;" />
+      <td style="border: 1px solid #000; padding: 3px 3px;">
+        <div style="position: relative; display: flex; align-items: center;">
+          <input type="text" inputmode="decimal" maxlength="6" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" data-wheel-skip="1" class="form-control" value="${escapeHtml(curQtyNum)}" placeholder="000" style="font-size: 12.5px; font-weight: 700; padding: 4px 21px 4px 4px; height: auto; width: 100%; text-align: right;" />
+          <span translate="no" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #475569; pointer-events: none;">kg</span>
+        </div>
       </td>
     </tr>
   `;
@@ -310,14 +362,21 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
           </button>
         </div>
         <div style="overflow-x: auto;">
-          <table class="data-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; min-width: 480px;">
+          <table class="data-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 340px;">
+            <colgroup>
+              <col style="width: 28px;" />
+              <col style="width: 66px;" />
+              <col />
+              <col style="width: 68px;" />
+              <col style="width: 76px;" />
+            </colgroup>
             <thead>
               <tr style="background: #f1f5f9; color: #000;">
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 42px; white-space: nowrap;">No</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 115px; white-space: nowrap;">구분</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; white-space: nowrap;">고무명</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 155px; white-space: nowrap;">유효기간</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 130px; white-space: nowrap;">수량</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">No</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">구분</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 5px 6px; white-space: nowrap;">고무명</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">유효기간</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">수량(kg)</th>
               </tr>
             </thead>
             <tbody id="f9004_tbody">
@@ -435,6 +494,23 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
     });
   }
 
+  if (tbody) {
+    // 유효기간(MM/DD) 숫자 입력 시 자동 슬래시 포맷팅 (예: 1120 -> 11/20)
+    tbody.addEventListener('input', (e) => {
+      const target = e.target;
+      if (!target || target.getAttribute('data-f9004-field') !== 'expiryDate') return;
+      const raw = target.value;
+      if (/^\d{3,4}$/.test(raw)) {
+        target.value = `${raw.slice(0, 2)}/${raw.slice(2)}`;
+      }
+    });
+    tbody.addEventListener('focusout', (e) => {
+      const target = e.target;
+      if (!target || target.getAttribute('data-f9004-field') !== 'expiryDate') return;
+      target.value = formatExpiryMonthDay(target.value);
+    });
+  }
+
   if (btnAddRow && tbody) {
     btnAddRow.addEventListener('click', () => {
       const nextIdx = tbody.querySelectorAll('tr[data-f9004-row]').length;
@@ -479,8 +555,8 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
       root.querySelectorAll('tr[data-f9004-row]').forEach((tr) => {
         const f9004_type = (tr.querySelector('[data-f9004-field="type"]')?.value || '').trim();
         const f9004_rubberName = (tr.querySelector('[data-f9004-field="rubberName"]')?.value || '').trim();
-        const f9004_expiryDate = (tr.querySelector('[data-f9004-field="expiryDate"]')?.value || '').trim();
-        const f9004_amount = (tr.querySelector('[data-f9004-field="amount"]')?.value || '').trim();
+        const f9004_expiryDate = formatExpiryMonthDay(tr.querySelector('[data-f9004-field="expiryDate"]')?.value || '');
+        const f9004_amount = formatQtyWithKg(tr.querySelector('[data-f9004-field="amount"]')?.value || '');
         if (f9004_type || f9004_rubberName || f9004_expiryDate || f9004_amount) {
           f9004_items.push({
             f9004_type,
@@ -781,28 +857,37 @@ export function buildFmbDetailHTML(r) {
 
       <div style="margin-bottom: 14px;">
         <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">2. 금일 입고 · 불출 및 재고 관리 내역</div>
-        <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse;">
+        <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; table-layout: fixed;">
+          <colgroup>
+            <col style="width: 34px;" />
+            <col style="width: 68px;" />
+            <col />
+            <col style="width: 78px;" />
+            <col style="width: 86px;" />
+          </colgroup>
           <thead>
             <tr style="background: #f1f5f9; color: #000;">
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 42px;">No</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 105px;">구분</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px;">고무명</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 145px;">유효기간</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 120px;">수량</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px 2px;">No</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px 2px;">구분</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px 6px;">고무명</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px 2px;">유효기간</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px 2px;">수량(kg)</th>
             </tr>
           </thead>
           <tbody>
             ${Array.from({ length: rowCount }, (_, idx) => {
               const row = items[idx] || {};
+              const ioType = normalizeIoType(row.f9004_type || '');
               const rubberName = row.f9004_rubberName ?? row.f9004_carModel ?? '';
-              const expiryDate = row.f9004_expiryDate ?? row.f9004_compoundLot ?? '';
+              const expiryDate = formatExpiryMonthDay(row.f9004_expiryDate ?? row.f9004_compoundLot ?? '');
+              const amountDisp = formatQtyWithKg(row.f9004_amount || '');
               return `
                 <tr>
-                  <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 700;">${idx + 1}</td>
-                  <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(row.f9004_type || '')}</td>
-                  <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(rubberName)}</td>
-                  <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(expiryDate)}</td>
-                  <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(row.f9004_amount || '')}</td>
+                  <td style="border: 1px solid #000; text-align: center; padding: 4px 2px; font-weight: 700;">${idx + 1}</td>
+                  <td style="border: 1px solid #000; text-align: center; padding: 4px 2px;">${escapeHtml(ioType)}</td>
+                  <td style="border: 1px solid #000; text-align: center; padding: 4px 6px; font-weight: 700;" translate="no">${escapeHtml(rubberName)}</td>
+                  <td style="border: 1px solid #000; text-align: center; padding: 4px 2px;">${escapeHtml(expiryDate)}</td>
+                  <td style="border: 1px solid #000; text-align: right; padding: 4px 8px; font-weight: 700;">${escapeHtml(amountDisp)}</td>
                 </tr>
               `;
             }).join('')}
