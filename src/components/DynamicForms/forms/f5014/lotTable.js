@@ -1,29 +1,31 @@
 /**
  * 양식 고유 번호 #5014 (GM 9BQC / G/RUN / 검사포장-길이)
- * — #5011 양식틀 복사본
  * "4. 소재 LOT 번호 입력" 전용 렌더러
  *
- * - 상단 헤더 1행: [좌상단 공란 rowspan=2] | FRT [colspan=3]
- * - 상단 헤더 2행: 초물 | 중물 | 종물
- * - 세로 행(6행, 실선 테두리 & 백색 배경): LH A / LH B / LH C / RH A / RH B / RH C
+ * - 상단 헤더 1행: [공란] | 초 | 중 | 종
+ * - 세로 행(4행, 백색 배경):
+ *   · RR LH A (하단 점선)
+ *   · RR RH A (상단 점선 / 하단 실선)
+ *   · RR LH B (상단 실선 / 하단 점선)
+ *   · RR RH B (상단 점선 / 하단 실선)
  * - 모든 입력칸 ID 는 `f5014_` 접두사 + `초물`/`중물`/`종물` 키(`ReportList` 배지 호환) 및
  *   `data-save-group="materialLots"` 사용 (GEMINI.md 원칙 2·8·9·10·11·12·16)
  */
 
 export const F5014_LOT_ROWS = [
-  { key: 'LH_A', label: 'LH A', legacySide: 'LH' },
-  { key: 'LH_B', label: 'LH B' },
-  { key: 'LH_C', label: 'LH C' },
-  { key: 'RH_A', label: 'RH A', legacySide: 'RH' },
-  { key: 'RH_B', label: 'RH B' },
-  { key: 'RH_C', label: 'RH C' }
+  { key: 'RR_LH_A', label: 'RR LH A', topSolid: true, bottomSolid: false, legacyFrtKey: 'LH_A', legacySide: 'LH' },
+  { key: 'RR_RH_A', label: 'RR RH A', topSolid: false, bottomSolid: true, legacyFrtKey: 'RH_A', legacySide: 'RH' },
+  { key: 'RR_LH_B', label: 'RR LH B', topSolid: true, bottomSolid: false, legacyFrtKey: 'LH_B' },
+  { key: 'RR_RH_B', label: 'RR RH B', topSolid: false, bottomSolid: true, legacyFrtKey: 'RH_B' }
 ];
 
-export const F5014_LOT_STAGES = ['초물', '중물', '종물'];
+export const F5014_LOT_STAGES = [
+  { key: '초물', label: '초' },
+  { key: '중물', label: '중' },
+  { key: '종물', label: '종' }
+];
 
-const STAGE_TH_STYLE = 'border: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;';
-const ROW_TH_STYLE = 'border: 1px solid #000; padding: 8px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle; white-space: nowrap;';
-const TD_STYLE = 'border: 1px solid #000; padding: 2px; background: #ffffff; vertical-align: middle;';
+const STAGE_TH_STYLE = 'border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;';
 const TEXTAREA_STYLE = 'width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;';
 
 function escapeHtml(val) {
@@ -57,25 +59,35 @@ export function renderF5014LotTable(lotContainer, curLots = {}, materialLots = {
  */
 export function renderF5014LotTableHTML(curLots = {}, materialLots = {}) {
   const stageHeaders = F5014_LOT_STAGES
-    .map(stage => `<th scope="col" style="${STAGE_TH_STYLE}">${stage}</th>`)
+    .map(stage => `<th scope="col" style="${STAGE_TH_STYLE}">${stage.label}</th>`)
     .join('\n                ');
 
   const bodyRows = F5014_LOT_ROWS.map(row => {
+    const topBorder = row.topSolid ? '1px solid #000' : '1px dotted #000';
+    const bottomBorder = row.bottomSolid ? '1px solid #000' : '1px dotted #000';
+    const rowThStyle = `border-left: 1px solid #000; border-right: 1px solid #000; border-top: ${topBorder}; border-bottom: ${bottomBorder}; padding: 8px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle; white-space: nowrap;`;
+    const cellTdStyle = `border-left: 1px solid #000; border-right: 1px solid #000; border-top: ${topBorder}; border-bottom: ${bottomBorder}; padding: 2px; background: #ffffff; vertical-align: middle;`;
+
     const cells = F5014_LOT_STAGES.map(stage => {
-      const id = `f5014_FRT_${row.key}_${stage}`;
-      const legacyKey = row.legacySide ? `${row.legacySide}_FRT_${stage}` : undefined;
+      const id = `f5014_${row.key}_${stage.key}`;
+      // 하위 호환 키 복원 (GEMINI.md 원칙 11)
+      const prevFrtId = row.legacyFrtKey ? `f5014_FRT_${row.legacyFrtKey}_${stage.key}` : undefined;
+      const legacyRrKey = row.legacySide ? `${row.legacySide}_RR_${stage.key}` : undefined;
+      const legacyFrtKey = row.legacySide ? `${row.legacySide}_FRT_${stage.key}` : undefined;
       const val = curLots[id]
         ?? materialLots[id]
-        ?? (legacyKey ? materialLots[legacyKey] : undefined)
+        ?? (prevFrtId ? materialLots[prevFrtId] : undefined)
+        ?? (legacyRrKey ? materialLots[legacyRrKey] : undefined)
+        ?? (legacyFrtKey ? materialLots[legacyFrtKey] : undefined)
         ?? '';
-      return `<td style="${TD_STYLE}">
+      return `<td style="${cellTdStyle}">
                   <textarea id="${id}" data-form-code="5014" data-save-group="materialLots" class="form-control lot-datetime-input" style="${TEXTAREA_STYLE}" placeholder="년월일\n시분">${escapeHtml(val)}</textarea>
                 </td>`;
     }).join('\n                ');
 
     return `
               <tr>
-                <th scope="row" style="${ROW_TH_STYLE}">${row.label}</th>
+                <th scope="row" style="${rowThStyle}">${row.label}</th>
                 ${cells}
               </tr>`;
   }).join('');
@@ -98,10 +110,7 @@ export function renderF5014LotTableHTML(curLots = {}, materialLots = {}) {
             </colgroup>
             <thead>
               <tr>
-                <th rowspan="2" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; vertical-align: middle;"></th>
-                <th colspan="3" style="border: 1px solid #000; padding: 6px 4px; font-size: 12.5px; font-weight: 700; color: #000; vertical-align: middle; background: #ffffff;">FRT</th>
-              </tr>
-              <tr>
+                <th style="${STAGE_TH_STYLE}"></th>
                 ${stageHeaders}
               </tr>
             </thead>
