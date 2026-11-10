@@ -11,8 +11,7 @@
  *   · 하단 표: 중요 치수 및 검사 현황 (RR RH)
  *   · 구성: 항 목 | 규 격 | 실측치(초물 / 중물 / 종물)
  *     - RR {LH|RH} A : 482±3
- *     - RR {LH|RH} B : 608±5
- *     - RR {LH|RH} C : 582±5
+ *     - RR {LH|RH} B : 658±5
  *     - 패드 규격    : 5T*5W*60L (실측치 3열 병합 `colspan="3"`, 자유 입력 `data-wheel-skip="1"`)
  * - 모든 입력칸 ID 는 `f5014_` 접두사 + `data-save-group="dimData"` 및 명시적 `data-*` 속성만 사용
  *   (GEMINI.md 원칙 1·2·8·9·10·12·13·16)
@@ -33,8 +32,7 @@ export const F5014_DIM_SIDES = ['LH', 'RH'];
 
 export const F5014_DIM_ITEMS = [
   { key: 'A', specText: '482±3', spec: 482, tolerance: 3, range: 30 },
-  { key: 'B', specText: '608±5', spec: 608, tolerance: 5, range: 30 },
-  { key: 'C', specText: '582±5', spec: 582, tolerance: 5, range: 30 }
+  { key: 'B', specText: '658±5', spec: 658, tolerance: 5, range: 30 }
 ];
 
 export const F5014_DIM_STAGES = [
