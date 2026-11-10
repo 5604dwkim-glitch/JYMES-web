@@ -5,8 +5,8 @@ import ProcessDefectAnalysis from './AnalyticsParts/ProcessDefectAnalysis';
 import {
   fetchReports,
   fetchDailyStats,
-  fetchEquipments,
-  fetchMolds,
+  fetchEquipmentsSlim,
+  fetchMoldsSlim,
   fetchChangePoints,
   fetchDowntimeReports
 } from '../services/firestore';
@@ -33,8 +33,8 @@ export default function Analytics() {
         const [repData, statsData, eqData, moldData, cpData, dtReports] = await Promise.all([
           fetchReports({ startDate, endDate }),
           fetchDailyStats(null),
-          fetchEquipments(),
-          fetchMolds(),
+          fetchEquipmentsSlim(),
+          fetchMoldsSlim(),
           fetchChangePoints(false),
           fetchDowntimeReports('', false)
         ]);

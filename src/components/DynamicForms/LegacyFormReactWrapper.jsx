@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { addReport, updateReport, fetchWorkers, fetchMolds, fetchEquipments } from '../../services/firestore';
+import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim } from '../../services/firestore';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { useI18n } from '../../contexts/I18nContext';
 import { i18n } from '../../constants/translations';
@@ -37,22 +37,29 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
     setIsReady(false);
     async function initForm() {
       try {
-        let workers = await fetchWorkers();
+        // 일보 작성 화면에는 작업자 이름/금형 번호만 필요하므로 사진(base64)이 빠진 경량 캐시를 사용하고,
+        // 두 조회를 동시에 시작한다. (설비 목록은 양식에서 사용하지 않아 조회하지 않음)
+        const withTimeout = (promise, ms, fallback) => Promise.race([
+          promise,
+          new Promise((resolve) => setTimeout(() => resolve(fallback), ms))
+        ]);
+        const moldsPromise = fetchMoldsSlim();
+        const [workersRaw, moldsFirst] = await Promise.all([
+          withTimeout(fetchWorkersSlim(), 10000, []),
+          withTimeout(moldsPromise, 8000, null)
+        ]);
+
+        let workers = workersRaw;
         if (!workers || workers.length === 0) {
           workers = generate50Workers();
         }
 
-        const [equipments, molds] = await Promise.all([
-          fetchEquipments(),
-          fetchMolds()
-        ]);
-
-        setLegacyFormContext({
+        const formCtx = {
           userRoleInfo: userRole,
           existingData: existingData,
           workers: workers,
-          molds: molds,
-          equipments: equipments,
+          molds: moldsFirst || [],
+          equipments: [],
           processes: DEFAULT_PROCESSES,
           getItems: (code) => {
             return DEFAULT_ITEMS.filter(item => item.carModel === code);
@@ -88,7 +95,15 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
           onFormSelectionChange: (selections) => {
             setFormSelections(prev => ({ ...prev, ...selections }));
           }
-        });
+        };
+        setLegacyFormContext(formCtx);
+
+        // 금형 목록이 늦게 도착한 경우: 양식은 먼저 열고, 도착하면 컨텍스트에 반영 (공정 선택 시점에 읽음)
+        if (moldsFirst === null) {
+          moldsPromise.then((late) => {
+            formCtx.molds = late || [];
+          });
+        }
 
         setIsReady(true);
       } catch (e) {

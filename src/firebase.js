@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 // TODO: Replace with your Firebase project configuration
@@ -17,7 +17,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and get a reference to the service
-export const db = getFirestore(app);
+// 사내망·모바일 회선·프록시 등에서 기본 스트리밍(WebChannel) 연결이 멈추는 경우 자동으로 롱폴링으로 전환
+export const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
 
 // Initialize Firebase Authentication
 export const auth = getAuth(app);

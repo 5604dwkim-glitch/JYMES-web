@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, query, where, orderBy, documentId, writeBatch, limit, runTransaction, addDoc, serverTimestamp, increment, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, orderBy, documentId, writeBatch, limit, runTransaction, addDoc, serverTimestamp, increment, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 import { buildStatsUpdate } from './statsAggregator';
@@ -37,6 +37,110 @@ function setWorkersCache(data) {
 
 export function invalidateWorkersCache() {
   sessionStorage.removeItem(WORKERS_CACHE_KEY);
+  removeSlimCache('workers');
+}
+
+// ─────────────────────────────────────────────
+// ①-2 경량(slim) 컬렉션 캐시 — 사진(base64 data:image)을 제거한 사본을 localStorage에 보관
+//  - workers / molds / equipments 문서에는 사진이 base64로 통째로 들어 있어(합계 약 9.5MB)
+//    로그인·대시보드·일보작성 진입마다 전량 다운로드되던 문제를 줄이기 위한 캐시.
+//  - 새로고침·새 탭(QR 재접속)에도 유지되며, 저장 원본(Firestore 문서 구조)은 전혀 변경하지 않는다.
+//  - 사진이 필요한 화면(작업자관리·금형관리·설비관리 등)은 기존 fetchWorkers / fetchMolds / fetchEquipments 를 계속 사용한다.
+// ─────────────────────────────────────────────
+const SLIM_CACHE_PREFIX = 'jymes_slim_v1_';
+const slimInflight = new Map();
+
+function removeSlimCache(name) {
+  try {
+    localStorage.removeItem(SLIM_CACHE_PREFIX + name);
+  } catch {
+    // localStorage 사용 불가 환경 무시
+  }
+}
+
+function readSlimCache(name) {
+  try {
+    const raw = localStorage.getItem(SLIM_CACHE_PREFIX + name);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.data) || typeof parsed.timestamp !== 'number') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeSlimCache(name, data) {
+  try {
+    localStorage.setItem(SLIM_CACHE_PREFIX + name, JSON.stringify({ data, timestamp: Date.now() }));
+  } catch {
+    // 용량 초과 등은 무시 (다음 조회 때 다시 시도)
+  }
+}
+
+function stripImageData(value) {
+  if (typeof value === 'string') return value.startsWith('data:image') ? '' : value;
+  if (Array.isArray(value)) return value.map(stripImageData);
+  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
+    const out = {};
+    Object.keys(value).forEach((k) => {
+      out[k] = stripImageData(value[k]);
+    });
+    return out;
+  }
+  return value;
+}
+
+/**
+ * 컬렉션 전체를 읽어 사진을 제거한 목록을 반환 (캐시가 maxAgeMs 이내면 네트워크 없이 즉시 반환)
+ * 네트워크 오류 시에는 만료된 캐시라도 있으면 그것을 반환해 화면이 멈추지 않도록 한다.
+ */
+async function loadSlimCollection(name, { maxAgeMs, forceRefresh = false, sorter = null } = {}) {
+  if (!forceRefresh) {
+    const cached = readSlimCache(name);
+    if (cached && Date.now() - cached.timestamp < maxAgeMs) return cached.data;
+  }
+  if (slimInflight.has(name)) return slimInflight.get(name);
+
+  const task = (async () => {
+    try {
+      const snap = await getDocs(collection(db, name));
+      let data = snap.docs.map((d) => stripImageData({ id: d.id, ...d.data() }));
+      if (sorter) data = data.sort(sorter);
+      writeSlimCache(name, data);
+      return data;
+    } catch (error) {
+      console.error(`Error fetching ${name} (slim):`, error);
+      const stale = readSlimCache(name);
+      return stale ? stale.data : [];
+    } finally {
+      slimInflight.delete(name);
+    }
+  })();
+  slimInflight.set(name, task);
+  return task;
+}
+
+const SLIM_WORKERS_MAX_AGE_MS = 30 * 60 * 1000;
+const SLIM_MASTER_MAX_AGE_MS = 60 * 60 * 1000;
+
+/** 로그인·일보작성·조회 화면용 작업자 목록 (사진 제외, 30분 캐시) */
+export function fetchWorkersSlim(forceRefresh = false) {
+  return loadSlimCollection('workers', {
+    maxAgeMs: SLIM_WORKERS_MAX_AGE_MS,
+    forceRefresh,
+    sorter: (a, b) => String(a.id).localeCompare(String(b.id))
+  });
+}
+
+/** 일보작성·대시보드·분석용 금형 목록 (사진 제외, 기본 60분 캐시) */
+export function fetchMoldsSlim({ maxAgeMs = SLIM_MASTER_MAX_AGE_MS, forceRefresh = false } = {}) {
+  return loadSlimCollection('molds', { maxAgeMs, forceRefresh });
+}
+
+/** 대시보드·분석용 설비 목록 (사진 제외, 기본 60분 캐시) */
+export function fetchEquipmentsSlim({ maxAgeMs = SLIM_MASTER_MAX_AGE_MS, forceRefresh = false } = {}) {
+  return loadSlimCollection('equipments', { maxAgeMs, forceRefresh });
 }
 
 // ─────────────────────────────────────────────
@@ -107,9 +211,10 @@ export function setMoldsCache(data) {
   moldsCache = data;
   moldsCacheAt = Date.now();
 }
-export function invalidateMoldsCache() {
+export function invalidateMoldsCache({ keepSlim = false } = {}) {
   moldsCache = null;
   moldsCacheAt = 0;
+  if (!keepSlim) removeSlimCache('molds');
 }
 
 // ─────────────────────────────────────────────
@@ -130,6 +235,7 @@ export function setEquipmentsCache(data) {
 export function invalidateEquipmentsCache() {
   equipmentsCache = null;
   equipmentsCacheAt = 0;
+  removeSlimCache('equipments');
 }
 
 // ─────────────────────────────────────────────
@@ -459,7 +565,8 @@ export async function processMoldStrokes(reportData, existingReport = null) {
     if (hasBatch) {
       try {
         await batch.commit();
-        invalidateMoldsCache(); // 타수 변경 후 캐시 무효화
+        // 타수 변경 후 전체 캐시 무효화 (일보 작성용 경량 캐시는 타수를 쓰지 않으므로 유지 → 작업자 폰이 사진 포함 7MB를 재다운로드하지 않음)
+        invalidateMoldsCache({ keepSlim: true });
       } catch (err) {
         console.error('Failed to update mold strokes:', err);
       }
@@ -735,6 +842,18 @@ export async function bulkDeleteReports(ids) {
 // ─────────────────────────────────────────────
 const WORKERS_COLLECTION = 'workers';
 
+// ─────────────────────────────────────────────
+// 사진 분리 저장 (성능 개선)
+//  - 작업자/금형/설비 사진(base64)은 본 문서가 아닌 별도 컬렉션에 보관해 목록 조회 시 함께 내려받지 않는다.
+//  - worker_photos/{workerId}.photoData · mold_photos/{moldId}.moldPhoto · equipment_photos/{id}.equipmentPhoto(2)
+//  - 읽기는 "분리 컬렉션 값 ?? 기존 본 문서 값" 순으로 처리하여 이전 데이터도 그대로 표시된다.
+// ─────────────────────────────────────────────
+const WORKER_PHOTOS_COLLECTION = 'worker_photos';
+const MOLD_PHOTOS_COLLECTION = 'mold_photos';
+const EQUIPMENT_PHOTOS_COLLECTION = 'equipment_photos';
+
+const isPhotoDataUrl = (v) => typeof v === 'string' && v.startsWith('data:image');
+
 export async function fetchWorkers() {
   // 캐시 hit: Firestore 호출 없이 즉시 반환
   const cached = getWorkersFromCache();
@@ -749,6 +868,22 @@ export async function fetchWorkers() {
     querySnapshot.forEach((doc) => {
       result.push({ id: doc.id, ...doc.data() });
     });
+
+    // 사진은 별도 컬렉션에서 합쳐서 반환 (작업자 관리·사원증 출력 화면용)
+    try {
+      const photoSnap = await getDocs(collection(db, WORKER_PHOTOS_COLLECTION));
+      const photoMap = new Map();
+      photoSnap.forEach((d) => {
+        const pd = d.data()?.photoData;
+        if (pd) photoMap.set(d.id, pd);
+      });
+      result.forEach((w) => {
+        if (photoMap.has(w.id)) w.photoData = photoMap.get(w.id);
+      });
+    } catch (photoErr) {
+      console.warn('Worker photos fetch skipped:', photoErr);
+    }
+
     result = result.sort((a, b) => a.id.localeCompare(b.id));
     setWorkersCache(result);
     return result;
@@ -758,10 +893,23 @@ export async function fetchWorkers() {
   }
 }
 
+/** 작업자 문서와 사진을 분리해 저장 (사진이 data URL이면 worker_photos 에 먼저 기록한 뒤 본 문서에서 제거) */
+async function splitWorkerPhoto(id, fields) {
+  const { photoData, ...rest } = fields || {};
+  const hasNewPhoto = isPhotoDataUrl(photoData);
+  if (hasNewPhoto) {
+    await setDoc(doc(db, WORKER_PHOTOS_COLLECTION, id), { photoData, updatedAt: new Date().toISOString() });
+  } else if (typeof photoData === 'string' && photoData) {
+    rest.photoData = photoData; // 외부 URL 등 용량이 작은 값은 그대로 유지
+  }
+  return { rest, hasNewPhoto };
+}
+
 export async function addWorker(workerData) {
   try {
+    const { rest } = await splitWorkerPhoto(workerData.id, workerData);
     const docRef = doc(collection(db, WORKERS_COLLECTION), workerData.id);
-    await setDoc(docRef, workerData);
+    await setDoc(docRef, rest);
     invalidateWorkersCache();
     return workerData;
   } catch (error) {
@@ -772,8 +920,12 @@ export async function addWorker(workerData) {
 
 export async function updateWorker(id, updatedFields) {
   try {
-    const docRef = doc(db, WORKERS_COLLECTION, id);
-    await updateDoc(docRef, updatedFields);
+    const { rest, hasNewPhoto } = await splitWorkerPhoto(id, updatedFields);
+    const payload = { ...rest };
+    if (hasNewPhoto) payload.photoData = deleteField(); // 본 문서에 남아 있던 기존 사진 제거
+    if (Object.keys(payload).length > 0) {
+      await updateDoc(doc(db, WORKERS_COLLECTION, id), payload);
+    }
     invalidateWorkersCache();
     return true;
   } catch (error) {
@@ -786,12 +938,65 @@ export async function deleteWorker(id) {
   try {
     const docRef = doc(db, WORKERS_COLLECTION, id);
     await deleteDoc(docRef);
+    try {
+      await deleteDoc(doc(db, WORKER_PHOTOS_COLLECTION, id));
+    } catch {
+      // 사진 문서가 없거나 삭제 실패해도 작업자 삭제는 유지
+    }
     invalidateWorkersCache();
     return true;
   } catch (error) {
     console.error('Error deleting worker:', error);
     throw error;
   }
+}
+
+// ── 금형 사진 ──
+export async function fetchMoldPhoto(moldId) {
+  if (!moldId) return '';
+  try {
+    const snap = await getDoc(doc(db, MOLD_PHOTOS_COLLECTION, moldId));
+    return snap.exists() ? String(snap.data()?.moldPhoto || '') : '';
+  } catch (error) {
+    console.warn('Error fetching mold photo:', error);
+    return '';
+  }
+}
+
+/** photo 가 비어 있으면 사진 문서를 삭제, 있으면 저장 */
+export async function saveMoldPhoto(moldId, photo) {
+  const ref = doc(db, MOLD_PHOTOS_COLLECTION, moldId);
+  if (photo) {
+    await setDoc(ref, { moldPhoto: photo, updatedAt: new Date().toISOString() });
+  } else {
+    await deleteDoc(ref);
+  }
+}
+
+// ── 설비 사진 (대표사진 2장) ──
+export async function fetchEquipmentPhotos(equipmentId) {
+  if (!equipmentId) return { equipmentPhoto: '', equipmentPhoto2: '' };
+  try {
+    const snap = await getDoc(doc(db, EQUIPMENT_PHOTOS_COLLECTION, equipmentId));
+    const data = snap.exists() ? snap.data() : {};
+    return {
+      equipmentPhoto: String(data?.equipmentPhoto || ''),
+      equipmentPhoto2: String(data?.equipmentPhoto2 || '')
+    };
+  } catch (error) {
+    console.warn('Error fetching equipment photos:', error);
+    return { equipmentPhoto: '', equipmentPhoto2: '' };
+  }
+}
+
+/** patch: { equipmentPhoto?, equipmentPhoto2? } — data URL 이면 저장, 빈 문자열이면 해당 사진 제거 */
+export async function saveEquipmentPhotos(equipmentId, patch) {
+  const payload = { updatedAt: new Date().toISOString() };
+  ['equipmentPhoto', 'equipmentPhoto2'].forEach((key) => {
+    if (!(key in patch)) return;
+    payload[key] = isPhotoDataUrl(patch[key]) ? patch[key] : deleteField();
+  });
+  await setDoc(doc(db, EQUIPMENT_PHOTOS_COLLECTION, equipmentId), payload, { merge: true });
 }
 
 

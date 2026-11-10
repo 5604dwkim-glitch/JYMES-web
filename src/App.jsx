@@ -7,6 +7,16 @@ import Login from './components/Login';
 
 // Lazy loaded components for code splitting
 // Helper to handle chunk load errors (white screen) after deployment updates
+// 배포 직후 옛 화면의 파일 조각을 못 찾는 경우 1회만 자동 새로고침하고, 네트워크가 계속 불안정하면
+// 무한 새로고침 대신 '다시 시도' 안내 화면을 보여준다.
+const CHUNK_RELOAD_KEY = 'jymes_chunk_reload_at';
+const ChunkErrorFallback = () => (
+  <div style={{ padding: '40px 20px', textAlign: 'center', color: '#334155' }}>
+    <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px' }}>화면을 불러오지 못했습니다.</div>
+    <div style={{ fontSize: '13px', color: '#64748b', marginBottom: '16px' }}>네트워크 상태를 확인한 뒤 다시 시도해 주세요.</div>
+    <button type="button" className="btn btn-primary" onClick={() => window.location.reload()}>다시 시도</button>
+  </div>
+);
 const lazyWithReload = (componentImport) => {
   return lazy(async () => {
     try {
@@ -17,8 +27,22 @@ const lazyWithReload = (componentImport) => {
                                (error?.message && error.message.includes('Failed to fetch')) ||
                                (error?.message && error.message.includes('Importing a module script failed'));
       if (isChunkLoadError) {
-        window.location.reload();
-        return new Promise(() => {}); // Prevent further execution while reloading
+        let lastReloadAt = 0;
+        try {
+          lastReloadAt = Number(sessionStorage.getItem(CHUNK_RELOAD_KEY) || 0);
+        } catch {
+          lastReloadAt = 0;
+        }
+        if (Date.now() - lastReloadAt > 30000) {
+          try {
+            sessionStorage.setItem(CHUNK_RELOAD_KEY, String(Date.now()));
+          } catch {
+            // 무시
+          }
+          window.location.reload();
+          return new Promise(() => {}); // Prevent further execution while reloading
+        }
+        return { default: ChunkErrorFallback };
       }
       throw error;
     }

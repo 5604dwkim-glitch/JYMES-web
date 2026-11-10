@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import {
   fetchMyRecentReports,
   fetchChangePoints,
   fetchDailyStats,
-  fetchMolds,
-  fetchEquipments,
+  fetchMoldsSlim,
+  fetchEquipmentsSlim,
   fetchDowntimeReports,
   fetchFmbReports,
   invalidateMoldsCache,
@@ -66,42 +66,60 @@ export default function Dashboard() {
     fmbReports: []
   });
   const [loading, setLoading] = useState(true);
+  const [reportsLoading, setReportsLoading] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState(null);
+  const loadSeqRef = useRef(0);
 
   const loadData = useCallback(async (forceRefresh = false) => {
-    setLoading(true);
+    const seq = ++loadSeqRef.current;
+    const isLatest = () => seq === loadSeqRef.current;
+
     if (userRole?.role === 'worker') {
-      const data = await fetchMyRecentReports(userRole.workerName);
-      setReports(data);
-    } else {
+      // 작업자 화면은 서버 응답을 기다리지 않고 즉시 표시 (일보 작성 버튼 등은 데이터 없이도 사용 가능)
+      setLoading(false);
+      setReportsLoading(true);
       try {
-        if (forceRefresh) {
-          invalidateMoldsCache();
-          invalidateEquipmentsCache();
-        }
-        const dtSince = new Date(Date.now() - 60 * 86400000).toLocaleDateString('sv-SE');
-        const [statsData, equipmentsData, moldsData, cpData, dtReports, fmbList] = await Promise.all([
-          fetchDailyStats(null, forceRefresh),
-          fetchEquipments(),
-          fetchMolds(),
-          fetchChangePoints(forceRefresh),
-          fetchDowntimeReports(dtSince, forceRefresh),
-          fetchFmbReports(forceRefresh)
-        ]);
-        setDashboardData({
-          dailyStats: statsData || [],
-          equipments: equipmentsData || [],
-          molds: moldsData || [],
-          changePoints: cpData || [],
-          downtimeReports: dtReports || [],
-          fmbReports: fmbList || []
-        });
-        setLastRefreshed(new Date());
+        const data = await fetchMyRecentReports(userRole.workerName);
+        if (isLatest()) setReports(data);
       } catch (e) {
-        console.error('Failed to load dashboard data', e);
+        console.error('Failed to load worker reports', e);
+      } finally {
+        if (isLatest()) setReportsLoading(false);
       }
+      return;
     }
+
+    setLoading(true);
+    if (forceRefresh) {
+      invalidateMoldsCache();
+      invalidateEquipmentsCache();
+    }
+    const dtSince = new Date(Date.now() - 60 * 86400000).toLocaleDateString('sv-SE');
+
+    // 각 데이터가 도착하는 대로 화면에 반영하고, 느린 항목 하나 때문에 대시보드 전체가 멈추지 않도록
+    // 최대 6초까지만 기다린 뒤 화면을 먼저 보여준다 (나머지는 도착 즉시 채워짐)
+    const patch = (key, promise) => promise
+      .then((value) => {
+        if (isLatest()) setDashboardData((prev) => ({ ...prev, [key]: value || [] }));
+      })
+      .catch((e) => console.error(`Failed to load dashboard ${key}`, e));
+
+    const tasks = [
+      patch('dailyStats', fetchDailyStats(null, forceRefresh)),
+      patch('equipments', fetchEquipmentsSlim({ maxAgeMs: 10 * 60 * 1000, forceRefresh })),
+      patch('molds', fetchMoldsSlim({ maxAgeMs: 10 * 60 * 1000, forceRefresh })),
+      patch('changePoints', fetchChangePoints(forceRefresh)),
+      patch('downtimeReports', fetchDowntimeReports(dtSince, forceRefresh)),
+      patch('fmbReports', fetchFmbReports(forceRefresh))
+    ];
+    const allDone = Promise.allSettled(tasks);
+    await Promise.race([allDone, new Promise((resolve) => setTimeout(resolve, 6000))]);
+    if (!isLatest()) return;
+    setLastRefreshed(new Date());
     setLoading(false);
+    allDone.then(() => {
+      if (isLatest()) setLastRefreshed(new Date());
+    });
   }, [userRole]);
 
   useEffect(() => {
@@ -128,7 +146,7 @@ export default function Dashboard() {
   }
 
   if (isWorker) {
-    return <WorkerDashboard reports={reports} workerName={userRole?.workerName} navigate={navigate} t={t} />;
+    return <WorkerDashboard reports={reports} reportsLoading={reportsLoading} workerName={userRole?.workerName} navigate={navigate} t={t} />;
   }
 
   return (
@@ -143,7 +161,7 @@ export default function Dashboard() {
   );
 }
 
-function WorkerDashboard({ reports, workerName, navigate, t }) {
+function WorkerDashboard({ reports, reportsLoading, workerName, navigate, t }) {
   const myReports = reports.filter((r) => r.workerName === workerName).slice(0, 3);
 
   return (
@@ -170,7 +188,7 @@ function WorkerDashboard({ reports, workerName, navigate, t }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {myReports.length === 0 ? (
                 <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '12px' }}>
-                  최근 작성한 정보가 없습니다.
+                  {reportsLoading ? '불러오는 중...' : '최근 작성한 정보가 없습니다.'}
                 </div>
               ) : myReports.map((r) => (
                 <div key={r.id} style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '6px', border: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

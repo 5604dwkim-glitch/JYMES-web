@@ -40,3 +40,6 @@ tests/form-snapshots/*.actual.html
 # local scratch work & Firestore data backups (not source)
 scratch/
 scripts/utils/daily_stats_backup_*.json
+
+# photo-split migration backups (contain production data)
+scripts/archive/backups/

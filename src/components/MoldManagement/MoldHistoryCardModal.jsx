@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '../../firebase';
 import MoldRepairRequestModal from './MoldRepairRequestModal';
-import { invalidateMoldsCache } from '../../services/firestore';
+import { invalidateMoldsCache, fetchMoldPhoto, saveMoldPhoto } from '../../services/firestore';
 import { syncMoldRepairToChangePoint } from '../../services/changePointAutoSync';
 
 const addThreeMonths = (dateStr) => {
@@ -22,6 +22,20 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
     history: mold.history || [],
     moldPhoto: mold.moldPhoto || ''
   });
+  // 사진은 별도 컬렉션(mold_photos)에 분리 저장되므로, 사용자가 사진을 바꾼 경우에만 사진 저장을 수행
+  const [photoDirty, setPhotoDirty] = useState(false);
+
+  useEffect(() => {
+    if (mold.moldPhoto) return undefined;
+    let alive = true;
+    fetchMoldPhoto(mold.id).then((photo) => {
+      if (!alive || !photo) return;
+      setFormData((prev) => (prev.moldPhoto ? prev : { ...prev, moldPhoto: photo }));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [mold.id, mold.moldPhoto]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingRepairIndex, setEditingRepairIndex] = useState(null);
@@ -35,6 +49,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData((prev) => ({ ...prev, moldPhoto: reader.result }));
+        setPhotoDirty(true);
       };
       reader.readAsDataURL(file);
     }
@@ -44,6 +59,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
     e.stopPropagation();
     if (!isEditing) return;
     setFormData((prev) => ({ ...prev, moldPhoto: '' }));
+    setPhotoDirty(true);
   };
 
   const toggleSelection = (index) => {
@@ -95,13 +111,19 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
         return { ...row, syncId: `moldhist_${nowStamp}_${idx}` };
       });
 
+      // 사진은 mold_photos 에 먼저 저장(변경했거나 본 문서에 옛 사진이 남아 있는 경우)한 뒤, 본 문서에서는 사진 필드를 제거
+      const shouldSplitPhoto = photoDirty || Boolean(mold.moldPhoto);
+      if (shouldSplitPhoto) {
+        await saveMoldPhoto(mold.id, formData.moldPhoto);
+      }
+
       const moldRef = doc(db, 'molds', mold.id);
       await updateDoc(moldRef, {
         receiptDate: formData.receiptDate,
         productionStartDate: formData.productionStartDate,
         manufacturer: formData.manufacturer,
         history: normalizedHistory,
-        moldPhoto: formData.moldPhoto
+        ...(shouldSplitPhoto ? { moldPhoto: deleteField() } : {})
       });
       invalidateMoldsCache();
 
@@ -115,7 +137,11 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
 
       const nextFormData = { ...formData, history: normalizedHistory };
       setFormData(nextFormData);
-      onUpdate({ ...mold, ...nextFormData });
+      setPhotoDirty(false);
+      // 부모 목록 상태에는 사진(base64)을 싣지 않는다 (이후 금형 정보 저장 시 본 문서로 되돌아가는 것을 방지)
+      const { moldPhoto: _photo, ...formWithoutPhoto } = nextFormData;
+      const { moldPhoto: _legacyPhoto, ...moldWithoutPhoto } = mold;
+      onUpdate({ ...moldWithoutPhoto, ...formWithoutPhoto });
       setIsEditing(false);
       setSelectedIndices([]);
       alert('수정 내용이 저장되었습니다.');

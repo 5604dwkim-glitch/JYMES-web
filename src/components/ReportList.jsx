@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { fetchReports, deleteReport, bulkApproveReports, bulkDeleteReports, fetchWorkers } from '../services/firestore';
+import { fetchReports, deleteReport, bulkApproveReports, bulkDeleteReports, fetchWorkersSlim as fetchWorkers } from '../services/firestore';
 import { CAR_MODELS, DEFAULT_PROCESSES, CAR_MODEL_PARTS } from '../constants/masterData';
 import { useNavigate } from 'react-router-dom';
 import LegacyDetailModal from './DynamicForms/LegacyDetailModal';

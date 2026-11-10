@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { fetchWorkers } from '../services/firestore';
+import { fetchWorkersSlim as fetchWorkers } from '../services/firestore';
 
 export default function Login() {
   const { login } = useAuth();

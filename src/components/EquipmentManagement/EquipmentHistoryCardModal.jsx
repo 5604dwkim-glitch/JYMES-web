@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '../../firebase';
 import EquipmentRepairRequestModal from './EquipmentRepairRequestModal';
-import { invalidateEquipmentsCache } from '../../services/firestore';
+import { invalidateEquipmentsCache, fetchEquipmentPhotos, saveEquipmentPhotos } from '../../services/firestore';
 import { syncEquipmentRepairToChangePoint } from '../../services/changePointAutoSync';
 import { getEquipmentCategory } from '../../constants/equipmentCategories';
 
@@ -88,6 +88,23 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
     equipmentPhoto: initialPhoto1,
     equipmentPhoto2: initialPhoto2
   });
+  // 대표사진은 별도 컬렉션(equipment_photos)에 분리 저장 — 사용자가 바꾼 슬롯만 저장 대상으로 추적
+  const [dirtyPhotos, setDirtyPhotos] = useState({ equipmentPhoto: false, equipmentPhoto2: false });
+
+  useEffect(() => {
+    let alive = true;
+    fetchEquipmentPhotos(equipment.id).then((photos) => {
+      if (!alive) return;
+      setFormData((prev) => ({
+        ...prev,
+        equipmentPhoto: photos.equipmentPhoto || prev.equipmentPhoto,
+        equipmentPhoto2: photos.equipmentPhoto2 || prev.equipmentPhoto2
+      }));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [equipment.id]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [editingRepairIndex, setEditingRepairIndex] = useState(null);
@@ -106,10 +123,12 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
           readAndOptimizePhoto(files[1])
         ]);
         setFormData(prev => ({ ...prev, equipmentPhoto: img1, equipmentPhoto2: img2 }));
+        setDirtyPhotos({ equipmentPhoto: true, equipmentPhoto2: true });
       } else {
         const imgData = await readAndOptimizePhoto(files[0]);
         const fieldKey = slotIndex === 0 ? 'equipmentPhoto' : 'equipmentPhoto2';
         setFormData(prev => ({ ...prev, [fieldKey]: imgData }));
+        setDirtyPhotos(prev => ({ ...prev, [fieldKey]: true }));
       }
     } catch (err) {
       console.error(err);
@@ -122,6 +141,7 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
     if (!isEditing) return;
     const fieldKey = slotIndex === 0 ? 'equipmentPhoto' : 'equipmentPhoto2';
     setFormData(prev => ({ ...prev, [fieldKey]: '' }));
+    setDirtyPhotos(prev => ({ ...prev, [fieldKey]: true }));
   };
 
   const toggleSelection = (index) => {
@@ -173,14 +193,29 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
         return { ...row, syncId: `eqhist_${nowStamp}_${idx}` };
       });
 
+      // 대표사진: 변경한 슬롯(또는 본 문서에 옛 base64 사진이 남아 있는 슬롯)만 equipment_photos 에 먼저 저장하고,
+      // 본 문서에서는 해당 필드를 제거(새 사진) 또는 일반 값으로 갱신(삭제/기본 경로)한다.
+      const isDataUrl = (v) => typeof v === 'string' && v.startsWith('data:image');
+      const photoPatch = {};
+      const mainPhotoUpdate = {};
+      ['equipmentPhoto', 'equipmentPhoto2'].forEach((key) => {
+        const legacyInMain = isDataUrl(equipment[key]);
+        if (!dirtyPhotos[key] && !legacyInMain) return;
+        const value = formData[key] || '';
+        photoPatch[key] = value;
+        mainPhotoUpdate[key] = isDataUrl(value) ? deleteField() : value;
+      });
+      if (Object.keys(photoPatch).length > 0) {
+        await saveEquipmentPhotos(equipment.id, photoPatch);
+      }
+
       const equipmentRef = doc(db, 'equipments', equipment.id);
       await updateDoc(equipmentRef, {
         manufacturingDate: formData.manufacturingDate,
         manufacturer: formData.manufacturer,
         ancillaryEquipments: formData.ancillaryEquipments,
         history: normalizedHistory,
-        equipmentPhoto: formData.equipmentPhoto,
-        equipmentPhoto2: formData.equipmentPhoto2
+        ...mainPhotoUpdate
       });
       invalidateEquipmentsCache();
 
@@ -196,7 +231,16 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
 
       const nextFormData = { ...formData, history: normalizedHistory };
       setFormData(nextFormData);
-      onUpdate({ ...equipment, ...nextFormData });
+      setDirtyPhotos({ equipmentPhoto: false, equipmentPhoto2: false });
+      // 부모 목록 상태에는 사진(base64)을 싣지 않는다 (이후 본 문서로 되돌아가는 것을 방지)
+      const stripPhoto = (obj) => {
+        const out = { ...obj };
+        ['equipmentPhoto', 'equipmentPhoto2'].forEach((key) => {
+          if (isDataUrl(out[key])) delete out[key];
+        });
+        return out;
+      };
+      onUpdate({ ...stripPhoto(equipment), ...stripPhoto(nextFormData) });
       setIsEditing(false);
       setSelectedIndices([]);
       alert('수정 내용이 저장되었습니다.');
