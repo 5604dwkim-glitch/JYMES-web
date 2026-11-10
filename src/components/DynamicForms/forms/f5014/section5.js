@@ -7,13 +7,13 @@
  *   · 헤더: 부자재 LOT NO.(초/중/종) | 초 | 중 | 종
  *   · 세로 행: 패드(5T) / 패드(7T) (`data-wheel-skip="1"`, 자유 입력)
  * - 6. 주요 치수 입력 카드:
- *   · 상단 표: 중요 치수 및 검사 현황 (FRT LH)
- *   · 하단 표: 중요 치수 및 검사 현황 (FRT RH)
+ *   · 상단 표: 중요 치수 및 검사 현황 (RR LH)
+ *   · 하단 표: 중요 치수 및 검사 현황 (RR RH)
  *   · 구성: 항 목 | 규 격 | 실측치(초물 / 중물 / 종물)
- *     - FRT {LH|RH} A : 881±3
- *     - FRT {LH|RH} B : 608±5
- *     - FRT {LH|RH} C : 582±5
- *     - 패드 규격     : 5T*5W*60L (실측치 3열 병합 `colspan="3"`, 자유 입력 `data-wheel-skip="1"`)
+ *     - RR {LH|RH} A : 482±3
+ *     - RR {LH|RH} B : 608±5
+ *     - RR {LH|RH} C : 582±5
+ *     - 패드 규격    : 5T*5W*60L (실측치 3열 병합 `colspan="3"`, 자유 입력 `data-wheel-skip="1"`)
  * - 모든 입력칸 ID 는 `f5014_` 접두사 + `data-save-group="dimData"` 및 명시적 `data-*` 속성만 사용
  *   (GEMINI.md 원칙 1·2·8·9·10·12·13·16)
  */
@@ -32,7 +32,7 @@ export const F5014_SUBLOT_STAGES = [
 export const F5014_DIM_SIDES = ['LH', 'RH'];
 
 export const F5014_DIM_ITEMS = [
-  { key: 'A', specText: '881±3', spec: 881, tolerance: 3, range: 30 },
+  { key: 'A', specText: '482±3', spec: 482, tolerance: 3, range: 30 },
   { key: 'B', specText: '608±5', spec: 608, tolerance: 5, range: 30 },
   { key: 'C', specText: '582±5', spec: 582, tolerance: 5, range: 30 }
 ];
@@ -113,11 +113,12 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
     const topBorder = idx === 0 ? '1px solid #000' : '1px dotted #000';
     const bottomBorder = '1px dotted #000';
     const rowCellBase = `border-left: 1px solid #000; border-right: 1px solid #000; border-top: ${topBorder}; border-bottom: ${bottomBorder}; background: #ffffff; vertical-align: middle;`;
-    const itemLabel = `FRT ${side} ${item.key}`;
+    const itemLabel = `RR ${side} ${item.key}`;
 
     const stageCells = F5014_DIM_STAGES.map(stage => {
-      const id = `f5014_dim_FRT_${side}_${item.key}_${stage.key}`;
-      const val = escapeAttr(savedValues[id]);
+      const id = `f5014_dim_RR_${side}_${item.key}_${stage.key}`;
+      const legacyFrtId = `f5014_dim_FRT_${side}_${item.key}_${stage.key}`;
+      const val = escapeAttr(savedValues[id] ?? savedValues[legacyFrtId]);
       const wheelTitle = `${itemLabel} (${stage.label})`;
       return `<td style="${rowCellBase} padding: 2px;">
                     <input type="text" id="${id}" data-form-code="5014" data-save-group="dimData" data-f5014-dim="1" data-wheel-parsed-spec="${item.spec}" data-wheel-tolerance="${item.tolerance}" data-wheel-unit="mm" data-wheel-range="${item.range}" data-wheel-title="${wheelTitle}" class="form-control" style="${INPUT_STYLE}" value="${val}" />
@@ -132,8 +133,9 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
                 </tr>`;
   }).join('');
 
-  const padId = `f5014_dim_FRT_${side}_PAD_SPEC`;
-  const padVal = escapeAttr(savedValues[padId]);
+  const padId = `f5014_dim_RR_${side}_PAD_SPEC`;
+  const legacyPadId = `f5014_dim_FRT_${side}_PAD_SPEC`;
+  const padVal = escapeAttr(savedValues[padId] ?? savedValues[legacyPadId]);
   const padRowCellBase = 'border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; background: #ffffff; vertical-align: middle;';
   const mbStyle = isLast ? '' : ' margin-bottom: 14px;';
 
@@ -148,7 +150,7 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
               </colgroup>
               <thead>
                 <tr>
-                  <th colspan="5" style="border: 1px solid #000; padding: 7px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12.5px; vertical-align: middle;">중요 치수 및 검사 현황 (FRT ${side})</th>
+                  <th colspan="5" style="border: 1px solid #000; padding: 7px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12.5px; vertical-align: middle;">중요 치수 및 검사 현황 (RR ${side})</th>
                 </tr>
                 <tr>
                   <th rowspan="2" scope="col" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">항 목</th>
