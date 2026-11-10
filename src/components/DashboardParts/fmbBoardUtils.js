@@ -1,13 +1,52 @@
 export const FMB_RUBBER_GRADES = ['W60664$OS', 'W6082$NA', 'W60905'];
 
 export const FMB_CHECKLIST_META = [
-  { id: 'f9004_chk_mon', legacyId: 'f9004_chk1', shortText: '온/습도 모니터링 장비 정상작동 (ON/OFF)', fullText: '온/습도 모니터링 장비는 정상작동중인가? (ON/OFF 유무)' },
-  { id: 'f9004_chk_alarm', shortText: '온/습도 경광등 및 경보음 정상작동 (F/proof)', fullText: '온/습도 경광등 및 경보음은 정상작동중인가? (F/proof 정상작동 여부)' },
-  { id: 'f9004_chk2', shortText: 'FMB 선입선출(FIFO) 준수 및 적재 구역 구분', fullText: 'FMB(배합고무) 선입선출(FIFO) 준수 및 적재 구역 구분 상태' },
-  { id: 'f9004_chk3', shortText: 'LOT 식별표 부착 및 유효기간 경과품 확인', fullText: '원재료 LOT 식별표 부착 및 유효기간(사용기한) 경과품 유무 확인' },
-  { id: 'f9004_chk4', shortText: '이물질·직사광선 차단 및 비닐 커버 밀봉', fullText: '이물질·오염·직사광선 차단 및 비닐 커버 밀봉 보관 상태' },
-  { id: 'f9004_chk5', shortText: '보관실 통로 정리정돈 및 안전·소방 시설', fullText: '보관실 통로 정리정돈 및 안전·소방 시설 이상 유무' }
+  {
+    id: 'f9004_chk_mon',
+    legacyId: 'f9004_chk1',
+    rowLabel: '1. 모니터링 장비(ON/OFF)',
+    shortText: '온/습도 모니터링 장비 정상작동 (ON/OFF)',
+    fullText: '온/습도 모니터링 장비는 정상작동중인가? (ON/OFF 유무)'
+  },
+  {
+    id: 'f9004_chk_alarm',
+    rowLabel: '2. 경광등·경보음(F/proof)',
+    shortText: '온/습도 경광등 및 경보음 정상작동 (F/proof)',
+    fullText: '온/습도 경광등 및 경보음은 정상작동중인가? (F/proof 정상작동 여부)'
+  },
+  {
+    id: 'f9004_chk2',
+    rowLabel: '3. 선입선출·구역 구분',
+    shortText: 'FMB 선입선출(FIFO) 준수 및 적재 구역 구분',
+    fullText: 'FMB(배합고무) 선입선출(FIFO) 준수 및 적재 구역 구분 상태'
+  },
+  {
+    id: 'f9004_chk3',
+    rowLabel: '4. LOT식별·유효기간 확인',
+    shortText: 'LOT 식별표 부착 및 유효기간 경과품 확인',
+    fullText: '원재료 LOT 식별표 부착 및 유효기간(사용기한) 경과품 유무 확인'
+  },
+  {
+    id: 'f9004_chk4',
+    rowLabel: '5. 이물질차단·비닐밀봉',
+    shortText: '이물질·직사광선 차단 및 비닐 커버 밀봉',
+    fullText: '이물질·오염·직사광선 차단 및 비닐 커버 밀봉 보관 상태'
+  },
+  {
+    id: 'f9004_chk5',
+    rowLabel: '6. 통로정리·안전소방',
+    shortText: '보관실 통로 정리정돈 및 안전·소방 시설',
+    fullText: '보관실 통로 정리정돈 및 안전·소방 시설 이상 유무'
+  }
 ];
+
+export function resolveDayCheckStatus(report, meta) {
+  if (!report) return null;
+  const chks = report.f9004_checks || {};
+  const raw = chks[meta.id] ?? (meta.legacyId ? chks[meta.legacyId] : undefined);
+  if (raw === false || raw === 'false') return false;
+  return true;
+}
 
 const STATUS_PRIORITY = {
   '승인 완료': 3,
@@ -221,27 +260,30 @@ export function buildMonthlyIoAndCheckSummary(fmbReports = [], selectedMonth = '
 
   // 2) 일일 점검 항목별 결과 집계 (당월 최근 일보 기준 + 월간 양호/불량 일수)
   const latestMonthReport = dailyPrimary.length > 0 ? dailyPrimary[dailyPrimary.length - 1] : null;
+  let totalCheckFailCount = 0;
+
   const checkResults = FMB_CHECKLIST_META.map((meta, idx) => {
     let passCount = 0;
     let failCount = 0;
 
     dailyPrimary.forEach((r) => {
-      const chks = r?.f9004_checks || {};
-      const val = chks[meta.id] ?? (meta.legacyId ? chks[meta.legacyId] : undefined);
-      if (val === false) failCount += 1;
-      else if (val === true || Object.keys(chks).length > 0) passCount += 1;
+      const st = resolveDayCheckStatus(r, meta);
+      if (st === false) failCount += 1;
+      else if (st === true) passCount += 1;
     });
+
+    totalCheckFailCount += failCount;
 
     let latestOk = null;
     if (latestMonthReport) {
-      const lChks = latestMonthReport.f9004_checks || {};
-      const raw = lChks[meta.id] ?? (meta.legacyId ? lChks[meta.legacyId] : undefined);
-      latestOk = raw !== false;
+      latestOk = resolveDayCheckStatus(latestMonthReport, meta);
     }
 
     return {
       no: idx + 1,
       id: meta.id,
+      legacyId: meta.legacyId,
+      rowLabel: meta.rowLabel,
       shortText: meta.shortText,
       fullText: meta.fullText,
       latestOk,
@@ -249,6 +291,86 @@ export function buildMonthlyIoAndCheckSummary(fmbReports = [], selectedMonth = '
       failCount
     };
   });
+
+  // 3) 월간 경보장치 이상 발생 · 조치 현황 및 온·습도 기준 이탈 일수 집계
+  const alarmEntries = [];
+  const noteEntries = [];
+  let prevAlarmSig = '';
+  let outOfSpecDays = 0;
+
+  dailyPrimary.forEach((r) => {
+    const rDate = String(r?.date || '');
+    const mmdd = formatMmDd(rDate);
+    const worker = r?.workerName || '-';
+
+    // 온·습도 관리기준 이탈 여부 확인 (온도 15~25℃, 습도 0~70%)
+    const tStr = String(r?.f9004_env?.f9004_temp ?? '').trim();
+    const hStr = String(r?.f9004_env?.f9004_humidity ?? '').trim();
+    const tMatch = tStr.match(/-?\d+(?:\.\d+)?/);
+    const hMatch = hStr.match(/-?\d+(?:\.\d+)?/);
+    const tNum = tMatch ? Number(tMatch[0]) : null;
+    const hNum = hMatch ? Number(hMatch[0]) : null;
+    const tempBad = tNum !== null && Number.isFinite(tNum) && (tNum < 15 || tNum > 25);
+    const humBad = hNum !== null && Number.isFinite(hNum) && (hNum < 0 || hNum > 70);
+    if (tempBad || humBad) {
+      outOfSpecDays += 1;
+    }
+
+    const dayAlarms = (Array.isArray(r?.f9004_alarmHistory) ? r.f9004_alarmHistory : [])
+      .map((a) => ({
+        symptom: String(a?.symptom || '').trim(),
+        action: String(a?.action || '').trim()
+      }))
+      .filter((a) => a.symptom || a.action);
+
+    const sig = dayAlarms.length > 0 ? JSON.stringify(dayAlarms) : '';
+    if (dayAlarms.length > 0 && sig !== prevAlarmSig) {
+      dayAlarms.forEach((a) => {
+        alarmEntries.push({
+          date: rDate,
+          mmdd,
+          symptom: a.symptom || '-',
+          action: a.action || '-',
+          worker,
+          report: r
+        });
+      });
+    }
+    prevAlarmSig = sig;
+
+    const noteText = String(r?.workDetails || '').trim();
+    if (noteText) {
+      noteEntries.push({
+        date: rDate,
+        mmdd,
+        text: noteText,
+        worker,
+        report: r
+      });
+    }
+  });
+
+  if (alarmEntries.length === 0 && Array.isArray(fallbackAlarmHistory)) {
+    fallbackAlarmHistory
+      .map((a) => ({
+        symptom: String(a?.symptom || '').trim(),
+        action: String(a?.action || '').trim()
+      }))
+      .filter((a) => a.symptom || a.action)
+      .forEach((a) => {
+        alarmEntries.push({
+          date: '',
+          mmdd: '현재',
+          symptom: a.symptom || '-',
+          action: a.action || '-',
+          worker: '-',
+          report: null
+        });
+      });
+  }
+
+  const alarmLogs = [...alarmEntries].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const noteLogs = [...noteEntries].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
   const rawAlarms = Array.isArray(latestMonthReport?.f9004_alarmHistory) && latestMonthReport.f9004_alarmHistory.some((a) => a?.symptom || a?.action)
     ? latestMonthReport.f9004_alarmHistory
@@ -268,6 +390,10 @@ export function buildMonthlyIoAndCheckSummary(fmbReports = [], selectedMonth = '
     recentLogs,
     latestReport: latestMonthReport,
     checkResults,
-    activeAlarms
+    activeAlarms,
+    alarmLogs,
+    noteLogs,
+    totalCheckFailCount,
+    outOfSpecDays
   };
 }

@@ -1303,7 +1303,31 @@ export const PHRASE_TUPLES = [
   ['2. 일일 점검 항목별 결과', '2. Daily Inspection Results by Item', '2. ผลการตรวจเช็คประจำวันตามหัวข้อ', '2. Kết quả kiểm tra hàng ngày theo hạng mục'],
   ['경보장치 이상·조치:', 'Alarm Issue & Action:', 'ความผิดปกติ/การแก้ไขสัญญาณเตือน:', 'Bất thường & xử lý cảnh báo:'],
   ['3. 고무 종류별 현재 재고 현황 (선입선출)', '3. Current Stock by Rubber Grade (FIFO)', '3. สถานะสต็อกปัจจุบันตามชนิดยาง (FIFO)', '3. Tồn kho hiện tại theo loại cao su (FIFO)'],
-  ['4. 당월 입고 · 출고(불출) 현황', '4. Monthly Inbound & Outbound (Issue) Log', '4. สถานะการรับเข้าและเบิกจ่ายเดือนนี้', '4. Tình hình nhập · xuất kho trong tháng']
+  ['4. 당월 입고 · 출고(불출) 현황', '4. Monthly Inbound & Outbound (Issue) Log', '4. สถานะการรับเข้าและเบิกจ่ายเดือนนี้', '4. Tình hình nhập · xuất kho trong tháng'],
+  ['1. 모니터링 장비(ON/OFF)', '1. Monitor Device (ON/OFF)', '1. อุปกรณ์ตรวจวัด (ON/OFF)', '1. Thiết bị giám sát (ON/OFF)'],
+  ['2. 경광등·경보음(F/proof)', '2. Warning Light/Alarm (F/proof)', '2. ไฟเตือน·เสียงเตือน (F/proof)', '2. Đèn·còi cảnh báo (F/proof)'],
+  ['3. 선입선출·구역 구분', '3. FIFO & Zone Separation', '3. FIFO และการแบ่งโซน', '3. FIFO & phân khu lưu trữ'],
+  ['4. LOT식별·유효기간 확인', '4. LOT Tag & Shelf Life', '4. ป้าย LOT และวันหมดอายุ', '4. Thẻ LOT & hạn sử dụng'],
+  ['5. 이물질차단·비닐밀봉', '5. Contamination & Vinyl Seal', '5. กันสิ่งแปลกปลอม·คลุมพลาสติก', '5. Chắn bụi & bọc kín nilon'],
+  ['6. 통로정리·안전소방', '6. Aisle & Safety/Fire Check', '6. ทางเดินและอุปกรณ์ดับเพลิง', '6. Lối đi & an toàn PCCC'],
+  ['월간 온·습도 추이 및 일일 점검 현황', 'Monthly Temp/Humidity Trend & Daily Inspection Log', 'กราฟแนวโน้มอุณหภูมิ/ความชื้นและผลตรวจประจำวัน', 'Biểu đồ nhiệt/ẩm tháng & kết quả kiểm tra hàng ngày'],
+  ['점검표기: O 양호 / X 불량', 'Mark: O OK / X NG', 'สัญลักษณ์: O ปกติ / X ผิดปกติ', 'Ký hiệu: O Đạt / X Lỗi'],
+  ['점검표기: O 양호 / X 불량 · 일자 클릭 시 상세 일보 열람', 'Mark: O OK / X NG · Click a date to view full report', 'สัญลักษณ์: O ปกติ / X ผิดปกติ · คลิกวันที่เพื่อดูรายงาน', 'Ký hiệu: O Đạt / X Lỗi · Nhấn ngày để xem chi tiết'],
+  ['구분 / 일자', 'Item / Day', 'รายการ / วันที่', 'Mục / Ngày'],
+  ['평균/집계', 'Avg/Sum', 'เฉลี่ย/รวม', 'TB/Tổng'],
+  ['1. 고무 종류별 현재 재고 현황', '1. Current Stock by Rubber Grade', '1. สถานะสต็อกปัจจุบันตามชนิดยาง', '1. Tồn kho hiện tại theo loại cao su'],
+  ['2. 입고 · 출고(불출) 현황', '2. Inbound & Outbound (Issue) Log', '2. สถานะการรับเข้าและเบิกจ่าย', '2. Tình hình nhập · xuất kho'],
+  ['3. 이상발생 · 조치 현황', '3. Abnormality & Action Status', '3. สถานะความผิดปกติและการแก้ไข', '3. Tình hình bất thường & xử lý'],
+  ['⚠️ 이상 발생', '⚠️ Issue Logged', '⚠️ พบความผิดปกติ', '⚠️ Có bất thường'],
+  ['✅ 이상 없음 (정상)', '✅ Normal (No Issues)', '✅ ปกติ (ไม่มีความผิดปกติ)', '✅ Bình thường (Không lỗi)'],
+  ['이상 없음 (정상)', 'Normal (No Issues)', 'ปกติ (ไม่มีความผิดปกติ)', 'Bình thường (Không lỗi)'],
+  ['경보 이상', 'Alarm NG', 'สัญญาณเตือน', 'Cảnh báo'],
+  ['점검 불량', 'Check NG', 'ตรวจพบผิดปกติ', 'Lỗi KT'],
+  ['기준 이탈', 'Out of Spec', 'เกินเกณฑ์', 'Vượt chuẩn'],
+  ['이상 현상', 'Symptom', 'อาการผิดปกติ', 'Hiện tượng'],
+  ['등록된 경보장치 이상발생 및 조치 이력이 없습니다.', 'No alarm abnormality or action history recorded.', 'ไม่มีประวัติความผิดปกติและการแก้ไขของอุปกรณ์เตือนภัย', 'Không có lịch sử bất thường & xử lý thiết bị cảnh báo.'],
+  ['등록된 경보장치 이상발생 및 조치 이력 없음', 'No alarm abnormality or action history', 'ไม่มีประวัติความผิดปกติและการแก้ไข', 'Không có lịch sử bất thường & xử lý'],
+  ['현재', 'Live', 'ปัจจุบัน', 'Hiện tại']
 ];
 
 /**
