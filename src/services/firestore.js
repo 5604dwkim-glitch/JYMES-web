@@ -891,6 +891,7 @@ export async function fetchFmbInventory() {
       const data = snap.data() || {};
       return {
         items: Array.isArray(data.items) ? data.items : [],
+        alarmHistory: Array.isArray(data.alarmHistory) ? data.alarmHistory : [],
         lastReportDate: data.lastReportDate || '',
         updatedAt: data.updatedAt || '',
         fromServer: true
@@ -945,12 +946,17 @@ export async function saveFmbInventory(items, meta = {}) {
       }))
       .filter((it) => it.f9004_rubberName);
 
-    await setDoc(doc(db, 'fmb_inventory', FMB_INVENTORY_DOC_ID), {
+    const payload = {
       items: cleanItems,
       lastReportDate: fallbackDate,
       updatedBy: meta.workerName || '',
       updatedAt: new Date().toISOString()
-    });
+    };
+    if (Array.isArray(meta.alarmHistory)) {
+      payload.alarmHistory = meta.alarmHistory;
+    }
+
+    await setDoc(doc(db, 'fmb_inventory', FMB_INVENTORY_DOC_ID), payload, { merge: true });
     return cleanItems;
   } catch (error) {
     console.error('Error saving FMB inventory:', error);

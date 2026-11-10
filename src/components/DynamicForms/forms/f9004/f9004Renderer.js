@@ -37,6 +37,7 @@ export const F9004_WINDING_SPECS = [
 ];
 
 export const F9004_INIT_PIECE_COUNT = 20;
+export const F9004_ALARM_ROW_COUNT = 5;
 
 function normalizeIoType(raw) {
   const s = String(raw || '').trim();
@@ -188,10 +189,12 @@ function readLocalFmbCache() {
   }
 }
 
-function writeLocalFmbCache(items, lastReportDate) {
+function writeLocalFmbCache(items, lastReportDate, alarmHistory) {
   try {
+    const prev = readLocalFmbCache();
     localStorage.setItem(FMB_LOCAL_CACHE_KEY, JSON.stringify({
       items,
+      alarmHistory: Array.isArray(alarmHistory) ? alarmHistory : (Array.isArray(prev?.alarmHistory) ? prev.alarmHistory : []),
       lastReportDate: lastReportDate || '',
       updatedAt: new Date().toISOString()
     }));
@@ -237,18 +240,18 @@ function buildStockSummaryBarHTML(items, compact = false) {
   const cardsHtml = Array.from(byRubber.entries()).map(([rb, info]) => {
     const active = info.kg > 0 || info.count > 0;
     return `
-      <div style="background: ${active ? '#ffffff' : '#f8fafc'}; border: 1px solid ${active ? '#94a3b8' : '#e2e8f0'}; border-radius: 6px; padding: ${compact ? '4px 8px' : '6px 10px'}; display: flex; justify-content: space-between; align-items: center; gap: 6px; min-width: 0;">
-        <span translate="no" style="font-size: ${compact ? '11.5px' : '12px'}; font-weight: 800; color: ${active ? '#0f172a' : '#64748b'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(rb)}</span>
+      <div style="background: ${active ? '#ffffff' : '#f8fafc'}; border: 1px solid ${active ? '#cbd5e1' : '#e2e8f0'}; border-radius: 6px; padding: ${compact ? '5px 6px' : '6px 8px'}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0;">
+        <span translate="no" class="f9004-code-th" style="font-size: 11px; font-weight: 700; color: ${active ? '#334155' : '#94a3b8'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">${escapeHtml(rb)}</span>
         <span translate="no" style="font-size: ${compact ? '12px' : '13px'}; font-weight: 800; color: ${active ? '#047857' : '#94a3b8'}; white-space: nowrap;">${formatKgNumber(info.kg)} kg</span>
       </div>
     `;
   }).join('');
 
   return `
-    <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: ${compact ? '6px 8px' : '8px 10px'}; margin-bottom: 8px;">
-      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
-        <span style="font-size: 12px; font-weight: 800; color: #1e293b;">📦 고무실 현재 재고 현황</span>
-        <span style="font-size: 12px; font-weight: 800; color: ${totalCount > 0 ? '#1d4ed8' : '#64748b'}; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 999px; padding: 1px 10px;">
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: ${compact ? '6px 8px' : '8px 10px'}; margin-bottom: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: nowrap;">
+        <span style="font-size: 12px; font-weight: 800; color: #1e293b; white-space: nowrap;">고무실 현재 재고 현황</span>
+        <span style="font-size: 11.5px; font-weight: 800; color: ${totalCount > 0 ? '#1d4ed8' : '#64748b'}; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 999px; padding: 1px 9px; white-space: nowrap;">
           <span>총 재고</span>: <strong translate="no">${formatKgNumber(totalKg)} kg</strong>
         </span>
       </div>
@@ -283,40 +286,40 @@ export function evaluateF9004EnvSpec(tempRaw, humRaw) {
 }
 
 function buildFmbStandardLeftBoxHTML(compact = false) {
-  const cellPad = compact ? '4px 6px' : '6px 8px';
-  const fontSize = compact ? '11.5px' : '12.5px';
-  const ruleFont = compact ? '11.5px' : '12.5px';
+  const cellPad = compact ? '4px 5px' : '6px 6px';
+  const fontSize = compact ? '11.5px' : '12px';
+  const ruleFont = compact ? '11.5px' : '12px';
   return `
-    <div class="f9004-std-box" style="border: 1.5px solid #1e293b; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column; height: 100%; word-break: keep-all;">
-      <div style="background: #ebf1de; border-bottom: 1.5px solid #1e293b; padding: ${compact ? '6px 10px' : '8px 12px'}; text-align: center; font-size: ${compact ? '13px' : '14px'}; font-weight: 800; color: #0f172a; letter-spacing: 0.5px;">
+    <div class="f9004-std-box" style="border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column; height: 100%; word-break: keep-all;">
+      <div style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1; padding: ${compact ? '6px 10px' : '7px 12px'}; text-align: center; font-size: ${compact ? '12.5px' : '13px'}; font-weight: 800; color: #0f172a;">
         FMB 보관실 관리 표준
       </div>
       <table style="width: 100%; border-collapse: collapse; font-size: ${fontSize}; text-align: center; color: #0f172a; word-break: keep-all;">
         <thead>
-          <tr style="background: #dbeef4; font-weight: 800;">
-            <th style="border-bottom: 1px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; width: 19%; white-space: nowrap;">구분</th>
-            <th style="border-bottom: 1px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; width: 22%; white-space: nowrap;">유효기간</th>
-            <th style="border-bottom: 1px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; width: 41%; white-space: nowrap;">관리 기준</th>
-            <th style="border-bottom: 1px solid #1e293b; padding: ${cellPad}; width: 18%; white-space: nowrap;">비고</th>
+          <tr style="background: #f8fafc; font-weight: 700; color: #334155;">
+            <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; padding: ${cellPad}; width: 19%; white-space: nowrap;">구분</th>
+            <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; padding: ${cellPad}; width: 22%; white-space: nowrap;">유효기간</th>
+            <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; padding: ${cellPad}; width: 41%; white-space: nowrap;">관리 기준</th>
+            <th style="border-bottom: 1px solid #cbd5e1; padding: ${cellPad}; width: 18%; white-space: nowrap;">비고</th>
           </tr>
         </thead>
         <tbody>
           <tr style="background: #ffffff; font-weight: 700;">
-            <td style="border-bottom: 1.5px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; line-height: 1.35; white-space: nowrap;">조인트<br/>고무</td>
-            <td style="border-bottom: 1.5px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; color: #dc2626; font-weight: 800; white-space: nowrap;">10일 이내</td>
-            <td style="border-bottom: 1.5px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; text-align: left; line-height: 1.45;">
-              <div>온도 : 20 ± 5℃ <span style="font-size: 11px; color: #475569; font-weight: 600;">(15~25℃)</span></div>
+            <td style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; padding: ${cellPad}; line-height: 1.3; white-space: nowrap;">조인트<br/>고무</td>
+            <td style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; padding: ${cellPad}; color: #dc2626; font-weight: 800; white-space: nowrap;">10일 이내</td>
+            <td style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; padding: ${cellPad}; text-align: left; line-height: 1.4;">
+              <div>온도 : 20 ± 5℃ <span translate="no" style="font-size: 11px; color: #64748b; font-weight: 600;">(15~25℃)</span></div>
               <div>습도 : 70% 이하</div>
             </td>
-            <td style="border-bottom: 1.5px solid #1e293b; padding: ${cellPad}; font-weight: 800; white-space: nowrap;">1회/일</td>
+            <td style="border-bottom: 1px solid #cbd5e1; padding: ${cellPad}; font-weight: 800; white-space: nowrap;">1회/일</td>
           </tr>
         </tbody>
       </table>
-      <div style="padding: ${compact ? '7px 10px' : '10px 12px'}; font-size: ${ruleFont}; line-height: 1.65; color: #0f172a; font-weight: 600; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; background: #fcfdfd; word-break: keep-all;">
-        <div>1. 연고무 <strong style="color: #1d4ed8; font-weight: 800;">중량 표준</strong>에 따른 작업실시</div>
-        <div>2. FMB <strong style="color: #dc2626; font-weight: 800;">유효기간 준수</strong> (미준수품 반납)</div>
-        <div>3. 보관실 <strong style="color: #1d4ed8; font-weight: 800;">점검 주기는 1회/일</strong> (시업전)</div>
-        <div>4. 온습도 유지를 위해 <strong style="color: #1d4ed8; font-weight: 800;">DOOR 상시 닫음</strong></div>
+      <div style="padding: ${compact ? '7px 10px' : '9px 12px'}; font-size: ${ruleFont}; line-height: 1.55; color: #1e293b; font-weight: 600; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; background: #ffffff; word-break: keep-all;">
+        <div>1. 연고무 <strong style="color: #1d4ed8; font-weight: 700;">중량 표준</strong>에 따른 작업실시</div>
+        <div>2. FMB <strong style="color: #dc2626; font-weight: 700;">유효기간 준수</strong> (미준수품 반납)</div>
+        <div>3. 보관실 <strong style="color: #1d4ed8; font-weight: 700;">점검 주기는 1회/일</strong> (시업전)</div>
+        <div>4. 온습도 유지를 위해 <strong style="color: #1d4ed8; font-weight: 700;">DOOR 상시 닫음</strong></div>
       </div>
     </div>
   `;
@@ -357,28 +360,28 @@ function buildStockRowHTML(item, idx, reportDate) {
 
   return `
     <tr data-f9004-row="${idx}" data-stock-id="${escapeHtml(item?.stockId || '')}" data-created-date="${escapeHtml(item?.createdDate || reportDate || '')}" style="background: ${rowBg};">
-      <td data-f9004-col="no" style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 4px 2px;">${idx + 1}</td>
-      <td style="border: 1px solid #000; padding: 3px 2px;">
-        <select id="f9004_type_${idx}" name="f9004_type_${idx}" data-f9004-field="type" class="form-control" style="font-size: 12px; font-weight: 800; color: ${typeColor}; padding: 4px 2px; height: auto; width: 100%; background: #ffffff;">
+      <td data-f9004-col="no" style="border: 1px solid #cbd5e1; text-align: center; font-weight: 700; color: #475569; padding: 4px 2px;">${idx + 1}</td>
+      <td style="border: 1px solid #cbd5e1; padding: 2px;">
+        <select id="f9004_type_${idx}" name="f9004_type_${idx}" data-f9004-field="type" class="form-control f9004-compact-ctrl f9004-flat-ctrl" style="font-size: 12px; font-weight: 700; color: ${typeColor}; padding: 4px 2px; height: auto; width: 100%; background: #ffffff;">
           ${typeOptions}
         </select>
       </td>
-      <td style="border: 1px solid #000; padding: 3px 4px;">
-        <select id="f9004_rubber_${idx}" name="f9004_rubber_${idx}" data-f9004-field="rubberName" class="form-control" style="font-size: 12.5px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%; background: #ffffff;">
+      <td style="border: 1px solid #cbd5e1; padding: 2px 3px;">
+        <select id="f9004_rubber_${idx}" name="f9004_rubber_${idx}" data-f9004-field="rubberName" class="form-control f9004-compact-ctrl f9004-flat-ctrl" style="font-size: 12px; font-weight: 700; padding: 4px 4px; height: auto; width: 100%; background: #ffffff;">
           <option value="">선택</option>
           ${rubberOptions}
         </select>
       </td>
-      <td style="border: 1px solid #000; padding: 3px 3px;">
+      <td style="border: 1px solid #cbd5e1; padding: 2px;">
         <div class="f9004-mmdd-wrap" style="position: relative; width: 100%;">
-          <input type="text" readonly tabindex="-1" id="f9004_expiry_${idx}" name="f9004_expiry_${idx}" data-f9004-field="expiryDate" data-expiry-iso="${escapeHtml(curExpiryIso)}" data-wheel-skip="1" class="form-control" value="${escapeHtml(curExpiry)}" placeholder="MM/DD" style="font-size: 12.5px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center; background: #ffffff; pointer-events: none;" />
+          <input type="text" readonly tabindex="-1" id="f9004_expiry_${idx}" name="f9004_expiry_${idx}" data-f9004-field="expiryDate" data-expiry-iso="${escapeHtml(curExpiryIso)}" data-wheel-skip="1" class="form-control f9004-compact-ctrl f9004-flat-ctrl" value="${escapeHtml(curExpiry)}" placeholder="MM/DD" style="font-size: 12px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center; background: #ffffff; pointer-events: none;" />
           <input type="date" id="f9004_expiry_picker_${idx}" data-f9004-date-picker="1" data-wheel-skip="1" aria-label="유효기간 날짜 선택" value="${escapeHtml(curExpiryIso)}" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; border: 0; z-index: 2;" />
         </div>
       </td>
-      <td style="border: 1px solid #000; padding: 3px 3px;">
+      <td style="border: 1px solid #cbd5e1; padding: 2px;">
         <div style="position: relative; display: flex; align-items: center;">
-          <input type="text" inputmode="decimal" maxlength="6" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" data-wheel-skip="1" class="form-control" value="${escapeHtml(curQtyNum)}" placeholder="000" style="font-size: 12.5px; font-weight: 700; padding: 4px 21px 4px 4px; height: auto; width: 100%; text-align: right; background: #ffffff;" />
-          <span translate="no" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #475569; pointer-events: none;">kg</span>
+          <input type="text" inputmode="decimal" maxlength="6" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" data-wheel-skip="1" class="form-control f9004-compact-ctrl f9004-flat-ctrl" value="${escapeHtml(curQtyNum)}" placeholder="000" style="font-size: 12px; font-weight: 700; padding: 4px 19px 4px 3px; height: auto; width: 100%; text-align: right; background: #ffffff;" />
+          <span translate="no" style="position: absolute; right: 3px; top: 50%; transform: translateY(-50%); font-size: 10.5px; font-weight: 700; color: #64748b; pointer-events: none;">kg</span>
         </div>
       </td>
     </tr>
@@ -388,7 +391,7 @@ function buildStockRowHTML(item, idx, reportDate) {
 function buildEmptyStockRowHTML() {
   return `
     <tr data-f9004-empty="1">
-      <td colspan="5" style="border: 1px solid #000; padding: 12px 8px; text-align: center; color: #64748b; font-size: 12px; font-weight: 600; background: #f8fafc;">
+      <td colspan="5" style="border: 1px solid #cbd5e1; padding: 12px 8px; text-align: center; color: #64748b; font-size: 12px; font-weight: 600; background: #f8fafc;">
         현재 등록된 고무실 재고가 없습니다. 아래 입력란에서 입고/재고 기록 후 업데이트하세요.
       </td>
     </tr>
@@ -405,29 +408,29 @@ function buildEntryRowHTML() {
   )).join('');
 
   return `
-    <tr data-f9004-entry-row="1" style="background: #eff6ff; border-top: 2px solid #0f172a;">
-      <td style="border: 1px solid #000; text-align: center; font-size: 11px; font-weight: 800; color: #1d4ed8; padding: 4px 2px; white-space: nowrap;">신규</td>
-      <td style="border: 1px solid #000; padding: 3px 2px;">
-        <select id="f9004_new_type" name="f9004_new_type" data-f9004-new="type" class="form-control" style="font-size: 12px; font-weight: 800; padding: 4px 2px; height: auto; width: 100%; background: #ffffff;">
+    <tr data-f9004-entry-row="1" style="background: #eff6ff; border-top: 1.5px solid #64748b;">
+      <td style="border: 1px solid #cbd5e1; text-align: center; font-size: 11px; font-weight: 800; color: #1d4ed8; padding: 4px 2px; white-space: nowrap;">신규</td>
+      <td style="border: 1px solid #cbd5e1; padding: 2px;">
+        <select id="f9004_new_type" name="f9004_new_type" data-f9004-new="type" class="form-control f9004-compact-ctrl f9004-flat-ctrl" style="font-size: 12px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; background: #ffffff;">
           ${typeOptions}
         </select>
       </td>
-      <td style="border: 1px solid #000; padding: 3px 4px;">
-        <select id="f9004_new_rubber" name="f9004_new_rubber" data-f9004-new="rubberName" class="form-control" style="font-size: 12.5px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%; background: #ffffff;">
+      <td style="border: 1px solid #cbd5e1; padding: 2px 3px;">
+        <select id="f9004_new_rubber" name="f9004_new_rubber" data-f9004-new="rubberName" class="form-control f9004-compact-ctrl f9004-flat-ctrl" style="font-size: 12px; font-weight: 700; padding: 4px 4px; height: auto; width: 100%; background: #ffffff;">
           <option value="">선택</option>
           ${rubberOptions}
         </select>
       </td>
-      <td style="border: 1px solid #000; padding: 3px 3px;">
+      <td style="border: 1px solid #cbd5e1; padding: 2px;">
         <div class="f9004-mmdd-wrap" style="position: relative; width: 100%;">
-          <input type="text" readonly tabindex="-1" id="f9004_new_expiry" name="f9004_new_expiry" data-f9004-new="expiryDate" data-expiry-iso="" data-wheel-skip="1" class="form-control" value="" placeholder="MM/DD" style="font-size: 12.5px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center; background: #ffffff; pointer-events: none;" />
+          <input type="text" readonly tabindex="-1" id="f9004_new_expiry" name="f9004_new_expiry" data-f9004-new="expiryDate" data-expiry-iso="" data-wheel-skip="1" class="form-control f9004-compact-ctrl f9004-flat-ctrl" value="" placeholder="MM/DD" style="font-size: 12px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center; background: #ffffff; pointer-events: none;" />
           <input type="date" id="f9004_new_expiry_picker" data-f9004-date-picker="1" data-wheel-skip="1" aria-label="유효기간 날짜 선택" value="" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; border: 0; z-index: 2;" />
         </div>
       </td>
-      <td style="border: 1px solid #000; padding: 3px 3px;">
+      <td style="border: 1px solid #cbd5e1; padding: 2px;">
         <div style="position: relative; display: flex; align-items: center;">
-          <input type="text" inputmode="decimal" maxlength="6" id="f9004_new_qty" name="f9004_new_qty" data-f9004-new="amount" data-wheel-skip="1" class="form-control" value="" placeholder="000" style="font-size: 12.5px; font-weight: 700; padding: 4px 21px 4px 4px; height: auto; width: 100%; text-align: right; background: #ffffff;" />
-          <span translate="no" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #475569; pointer-events: none;">kg</span>
+          <input type="text" inputmode="decimal" maxlength="6" id="f9004_new_qty" name="f9004_new_qty" data-f9004-new="amount" data-wheel-skip="1" class="form-control f9004-compact-ctrl f9004-flat-ctrl" value="" placeholder="000" style="font-size: 12px; font-weight: 700; padding: 4px 19px 4px 3px; height: auto; width: 100%; text-align: right; background: #ffffff;" />
+          <span translate="no" style="position: absolute; right: 3px; top: 50%; transform: translateY(-50%); font-size: 10.5px; font-weight: 700; color: #64748b; pointer-events: none;">kg</span>
         </div>
       </td>
     </tr>
@@ -487,8 +490,8 @@ function buildFmbWorkSectionInputHTML(workLog) {
       const n = i + 1;
       const cellVal = String(savedArr[i] ?? '').trim();
       return `
-        <div style="border-right: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 3px 3px 3px; background: #ffffff; display: flex; flex-direction: column; min-width: 0;">
-          <span translate="no" style="font-size: 10px; font-weight: 800; color: #475569; line-height: 1.1; margin-bottom: 1px;">${n}</span>
+        <div class="f9004-init20-cell" style="border-right: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1; padding: 3px 2px 3px 3px; background: #ffffff; display: flex; flex-direction: column; min-width: 0;">
+          <span translate="no" style="font-size: 9.5px; font-weight: 700; color: #94a3b8; line-height: 1; padding-left: 1px;">${n}</span>
           <input
             type="text"
             inputmode="decimal"
@@ -499,23 +502,23 @@ function buildFmbWorkSectionInputHTML(workLog) {
             data-f9004-init-group="${spec.key}"
             data-f9004-init-idx="${n}"
             data-wheel-skip="1"
-            class="form-control"
+            class="form-control f9004-grid-input f9004-compact-ctrl"
             value="${escapeHtml(cellVal)}"
             placeholder="-"
-            style="font-size: 12px; font-weight: 700; padding: 3px 2px; height: auto; width: 100%; text-align: center; background: #ffffff;"
+            style="font-size: 12px; font-weight: 700; padding: 2px 1px; height: auto; width: 100%; text-align: center;"
           />
         </div>
       `;
     }).join('');
 
     return `
-      <div style="${sIdx > 0 ? 'border-top: 1.5px solid #1e293b;' : ''}">
-        <div style="background: #f8fafc; border-bottom: 1px solid #cbd5e1; padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <div style="display: flex; align-items: center; gap: 6px; font-size: 12.5px;">
-            <strong translate="no" style="color: #0f172a; font-weight: 800;">${escapeHtml(spec.code)}</strong>
-            <span translate="no" style="font-size: 11.5px; color: #475569; font-weight: 700;">(${escapeHtml(spec.specLabel)})</span>
+      <div style="${sIdx > 0 ? 'border-top: 1px solid #94a3b8;' : ''}">
+        <div style="background: #f8fafc; border-bottom: 1px solid #cbd5e1; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: nowrap;">
+          <div style="display: flex; align-items: baseline; gap: 5px; min-width: 0;">
+            <strong translate="no" style="font-size: 12.5px; color: #0f172a; font-weight: 800; white-space: nowrap;">${escapeHtml(spec.code)}</strong>
+            <span translate="no" style="font-size: 11px; color: #64748b; font-weight: 600; white-space: nowrap;">(${escapeHtml(spec.specLabel)})</span>
           </div>
-          <span id="f9004_init20_badge_${spec.key}" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;">측정 0 / 20개</span>
+          <span id="f9004_init20_badge_${spec.key}" style="font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; white-space: nowrap; flex-shrink: 0;">측정 0 / 20개</span>
         </div>
         <div class="f9004-init20-grid" style="border-right: 0; border-bottom: 0;">
           ${cellsHtml}
@@ -526,59 +529,61 @@ function buildFmbWorkSectionInputHTML(workLog) {
 
   return `
     <div style="margin-bottom: 20px; container-type: inline-size;">
-      <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;">3. 고무 압출(Piece) · 권선(Roll) 작업 및 중량 측정 기록</h3>
+      <div style="margin-bottom: 8px;">
+        <h3 class="f9004-sec-title">3. 고무 압출(Piece) · 권선(Roll) 작업 및 중량 측정 기록</h3>
+      </div>
 
       <div class="f9004-work-split-grid">
         <!-- 좌측(모바일 상단): 고무 압출(Piece) -->
-        <div style="border: 1.5px solid #000; border-radius: 4px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
-          <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; border: 0;">
+        <div style="border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
+          <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; border: 0;">
             <colgroup>
-              <col style="width: 42px;" />
-              <col style="width: 48px;" />
+              <col style="width: 40px;" />
+              <col style="width: 44px;" />
               <col />
               <col />
             </colgroup>
             <tbody>
-              <tr style="background: #fef9c3;">
-                <th colspan="2" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 6px 4px; text-align: center; font-weight: 800; color: #0f172a;">작업방법</th>
-                <th colspan="2" style="border-bottom: 1px solid #000; padding: 6px 6px; text-align: center; font-size: 13px; font-weight: 800; color: #0f172a;">고무 압출(Piece)</th>
+              <tr style="background: #fefce8;">
+                <th colspan="2" style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 6px 4px; text-align: center; font-weight: 700; color: #334155;">작업방법</th>
+                <th colspan="2" style="border-bottom: 1px solid #cbd5e1; padding: 6px 6px; text-align: center; font-size: 12.5px; font-weight: 800; color: #0f172a;">고무 압출(Piece)</th>
               </tr>
               <tr style="background: #f8fafc;">
-                <th colspan="2" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">배합코드</th>
+                <th colspan="2" style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 5px 4px; text-align: center; font-weight: 700; color: #334155;">배합코드</th>
                 ${F9004_EXTRUSION_SPECS.map((sp, idx) => `
-                  <th translate="no" style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">${escapeHtml(sp.code)}</th>
+                  <th translate="no" class="f9004-code-th" style="border-bottom: 1px solid #cbd5e1; ${idx === 0 ? 'border-right: 1px solid #cbd5e1;' : ''} padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a; white-space: nowrap;">${escapeHtml(sp.code)}</th>
                 `).join('')}
               </tr>
               <tr>
-                <th colspan="2" translate="no" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; background: #f8fafc; line-height: 1.2;">FMB<br/>LOT</th>
+                <th colspan="2" translate="no" style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 4px; text-align: center; font-size: 11px; font-weight: 700; color: #475569; background: #f8fafc; line-height: 1.2;">FMB<br/>LOT</th>
                 ${F9004_EXTRUSION_SPECS.map((sp, idx) => {
                   const lotVal = extData[sp.key]?.lot || '';
                   return `
-                    <td style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px;">
-                      <input type="text" id="f9004_ext_${sp.key}_lot" name="f9004_ext_${sp.key}_lot" data-wheel-skip="1" class="form-control" value="${escapeHtml(lotVal)}" placeholder="LOT 입력" style="font-size: 12px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%; text-align: center;" />
+                    <td style="border-bottom: 1px solid #cbd5e1; ${idx === 0 ? 'border-right: 1px solid #cbd5e1;' : ''} padding: 3px;">
+                      <input type="text" id="f9004_ext_${sp.key}_lot" name="f9004_ext_${sp.key}_lot" data-wheel-skip="1" class="form-control f9004-compact-ctrl f9004-flat-ctrl" value="${escapeHtml(lotVal)}" placeholder="LOT 입력" style="font-size: 12px; font-weight: 600; padding: 4px 5px; height: auto; width: 100%; text-align: center;" />
                     </td>
                   `;
                 }).join('')}
               </tr>
               <tr style="background: #fffbeb;">
-                <th colspan="2" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">작업중량</th>
+                <th colspan="2" style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 5px 4px; text-align: center; font-weight: 700; color: #334155;">작업중량</th>
                 ${F9004_EXTRUSION_SPECS.map((sp, idx) => `
-                  <td translate="no" style="border-bottom: 1px solid #000; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 5px 4px; text-align: center; font-weight: 800; color: #1e293b;">${escapeHtml(sp.specLabel)}</td>
+                  <td translate="no" style="border-bottom: 1px solid #cbd5e1; ${idx === 0 ? 'border-right: 1px solid #cbd5e1;' : ''} padding: 5px 4px; text-align: center; font-weight: 800; color: #1e293b; white-space: nowrap;">${escapeHtml(sp.specLabel)}</td>
                 `).join('')}
               </tr>
               ${stages.map((st, stIdx) => {
                 const isLast = stIdx === stages.length - 1;
-                const btmBorder = isLast ? '0' : '1px dashed #64748b';
+                const btmBorder = isLast ? '0' : '1px solid #e2e8f0';
                 return `
                   <tr>
                     ${stIdx === 0 ? `
-                      <th rowspan="3" style="border-right: 1px solid #000; background: #fef9c3; padding: 4px 3px; text-align: center; font-weight: 800; line-height: 1.3; color: #0f172a; word-break: keep-all;">측정중량</th>
+                      <th rowspan="3" style="border-right: 1px solid #cbd5e1; background: #f8fafc; padding: 4px 3px; text-align: center; font-weight: 700; line-height: 1.3; color: #334155; word-break: keep-all;">측정중량</th>
                     ` : ''}
-                    <th style="border-bottom: ${btmBorder}; border-right: 1px solid #000; background: #e0f2fe; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">${st.label}</th>
+                    <th style="border-bottom: ${btmBorder}; border-right: 1px solid #cbd5e1; background: #f0f9ff; padding: 5px 3px; text-align: center; font-weight: 700; color: #0369a1;">${st.label}</th>
                     ${F9004_EXTRUSION_SPECS.map((sp, idx) => {
                       const stageVal = extData[sp.key]?.[st.field] || '';
                       return `
-                        <td style="border-bottom: ${btmBorder}; ${idx === 0 ? 'border-right: 1px solid #000;' : ''} padding: 4px;">
+                        <td style="border-bottom: ${btmBorder}; ${idx === 0 ? 'border-right: 1px solid #cbd5e1;' : ''} padding: 3px;">
                           <div style="position: relative; display: flex; align-items: center;">
                             <input
                               type="text"
@@ -589,12 +594,12 @@ function buildFmbWorkSectionInputHTML(workLog) {
                               data-f9004-weight-spec="${sp.key}"
                               data-f9004-stage-seq="${sp.key}_${stIdx}"
                               data-wheel-skip="1"
-                              class="form-control"
+                              class="form-control f9004-compact-ctrl f9004-flat-ctrl"
                               value="${escapeHtml(stageVal)}"
                               placeholder="0.00"
-                              style="font-size: 13px; font-weight: 800; padding: 4px 18px 4px 6px; height: auto; width: 100%; text-align: right; background: #ffffff;"
+                              style="font-size: 12.5px; font-weight: 700; padding: 4px 16px 4px 5px; height: auto; width: 100%; text-align: right; background: #ffffff;"
                             />
-                            <span translate="no" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #64748b; pointer-events: none;">g</span>
+                            <span translate="no" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 10.5px; font-weight: 700; color: #64748b; pointer-events: none;">g</span>
                           </div>
                         </td>
                       `;
@@ -607,51 +612,51 @@ function buildFmbWorkSectionInputHTML(workLog) {
         </div>
 
         <!-- 우측(모바일 하단): 고무 권선(Roll) -->
-        <div style="border: 1.5px solid #000; border-radius: 4px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
-          <table class="data-table" style="width: 100%; height: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; border: 0;">
+        <div style="border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
+          <table class="data-table" style="width: 100%; height: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; border: 0;">
             <colgroup>
-              <col style="width: 68px;" />
+              <col style="width: 54px;" />
               <col />
               <col />
               <col />
             </colgroup>
             <tbody>
-              <tr style="background: #fef9c3;">
-                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 6px 4px; text-align: center; font-weight: 800; color: #0f172a;">작업방법</th>
-                <th colspan="3" style="border-bottom: 1px solid #000; padding: 6px 6px; text-align: center; font-size: 13px; font-weight: 800; color: #0f172a;">고무 권선(Roll)</th>
+              <tr style="background: #fefce8;">
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 6px 3px; text-align: center; font-weight: 700; color: #334155;">작업방법</th>
+                <th colspan="3" style="border-bottom: 1px solid #cbd5e1; padding: 6px 6px; text-align: center; font-size: 12.5px; font-weight: 800; color: #0f172a;">고무 권선(Roll)</th>
               </tr>
               <tr style="background: #f8fafc;">
-                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">배합코드</th>
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 5px 3px; text-align: center; font-weight: 700; color: #334155;">배합코드</th>
                 ${F9004_WINDING_SPECS.map((sp, idx) => `
-                  <th translate="no" style="border-bottom: 1px solid #000; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 5px 2px; text-align: center; font-size: 11.5px; font-weight: 800; color: #0f172a;">${escapeHtml(sp.code)}</th>
+                  <th translate="no" class="f9004-code-th" style="border-bottom: 1px solid #cbd5e1; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #cbd5e1;' : ''} padding: 5px 2px; text-align: center; font-size: 11px; font-weight: 800; color: #0f172a; white-space: nowrap;">${escapeHtml(sp.code)}</th>
                 `).join('')}
               </tr>
               <tr>
-                <th translate="no" style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; background: #f8fafc; line-height: 1.2;">FMB<br/>LOT</th>
+                <th translate="no" style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 4px 2px; text-align: center; font-size: 11px; font-weight: 700; color: #475569; background: #f8fafc; line-height: 1.2;">FMB<br/>LOT</th>
                 ${F9004_WINDING_SPECS.map((sp, idx) => {
                   const lotVal = rollData[sp.key]?.lot || '';
                   return `
-                    <td style="border-bottom: 1px solid #000; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 4px 3px;">
-                      <input type="text" id="f9004_roll_${sp.key}_lot" name="f9004_roll_${sp.key}_lot" data-wheel-skip="1" class="form-control" value="${escapeHtml(lotVal)}" placeholder="LOT 입력" style="font-size: 12px; font-weight: 700; padding: 4px 4px; height: auto; width: 100%; text-align: center;" />
+                    <td style="border-bottom: 1px solid #cbd5e1; ${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #cbd5e1;' : ''} padding: 3px 2px;">
+                      <input type="text" id="f9004_roll_${sp.key}_lot" name="f9004_roll_${sp.key}_lot" data-wheel-skip="1" class="form-control f9004-compact-ctrl f9004-flat-ctrl" value="${escapeHtml(lotVal)}" placeholder="LOT 입력" style="font-size: 11.5px; font-weight: 600; padding: 4px 3px; height: auto; width: 100%; text-align: center;" />
                     </td>
                   `;
                 }).join('')}
               </tr>
-              <tr style="background: #fef9c3;">
-                <th style="border-bottom: 1px solid #000; border-right: 1px solid #000; padding: 5px 4px; text-align: center; font-weight: 800; color: #0f172a;">권선 수량</th>
-                <td colspan="3" style="border-bottom: 1px solid #000; padding: 5px 8px;">
-                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <span style="font-weight: 800; color: #0f172a;">※ 권선 수량 기록(EA)</span>
-                    <span id="f9004_rollTotalBadge" style="font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: #ffffff; color: #1d4ed8; border: 1px solid #cbd5e1;">총 권선: 0 EA</span>
+              <tr style="background: #fffbeb;">
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; padding: 5px 3px; text-align: center; font-weight: 700; color: #334155;">권선 수량</th>
+                <td colspan="3" style="border-bottom: 1px solid #cbd5e1; padding: 5px 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: nowrap;">
+                    <span style="font-size: 11.5px; font-weight: 700; color: #334155; white-space: nowrap;">※ 권선 수량 기록(EA)</span>
+                    <span id="f9004_rollTotalBadge" style="font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: #ffffff; color: #1d4ed8; border: 1px solid #cbd5e1; white-space: nowrap;">총 권선: 0 EA</span>
                   </div>
                 </td>
               </tr>
               <tr>
-                <th style="border-right: 1px solid #000; background: #e0f2fe; padding: 8px 4px; text-align: center; font-weight: 800; color: #0f172a;">수량<br/><span translate="no" style="font-size: 11px;">(EA)</span></th>
+                <th style="border-right: 1px solid #cbd5e1; background: #f0f9ff; padding: 8px 3px; text-align: center; font-weight: 700; color: #0369a1;">수량<br/><span translate="no" style="font-size: 10.5px;">(EA)</span></th>
                 ${F9004_WINDING_SPECS.map((sp, idx) => {
                   const qtyVal = String(rollData[sp.key]?.qty ?? '').replace(/\s*EA$/i, '').trim();
                   return `
-                    <td style="${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #000;' : ''} padding: 8px 4px; vertical-align: middle;">
+                    <td style="${idx < F9004_WINDING_SPECS.length - 1 ? 'border-right: 1px solid #cbd5e1;' : ''} padding: 6px 3px; vertical-align: middle;">
                       <div style="position: relative; display: flex; align-items: center;">
                         <input
                           type="text"
@@ -661,12 +666,12 @@ function buildFmbWorkSectionInputHTML(workLog) {
                           name="f9004_roll_${sp.key}_qty"
                           data-f9004-roll-qty="1"
                           data-wheel-skip="1"
-                          class="form-control"
+                          class="form-control f9004-compact-ctrl f9004-flat-ctrl"
                           value="${escapeHtml(qtyVal)}"
                           placeholder="0"
-                          style="font-size: 15px; font-weight: 800; padding: 8px 25px 8px 6px; height: auto; width: 100%; text-align: right; background: #ffffff;"
+                          style="font-size: 14px; font-weight: 800; padding: 6px 20px 6px 4px; height: auto; width: 100%; text-align: right; background: #ffffff;"
                         />
-                        <span translate="no" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #475569; pointer-events: none;">EA</span>
+                        <span translate="no" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: #64748b; pointer-events: none;">EA</span>
                       </div>
                     </td>
                   `;
@@ -678,10 +683,10 @@ function buildFmbWorkSectionInputHTML(workLog) {
       </div>
 
       <!-- 압출 시작 후 최초 20개 전수 중량 측정 기록 -->
-      <div style="border: 1.5px solid #000; border-radius: 4px; overflow: hidden; background: #ffffff;">
-        <div style="background: #fef9c3; border-bottom: 1.5px solid #000; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;">⚖️ 압출 시작 후 최초 20개 중량 측정 기록 (초기허용불량 확인 · 단위: g)</span>
-          <span style="font-size: 11px; font-weight: 700; color: #475569;">Enter 입력 시 다음 번호(1→20)로 이동</span>
+      <div style="border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden; background: #ffffff;">
+        <div style="background: #fefce8; border-bottom: 1px solid #cbd5e1; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <span style="font-size: 12px; font-weight: 800; color: #0f172a;">압출 시작 후 최초 20개 중량 측정 (단위: g)</span>
+          <span style="font-size: 10.5px; font-weight: 600; color: #64748b;">Enter → 다음 번호</span>
         </div>
         ${init20Blocks}
       </div>
@@ -841,6 +846,163 @@ function buildFmbWorkSectionDetailHTML(workLog) {
   `;
 }
 
+function buildAlarmHistoryRowsHTML(alarmRows, reportDate) {
+  const safeRows = Array.isArray(alarmRows) ? alarmRows : [];
+  return Array.from({ length: F9004_ALARM_ROW_COUNT }, (_, idx) => {
+    const row = safeRows[idx] || {};
+    const dispDate = formatExpiryMonthDay(row.date || '');
+    const dateIso = String(row.dateIso || toExpiryIso(dispDate, reportDate)).trim();
+    const symptom = String(row.symptom || '').trim();
+    const action = String(row.action || '').trim();
+    const btmBorder = idx === F9004_ALARM_ROW_COUNT - 1 ? '0' : '1px solid #cbd5e1';
+    return `
+      <tr data-f9004-alarm-row="${idx}" style="background: #ffffff;">
+        <td style="border-bottom: ${btmBorder}; border-right: 1px solid #cbd5e1; padding: 2px;">
+          <div class="f9004-mmdd-wrap" style="position: relative; width: 100%;">
+            <input
+              type="text"
+              readonly
+              tabindex="-1"
+              id="f9004_alarm_date_${idx}"
+              name="f9004_alarm_date_${idx}"
+              data-f9004-mmdd-display="1"
+              data-expiry-iso="${escapeHtml(dateIso)}"
+              data-wheel-skip="1"
+              class="form-control f9004-grid-input f9004-compact-ctrl"
+              value="${escapeHtml(dispDate)}"
+              placeholder="/"
+              style="font-size: 12px; font-weight: 700; padding: 5px 2px; height: auto; width: 100%; text-align: center; pointer-events: none;"
+            />
+            <input
+              type="date"
+              id="f9004_alarm_date_picker_${idx}"
+              data-f9004-date-picker="1"
+              data-wheel-skip="1"
+              aria-label="날짜 선택"
+              value="${escapeHtml(dateIso)}"
+              style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; border: 0; z-index: 2;"
+            />
+          </div>
+        </td>
+        <td style="border-bottom: ${btmBorder}; border-right: 1px solid #cbd5e1; padding: 2px 4px;">
+          <input
+            type="text"
+            id="f9004_alarm_symp_${idx}"
+            name="f9004_alarm_symp_${idx}"
+            data-f9004-alarm-field="symptom"
+            data-wheel-skip="1"
+            class="form-control f9004-grid-input f9004-compact-ctrl"
+            value="${escapeHtml(symptom)}"
+            placeholder=""
+            style="font-size: 12px; font-weight: 600; padding: 5px 4px; height: auto; width: 100%;"
+          />
+        </td>
+        <td style="border-bottom: ${btmBorder}; padding: 2px 4px;">
+          <input
+            type="text"
+            id="f9004_alarm_act_${idx}"
+            name="f9004_alarm_act_${idx}"
+            data-f9004-alarm-field="action"
+            data-wheel-skip="1"
+            class="form-control f9004-grid-input f9004-compact-ctrl"
+            value="${escapeHtml(action)}"
+            placeholder=""
+            style="font-size: 12px; font-weight: 600; padding: 5px 4px; height: auto; width: 100%;"
+          />
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function buildAlarmAndNotesInputHTML(alarmRows, workDetails, reportDate) {
+  return `
+    <div style="margin-bottom: 20px; container-type: inline-size;">
+      <div style="margin-bottom: 8px;">
+        <h3 class="f9004-sec-title">4. 금일 주요 작업 내용 및 특이사항</h3>
+      </div>
+
+      <div style="border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden; background: #ffffff;">
+        <div style="background: #ebf1de; border-bottom: 1px solid #94a3b8; padding: 7px 10px; text-align: center; font-size: 13px; font-weight: 800; color: #0f172a;">
+          경보장치 이상 발생 이력
+        </div>
+        <table class="data-table" style="width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; border: 0;">
+          <colgroup>
+            <col style="width: 64px;" />
+            <col style="width: 44%;" />
+            <col />
+          </colgroup>
+          <thead>
+            <tr style="background: #ebf1de; color: #0f172a;">
+              <th style="border-bottom: 1px solid #94a3b8; border-right: 1px solid #94a3b8; text-align: center; padding: 5px 2px; font-weight: 800; white-space: nowrap;">날짜</th>
+              <th style="border-bottom: 1px solid #94a3b8; border-right: 1px solid #94a3b8; text-align: center; padding: 5px 6px; font-weight: 800; white-space: nowrap;">현상</th>
+              <th style="border-bottom: 1px solid #94a3b8; text-align: center; padding: 5px 6px; font-weight: 800; white-space: nowrap;">조치이력</th>
+            </tr>
+          </thead>
+          <tbody id="f9004_alarmTbody">
+            ${buildAlarmHistoryRowsHTML(alarmRows, reportDate)}
+          </tbody>
+        </table>
+
+        <!-- 아래칸: 특이사항 입력란 -->
+        <div style="background: #f8fafc; border-top: 1px solid #94a3b8; border-bottom: 1px solid #cbd5e1; padding: 6px 10px; font-size: 12px; font-weight: 800; color: #1e293b;">
+          특이사항
+        </div>
+        <div style="background: #ffffff;">
+          <textarea id="f9004_workDetails" name="f9004_workDetails" class="form-control f9004-grid-input f9004-compact-ctrl" rows="3" placeholder="유효기간 임박 원재료 현황, 항온항습 특이사항, 교대 전달사항 등을 입력하세요." style="font-size: 12.5px; line-height: 1.5; resize: vertical; width: 100%; border: 0; border-radius: 0; padding: 8px 10px;">${escapeHtml(workDetails)}</textarea>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildAlarmAndNotesDetailHTML(alarmRows, workDetails) {
+  const safeRows = Array.isArray(alarmRows) ? alarmRows : [];
+  const rowsHtml = Array.from({ length: F9004_ALARM_ROW_COUNT }, (_, idx) => {
+    const row = safeRows[idx] || {};
+    const dispDate = formatExpiryMonthDay(row.date || '') || '/';
+    const symptom = String(row.symptom || '').trim();
+    const action = String(row.action || '').trim();
+    return `
+      <tr>
+        <td translate="no" style="border: 1px solid #000; text-align: center; padding: 5px 4px; font-weight: 700; color: ${dispDate === '/' ? '#94a3b8' : '#0f172a'};">${escapeHtml(dispDate)}</td>
+        <td style="border: 1px solid #000; padding: 5px 6px; font-weight: 600;">${escapeHtml(symptom)}</td>
+        <td style="border: 1px solid #000; padding: 5px 6px; font-weight: 600;">${escapeHtml(action)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div style="margin-bottom: 14px;">
+      <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">4. 금일 주요 작업 내용 및 특이사항</div>
+      <table class="data-table print-table" style="width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 12px; table-layout: fixed; margin-bottom: 6px;">
+        <colgroup>
+          <col style="width: 68px;" />
+          <col style="width: 44%;" />
+          <col />
+        </colgroup>
+        <thead>
+          <tr style="background: #ebf1de; color: #000;">
+            <th colspan="3" style="border: 1px solid #000; text-align: center; padding: 5px 8px; font-size: 13px; font-weight: 800;">경보장치 이상 발생 이력</th>
+          </tr>
+          <tr style="background: #ebf1de; color: #000;">
+            <th style="border: 1px solid #000; text-align: center; padding: 4px 2px; font-weight: 800;">날짜</th>
+            <th style="border: 1px solid #000; text-align: center; padding: 4px 6px; font-weight: 800;">현상</th>
+            <th style="border: 1px solid #000; text-align: center; padding: 4px 6px; font-weight: 800;">조치이력</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+      <div style="border: 1px solid #000; background: #ffffff;">
+        <div style="background: #f8fafc; border-bottom: 1px solid #000; padding: 4px 8px; font-size: 12px; font-weight: 800;">특이사항</div>
+        <div style="padding: 8px 10px; min-height: 70px; font-size: 12px; white-space: pre-wrap;">${escapeHtml(workDetails || '입력된 내용 없음')}</div>
+      </div>
+    </div>
+  `;
+}
+
 export function renderFmbPaperForm(container, existingData, loggedInWorkerName) {
   const todayStr = new Date().toLocaleDateString('sv-SE');
   let currentReportDate = existingData?.date || todayStr;
@@ -859,11 +1021,13 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
   const workLogData = existingData?.f9004_workLog || {};
   const workDetails = existingData?.workDetails || '';
 
-  // 초기 재고 및 금일 불출 목록 구성
+  // 초기 재고, 금일 불출 목록, 경보장치 이상 발생 이력 구성
   let stockItems = [];
   let dispatchedToday = [];
+  let alarmHistoryRows = Array.isArray(existingData?.f9004_alarmHistory) ? existingData.f9004_alarmHistory : [];
   let lastKnownServerDate = '';
   let hasUserAppliedUpdate = false;
+  let hasUserEditedAlarm = false;
 
   if (existingData) {
     const rawSaved = Array.isArray(existingData.f9004_items) ? existingData.f9004_items : [];
@@ -890,22 +1054,25 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
       stockItems = cached.items
         .map((it, idx) => normalizeStockItem(it, cached.lastReportDate || currentReportDate, idx))
         .filter((it) => it.f9004_rubberName && !isOutflowType(it.f9004_type));
+      if (Array.isArray(cached.alarmHistory) && cached.alarmHistory.length > 0) {
+        alarmHistoryRows = cached.alarmHistory;
+      }
     }
   }
 
   stockItems = sortStockItems(stockItems, currentReportDate);
 
   container.innerHTML = `
-    <div data-form-code="9004" class="paper-form-container" style="font-family: 'Noto Sans KR', sans-serif; color: #000; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 820px; margin: 0 auto;">
+    <div data-form-code="9004" class="paper-form-container" style="font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif; letter-spacing: -0.025em; line-height: 1.45; color: #0f172a; background: #fff; padding: 18px; border-radius: 8px; box-shadow: 0 2px 8px rgba(15,23,42,0.06); max-width: 820px; margin: 0 auto;">
       <!-- 양식 상단 배지 -->
-      <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(13,148,136,0.14)); border: 1px solid #10b981; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <span style="font-size: 24px;">🏷️</span>
-          <div>
-            <div style="font-size: 16px; font-weight: 800; color: #047857; margin-bottom: 4px;">
+      <div class="f9004-top-banner" style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; padding: 9px 12px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+          <span style="font-size: 16px; line-height: 1; flex-shrink: 0;">🏷️</span>
+          <div style="min-width: 0;">
+            <div style="font-size: 14px; font-weight: 800; color: #047857; line-height: 1.3;">
               양식 고유번호: #9004
             </div>
-            <div style="font-size: 13px; color: #1e293b; font-weight: 600;">
+            <div style="font-size: 12px; color: #334155; font-weight: 600; line-height: 1.3;">
               [공통] 공통 - FMB보관실 공정 전용 양식
             </div>
           </div>
@@ -913,16 +1080,16 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
       </div>
 
       <!-- 종이양식 헤더 (상단 공통 카드와 병행 시 자동 숨김) -->
-      <div data-f9004-paper-header="1" style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 14px;">
-        <h2 style="font-size: 24px; font-weight: 800; color: #000; letter-spacing: 2px; margin: 0;">FMB보관실 작업일보</h2>
-        <table style="border-collapse: collapse; border: 1px solid #000; font-size: 13px; text-align: center;">
+      <div data-f9004-paper-header="1" style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 14px;">
+        <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin: 0;">FMB보관실 작업일보</h2>
+        <table style="border-collapse: collapse; border: 1px solid #94a3b8; font-size: 12px; text-align: center;">
           <tr>
-            <td style="border: 1px solid #000; width: 60px; background: #f1f5f9; font-weight: 700;">작성</td>
-            <td style="border: 1px solid #000; width: 60px; background: #f1f5f9; font-weight: 700;">승인</td>
+            <td style="border: 1px solid #94a3b8; width: 56px; background: #f8fafc; font-weight: 700;">작성</td>
+            <td style="border: 1px solid #94a3b8; width: 56px; background: #f8fafc; font-weight: 700;">승인</td>
           </tr>
           <tr>
-            <td style="border: 1px solid #000; height: 40px; vertical-align: middle; font-weight: 700;">${escapeHtml(loggedInWorkerName || '작업자')}</td>
-            <td style="border: 1px solid #000; height: 40px;"></td>
+            <td style="border: 1px solid #94a3b8; height: 36px; vertical-align: middle; font-weight: 700;">${escapeHtml(loggedInWorkerName || '작업자')}</td>
+            <td style="border: 1px solid #94a3b8; height: 36px;"></td>
           </tr>
         </table>
       </div>
@@ -939,17 +1106,56 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
       <!-- 1. 보관실 온·습도 및 일일 관리 점검표 -->
       <div class="f9004-env-split-wrap" style="margin-bottom: 20px; container-type: inline-size;">
         <style>
+          [data-form-code="9004"],
+          [data-form-code="9004"] table,
+          [data-form-code="9004"] th,
+          [data-form-code="9004"] td {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+            letter-spacing: -0.025em;
+          }
+          [data-form-code="9004"] input,
+          [data-form-code="9004"] select,
+          [data-form-code="9004"] textarea,
+          [data-form-code="9004"] button {
+            font-family: inherit;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+          }
+          [data-form-code="9004"] .f9004-sec-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            line-height: 1.35;
+            border-left: 3.5px solid #0f172a;
+            padding-left: 8px;
+            margin: 0;
+          }
+          [data-form-code="9004"] .f9004-flat-ctrl {
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+          }
+          [data-form-code="9004"] .f9004-grid-input {
+            border: 1px solid transparent;
+            border-radius: 3px;
+            background: transparent;
+          }
+          [data-form-code="9004"] .f9004-grid-input:focus {
+            border-color: #0284c7 !important;
+            background: #ffffff !important;
+            box-shadow: none;
+          }
           [data-form-code="9004"] .f9004-env-split-grid {
             display: grid;
             grid-template-columns: 1.12fr 1fr;
-            gap: 12px;
+            gap: 10px;
             align-items: stretch;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
           }
           [data-form-code="9004"] .f9004-temp-hum-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
           }
           [data-form-code="9004"] .f9004-stock-summary-grid {
             display: grid;
@@ -966,8 +1172,8 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
           [data-form-code="9004"] .f9004-init20-grid {
             display: grid;
             grid-template-columns: repeat(10, minmax(0, 1fr));
-            border-top: 1px solid #000;
-            border-left: 1px solid #000;
+            border-top: 1px solid #cbd5e1;
+            border-left: 1px solid #cbd5e1;
           }
           [data-form-code="9004"] input[data-f9004-date-picker="1"]::-webkit-calendar-picker-indicator {
             position: absolute;
@@ -979,8 +1185,41 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
             opacity: 0;
             cursor: pointer;
           }
+          body.mobile-preview-mode [data-form-code="9004"].paper-form-container {
+            padding: 10px 8px !important;
+            box-shadow: none !important;
+            letter-spacing: -0.03em;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-sec-title {
+            font-size: 13px !important;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .data-table,
+          body.mobile-preview-mode [data-form-code="9004"] .data-table th,
+          body.mobile-preview-mode [data-form-code="9004"] .data-table td {
+            font-size: 12px !important;
+            letter-spacing: -0.03em !important;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-compact-ctrl {
+            font-size: 12px !important;
+            letter-spacing: -0.03em !important;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-code-th {
+            font-size: 11px !important;
+            letter-spacing: -0.04em !important;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-mini-btn {
+            font-size: 11px !important;
+            padding: 3px 8px !important;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-env-big-input {
+            font-size: 15px !important;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-action-row button {
+            flex: 1 1 0;
+            font-size: 13px !important;
+            padding: 10px 8px !important;
+          }
           body.mobile-preview-mode [data-form-code="9004"] .f9004-env-split-grid,
-          body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid,
           body.mobile-preview-mode [data-form-code="9004"] .f9004-work-split-grid {
             grid-template-columns: 1fr;
           }
@@ -996,19 +1235,48 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
               grid-template-columns: repeat(5, minmax(0, 1fr));
             }
           }
-          @container (max-width: 520px) {
+          @container (max-width: 310px) {
+            [data-form-code="9004"] .f9004-temp-hum-grid,
             [data-form-code="9004"] .f9004-stock-summary-grid {
               grid-template-columns: 1fr;
             }
           }
-          @container (max-width: 340px) {
-            [data-form-code="9004"] .f9004-temp-hum-grid {
-              grid-template-columns: 1fr;
-            }
-          }
           @media (max-width: 768px) {
+            [data-form-code="9004"].paper-form-container {
+              padding: 10px 8px !important;
+              box-shadow: none !important;
+              letter-spacing: -0.03em;
+            }
+            [data-form-code="9004"] .f9004-sec-title {
+              font-size: 13px !important;
+            }
+            [data-form-code="9004"] .data-table,
+            [data-form-code="9004"] .data-table th,
+            [data-form-code="9004"] .data-table td {
+              font-size: 12px !important;
+              letter-spacing: -0.03em !important;
+            }
+            [data-form-code="9004"] .f9004-compact-ctrl {
+              font-size: 12px !important;
+              letter-spacing: -0.03em !important;
+            }
+            [data-form-code="9004"] .f9004-code-th {
+              font-size: 11px !important;
+              letter-spacing: -0.04em !important;
+            }
+            [data-form-code="9004"] .f9004-mini-btn {
+              font-size: 11px !important;
+              padding: 3px 8px !important;
+            }
+            [data-form-code="9004"] .f9004-env-big-input {
+              font-size: 15px !important;
+            }
+            [data-form-code="9004"] .f9004-action-row button {
+              flex: 1 1 0;
+              font-size: 13px !important;
+              padding: 10px 8px !important;
+            }
             [data-form-code="9004"] .f9004-env-split-grid,
-            [data-form-code="9004"] .f9004-stock-summary-grid,
             [data-form-code="9004"] .f9004-work-split-grid {
               grid-template-columns: 1fr;
             }
@@ -1017,97 +1285,103 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
             }
           }
         </style>
-        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;">1. 보관실 온·습도 및 선입선출 일일 점검표</h3>
+        <div style="margin-bottom: 8px;">
+          <h3 class="f9004-sec-title">1. 보관실 온·습도 및 선입선출 일일 점검표</h3>
+        </div>
 
         <div class="f9004-env-split-grid">
           <!-- 좌측(모바일 상단): FMB 보관실 관리 표준 -->
           ${buildFmbStandardLeftBoxHTML(false)}
 
           <!-- 우측(모바일 하단): 당일 온·습도 기록 입력란 -->
-          <div class="f9004-env-input-box" style="border: 1.5px solid #1e293b; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column; word-break: keep-all;">
-            <div style="background: #eff6ff; border-bottom: 1.5px solid #1e293b; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
-              <span style="font-size: 14px; font-weight: 800; color: #0f172a; white-space: nowrap;">🌡️💧 당일 온·습도 기록</span>
-              <span id="f9004_envStatusBadge" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1; white-space: nowrap;">시업전 1회/일</span>
+          <div class="f9004-env-input-box" style="border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column; word-break: keep-all;">
+            <div style="background: #eff6ff; border-bottom: 1px solid #cbd5e1; padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: nowrap;">
+              <span style="font-size: 13px; font-weight: 800; color: #0f172a; white-space: nowrap;">당일 온·습도 기록</span>
+              <span id="f9004_envStatusBadge" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #ffffff; color: #334155; border: 1px solid #cbd5e1; white-space: nowrap; flex-shrink: 0;">시업전 1회/일</span>
             </div>
 
-            <div style="padding: 12px; background: #f8fafc; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+            <div style="padding: 10px 12px; background: #f8fafc; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
               <div class="f9004-temp-hum-grid">
                 <div style="min-width: 0;">
-                  <label for="f9004_temp" style="display: block; font-size: 12px; font-weight: 800; color: #b91c1c; margin-bottom: 4px; white-space: nowrap;">🌡️ 당일 온도 (℃)</label>
+                  <label for="f9004_temp" style="display: block; font-size: 12px; font-weight: 700; color: #b91c1c; margin-bottom: 4px; white-space: nowrap;">당일 온도 (℃)</label>
                   <div style="position: relative;">
-                    <input type="text" inputmode="decimal" id="f9004_temp" name="f9004_temp" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_temp || '')}" placeholder="예: 24.8" style="font-size: 16px; padding: 8px 28px 8px 10px; height: auto; font-weight: 800; text-align: right; color: #0f172a; background: #ffffff; width: 100%;" />
-                    <span style="position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 800; color: #64748b; pointer-events: none;">℃</span>
+                    <input type="text" inputmode="decimal" id="f9004_temp" name="f9004_temp" data-wheel-skip="1" class="form-control f9004-env-big-input" value="${escapeHtml(envData.f9004_temp || '')}" placeholder="20.0" style="font-size: 15px; padding: 7px 26px 7px 8px; height: auto; font-weight: 800; text-align: right; color: #0f172a; background: #ffffff; width: 100%;" />
+                    <span translate="no" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11.5px; font-weight: 700; color: #64748b; pointer-events: none;">℃</span>
                   </div>
-                  <div id="f9004_tempHint" style="font-size: 11px; font-weight: 700; color: #64748b; margin-top: 4px;">기준: 20 ± 5℃ (15~25℃)</div>
+                  <div id="f9004_tempHint" style="font-size: 10.5px; font-weight: 600; color: #64748b; margin-top: 3px; white-space: nowrap;">기준: 20 ± 5℃ (15~25℃)</div>
                 </div>
 
                 <div style="min-width: 0;">
-                  <label for="f9004_humidity" style="display: block; font-size: 12px; font-weight: 800; color: #0369a1; margin-bottom: 4px; white-space: nowrap;">💧 당일 습도 (%)</label>
+                  <label for="f9004_humidity" style="display: block; font-size: 12px; font-weight: 700; color: #0369a1; margin-bottom: 4px; white-space: nowrap;">당일 습도 (%)</label>
                   <div style="position: relative;">
-                    <input type="text" inputmode="decimal" id="f9004_humidity" name="f9004_humidity" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_humidity || '')}" placeholder="예: 60.7" style="font-size: 16px; padding: 8px 26px 8px 10px; height: auto; font-weight: 800; text-align: right; color: #0f172a; background: #ffffff; width: 100%;" />
-                    <span style="position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 800; color: #64748b; pointer-events: none;">%</span>
+                    <input type="text" inputmode="decimal" id="f9004_humidity" name="f9004_humidity" data-wheel-skip="1" class="form-control f9004-env-big-input" value="${escapeHtml(envData.f9004_humidity || '')}" placeholder="55.0" style="font-size: 15px; padding: 7px 24px 7px 8px; height: auto; font-weight: 800; text-align: right; color: #0f172a; background: #ffffff; width: 100%;" />
+                    <span translate="no" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 11.5px; font-weight: 700; color: #64748b; pointer-events: none;">%</span>
                   </div>
-                  <div id="f9004_humHint" style="font-size: 11px; font-weight: 700; color: #64748b; margin-top: 4px;">기준: 70% 이하</div>
+                  <div id="f9004_humHint" style="font-size: 10.5px; font-weight: 600; color: #64748b; margin-top: 3px; white-space: nowrap;">기준: 70% 이하</div>
                 </div>
               </div>
 
               <div style="padding-top: 8px; border-top: 1px dashed #cbd5e1;">
-                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap;">
-                  <label for="f9004_envNote" style="font-size: 11.5px; font-weight: 800; color: #334155; margin: 0; white-space: nowrap;">🕒 점검 시각 / 환경 비고</label>
-                  <button type="button" id="f9004_btnStampPreShift" data-f9004-now-btn="1" style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; border: 1px solid #93c5fd; background: #eff6ff; color: #1d4ed8; cursor: pointer; white-space: nowrap; flex-shrink: 0;">시업전 시각 자동기입</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 5px; flex-wrap: nowrap;">
+                  <label for="f9004_envNote" style="font-size: 11.5px; font-weight: 700; color: #334155; margin: 0; white-space: nowrap;">점검 시각 / 비고</label>
+                  <button type="button" id="f9004_btnStampPreShift" data-f9004-now-btn="1" class="f9004-mini-btn" style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; border: 1px solid #93c5fd; background: #eff6ff; color: #1d4ed8; cursor: pointer; white-space: nowrap; flex-shrink: 0;">시업전 시각 자동기입</button>
                 </div>
-                <input type="text" id="f9004_envNote" name="f9004_envNote" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_envNote || '')}" placeholder="예: 07:50 시업전 점검 정상" style="font-size: 13px; padding: 6px 8px; height: auto; background: #ffffff; width: 100%;" />
+                <input type="text" id="f9004_envNote" name="f9004_envNote" data-wheel-skip="1" class="form-control f9004-compact-ctrl" value="${escapeHtml(envData.f9004_envNote || '')}" placeholder="예: 07:50 시업전 점검 정상" style="font-size: 12.5px; padding: 6px 8px; height: auto; background: #ffffff; width: 100%;" />
               </div>
             </div>
           </div>
         </div>
 
-        <table class="data-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse;">
-          <thead>
-            <tr style="background: #f1f5f9; color: #000;">
-              <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 50px;">No</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 6px;">점검 항목</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 130px;">상태 (양호/불량)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${F9004_CHECKLIST_ITEMS.map((item, idx) => {
-              const rawVal = chkData[item.id] ?? (item.id === 'f9004_chk_mon' ? chkData.f9004_chk1 : undefined);
-              const isGood = rawVal !== false;
-              const refBadge = item.refNote
-                ? ` <span style="display: inline-block; margin-left: 6px; padding: 1px 6px; font-size: 11px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 4px; vertical-align: middle;">${escapeHtml(item.refNote)}</span>`
-                : '';
-              return `
-                <tr>
-                  <td style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 6px;">${idx + 1}</td>
-                  <td style="border: 1px solid #000; font-weight: 600; padding: 6px;"><span>${escapeHtml(item.text)}</span>${refBadge}</td>
-                  <td style="border: 1px solid #000; text-align: center; padding: 6px;">
-                    <div style="display: flex; justify-content: center; gap: 10px;">
-                      <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <input type="radio" name="${item.id}" value="true" ${isGood ? 'checked' : ''} />
-                        양호
-                      </label>
-                      <label style="cursor: pointer; display: flex; align-items: center; gap: 4px; color: #dc2626;">
-                        <input type="radio" name="${item.id}" value="false" ${!isGood ? 'checked' : ''} />
-                        불량
-                      </label>
-                    </div>
-                  </td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
+        <div style="border: 1px solid #94a3b8; border-radius: 6px; overflow: hidden;">
+          <table class="data-table" style="border: 0; font-size: 12.5px; width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f8fafc; color: #334155;">
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; text-align: center; padding: 6px 2px; width: 30px;">No</th>
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #e2e8f0; text-align: center; padding: 6px 8px;">점검 항목</th>
+                <th style="border-bottom: 1px solid #cbd5e1; text-align: center; padding: 6px 4px; width: 96px; white-space: nowrap;">상태</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${F9004_CHECKLIST_ITEMS.map((item, idx) => {
+                const rawVal = chkData[item.id] ?? (item.id === 'f9004_chk_mon' ? chkData.f9004_chk1 : undefined);
+                const isGood = rawVal !== false;
+                const isLastRow = idx === F9004_CHECKLIST_ITEMS.length - 1;
+                const rowBtm = isLastRow ? '0' : '1px solid #e2e8f0';
+                const refBadge = item.refNote
+                  ? ` <span style="display: inline-block; margin-top: 2px; padding: 1px 5px; font-size: 10.5px; font-weight: 700; color: #0369a1; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 4px; vertical-align: middle;">${escapeHtml(item.refNote)}</span>`
+                  : '';
+                return `
+                  <tr style="background: #ffffff;">
+                    <td style="border-bottom: ${rowBtm}; border-right: 1px solid #e2e8f0; text-align: center; font-weight: 700; color: #475569; padding: 7px 2px;">${idx + 1}</td>
+                    <td style="border-bottom: ${rowBtm}; border-right: 1px solid #e2e8f0; font-weight: 600; color: #0f172a; line-height: 1.4; padding: 7px 8px; word-break: keep-all;"><span>${escapeHtml(item.text)}</span>${refBadge}</td>
+                    <td style="border-bottom: ${rowBtm}; text-align: center; padding: 7px 4px; white-space: nowrap;">
+                      <div style="display: flex; justify-content: center; align-items: center; gap: 8px;">
+                        <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: #0f172a;">
+                          <input type="radio" name="${item.id}" value="true" ${isGood ? 'checked' : ''} style="margin: 0;" />
+                          양호
+                        </label>
+                        <label style="cursor: pointer; display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 600; color: #dc2626;">
+                          <input type="radio" name="${item.id}" value="false" ${!isGood ? 'checked' : ''} style="margin: 0;" />
+                          불량
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- 2. 금일 입고·불출 및 재고 관리 내역 -->
       <div style="margin-bottom: 20px; container-type: inline-size;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
-          <h3 style="font-size: 14px; font-weight: 800; color: #000; margin: 0;">2. 금일 입고 · 불출 및 재고 관리 내역</h3>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span id="f9004_stockSyncStatus" style="font-size: 11px; font-weight: 700; color: #64748b;"></span>
-            <button type="button" id="f9004_btnUpdateStock" class="btn btn-primary btn-sm" style="font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 6px; cursor: pointer;">
-              🔄 기록 업데이트
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: nowrap;">
+          <h3 class="f9004-sec-title" style="min-width: 0;">2. 금일 입고 · 불출 및 재고 관리 내역</h3>
+          <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+            <span id="f9004_stockSyncStatus" style="font-size: 11px; font-weight: 700; color: #64748b; white-space: nowrap;"></span>
+            <button type="button" id="f9004_btnUpdateStock" class="btn btn-primary btn-sm f9004-mini-btn" style="font-size: 11.5px; font-weight: 700; padding: 5px 10px; border-radius: 5px; cursor: pointer; white-space: nowrap;">
+              기록 업데이트
             </button>
           </div>
         </div>
@@ -1116,22 +1390,22 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
           ${buildStockSummaryBarHTML(stockItems, false)}
         </div>
 
-        <div style="overflow-x: auto;">
-          <table class="data-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 340px;">
+        <div style="overflow-x: auto; border: 1px solid #94a3b8; border-radius: 6px;">
+          <table class="data-table" style="border: 0; font-size: 12px; width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 310px;">
             <colgroup>
-              <col style="width: 28px;" />
-              <col style="width: 66px;" />
+              <col style="width: 26px;" />
+              <col style="width: 62px;" />
               <col />
-              <col style="width: 68px;" />
-              <col style="width: 76px;" />
+              <col style="width: 62px;" />
+              <col style="width: 72px;" />
             </colgroup>
             <thead>
-              <tr style="background: #f1f5f9; color: #000;">
-                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">No</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">구분</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 5px 6px; white-space: nowrap;">고무명</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">유효기간</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 5px 2px; white-space: nowrap;">수량(kg)</th>
+              <tr style="background: #f8fafc; color: #334155;">
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; text-align: center; padding: 5px 2px; white-space: nowrap;">No</th>
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; text-align: center; padding: 5px 2px; white-space: nowrap;">구분</th>
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; text-align: center; padding: 5px 4px; white-space: nowrap;">고무명</th>
+                <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; text-align: center; padding: 5px 2px; white-space: nowrap;">유효기간</th>
+                <th style="border-bottom: 1px solid #cbd5e1; text-align: center; padding: 5px 2px; white-space: nowrap;">수량(kg)</th>
               </tr>
             </thead>
             <tbody id="f9004_tbody">
@@ -1153,14 +1427,11 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
       <!-- 3. 고무 압출(Piece) · 권선(Roll) 작업 및 중량 측정 기록 -->
       ${buildFmbWorkSectionInputHTML(workLogData)}
 
-      <!-- 4. 특이사항 -->
-      <div style="margin-bottom: 20px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;">4. 금일 주요 작업 내용 및 특이사항</h3>
-        <textarea id="f9004_workDetails" name="f9004_workDetails" class="form-control" rows="3" placeholder="유효기간 임박 원재료 현황, 항온항습 특이사항, 교대 전달사항 등을 입력하세요." style="font-size: 13px; resize: vertical; width: 100%; border: 1px solid #000; border-radius: 4px; padding: 8px;">${escapeHtml(workDetails)}</textarea>
-      </div>
+      <!-- 4. 경보장치 이상 발생 이력 및 특이사항 -->
+      ${buildAlarmAndNotesInputHTML(alarmHistoryRows, workDetails, currentReportDate)}
 
       <!-- 하단 저장·제출 버튼 -->
-      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px dashed #cbd5e1;">
+      <div class="f9004-action-row" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
         <button type="button" id="f9004_btnDraftSave" class="btn btn-secondary" style="font-weight: 700; min-width: 120px;">
           📁 중간 저장
         </button>
@@ -1415,17 +1686,27 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
     }
   };
 
-  // 신규 일보 작성 시 Firestore 실시간 고무실 재고 로드
+  // 신규 일보 작성 시 Firestore 실시간 고무실 재고 및 경보 이력 로드
   if (!existingData) {
     fetchFmbInventory().then((res) => {
-      if (!root.isConnected || hasUserAppliedUpdate || res?.offlineError) return;
+      if (!root.isConnected || res?.offlineError) return;
       lastKnownServerDate = res.lastReportDate || '';
-      const loaded = (Array.isArray(res.items) ? res.items : [])
-        .map((it, idx) => normalizeStockItem(it, res.lastReportDate || currentReportDate, idx))
-        .filter((it) => it.f9004_rubberName && !isOutflowType(it.f9004_type));
-      stockItems = sortStockItems(loaded, resolveEffectiveDate());
-      writeLocalFmbCache(stockItems, res.lastReportDate || resolveEffectiveDate());
-      renderStockSection();
+      if (!hasUserAppliedUpdate) {
+        const loaded = (Array.isArray(res.items) ? res.items : [])
+          .map((it, idx) => normalizeStockItem(it, res.lastReportDate || currentReportDate, idx))
+          .filter((it) => it.f9004_rubberName && !isOutflowType(it.f9004_type));
+        stockItems = sortStockItems(loaded, resolveEffectiveDate());
+        renderStockSection();
+      }
+      if (!hasUserEditedAlarm && Array.isArray(res.alarmHistory)) {
+        alarmHistoryRows = res.alarmHistory;
+        const alarmTbody = root.querySelector('#f9004_alarmTbody');
+        if (alarmTbody) {
+          alarmTbody.innerHTML = buildAlarmHistoryRowsHTML(alarmHistoryRows, resolveEffectiveDate());
+          i18n.applyTranslations(alarmTbody);
+        }
+      }
+      writeLocalFmbCache(stockItems, res.lastReportDate || resolveEffectiveDate(), alarmHistoryRows);
     });
   } else {
     fetchFmbInventory().then((res) => {
@@ -1435,7 +1716,7 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
     });
   }
 
-  // 유효기간 달력 선택창(showPicker) 및 MM/DD 표기 동기화 (root 내부 한정 - 원칙 13)
+  // 유효기간 및 날짜 달력 선택창(showPicker) + MM/DD 표기 동기화 (root 내부 한정 - 원칙 13)
   root.addEventListener('click', (e) => {
     const picker = e.target.closest?.('input[data-f9004-date-picker="1"]');
     if (picker) {
@@ -1467,10 +1748,13 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
   });
 
   const syncDatePickerValue = (e) => {
+    if (e.target?.closest?.('#f9004_alarmTbody')) {
+      hasUserEditedAlarm = true;
+    }
     const picker = e.target.closest?.('input[data-f9004-date-picker="1"]');
     if (!picker) return;
     const wrap = picker.closest('.f9004-mmdd-wrap');
-    const dispInput = wrap?.querySelector('[data-f9004-field="expiryDate"], #f9004_new_expiry');
+    const dispInput = wrap?.querySelector('[data-f9004-field="expiryDate"], #f9004_new_expiry, [data-f9004-mmdd-display="1"]');
     if (dispInput) {
       const iso = picker.value || '';
       dispInput.value = formatExpiryMonthDay(iso);
@@ -1583,14 +1867,26 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
     root.querySelectorAll('input[data-f9004-weight-spec]').forEach((inp) => {
       const specKey = inp.getAttribute('data-f9004-weight-spec');
       const { ok } = evaluateExtrusionWeight(specKey, inp.value);
-      if (ok === null) {
-        inp.style.borderColor = '';
+      const gridCell = inp.closest?.('.f9004-init20-cell');
+      if (gridCell) {
+        if (ok === null) {
+          gridCell.style.background = '#ffffff';
+          inp.style.color = '#0f172a';
+        } else if (ok) {
+          gridCell.style.background = '#f0fdf4';
+          inp.style.color = '#047857';
+        } else {
+          gridCell.style.background = '#fff1f2';
+          inp.style.color = '#dc2626';
+        }
+      } else if (ok === null) {
+        inp.style.borderColor = '#cbd5e1';
         inp.style.color = '#0f172a';
         inp.style.background = '#ffffff';
       } else if (ok) {
         inp.style.borderColor = '#10b981';
         inp.style.color = '#047857';
-        inp.style.background = '#ffffff';
+        inp.style.background = '#f0fdf4';
       } else {
         inp.style.borderColor = '#ef4444';
         inp.style.color = '#dc2626';
@@ -1735,9 +2031,28 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         };
       });
 
+      const f9004_alarmHistory = Array.from({ length: F9004_ALARM_ROW_COUNT }, (_, idx) => {
+        const dateEl = root.querySelector(`#f9004_alarm_date_${idx}`);
+        const dateStr = formatExpiryMonthDay(dateEl?.value || '');
+        const dateIso = dateEl?.getAttribute('data-expiry-iso') || toExpiryIso(dateStr, fullDate);
+        const symptom = (root.querySelector(`#f9004_alarm_symp_${idx}`)?.value || '').trim();
+        const action = (root.querySelector(`#f9004_alarm_act_${idx}`)?.value || '').trim();
+        return { date: dateStr, dateIso, symptom, action };
+      });
+
       const workDetailsText = root.querySelector('#f9004_workDetails')?.value || '';
       const currentUserRole = store.getUserRole();
       const currentWorkerName = existingData?.workerName || currentUserRole?.workerName || loggedInWorkerName || '작업자';
+
+      // 최신 일보 저장 시 경보장치 이상 발생 이력도 실시간 캐시/문서에 함께 동기화
+      if (!(existingData?.id && lastKnownServerDate && fullDate < lastKnownServerDate)) {
+        writeLocalFmbCache(stockItems, fullDate, f9004_alarmHistory);
+        saveFmbInventory(stockItems, {
+          reportDate: fullDate,
+          workerName: currentWorkerName,
+          alarmHistory: f9004_alarmHistory
+        }).catch(() => {});
+      }
 
       const reportData = {
         date: fullDate,
@@ -1760,6 +2075,7 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         f9004_items,
         f9004_dispatched,
         f9004_workLog,
+        f9004_alarmHistory,
         workDetails: workDetailsText,
         status: targetStatus,
         notes: targetStatus === '임시저장'
@@ -1889,37 +2205,37 @@ export function buildFmbDetailHTML(r) {
   const statusClass = r?.status === '승인 완료' ? 'approved' : r?.status === '반려' ? 'rejected' : 'pending';
 
   return `
-    <div class="print-report-sheet" data-form-code="9004" style="font-family: 'Noto Sans KR', sans-serif; color: #000; padding: 10px;">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
-        <div>
-          <h2 style="font-size: 24px; font-weight: 800; color: #000; letter-spacing: 2px; margin: 0;">FMB보관실 작업일보</h2>
-          <div style="font-size: 13px; color: #475569; margin-top: 2px;">일보ID: ${escapeHtml(r?.id || '')} | 작성자: ${escapeHtml(r?.workerName || '')}</div>
+    <div class="print-report-sheet" data-form-code="9004" style="font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif; letter-spacing: -0.025em; line-height: 1.45; color: #0f172a; padding: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 8px; margin-bottom: 12px; gap: 8px;">
+        <div style="min-width: 0;">
+          <h2 style="font-size: 21px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin: 0;">FMB보관실 작업일보</h2>
+          <div style="font-size: 12px; color: #475569; margin-top: 2px;">일보ID: ${escapeHtml(r?.id || '')} | 작성자: ${escapeHtml(r?.workerName || '')}</div>
         </div>
-        <table style="border-collapse: collapse; border: 1px solid #000; font-size: 13px; text-align: center;">
+        <table style="border-collapse: collapse; border: 1px solid #64748b; font-size: 12px; text-align: center; flex-shrink: 0;">
           <tr>
-            <td style="border: 1px solid #000; width: 45px; background: #f1f5f9; font-weight: 700;">작성</td>
-            <td style="border: 1px solid #000; width: 45px; background: #f1f5f9; font-weight: 700;">승인</td>
+            <td style="border: 1px solid #64748b; width: 45px; background: #f1f5f9; font-weight: 700;">작성</td>
+            <td style="border: 1px solid #64748b; width: 45px; background: #f1f5f9; font-weight: 700;">승인</td>
           </tr>
           <tr>
-            <td style="border: 1px solid #000; height: 35px; vertical-align: middle; font-weight: 700;">${escapeHtml(r?.workerName || '')}</td>
-            <td style="border: 1px solid #000; height: 35px; vertical-align: middle;">${escapeHtml(r?.approver || '생산부장')}</td>
+            <td style="border: 1px solid #64748b; height: 32px; vertical-align: middle; font-weight: 700;">${escapeHtml(r?.workerName || '')}</td>
+            <td style="border: 1px solid #64748b; height: 32px; vertical-align: middle;">${escapeHtml(r?.approver || '생산부장')}</td>
           </tr>
         </table>
       </div>
 
-      <div style="background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(13,148,136,0.14)); border: 1px solid #10b981; border-radius: 3px; padding: 4px 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+      <div style="background: #f0fdf4; border: 1px solid #86efac; border-radius: 5px; padding: 6px 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
         <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="font-size: 13px;">🏷️</span>
+          <span style="font-size: 14px;">🏷️</span>
           <div>
-            <div style="font-size: 13px; font-weight: 800; color: #047857;">
+            <div style="font-size: 12.5px; font-weight: 800; color: #047857;">
               양식 고유번호: #${escapeHtml(r?.formCode || 9004)}
             </div>
-            <div style="font-size: 13px; color: #1e293b; font-weight: 600;">
+            <div style="font-size: 11.5px; color: #334155; font-weight: 600;">
               [공통] 공통 - FMB보관실 공정 전용 양식
             </div>
           </div>
         </div>
-        <span class="status-badge ${statusClass}" style="font-size: 13px; font-weight: 700;">
+        <span class="status-badge ${statusClass}" style="font-size: 12px; font-weight: 700;">
           ${escapeHtml(r?.status || '')}
         </span>
       </div>
@@ -1931,6 +2247,13 @@ export function buildFmbDetailHTML(r) {
 
       <div style="margin-bottom: 14px; container-type: inline-size;">
         <style>
+          [data-form-code="9004"],
+          [data-form-code="9004"] table,
+          [data-form-code="9004"] th,
+          [data-form-code="9004"] td {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+            letter-spacing: -0.025em;
+          }
           [data-form-code="9004"] .f9004-detail-split-grid {
             display: grid;
             grid-template-columns: 1.15fr 1fr;
@@ -1957,8 +2280,17 @@ export function buildFmbDetailHTML(r) {
             border-left: 1px solid #000;
           }
           @media screen {
+            body.mobile-preview-mode [data-form-code="9004"] .data-table,
+            body.mobile-preview-mode [data-form-code="9004"] .data-table th,
+            body.mobile-preview-mode [data-form-code="9004"] .data-table td {
+              font-size: 12px !important;
+              letter-spacing: -0.03em !important;
+            }
+            body.mobile-preview-mode [data-form-code="9004"] .f9004-code-th {
+              font-size: 11px !important;
+              letter-spacing: -0.04em !important;
+            }
             body.mobile-preview-mode [data-form-code="9004"] .f9004-detail-split-grid,
-            body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid,
             body.mobile-preview-mode [data-form-code="9004"] .f9004-work-split-grid {
               grid-template-columns: 1fr;
             }
@@ -1974,14 +2306,23 @@ export function buildFmbDetailHTML(r) {
                 grid-template-columns: repeat(5, minmax(0, 1fr));
               }
             }
-            @container (max-width: 520px) {
+            @container (max-width: 310px) {
               [data-form-code="9004"] .f9004-stock-summary-grid {
                 grid-template-columns: 1fr;
               }
             }
             @media (max-width: 768px) {
+              [data-form-code="9004"] .data-table,
+              [data-form-code="9004"] .data-table th,
+              [data-form-code="9004"] .data-table td {
+                font-size: 12px !important;
+                letter-spacing: -0.03em !important;
+              }
+              [data-form-code="9004"] .f9004-code-th {
+                font-size: 11px !important;
+                letter-spacing: -0.04em !important;
+              }
               [data-form-code="9004"] .f9004-detail-split-grid,
-              [data-form-code="9004"] .f9004-stock-summary-grid,
               [data-form-code="9004"] .f9004-work-split-grid {
                 grid-template-columns: 1fr;
               }
@@ -2125,10 +2466,7 @@ export function buildFmbDetailHTML(r) {
 
       ${buildFmbWorkSectionDetailHTML(r?.f9004_workLog)}
 
-      <div style="margin-bottom: 14px;">
-        <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">4. 금일 주요 작업 내용 및 특이사항</div>
-        <div style="border: 1px solid #000; padding: 10px; min-height: 90px; font-size: 12px; white-space: pre-wrap;">${escapeHtml(r?.workDetails || '입력된 내용 없음')}</div>
-      </div>
+      ${buildAlarmAndNotesDetailHTML(r?.f9004_alarmHistory, r?.workDetails)}
     </div>
   `;
 }

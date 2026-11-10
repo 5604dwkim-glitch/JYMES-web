@@ -1238,7 +1238,17 @@ export const PHRASE_TUPLES = [
   ['⚖️ 압출 시작 후 최초 20개 중량 측정 기록 (초기허용불량 확인 · 단위: g)', '⚖️ First 20 Extruded Pieces Weight Log (Startup Check · Unit: g)', '⚖️ บันทึกน้ำหนัก 20 ชิ้นแรกหลังเริ่มรีดยาง (ตรวจเช็คช่วงเริ่มเดินเครื่อง · หน่วย: g)', '⚖️ Đo trọng lượng 20 sản phẩm đầu sau khi bắt đầu đùn (KT đầu ca · ĐV: g)'],
   ['⚖️ 압출 시작 후 최초 20개 중량 측정 기록 (단위: g)', '⚖️ First 20 Extruded Pieces Weight Log (Unit: g)', '⚖️ บันทึกน้ำหนัก 20 ชิ้นแรกหลังเริ่มรีดยาง (หน่วย: g)', '⚖️ Đo trọng lượng 20 sản phẩm đầu sau khi bắt đầu đùn (ĐV: g)'],
   ['Enter 입력 시 다음 번호(1→20)로 이동', 'Press Enter to move to next (1→20)', 'กด Enter เพื่อไปลำดับถัดไป (1→20)', 'Nhấn Enter để sang số tiếp theo (1→20)'],
-  ['✅ 20 / 20개 측정 완료', '✅ 20 / 20 Measured', '✅ วัดครบ 20 / 20 ชิ้นแล้ว', '✅ Đã đo đủ 20 / 20 cái']
+  ['✅ 20 / 20개 측정 완료', '✅ 20 / 20 Measured', '✅ วัดครบ 20 / 20 ชิ้นแล้ว', '✅ Đã đo đủ 20 / 20 cái'],
+  ['고무실 현재 재고 현황', 'Current Rubber Room Stock', 'สถานะสต็อกห้องยางปัจจุบัน', 'Tồn kho phòng cao su hiện tại'],
+  ['기록 업데이트', 'Update Record', 'อัปเดตบันทึก', 'Cập nhật bản ghi'],
+  ['압출 시작 후 최초 20개 중량 측정 (단위: g)', 'First 20 Extruded Pieces Weight Log (Unit: g)', 'บันทึกน้ำหนัก 20 ชิ้นแรกหลังเริ่มรีดยาง (หน่วย: g)', 'Đo trọng lượng 20 sản phẩm đầu sau khi đùn (ĐV: g)'],
+  ['Enter → 다음 번호', 'Enter → Next', 'Enter → ถัดไป', 'Enter → Tiếp'],
+  ['경보장치 이상 발생 이력', 'Alarm Device Abnormality History', 'ประวัติความผิดปกติของอุปกรณ์เตือนภัย', 'Lịch sử bất thường thiết bị cảnh báo'],
+  ['날짜', 'Date', 'วันที่', 'Ngày'],
+  ['현상', 'Symptom', 'อาการผิดปกติ', 'Hiện tượng'],
+  ['조치이력', 'Action Taken', 'ประวัติการแก้ไข', 'Lịch sử xử lý'],
+  ['특이사항', 'Special Notes', 'หมายเหตุพิเศษ', 'Ghi chú đặc biệt'],
+  ['날짜 선택', 'Select Date', 'เลือกวันที่', 'Chọn ngày']
 ];
 
 /**
