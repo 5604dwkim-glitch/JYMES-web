@@ -563,31 +563,31 @@ export default function TpmManagement({
     switch (status) {
       case 'issue_pending':
         return (
-          <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', whiteSpace: 'nowrap' }}>
+          <span style={{ display: 'inline-block', padding: '3px 7px', borderRadius: '999px', fontSize: '11.5px', fontWeight: 700, background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5', whiteSpace: 'nowrap' }}>
             🔴 이상 (미확인)
           </span>
         );
       case 'pending':
         return (
-          <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, background: '#dcfce7', color: '#15803d', border: '1px solid #86efac', whiteSpace: 'nowrap' }}>
+          <span style={{ display: 'inline-block', padding: '3px 7px', borderRadius: '999px', fontSize: '11.5px', fontWeight: 700, background: '#dcfce7', color: '#15803d', border: '1px solid #86efac', whiteSpace: 'nowrap' }}>
             🟢 점검완료 (미확인)
           </span>
         );
       case 'issue_confirmed':
         return (
-          <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, background: '#ffedd5', color: '#c2410c', border: '1px solid #fdba74', whiteSpace: 'nowrap' }}>
+          <span style={{ display: 'inline-block', padding: '3px 7px', borderRadius: '999px', fontSize: '11.5px', fontWeight: 700, background: '#ffedd5', color: '#c2410c', border: '1px solid #fdba74', whiteSpace: 'nowrap' }}>
             🟠 이상 확인됨
           </span>
         );
       case 'confirmed':
         return (
-          <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, background: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd', whiteSpace: 'nowrap' }}>
+          <span style={{ display: 'inline-block', padding: '3px 7px', borderRadius: '999px', fontSize: '11.5px', fontWeight: 700, background: '#dbeafe', color: '#1d4ed8', border: '1px solid #93c5fd', whiteSpace: 'nowrap' }}>
             🔵 확인 완료
           </span>
         );
       default:
         return (
-          <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, background: '#f1f5f9', color: '#64748b', border: '1px solid #cbd5e1', whiteSpace: 'nowrap' }}>
+          <span style={{ display: 'inline-block', padding: '3px 7px', borderRadius: '999px', fontSize: '11.5px', fontWeight: 600, background: '#f1f5f9', color: '#64748b', border: '1px solid #cbd5e1', whiteSpace: 'nowrap' }}>
             ⚪ 미점검
           </span>
         );
@@ -596,24 +596,34 @@ export default function TpmManagement({
 
   const renderRecordSummary = (evalResult) => {
     if (!evalResult.hasWorkerRecord) {
-      return <span style={{ color: '#94a3b8' }}>당일 점검 기록 없음</span>;
+      return <span style={{ color: '#94a3b8', whiteSpace: 'nowrap' }}>당일 점검 기록 없음</span>;
     }
     const isIssue = evalResult.issues.length > 0;
     return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px' }}>
-        <span style={{ fontWeight: 700, color: '#334155' }}>
+      <div
+        style={{
+          display: 'inline-flex',
+          flexWrap: 'nowrap',
+          alignItems: 'center',
+          gap: '5px',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        <span style={{ fontWeight: 700, color: '#334155', fontSize: '12px', whiteSpace: 'nowrap' }}>
           {evalResult.checkedCount}/{evalResult.totalRows}항목 기록
         </span>
         {evalResult.issues.map((iss, idx) => (
           <span
             key={idx}
             style={{
-              padding: '2px 7px',
+              padding: '2px 6px',
               borderRadius: '4px',
               background: '#fee2e2',
               color: '#b91c1c',
               fontWeight: 700,
-              border: '1px solid #fca5a5'
+              fontSize: '11.5px',
+              border: '1px solid #fca5a5',
+              whiteSpace: 'nowrap'
             }}
           >
             ⚠️ {iss.label}
@@ -624,11 +634,13 @@ export default function TpmManagement({
             <span
               key={idx}
               style={{
-                padding: '2px 7px',
+                padding: '2px 6px',
                 borderRadius: '4px',
                 background: '#f1f5f9',
                 color: '#334155',
-                border: '1px solid #e2e8f0'
+                fontSize: '11.5px',
+                border: '1px solid #e2e8f0',
+                whiteSpace: 'nowrap'
               }}
             >
               {txt}
@@ -644,6 +656,20 @@ export default function TpmManagement({
 
   return (
     <div data-tpm-management="1" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <style>{`
+        [data-tpm-management="1"] table.tpm-compact-table th,
+        [data-tpm-management="1"] table.tpm-compact-table td {
+          padding: 6px 8px;
+          vertical-align: middle;
+          white-space: nowrap;
+        }
+        [data-tpm-management="1"] table.tpm-compact-table th {
+          font-size: 12px;
+          font-weight: 800;
+          color: #334155;
+          text-align: left;
+        }
+      `}</style>
       {/* 상단 제어 바: 날짜 선택(기본 오늘) + 셋트 필터 + 검색 + 관리자 서명 설정 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', padding: '12px 16px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -914,11 +940,11 @@ export default function TpmManagement({
 
             {!isUnapprovedCollapsed && (
               <div style={{ overflowX: 'auto' }}>
-                <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table className="table tpm-compact-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
                       {isAdmin && (
-                        <th style={{ width: '40px', textAlign: 'center' }}>
+                        <th style={{ width: '32px', textAlign: 'center', padding: '6px 4px' }}>
                           <input
                             type="checkbox"
                             checked={isAllUnapprovedChecked}
@@ -933,15 +959,15 @@ export default function TpmManagement({
                           />
                         </th>
                       )}
-                      <th style={{ width: '155px' }}>점검 일자</th>
-                      <th style={{ width: '140px' }}>점검 상태</th>
-                      <th style={{ width: '145px' }}>설비 셋트</th>
-                      <th style={{ width: '110px' }}>관리번호</th>
-                      <th style={{ width: '145px' }}>설비명</th>
+                      <th style={{ width: '118px' }}>점검 일자</th>
+                      <th style={{ width: '116px' }}>점검 상태</th>
+                      <th style={{ width: '110px' }}>설비 셋트</th>
+                      <th style={{ width: '80px' }}>관리번호</th>
+                      <th style={{ width: '96px' }}>설비명</th>
                       <th>점검 요약</th>
-                      <th style={{ width: '95px', textAlign: 'center' }}>작업자 확인</th>
-                      <th style={{ width: '145px', textAlign: 'center' }}>관리자 확인</th>
-                      <th style={{ width: '165px', textAlign: 'center' }}>상세 / 조치</th>
+                      <th style={{ width: '74px', textAlign: 'center' }}>작업자 확인</th>
+                      <th style={{ width: '104px', textAlign: 'center' }}>관리자 확인</th>
+                      <th style={{ width: '100px', textAlign: 'center' }}>상세 / 조치</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -966,7 +992,7 @@ export default function TpmManagement({
                           }}
                         >
                           {isAdmin && (
-                            <td style={{ textAlign: 'center' }}>
+                            <td style={{ textAlign: 'center', padding: '6px 4px' }}>
                               <input
                                 type="checkbox"
                                 checked={isChecked}
@@ -977,7 +1003,7 @@ export default function TpmManagement({
                             </td>
                           )}
                           <td>
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'nowrap', whiteSpace: 'nowrap' }}>
                               <button
                                 type="button"
                                 onClick={() => setSelectedDate(date)}
@@ -987,7 +1013,7 @@ export default function TpmManagement({
                                   border: 'none',
                                   background: 'transparent',
                                   fontWeight: 800,
-                                  fontSize: '13px',
+                                  fontSize: '12.5px',
                                   color: '#0f172a',
                                   cursor: 'pointer',
                                   textDecoration: selectedDate === date ? 'none' : 'underline'
@@ -998,9 +1024,9 @@ export default function TpmManagement({
                               {isCarryOver ? (
                                 <span
                                   style={{
-                                    padding: '2px 6px',
+                                    padding: '2px 5px',
                                     borderRadius: '999px',
-                                    fontSize: '11px',
+                                    fontSize: '10.5px',
                                     fontWeight: 800,
                                     background: elapsedDays >= 3 ? '#fee2e2' : '#fef3c7',
                                     color: elapsedDays >= 3 ? '#b91c1c' : '#b45309',
@@ -1013,9 +1039,9 @@ export default function TpmManagement({
                               ) : date === todayYmd ? (
                                 <span
                                   style={{
-                                    padding: '2px 6px',
+                                    padding: '2px 5px',
                                     borderRadius: '999px',
-                                    fontSize: '11px',
+                                    fontSize: '10.5px',
                                     fontWeight: 800,
                                     background: '#dbeafe',
                                     color: '#1d4ed8',
@@ -1029,11 +1055,11 @@ export default function TpmManagement({
                             </div>
                           </td>
                           <td>{renderStatusBadge(evalResult.status)}</td>
-                          <td style={{ fontSize: '13px', fontWeight: 700, color: setName ? '#1e293b' : '#94a3b8' }}>
+                          <td style={{ fontSize: '12.5px', fontWeight: 700, color: setName ? '#1e293b' : '#94a3b8' }}>
                             {setName || '-'}
                           </td>
-                          <td style={{ fontWeight: 800, color: '#0f172a', fontSize: '13px' }}>{eq.code}</td>
-                          <td style={{ fontWeight: 600, fontSize: '13px' }}>{eq.name}</td>
+                          <td style={{ fontWeight: 800, color: '#0f172a', fontSize: '12.5px' }}>{eq.code}</td>
+                          <td style={{ fontWeight: 600, fontSize: '12.5px' }}>{eq.name}</td>
                           <td style={{ fontSize: '12px' }}>{renderRecordSummary(evalResult)}</td>
                           <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '12px', color: evalResult.workerStamp ? '#0f172a' : '#475569' }}>
                             {evalResult.workerStamp || '점검입력됨'}
@@ -1045,8 +1071,8 @@ export default function TpmManagement({
                                 disabled={submitting}
                                 onClick={() => applyBatchManagerStamp([row])}
                                 style={{
-                                  padding: '4px 12px',
-                                  fontSize: '12px',
+                                  padding: '4px 9px',
+                                  fontSize: '11.5px',
                                   fontWeight: 700,
                                   borderRadius: '6px',
                                   border: isIssue ? '1px solid #f87171' : '1px solid #86efac',
@@ -1063,14 +1089,14 @@ export default function TpmManagement({
                             )}
                           </td>
                           <td style={{ textAlign: 'center' }}>
-                            <div style={{ display: 'inline-flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <div style={{ display: 'inline-flex', gap: '4px', flexWrap: 'nowrap', justifyContent: 'center' }}>
                               {onOpenTpmLog && (
                                 <button
                                   type="button"
                                   onClick={() => onOpenTpmLog(eq, row.year, row.month)}
                                   style={{
-                                    padding: '4px 10px',
-                                    fontSize: '12px',
+                                    padding: '4px 8px',
+                                    fontSize: '11.5px',
                                     fontWeight: 700,
                                     borderRadius: '4px',
                                     border: '1px solid #cbd5e1',
@@ -1095,8 +1121,8 @@ export default function TpmManagement({
                                     })
                                   }
                                   style={{
-                                    padding: '4px 8px',
-                                    fontSize: '12px',
+                                    padding: '4px 7px',
+                                    fontSize: '11.5px',
                                     fontWeight: 700,
                                     borderRadius: '4px',
                                     border: '1px solid #c7d2fe',
@@ -1267,11 +1293,11 @@ export default function TpmManagement({
 
       {/* 설비별 당일 TPM 점검 목록 테이블 */}
       <div style={{ overflowX: 'auto', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#fff' }}>
-        <table className="table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="table tpm-compact-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #cbd5e1', background: '#f8fafc' }}>
               {isAdmin && (
-                <th style={{ width: '40px', textAlign: 'center' }}>
+                <th style={{ width: '32px', textAlign: 'center', padding: '6px 4px' }}>
                   <input
                     type="checkbox"
                     checked={isAllSelectableChecked}
@@ -1282,14 +1308,14 @@ export default function TpmManagement({
                   />
                 </th>
               )}
-              <th style={{ width: '140px' }}>점검 상태</th>
-              <th style={{ width: '150px' }}>설비 셋트</th>
-              <th style={{ width: '115px' }}>관리번호</th>
-              <th style={{ width: '150px' }}>설비명</th>
+              <th style={{ width: '116px' }}>점검 상태</th>
+              <th style={{ width: '110px' }}>설비 셋트</th>
+              <th style={{ width: '80px' }}>관리번호</th>
+              <th style={{ width: '96px' }}>설비명</th>
               <th>당일 점검 요약</th>
-              <th style={{ width: '95px', textAlign: 'center' }}>작업자 확인</th>
-              <th style={{ width: '150px', textAlign: 'center' }}>관리자 확인</th>
-              <th style={{ width: '165px', textAlign: 'center' }}>상세 / 조치</th>
+              <th style={{ width: '74px', textAlign: 'center' }}>작업자 확인</th>
+              <th style={{ width: '104px', textAlign: 'center' }}>관리자 확인</th>
+              <th style={{ width: '100px', textAlign: 'center' }}>상세 / 조치</th>
             </tr>
           </thead>
           <tbody>
@@ -1313,7 +1339,7 @@ export default function TpmManagement({
                   }}
                 >
                   {isAdmin && (
-                    <td style={{ textAlign: 'center' }}>
+                    <td style={{ textAlign: 'center', padding: '6px 4px' }}>
                       <input
                         type="checkbox"
                         checked={isChecked}
@@ -1325,19 +1351,19 @@ export default function TpmManagement({
                     </td>
                   )}
                   <td>{renderStatusBadge(evalResult.status)}</td>
-                  <td style={{ fontSize: '13px', fontWeight: 700, color: setName ? '#1e293b' : '#94a3b8' }}>
+                  <td style={{ fontSize: '12.5px', fontWeight: 700, color: setName ? '#1e293b' : '#94a3b8' }}>
                     {setName || '-'}
                   </td>
-                  <td style={{ fontWeight: 800, color: '#0f172a', fontSize: '13px' }}>{eq.code}</td>
-                  <td style={{ fontWeight: 600, fontSize: '13px' }}>{eq.name}</td>
+                  <td style={{ fontWeight: 800, color: '#0f172a', fontSize: '12.5px' }}>{eq.code}</td>
+                  <td style={{ fontWeight: 600, fontSize: '12.5px' }}>{eq.name}</td>
                   <td style={{ fontSize: '12px' }}>{renderRecordSummary(evalResult)}</td>
                   <td style={{ textAlign: 'center', fontWeight: 700, fontSize: '12px', color: evalResult.workerStamp ? '#0f172a' : '#94a3b8' }}>
                     {evalResult.workerStamp || (evalResult.hasWorkerRecord ? '점검입력됨' : '-')}
                   </td>
                   <td style={{ textAlign: 'center' }}>
                     {evalResult.managerStamp ? (
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontWeight: 800, fontSize: '13px', color: '#1d4ed8' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: '12.5px', color: '#1d4ed8' }}>
                           ✓ {evalResult.managerStamp}
                         </span>
                         {isAdmin && (
@@ -1346,7 +1372,7 @@ export default function TpmManagement({
                             disabled={submitting}
                             onClick={() => handleSingleClearManagerStamp(row)}
                             style={{
-                              padding: '2px 6px',
+                              padding: '2px 5px',
                               fontSize: '11px',
                               borderRadius: '4px',
                               border: '1px solid #cbd5e1',
@@ -1365,14 +1391,15 @@ export default function TpmManagement({
                         disabled={submitting}
                         onClick={() => applyBatchManagerStamp([row])}
                         style={{
-                          padding: '4px 12px',
-                          fontSize: '12px',
+                          padding: '4px 9px',
+                          fontSize: '11.5px',
                           fontWeight: 700,
                           borderRadius: '6px',
                           border: isIssue ? '1px solid #f87171' : '1px solid #86efac',
                           background: isIssue ? '#fef2f2' : '#dcfce7',
                           color: isIssue ? '#b91c1c' : '#166534',
-                          cursor: submitting ? 'not-allowed' : 'pointer'
+                          cursor: submitting ? 'not-allowed' : 'pointer',
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         {isIssue ? '이상내용 확인승인' : '관리자 확인'}
@@ -1382,14 +1409,14 @@ export default function TpmManagement({
                     )}
                   </td>
                   <td style={{ textAlign: 'center' }}>
-                    <div style={{ display: 'inline-flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <div style={{ display: 'inline-flex', gap: '4px', flexWrap: 'nowrap', justifyContent: 'center' }}>
                       {onOpenTpmLog && (
                         <button
                           type="button"
                           onClick={() => onOpenTpmLog(eq, parsedDate.year, parsedDate.month)}
                           style={{
-                            padding: '4px 10px',
-                            fontSize: '12px',
+                            padding: '4px 8px',
+                            fontSize: '11.5px',
                             fontWeight: 700,
                             borderRadius: '4px',
                             border: '1px solid #cbd5e1',
@@ -1414,8 +1441,8 @@ export default function TpmManagement({
                             })
                           }
                           style={{
-                            padding: '4px 8px',
-                            fontSize: '12px',
+                            padding: '4px 7px',
+                            fontSize: '11.5px',
                             fontWeight: 700,
                             borderRadius: '4px',
                             border: '1px solid #c7d2fe',
