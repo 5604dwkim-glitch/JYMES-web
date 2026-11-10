@@ -69,9 +69,9 @@ if (!EXECUTE) {
   process.exit(0);
 }
 
-// ② 쓰기 권한 점검
+// ② 쓰기 권한 점검 (Firestore에서 __*__ 형태의 문서 ID는 예약어이므로 _write_probe_ 사용)
 try {
-  const probe = doc(db, 'mold_photos', '__probe__');
+  const probe = doc(db, 'mold_photos', '_write_probe_');
   await setDoc(probe, { probe: true });
   await deleteDoc(probe);
   console.log('쓰기 권한 점검 통과');
@@ -80,34 +80,40 @@ try {
   process.exit(1);
 }
 
-// ③~⑤ 문서별 이동
+// ③~⑤ 문서별 이동 (동시 8건 병렬 처리)
 let moved = 0;
 let failed = 0;
-for (const p of plan) {
-  try {
-    const photoRef = doc(db, p.photoCollection, p.id);
-    const payload = { migratedAt: new Date().toISOString() };
-    p.moving.forEach((f) => {
-      payload[f] = p.data[f];
-    });
-    await setDoc(photoRef, payload, { merge: true });
+const CONCURRENCY = 8;
+for (let i = 0; i < plan.length; i += CONCURRENCY) {
+  const batchSlice = plan.slice(i, i + CONCURRENCY);
+  await Promise.all(
+    batchSlice.map(async (p) => {
+      try {
+        const photoRef = doc(db, p.photoCollection, p.id);
+        const payload = { migratedAt: new Date().toISOString() };
+        p.moving.forEach((f) => {
+          payload[f] = p.data[f];
+        });
+        await setDoc(photoRef, payload, { merge: true });
 
-    // ④ 검증: 저장된 값이 원본과 완전히 동일한지 확인
-    const check = (await getDoc(photoRef)).data() || {};
-    const ok = p.moving.every((f) => check[f] === p.data[f]);
-    if (!ok) throw new Error('검증 불일치');
+        // ④ 검증: 저장된 값이 원본과 완전히 동일한지 확인
+        const check = (await getDoc(photoRef)).data() || {};
+        const ok = p.moving.every((f) => check[f] === p.data[f]);
+        if (!ok) throw new Error('검증 불일치');
 
-    // ⑤ 본 문서에서 사진 필드 제거
-    const removal = {};
-    p.moving.forEach((f) => {
-      removal[f] = deleteField();
-    });
-    await updateDoc(doc(db, p.source, p.id), removal);
-    moved += 1;
-  } catch (e) {
-    failed += 1;
-    console.error(`  ✗ ${p.source}/${p.id} 이동 실패 (본 문서 유지): ${e.message}`);
-  }
+        // ⑤ 본 문서에서 사진 필드 제거
+        const removal = {};
+        p.moving.forEach((f) => {
+          removal[f] = deleteField();
+        });
+        await updateDoc(doc(db, p.source, p.id), removal);
+        moved += 1;
+      } catch (e) {
+        failed += 1;
+        console.error(`  ✗ ${p.source}/${p.id} 이동 실패 (본 문서 유지): ${e.message}`);
+      }
+    })
+  );
 }
 console.log(`\n완료: 이동 ${moved}건, 실패 ${failed}건`);
 process.exit(failed > 0 ? 2 : 0);
