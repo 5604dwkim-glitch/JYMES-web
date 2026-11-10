@@ -1201,7 +1201,10 @@ export const PHRASE_TUPLES = [
   ['예: 07:50 시업전 점검 정상', 'e.g. 07:50 Pre-shift check OK', 'เช่น 07:50 ตรวจก่อนเริ่มงานปกติ', 'VD: 07:50 KT trước ca tốt'],
   ['온/습도 모니터링 장비는 정상작동중인가? (ON/OFF 유무)', 'Is the temp/humidity monitoring device operating normally? (ON/OFF status)', 'อุปกรณ์ตรวจสอบอุณหภูมิ/ความชื้นทำงานปกติหรือไม่? (สถานะ ON/OFF)', 'Thiết bị giám sát nhiệt/ẩm có hoạt động bình thường không? (BẬT/TẮT)'],
   ['온/습도 경광등 및 경보음은 정상작동중인가? (F/proof 정상작동 여부)', 'Are the temp/humidity warning light & alarm operating normally? (F/proof check)', 'ไฟเตือนและเสียงเตือนอุณหภูมิ/ความชื้นทำงานปกติหรือไม่? (ระบบ F/proof)', 'Đèn cảnh báo & còi báo nhiệt/ẩm có hoạt động bình thường không? (KT F/proof)'],
-  ['F/Proof 작동요령서 참조', 'See F/Proof Guide', 'ดูคู่มือ F/Proof', 'Xem HD F/Proof']
+  ['F/Proof 작동요령서 참조', 'See F/Proof Guide', 'ดูคู่มือ F/Proof', 'Xem HD F/Proof'],
+  ['고무명', 'Rubber Name', 'ชื่อยาง', 'Tên cao su'],
+  ['예: 조인트 고무', 'e.g. Joint Rubber', 'เช่น ยางข้อต่อ', 'VD: Cao su nối'],
+  ['예: 200kg / 2PLT', 'e.g. 200kg / 2PLT', 'เช่น 200kg / 2PLT', 'VD: 200kg / 2PLT']
 ];
 
 /**

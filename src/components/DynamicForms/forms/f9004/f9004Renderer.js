@@ -1,5 +1,4 @@
 import { store, windowMock } from '../../LegacyFormWrapper.jsx';
-import { CAR_MODELS } from '../../../../constants/masterData.js';
 import { i18n } from '../../../../constants/translations.js';
 
 export const F9004_CHECKLIST_ITEMS = [
@@ -92,14 +91,13 @@ function buildFmbStandardLeftBoxHTML(compact = false) {
   `;
 }
 
-function buildRowHTML(item, idx, carCodes) {
+function buildRowHTML(item, idx) {
   const curType = item?.f9004_type || '';
-  const curCar = item?.f9004_carModel || '';
+  const curRubber = item?.f9004_rubberName ?? item?.f9004_carModel ?? '';
+  const curExpiry = item?.f9004_expiryDate ?? item?.f9004_compoundLot ?? '';
+  const expiryInputType = curExpiry && !/^\d{4}-\d{2}-\d{2}$/.test(curExpiry) ? 'text' : 'date';
   const typeOptions = F9004_IO_TYPES.map((tp) => (
     `<option value="${escapeHtml(tp)}" ${curType === tp ? 'selected' : ''}>${escapeHtml(tp)}</option>`
-  )).join('');
-  const carOptions = ['공통', ...carCodes].map((code) => (
-    `<option value="${escapeHtml(code)}" ${curCar === code ? 'selected' : ''}>${escapeHtml(code)}</option>`
   )).join('');
 
   return `
@@ -112,19 +110,13 @@ function buildRowHTML(item, idx, carCodes) {
         </select>
       </td>
       <td style="border: 1px solid #000; padding: 5px;">
-        <select id="f9004_car_${idx}" name="f9004_car_${idx}" data-f9004-field="carModel" class="form-control" style="font-size: 12px; padding: 4px; height: auto;">
-          <option value="">선택</option>
-          ${carOptions}
-        </select>
+        <input type="text" id="f9004_rubber_${idx}" name="f9004_rubber_${idx}" data-f9004-field="rubberName" data-wheel-skip="1" class="form-control" value="${escapeHtml(curRubber)}" placeholder="예: 조인트 고무" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%;" />
       </td>
       <td style="border: 1px solid #000; padding: 5px;">
-        <input type="text" id="f9004_compound_${idx}" name="f9004_compound_${idx}" data-f9004-field="compoundLot" class="form-control" value="${escapeHtml(item?.f9004_compoundLot || '')}" placeholder="컴파운드명 / LOT No." style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%;" />
+        <input type="${expiryInputType}" max="9999-12-31" id="f9004_expiry_${idx}" name="f9004_expiry_${idx}" data-f9004-field="expiryDate" data-wheel-skip="1" class="form-control" value="${escapeHtml(curExpiry)}" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%; text-align: center;" />
       </td>
       <td style="border: 1px solid #000; padding: 5px;">
-        <input type="text" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" class="form-control" value="${escapeHtml(item?.f9004_amount || '')}" placeholder="예: 200kg / 2PLT" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%; text-align: center;" />
-      </td>
-      <td style="border: 1px solid #000; padding: 5px;">
-        <input type="text" id="f9004_note_${idx}" name="f9004_note_${idx}" data-f9004-field="note" class="form-control" value="${escapeHtml(item?.f9004_note || '')}" placeholder="투입라인 / 공급처 / 비고" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%;" />
+        <input type="text" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" data-wheel-skip="1" class="form-control" value="${escapeHtml(item?.f9004_amount || '')}" placeholder="예: 200kg / 2PLT" style="font-size: 12px; padding: 4px 6px; height: auto; width: 100%; text-align: center;" />
       </td>
     </tr>
   `;
@@ -150,8 +142,6 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
   const rowCount = Math.max(5, savedItems.length);
   const initialRows = Array.from({ length: rowCount }, (_, i) => savedItems[i] || {});
   const workDetails = existingData?.workDetails || '';
-
-  const carCodes = CAR_MODELS.filter((c) => c.code !== '공통').map((c) => c.code);
 
   container.innerHTML = `
     <div data-form-code="9004" class="paper-form-container" style="font-family: 'Noto Sans KR', sans-serif; color: #000; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 820px; margin: 0 auto;">
@@ -320,19 +310,18 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
           </button>
         </div>
         <div style="overflow-x: auto;">
-          <table class="data-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; min-width: 640px;">
+          <table class="data-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; min-width: 480px;">
             <thead>
               <tr style="background: #f1f5f9; color: #000;">
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 38px;">No</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 96px;">구분</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 105px;">차종</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 170px;">컴파운드 / LOT No.</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 110px;">수량</th>
-                <th style="border: 1px solid #000; text-align: center; padding: 6px;">비고 (투입라인·전달사항)</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 42px; white-space: nowrap;">No</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 115px; white-space: nowrap;">구분</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 6px; white-space: nowrap;">고무명</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 155px; white-space: nowrap;">유효기간</th>
+                <th style="border: 1px solid #000; text-align: center; padding: 6px; width: 130px; white-space: nowrap;">수량</th>
               </tr>
             </thead>
             <tbody id="f9004_tbody">
-              ${initialRows.map((item, idx) => buildRowHTML(item, idx, carCodes)).join('')}
+              ${initialRows.map((item, idx) => buildRowHTML(item, idx)).join('')}
             </tbody>
           </table>
         </div>
@@ -449,7 +438,7 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
   if (btnAddRow && tbody) {
     btnAddRow.addEventListener('click', () => {
       const nextIdx = tbody.querySelectorAll('tr[data-f9004-row]').length;
-      tbody.insertAdjacentHTML('beforeend', buildRowHTML({}, nextIdx, carCodes));
+      tbody.insertAdjacentHTML('beforeend', buildRowHTML({}, nextIdx));
       i18n.applyTranslations(tbody);
     });
   }
@@ -489,17 +478,15 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
       const f9004_items = [];
       root.querySelectorAll('tr[data-f9004-row]').forEach((tr) => {
         const f9004_type = (tr.querySelector('[data-f9004-field="type"]')?.value || '').trim();
-        const f9004_carModel = (tr.querySelector('[data-f9004-field="carModel"]')?.value || '').trim();
-        const f9004_compoundLot = (tr.querySelector('[data-f9004-field="compoundLot"]')?.value || '').trim();
+        const f9004_rubberName = (tr.querySelector('[data-f9004-field="rubberName"]')?.value || '').trim();
+        const f9004_expiryDate = (tr.querySelector('[data-f9004-field="expiryDate"]')?.value || '').trim();
         const f9004_amount = (tr.querySelector('[data-f9004-field="amount"]')?.value || '').trim();
-        const f9004_note = (tr.querySelector('[data-f9004-field="note"]')?.value || '').trim();
-        if (f9004_type || f9004_carModel || f9004_compoundLot || f9004_amount || f9004_note) {
+        if (f9004_type || f9004_rubberName || f9004_expiryDate || f9004_amount) {
           f9004_items.push({
             f9004_type,
-            f9004_carModel,
-            f9004_compoundLot,
-            f9004_amount,
-            f9004_note
+            f9004_rubberName,
+            f9004_expiryDate,
+            f9004_amount
           });
         }
       });
@@ -797,25 +784,25 @@ export function buildFmbDetailHTML(r) {
         <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse;">
           <thead>
             <tr style="background: #f1f5f9; color: #000;">
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 38px;">No</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 90px;">구분</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 95px;">차종</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 160px;">컴파운드 / LOT No.</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 100px;">수량</th>
-              <th style="border: 1px solid #000; text-align: center; padding: 4px;">비고</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 42px;">No</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 105px;">구분</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px;">고무명</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 145px;">유효기간</th>
+              <th style="border: 1px solid #000; text-align: center; padding: 4px; width: 120px;">수량</th>
             </tr>
           </thead>
           <tbody>
             ${Array.from({ length: rowCount }, (_, idx) => {
               const row = items[idx] || {};
+              const rubberName = row.f9004_rubberName ?? row.f9004_carModel ?? '';
+              const expiryDate = row.f9004_expiryDate ?? row.f9004_compoundLot ?? '';
               return `
                 <tr>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 700;">${idx + 1}</td>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(row.f9004_type || '')}</td>
-                  <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(row.f9004_carModel || '')}</td>
-                  <td style="border: 1px solid #000; text-align: left; padding: 4px;">${escapeHtml(row.f9004_compoundLot || '')}</td>
+                  <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(rubberName)}</td>
+                  <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(expiryDate)}</td>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px;">${escapeHtml(row.f9004_amount || '')}</td>
-                  <td style="border: 1px solid #000; text-align: left; padding: 4px;">${escapeHtml(row.f9004_note || '')}</td>
                 </tr>
               `;
             }).join('')}
