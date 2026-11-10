@@ -19,6 +19,69 @@ const escapeHtml = (val) => String(val ?? '')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
 
+function parseEnvNumber(raw) {
+  if (raw === null || raw === undefined) return null;
+  const str = String(raw).trim();
+  if (!str) return null;
+  const m = str.match(/-?\d+(?:\.\d+)?/);
+  if (!m) return null;
+  const num = Number(m[0]);
+  return Number.isFinite(num) ? num : null;
+}
+
+/**
+ * FMB 보관실 관리 표준 기준 판정
+ * - 온도: 20 ± 5℃ (15.0 ~ 25.0℃)
+ * - 습도: 70% 이하 (0 ~ 70.0%)
+ */
+export function evaluateF9004EnvSpec(tempRaw, humRaw) {
+  const t = parseEnvNumber(tempRaw);
+  const h = parseEnvNumber(humRaw);
+  const tempOk = t === null ? null : (t >= 15 && t <= 25);
+  const humOk = h === null ? null : (h >= 0 && h <= 70);
+  return { tempVal: t, humVal: h, tempOk, humOk };
+}
+
+function buildFmbStandardLeftBoxHTML(compact = false) {
+  const cellPad = compact ? '4px 6px' : '6px 8px';
+  const fontSize = compact ? '11.5px' : '12.5px';
+  const ruleFont = compact ? '11.5px' : '12.5px';
+  return `
+    <div class="f9004-std-box" style="border: 1.5px solid #1e293b; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column; height: 100%;">
+      <div style="background: #ebf1de; border-bottom: 1.5px solid #1e293b; padding: ${compact ? '6px 10px' : '8px 12px'}; text-align: center; font-size: ${compact ? '13px' : '14px'}; font-weight: 800; color: #0f172a; letter-spacing: 0.5px;">
+        FMB 보관실 관리 표준
+      </div>
+      <table style="width: 100%; border-collapse: collapse; font-size: ${fontSize}; text-align: center; color: #0f172a;">
+        <thead>
+          <tr style="background: #dbeef4; font-weight: 800;">
+            <th style="border-bottom: 1px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; width: 20%;">구분</th>
+            <th style="border-bottom: 1px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; width: 22%;">유효기간</th>
+            <th style="border-bottom: 1px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; width: 40%;">관리 기준</th>
+            <th style="border-bottom: 1px solid #1e293b; padding: ${cellPad}; width: 18%;">비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background: #ffffff; font-weight: 700;">
+            <td style="border-bottom: 1.5px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; line-height: 1.35;">조인트<br/>고무</td>
+            <td style="border-bottom: 1.5px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; color: #dc2626; font-weight: 800;">10일 이내</td>
+            <td style="border-bottom: 1.5px solid #1e293b; border-right: 1px solid #1e293b; padding: ${cellPad}; text-align: left; line-height: 1.45;">
+              <div>온도 : 20 ± 5℃ <span style="font-size: 11px; color: #475569; font-weight: 600;">(15~25℃)</span></div>
+              <div>습도 : 70% 이하</div>
+            </td>
+            <td style="border-bottom: 1.5px solid #1e293b; padding: ${cellPad}; font-weight: 800;">1회/일</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding: ${compact ? '7px 10px' : '10px 12px'}; font-size: ${ruleFont}; line-height: 1.65; color: #0f172a; font-weight: 600; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; background: #fcfdfd;">
+        <div>1. 연고무 <strong style="color: #1d4ed8; font-weight: 800;">중량 표준</strong>에 따른 작업실시</div>
+        <div>2. FMB <strong style="color: #dc2626; font-weight: 800;">유효기간 준수</strong> (미준수품 반납)</div>
+        <div>3. 보관실 <strong style="color: #1d4ed8; font-weight: 800;">점검 주기는 1회/일</strong> (시업전)</div>
+        <div>4. 온습도 유지를 위해 <strong style="color: #1d4ed8; font-weight: 800;">DOOR 상시 닫음</strong></div>
+      </div>
+    </div>
+  `;
+}
+
 function buildRowHTML(item, idx, carCodes) {
   const curType = item?.f9004_type || '';
   const curCar = item?.f9004_carModel || '';
@@ -123,20 +186,62 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
 
       <!-- 1. 보관실 온·습도 및 일일 관리 점검표 -->
       <div style="margin-bottom: 20px;">
+        <style>
+          [data-form-code="9004"] .f9004-env-split-grid {
+            display: grid;
+            grid-template-columns: 1.12fr 1fr;
+            gap: 12px;
+            align-items: stretch;
+            margin-bottom: 12px;
+          }
+          @media (max-width: 640px) {
+            [data-form-code="9004"] .f9004-env-split-grid {
+              grid-template-columns: 1fr;
+            }
+          }
+        </style>
         <h3 style="font-size: 14px; font-weight: 800; color: #000; margin-bottom: 8px;">1. 보관실 온·습도 및 선입선출 일일 점검표</h3>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; padding: 10px 12px; margin-bottom: 10px; background: #f8fafc; border: 1px solid #94a3b8; border-radius: 6px;">
-          <div>
-            <label for="f9004_temp" style="display: block; font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 4px;">🌡️ 보관실 온도 (℃)</label>
-            <input type="text" id="f9004_temp" name="f9004_temp" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_temp || '')}" placeholder="예: 21.5" style="font-size: 13px; padding: 6px 8px; height: auto; font-weight: 700;" />
-          </div>
-          <div>
-            <label for="f9004_humidity" style="display: block; font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 4px;">💧 보관실 습도 (%)</label>
-            <input type="text" id="f9004_humidity" name="f9004_humidity" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_humidity || '')}" placeholder="예: 45" style="font-size: 13px; padding: 6px 8px; height: auto; font-weight: 700;" />
-          </div>
-          <div>
-            <label for="f9004_envNote" style="display: block; font-size: 11px; font-weight: 800; color: #334155; margin-bottom: 4px;">🕒 점검 시각 / 환경 비고</label>
-            <input type="text" id="f9004_envNote" name="f9004_envNote" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_envNote || '')}" placeholder="예: 오전/오후 정상 가동" style="font-size: 13px; padding: 6px 8px; height: auto;" />
+        <div class="f9004-env-split-grid">
+          <!-- 좌측: FMB 보관실 관리 표준 -->
+          ${buildFmbStandardLeftBoxHTML(false)}
+
+          <!-- 우측: 당일 온·습도 기록 입력란 -->
+          <div class="f9004-env-input-box" style="border: 1.5px solid #1e293b; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
+            <div style="background: #eff6ff; border-bottom: 1.5px solid #1e293b; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 14px; font-weight: 800; color: #0f172a;">🌡️💧 당일 온·습도 기록</span>
+              <span id="f9004_envStatusBadge" style="font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #e2e8f0; color: #334155; border: 1px solid #cbd5e1;">시업전 1회/일</span>
+            </div>
+
+            <div style="padding: 12px; background: #f8fafc; flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                  <label for="f9004_temp" style="display: block; font-size: 12px; font-weight: 800; color: #b91c1c; margin-bottom: 4px;">🌡️ 당일 온도 (℃)</label>
+                  <div style="position: relative;">
+                    <input type="text" inputmode="decimal" id="f9004_temp" name="f9004_temp" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_temp || '')}" placeholder="예: 24.8" style="font-size: 16px; padding: 8px 28px 8px 10px; height: auto; font-weight: 800; text-align: right; color: #0f172a; background: #ffffff;" />
+                    <span style="position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 800; color: #64748b; pointer-events: none;">℃</span>
+                  </div>
+                  <div id="f9004_tempHint" style="font-size: 11px; font-weight: 700; color: #64748b; margin-top: 4px;">기준: 20 ± 5℃ (15~25℃)</div>
+                </div>
+
+                <div>
+                  <label for="f9004_humidity" style="display: block; font-size: 12px; font-weight: 800; color: #0369a1; margin-bottom: 4px;">💧 당일 습도 (%)</label>
+                  <div style="position: relative;">
+                    <input type="text" inputmode="decimal" id="f9004_humidity" name="f9004_humidity" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_humidity || '')}" placeholder="예: 60.7" style="font-size: 16px; padding: 8px 26px 8px 10px; height: auto; font-weight: 800; text-align: right; color: #0f172a; background: #ffffff;" />
+                    <span style="position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 800; color: #64748b; pointer-events: none;">%</span>
+                  </div>
+                  <div id="f9004_humHint" style="font-size: 11px; font-weight: 700; color: #64748b; margin-top: 4px;">기준: 70% 이하</div>
+                </div>
+              </div>
+
+              <div style="padding-top: 8px; border-top: 1px dashed #cbd5e1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 4px;">
+                  <label for="f9004_envNote" style="font-size: 11.5px; font-weight: 800; color: #334155; margin: 0;">🕒 점검 시각 / 환경 비고</label>
+                  <button type="button" id="f9004_btnStampPreShift" data-f9004-now-btn="1" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid #93c5fd; background: #eff6ff; color: #1d4ed8; cursor: pointer;">시업전 시각 자동기입</button>
+                </div>
+                <input type="text" id="f9004_envNote" name="f9004_envNote" data-wheel-skip="1" class="form-control" value="${escapeHtml(envData.f9004_envNote || '')}" placeholder="예: 07:50 시업전 점검 정상" style="font-size: 13px; padding: 6px 8px; height: auto; background: #ffffff;" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -226,6 +331,88 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
   const btnAddRow = root.querySelector('#f9004_btnAddRow');
   const btnDraftSave = root.querySelector('#f9004_btnDraftSave');
   const btnFinalSubmit = root.querySelector('#f9004_btnFinalSubmit');
+  const tempInput = root.querySelector('#f9004_temp');
+  const humInput = root.querySelector('#f9004_humidity');
+  const envNoteInput = root.querySelector('#f9004_envNote');
+  const tempHint = root.querySelector('#f9004_tempHint');
+  const humHint = root.querySelector('#f9004_humHint');
+  const envStatusBadge = root.querySelector('#f9004_envStatusBadge');
+  const btnStampPreShift = root.querySelector('#f9004_btnStampPreShift');
+
+  const setTranslatableText = (el, koText) => {
+    if (!el) return;
+    const doc = el.ownerDocument || document;
+    el.replaceChildren(doc.createTextNode(koText));
+    i18n.applyTranslations(el);
+  };
+
+  const updateEnvSpecFeedback = () => {
+    const { tempOk, humOk } = evaluateF9004EnvSpec(tempInput?.value, humInput?.value);
+
+    if (tempInput && tempHint) {
+      if (tempOk === null) {
+        tempInput.style.borderColor = '';
+        tempHint.style.color = '#64748b';
+        setTranslatableText(tempHint, '기준: 20 ± 5℃ (15~25℃)');
+      } else if (tempOk) {
+        tempInput.style.borderColor = '#10b981';
+        tempHint.style.color = '#059669';
+        setTranslatableText(tempHint, '적합 (15~25℃ 이내)');
+      } else {
+        tempInput.style.borderColor = '#ef4444';
+        tempHint.style.color = '#dc2626';
+        setTranslatableText(tempHint, '기준 이탈! (15~25℃)');
+      }
+    }
+
+    if (humInput && humHint) {
+      if (humOk === null) {
+        humInput.style.borderColor = '';
+        humHint.style.color = '#64748b';
+        setTranslatableText(humHint, '기준: 70% 이하');
+      } else if (humOk) {
+        humInput.style.borderColor = '#10b981';
+        humHint.style.color = '#059669';
+        setTranslatableText(humHint, '적합 (70% 이하)');
+      } else {
+        humInput.style.borderColor = '#ef4444';
+        humHint.style.color = '#dc2626';
+        setTranslatableText(humHint, '기준 이탈! (70% 이하)');
+      }
+    }
+
+    if (envStatusBadge) {
+      if (tempOk === false || humOk === false) {
+        envStatusBadge.style.background = '#fef2f2';
+        envStatusBadge.style.color = '#dc2626';
+        envStatusBadge.style.borderColor = '#fca5a5';
+        setTranslatableText(envStatusBadge, '⚠️ 관리기준 이탈');
+      } else if (tempOk === true && humOk === true) {
+        envStatusBadge.style.background = '#ecfdf5';
+        envStatusBadge.style.color = '#047857';
+        envStatusBadge.style.borderColor = '#6ee7b7';
+        setTranslatableText(envStatusBadge, '✅ 관리기준 적합');
+      } else {
+        envStatusBadge.style.background = '#e2e8f0';
+        envStatusBadge.style.color = '#334155';
+        envStatusBadge.style.borderColor = '#cbd5e1';
+        setTranslatableText(envStatusBadge, '시업전 1회/일');
+      }
+    }
+  };
+
+  if (tempInput) tempInput.addEventListener('input', updateEnvSpecFeedback);
+  if (humInput) humInput.addEventListener('input', updateEnvSpecFeedback);
+
+  if (btnStampPreShift && envNoteInput) {
+    btnStampPreShift.addEventListener('click', () => {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mi = String(now.getMinutes()).padStart(2, '0');
+      envNoteInput.value = `${hh}:${mi} 시업전 점검`;
+      envNoteInput.focus();
+    });
+  }
 
   if (btnAddRow && tbody) {
     btnAddRow.addEventListener('click', () => {
@@ -236,6 +423,7 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
   }
 
   i18n.applyTranslations(root);
+  updateEnvSpecFeedback();
 
   const processFmbSave = (targetStatus) => {
     try {
@@ -469,11 +657,57 @@ export function buildFmbDetailHTML(r) {
       <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
         <div>작성일 : ${escapeHtml(r?.date || '')}</div>
         <div>근무시간 : ${escapeHtml(r?.workHours || '08:00 ~ 17:00')}</div>
-        <div>온도 : ${escapeHtml(env.f9004_temp ? `${env.f9004_temp} ℃` : '-')} | 습도 : ${escapeHtml(env.f9004_humidity ? `${env.f9004_humidity} %` : '-')} ${env.f9004_envNote ? `(${escapeHtml(env.f9004_envNote)})` : ''}</div>
       </div>
 
       <div style="margin-bottom: 14px;">
-        <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">1. 보관실 온·습도 및 선입선출 일일 점검표</div>
+        <div style="font-size: 13px; font-weight: 800; margin-bottom: 6px;">1. 보관실 온·습도 및 선입선출 일일 점검표</div>
+        ${(() => {
+          const { tempOk, humOk } = evaluateF9004EnvSpec(env.f9004_temp, env.f9004_humidity);
+          const judgeText = (tempOk === false || humOk === false)
+            ? '관리기준 이탈'
+            : (tempOk === true && humOk === true)
+              ? '관리기준 적합'
+              : '미입력';
+          const judgeColor = (tempOk === false || humOk === false)
+            ? '#dc2626'
+            : (tempOk === true && humOk === true)
+              ? '#059669'
+              : '#64748b';
+          return `
+            <div style="display: grid; grid-template-columns: 1.15fr 1fr; gap: 10px; align-items: stretch; margin-bottom: 8px;">
+              ${buildFmbStandardLeftBoxHTML(true)}
+              <div style="border: 1.5px solid #1e293b; border-radius: 6px; overflow: hidden; background: #ffffff; display: flex; flex-direction: column;">
+                <div style="background: #eff6ff; border-bottom: 1.5px solid #1e293b; padding: 6px 10px; text-align: center; font-size: 13px; font-weight: 800; color: #0f172a;">
+                  당일 온·습도 기록
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px; flex: 1;">
+                  <tbody>
+                    <tr>
+                      <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; background: #fef2f2; color: #991b1b; padding: 6px 8px; width: 38%; text-align: left;">당일 온도 (℃)</th>
+                      <td style="border-bottom: 1px solid #cbd5e1; padding: 6px 10px; font-size: 14px; font-weight: 800; color: ${tempOk === false ? '#dc2626' : '#0f172a'};">
+                        ${escapeHtml(env.f9004_temp ? `${env.f9004_temp} ℃` : '-')}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; background: #f0f9ff; color: #075985; padding: 6px 8px; text-align: left;">당일 습도 (%)</th>
+                      <td style="border-bottom: 1px solid #cbd5e1; padding: 6px 10px; font-size: 14px; font-weight: 800; color: ${humOk === false ? '#dc2626' : '#0f172a'};">
+                        ${escapeHtml(env.f9004_humidity ? `${env.f9004_humidity} %` : '-')}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style="border-bottom: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1; background: #f8fafc; color: #334155; padding: 6px 8px; text-align: left;">기준 판정</th>
+                      <td style="border-bottom: 1px solid #cbd5e1; padding: 6px 10px; font-weight: 800; color: ${judgeColor};">${judgeText}</td>
+                    </tr>
+                    <tr>
+                      <th style="border-right: 1px solid #cbd5e1; background: #f8fafc; color: #334155; padding: 6px 8px; text-align: left;">점검 시각 / 비고</th>
+                      <td style="padding: 6px 10px; font-weight: 600; color: #334155;">${escapeHtml(env.f9004_envNote || '-')}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        })()}
         <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse;">
           <thead>
             <tr style="background: #f1f5f9; color: #000;">
