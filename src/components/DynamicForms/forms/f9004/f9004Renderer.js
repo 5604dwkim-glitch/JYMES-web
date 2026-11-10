@@ -3,6 +3,16 @@ import { CAR_MODELS } from '../../../../constants/masterData.js';
 import { i18n } from '../../../../constants/translations.js';
 
 export const F9004_CHECKLIST_ITEMS = [
+  { id: 'f9004_chk_mon', text: '온/습도 모니터링 장비는 정상작동중인가? (ON/OFF 유무)', refNote: 'F/Proof 작동요령서 참조' },
+  { id: 'f9004_chk_alarm', text: '온/습도 경광등 및 경보음은 정상작동중인가? (F/proof 정상작동 여부)', refNote: 'F/Proof 작동요령서 참조' },
+  { id: 'f9004_chk2', text: 'FMB(배합고무) 선입선출(FIFO) 준수 및 적재 구역 구분 상태' },
+  { id: 'f9004_chk3', text: '원재료 LOT 식별표 부착 및 유효기간(사용기한) 경과품 유무 확인' },
+  { id: 'f9004_chk4', text: '이물질·오염·직사광선 차단 및 비닐 커버 밀봉 보관 상태' },
+  { id: 'f9004_chk5', text: '보관실 통로 정리정돈 및 안전·소방 시설 이상 유무' }
+];
+
+// 과거 저장된 일보 조회용 하위 호환 체크리스트 (원칙 11)
+const F9004_LEGACY_CHECKLIST_ITEMS = [
   { id: 'f9004_chk1', text: '보관실 항온·항습기 가동 및 기준 온·습도 유지 상태' },
   { id: 'f9004_chk2', text: 'FMB(배합고무) 선입선출(FIFO) 준수 및 적재 구역 구분 상태' },
   { id: 'f9004_chk3', text: '원재료 LOT 식별표 부착 및 유효기간(사용기한) 경과품 유무 확인' },
@@ -255,11 +265,15 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
           </thead>
           <tbody>
             ${F9004_CHECKLIST_ITEMS.map((item, idx) => {
-              const isGood = chkData[item.id] !== false;
+              const rawVal = chkData[item.id] ?? (item.id === 'f9004_chk_mon' ? chkData.f9004_chk1 : undefined);
+              const isGood = rawVal !== false;
+              const refBadge = item.refNote
+                ? ` <span style="display: inline-block; margin-left: 6px; padding: 1px 6px; font-size: 11px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 4px; vertical-align: middle;">${escapeHtml(item.refNote)}</span>`
+                : '';
               return `
                 <tr>
                   <td style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 6px;">${idx + 1}</td>
-                  <td style="border: 1px solid #000; font-weight: 600; padding: 6px;">${escapeHtml(item.text)}</td>
+                  <td style="border: 1px solid #000; font-weight: 600; padding: 6px;"><span>${escapeHtml(item.text)}</span>${refBadge}</td>
                   <td style="border: 1px solid #000; text-align: center; padding: 6px;">
                     <div style="display: flex; justify-content: center; gap: 10px;">
                       <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
@@ -717,12 +731,15 @@ export function buildFmbDetailHTML(r) {
             </tr>
           </thead>
           <tbody>
-            ${F9004_CHECKLIST_ITEMS.map((item, idx) => {
+            ${((('f9004_chk1' in chkData) && !('f9004_chk_mon' in chkData)) ? F9004_LEGACY_CHECKLIST_ITEMS : F9004_CHECKLIST_ITEMS).map((item, idx) => {
               const isGood = chkData[item.id] !== false;
+              const refBadge = item.refNote
+                ? ` <span style="display: inline-block; margin-left: 6px; padding: 1px 6px; font-size: 10.5px; font-weight: 700; color: #0369a1; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 4px; vertical-align: middle;">${escapeHtml(item.refNote)}</span>`
+                : '';
               return `
                 <tr>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 700;">${idx + 1}</td>
-                  <td style="border: 1px solid #000; padding: 4px; font-weight: 600;">${escapeHtml(item.text)}</td>
+                  <td style="border: 1px solid #000; padding: 4px; font-weight: 600;"><span>${escapeHtml(item.text)}</span>${refBadge}</td>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px; font-weight: 800; color: ${isGood ? '#059669' : '#dc2626'};">
                     ${isGood ? '양호 (O)' : '불량 (X)'}
                   </td>

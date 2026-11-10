@@ -1198,7 +1198,10 @@ export const PHRASE_TUPLES = [
   ['시업전 시각 자동기입', 'Stamp Pre-Shift Time', 'ลงเวลาก่อนเริ่มงาน', 'Điền giờ trước ca'],
   ['예: 24.8', 'e.g. 24.8', 'เช่น 24.8', 'VD: 24.8'],
   ['예: 60.7', 'e.g. 60.7', 'เช่น 60.7', 'VD: 60.7'],
-  ['예: 07:50 시업전 점검 정상', 'e.g. 07:50 Pre-shift check OK', 'เช่น 07:50 ตรวจก่อนเริ่มงานปกติ', 'VD: 07:50 KT trước ca tốt']
+  ['예: 07:50 시업전 점검 정상', 'e.g. 07:50 Pre-shift check OK', 'เช่น 07:50 ตรวจก่อนเริ่มงานปกติ', 'VD: 07:50 KT trước ca tốt'],
+  ['온/습도 모니터링 장비는 정상작동중인가? (ON/OFF 유무)', 'Is the temp/humidity monitoring device operating normally? (ON/OFF status)', 'อุปกรณ์ตรวจสอบอุณหภูมิ/ความชื้นทำงานปกติหรือไม่? (สถานะ ON/OFF)', 'Thiết bị giám sát nhiệt/ẩm có hoạt động bình thường không? (BẬT/TẮT)'],
+  ['온/습도 경광등 및 경보음은 정상작동중인가? (F/proof 정상작동 여부)', 'Are the temp/humidity warning light & alarm operating normally? (F/proof check)', 'ไฟเตือนและเสียงเตือนอุณหภูมิ/ความชื้นทำงานปกติหรือไม่? (ระบบ F/proof)', 'Đèn cảnh báo & còi báo nhiệt/ẩm có hoạt động bình thường không? (KT F/proof)'],
+  ['F/Proof 작동요령서 참조', 'See F/Proof Guide', 'ดูคู่มือ F/Proof', 'Xem HD F/Proof']
 ];
 
 /**
