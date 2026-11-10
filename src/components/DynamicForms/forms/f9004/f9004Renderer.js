@@ -1,5 +1,6 @@
 import { store, windowMock } from '../../LegacyFormWrapper.jsx';
 import { i18n } from '../../../../constants/translations.js';
+import { fetchFmbInventory, saveFmbInventory } from '../../../../services/firestore.js';
 
 export const F9004_CHECKLIST_ITEMS = [
   { id: 'f9004_chk_mon', text: '온/습도 모니터링 장비는 정상작동중인가? (ON/OFF 유무)', refNote: 'F/Proof 작동요령서 참조' },
@@ -21,6 +22,7 @@ const F9004_LEGACY_CHECKLIST_ITEMS = [
 
 const F9004_IO_TYPES = ['입고', '불출', '반납', '재고', '보류'];
 export const F9004_RUBBER_OPTIONS = ['W60664$OS', 'W6082$NA', 'W60905'];
+const FMB_LOCAL_CACHE_KEY = 'jymes_fmb_inventory_v1';
 
 function normalizeIoType(raw) {
   const s = String(raw || '').trim();
@@ -30,33 +32,183 @@ function normalizeIoType(raw) {
   return s;
 }
 
-function formatExpiryMonthDay(raw) {
+function isOutflowType(raw) {
+  const tp = normalizeIoType(raw);
+  return tp === '불출' || tp === '반납';
+}
+
+export function formatExpiryMonthDay(raw) {
   const s = String(raw || '').trim();
   if (!s) return '';
-  // YYYY-MM-DD / YY-MM-DD -> MM/DD
   const ymd = s.match(/^(?:\d{2}|\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
   if (ymd) {
     return `${ymd[1].padStart(2, '0')}/${ymd[2].padStart(2, '0')}`;
   }
-  // M/D or MM-DD or MM.DD -> MM/DD
   const md = s.match(/^(\d{1,2})[-./](\d{1,2})$/);
   if (md) {
     return `${md[1].padStart(2, '0')}/${md[2].padStart(2, '0')}`;
   }
-  // 4 digits MMDD -> MM/DD
   if (/^\d{4}$/.test(s)) {
     return `${s.slice(0, 2)}/${s.slice(2, 4)}`;
   }
   return s;
 }
 
+function toExpiryIso(raw, baseDateStr) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const fullYmd = s.match(/^(\d{4})[-./](\d{1,2})[-./](\d{1,2})$/);
+  if (fullYmd) {
+    return `${fullYmd[1]}-${fullYmd[2].padStart(2, '0')}-${fullYmd[3].padStart(2, '0')}`;
+  }
+  const shortYmd = s.match(/^(\d{2})[-./](\d{1,2})[-./](\d{1,2})$/);
+  if (shortYmd) {
+    return `20${shortYmd[1]}-${shortYmd[2].padStart(2, '0')}-${shortYmd[3].padStart(2, '0')}`;
+  }
+  const mmdd = formatExpiryMonthDay(s);
+  const md = mmdd.match(/^(\d{2})\/(\d{2})$/);
+  if (md) {
+    const baseParts = String(baseDateStr || '').split('-');
+    const baseYear = Number(baseParts[0]) || new Date().getFullYear();
+    const baseMonth = Number(baseParts[1]) || 1;
+    const expMonth = Number(md[1]);
+    const year = (baseMonth >= 11 && expMonth <= 2) ? baseYear + 1 : baseYear;
+    return `${year}-${md[1]}-${md[2]}`;
+  }
+  return '';
+}
+
 function stripKgUnit(raw) {
-  return String(raw || '').replace(/\s*kg$/i, '').trim();
+  return String(raw || '').replace(/,/g, '').replace(/\s*kg$/i, '').trim();
+}
+
+function parseKgNum(raw) {
+  const clean = stripKgUnit(raw);
+  if (!clean) return null;
+  const m = clean.match(/-?\d+(?:\.\d+)?/);
+  if (!m) return null;
+  const n = Number(m[0]);
+  return Number.isFinite(n) ? n : null;
+}
+
+function formatKgNumber(num) {
+  const rounded = Math.round(num * 10) / 10;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
 function formatQtyWithKg(raw) {
   const clean = stripKgUnit(raw);
   return clean ? `${clean}kg` : '';
+}
+
+function makeStockId(idx = 0) {
+  return `stk_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 6)}`;
+}
+
+/**
+ * 등록일(createdDate)이 작성일(reportDate)보다 이전이면 다음날 이월된 항목이므로
+ * 구분을 자동으로 '재고'로 전환 (보류 상태는 보류 유지)
+ */
+export function resolveDisplayType(item, reportDate) {
+  const tp = normalizeIoType(item?.f9004_type || '재고') || '재고';
+  if (isOutflowType(tp)) return tp;
+  if (item?.createdDate && reportDate && item.createdDate < reportDate) {
+    return tp === '보류' ? '보류' : '재고';
+  }
+  return tp;
+}
+
+/**
+ * 이월된 '재고' 항목을 최상단(유효기간 임박순 FIFO)에 배치하고,
+ * 이어서 금일 '입고', 마지막에 '보류' 순으로 정렬
+ */
+export function sortStockItems(items, reportDate) {
+  const rankOf = (it) => {
+    const disp = resolveDisplayType(it, reportDate);
+    if (disp === '재고') {
+      return (it?.createdDate && reportDate && it.createdDate < reportDate) ? 0 : 1;
+    }
+    if (disp === '입고') return 2;
+    if (disp === '보류') return 3;
+    return 4;
+  };
+
+  return [...items].sort((a, b) => {
+    const rDiff = rankOf(a) - rankOf(b);
+    if (rDiff !== 0) return rDiff;
+    const isoA = a?.f9004_expiryIso || toExpiryIso(a?.f9004_expiryDate, a?.createdDate || reportDate) || '9999-99-99';
+    const isoB = b?.f9004_expiryIso || toExpiryIso(b?.f9004_expiryDate, b?.createdDate || reportDate) || '9999-99-99';
+    if (isoA !== isoB) return isoA.localeCompare(isoB);
+    return 0;
+  });
+}
+
+function normalizeStockItem(raw, fallbackDate, idx = 0) {
+  const createdDate = String(raw?.createdDate || fallbackDate || '');
+  const rubberName = String(raw?.f9004_rubberName ?? raw?.f9004_carModel ?? '').trim();
+  const rawExpiry = raw?.f9004_expiryDate ?? raw?.f9004_compoundLot ?? '';
+  const expiryDate = formatExpiryMonthDay(rawExpiry);
+  const expiryIso = String(raw?.f9004_expiryIso || toExpiryIso(rawExpiry || expiryDate, createdDate)).trim();
+  const amount = formatQtyWithKg(raw?.f9004_amount || '');
+  const ioType = normalizeIoType(raw?.f9004_type || '재고') || '재고';
+  return {
+    stockId: raw?.stockId || makeStockId(idx),
+    f9004_rubberName: rubberName,
+    f9004_expiryDate: expiryDate,
+    f9004_expiryIso: expiryIso,
+    f9004_amount: amount,
+    f9004_type: ioType,
+    createdDate
+  };
+}
+
+function readLocalFmbCache() {
+  try {
+    const raw = localStorage.getItem(FMB_LOCAL_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.items)) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalFmbCache(items, lastReportDate) {
+  try {
+    localStorage.setItem(FMB_LOCAL_CACHE_KEY, JSON.stringify({
+      items,
+      lastReportDate: lastReportDate || '',
+      updatedAt: new Date().toISOString()
+    }));
+  } catch {
+    // localStorage quota/disabled ignore
+  }
+}
+
+function computeRubberTotals(items) {
+  const byRubber = new Map();
+  F9004_RUBBER_OPTIONS.forEach((rb) => byRubber.set(rb, { kg: 0, count: 0 }));
+
+  let totalKg = 0;
+  let totalCount = 0;
+
+  (Array.isArray(items) ? items : []).forEach((it) => {
+    if (isOutflowType(it?.f9004_type)) return;
+    const rb = String(it?.f9004_rubberName ?? it?.f9004_carModel ?? '').trim();
+    if (!rb) return;
+    const kg = parseKgNum(it?.f9004_amount) || 0;
+    if (!byRubber.has(rb)) {
+      byRubber.set(rb, { kg: 0, count: 0 });
+    }
+    const entry = byRubber.get(rb);
+    entry.kg += kg;
+    entry.count += 1;
+    totalKg += kg;
+    totalCount += 1;
+  });
+
+  return { byRubber, totalKg, totalCount };
 }
 
 const escapeHtml = (val) => String(val ?? '')
@@ -65,6 +217,33 @@ const escapeHtml = (val) => String(val ?? '')
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
+
+function buildStockSummaryBarHTML(items, compact = false) {
+  const { byRubber, totalKg, totalCount } = computeRubberTotals(items);
+  const cardsHtml = Array.from(byRubber.entries()).map(([rb, info]) => {
+    const active = info.kg > 0 || info.count > 0;
+    return `
+      <div style="background: ${active ? '#ffffff' : '#f8fafc'}; border: 1px solid ${active ? '#94a3b8' : '#e2e8f0'}; border-radius: 6px; padding: ${compact ? '4px 8px' : '6px 10px'}; display: flex; justify-content: space-between; align-items: center; gap: 6px; min-width: 0;">
+        <span translate="no" style="font-size: ${compact ? '11.5px' : '12px'}; font-weight: 800; color: ${active ? '#0f172a' : '#64748b'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(rb)}</span>
+        <span translate="no" style="font-size: ${compact ? '12px' : '13px'}; font-weight: 800; color: ${active ? '#047857' : '#94a3b8'}; white-space: nowrap;">${formatKgNumber(info.kg)} kg</span>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: ${compact ? '6px 8px' : '8px 10px'}; margin-bottom: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+        <span style="font-size: 12px; font-weight: 800; color: #1e293b;">📦 고무실 현재 재고 현황</span>
+        <span style="font-size: 12px; font-weight: 800; color: ${totalCount > 0 ? '#1d4ed8' : '#64748b'}; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 999px; padding: 1px 10px;">
+          <span>총 재고</span>: <strong translate="no">${formatKgNumber(totalKg)} kg</strong>
+        </span>
+      </div>
+      <div class="f9004-stock-summary-grid">
+        ${cardsHtml}
+      </div>
+    </div>
+  `;
+}
 
 function parseEnvNumber(raw) {
   if (raw === null || raw === undefined) return null;
@@ -129,11 +308,27 @@ function buildFmbStandardLeftBoxHTML(compact = false) {
   `;
 }
 
-function buildRowHTML(item, idx) {
-  const curType = normalizeIoType(item?.f9004_type || '');
+function buildStockRowHTML(item, idx, reportDate) {
+  const curType = resolveDisplayType(item, reportDate);
   const curRubber = String(item?.f9004_rubberName ?? item?.f9004_carModel ?? '').trim();
   const curExpiry = formatExpiryMonthDay(item?.f9004_expiryDate ?? item?.f9004_compoundLot ?? '');
+  const curExpiryIso = String(item?.f9004_expiryIso || toExpiryIso(curExpiry, item?.createdDate || reportDate)).trim();
   const curQtyNum = stripKgUnit(item?.f9004_amount || '');
+
+  const rowBg = curType === '재고'
+    ? '#f8fafc'
+    : curType === '입고'
+      ? '#f0fdf4'
+      : curType === '보류'
+        ? '#fffbeb'
+        : '#ffffff';
+  const typeColor = curType === '재고'
+    ? '#1d4ed8'
+    : curType === '입고'
+      ? '#047857'
+      : curType === '보류'
+        ? '#b45309'
+        : '#0f172a';
 
   const typeOptions = F9004_IO_TYPES.map((tp) => (
     `<option value="${escapeHtml(tp)}" ${curType === tp ? 'selected' : ''}>${escapeHtml(tp)}</option>`
@@ -147,26 +342,28 @@ function buildRowHTML(item, idx) {
   )).join('');
 
   return `
-    <tr data-f9004-row="${idx}">
+    <tr data-f9004-row="${idx}" data-stock-id="${escapeHtml(item?.stockId || '')}" data-created-date="${escapeHtml(item?.createdDate || reportDate || '')}" style="background: ${rowBg};">
       <td data-f9004-col="no" style="border: 1px solid #000; text-align: center; font-weight: 700; padding: 4px 2px;">${idx + 1}</td>
       <td style="border: 1px solid #000; padding: 3px 2px;">
-        <select id="f9004_type_${idx}" name="f9004_type_${idx}" data-f9004-field="type" class="form-control" style="font-size: 12px; padding: 4px 2px; height: auto; width: 100%;">
-          <option value="">-</option>
+        <select id="f9004_type_${idx}" name="f9004_type_${idx}" data-f9004-field="type" class="form-control" style="font-size: 12px; font-weight: 800; color: ${typeColor}; padding: 4px 2px; height: auto; width: 100%; background: #ffffff;">
           ${typeOptions}
         </select>
       </td>
       <td style="border: 1px solid #000; padding: 3px 4px;">
-        <select id="f9004_rubber_${idx}" name="f9004_rubber_${idx}" data-f9004-field="rubberName" class="form-control" style="font-size: 12.5px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%;">
+        <select id="f9004_rubber_${idx}" name="f9004_rubber_${idx}" data-f9004-field="rubberName" class="form-control" style="font-size: 12.5px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%; background: #ffffff;">
           <option value="">선택</option>
           ${rubberOptions}
         </select>
       </td>
       <td style="border: 1px solid #000; padding: 3px 3px;">
-        <input type="text" inputmode="numeric" maxlength="5" id="f9004_expiry_${idx}" name="f9004_expiry_${idx}" data-f9004-field="expiryDate" data-wheel-skip="1" class="form-control" value="${escapeHtml(curExpiry)}" placeholder="MM/DD" style="font-size: 12.5px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center;" />
+        <div class="f9004-mmdd-wrap" style="position: relative; width: 100%;">
+          <input type="text" readonly tabindex="-1" id="f9004_expiry_${idx}" name="f9004_expiry_${idx}" data-f9004-field="expiryDate" data-expiry-iso="${escapeHtml(curExpiryIso)}" data-wheel-skip="1" class="form-control" value="${escapeHtml(curExpiry)}" placeholder="MM/DD" style="font-size: 12.5px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center; background: #ffffff; pointer-events: none;" />
+          <input type="date" id="f9004_expiry_picker_${idx}" data-f9004-date-picker="1" data-wheel-skip="1" aria-label="유효기간 날짜 선택" value="${escapeHtml(curExpiryIso)}" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; border: 0; z-index: 2;" />
+        </div>
       </td>
       <td style="border: 1px solid #000; padding: 3px 3px;">
         <div style="position: relative; display: flex; align-items: center;">
-          <input type="text" inputmode="decimal" maxlength="6" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" data-wheel-skip="1" class="form-control" value="${escapeHtml(curQtyNum)}" placeholder="000" style="font-size: 12.5px; font-weight: 700; padding: 4px 21px 4px 4px; height: auto; width: 100%; text-align: right;" />
+          <input type="text" inputmode="decimal" maxlength="6" id="f9004_qty_${idx}" name="f9004_qty_${idx}" data-f9004-field="amount" data-wheel-skip="1" class="form-control" value="${escapeHtml(curQtyNum)}" placeholder="000" style="font-size: 12.5px; font-weight: 700; padding: 4px 21px 4px 4px; height: auto; width: 100%; text-align: right; background: #ffffff;" />
           <span translate="no" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #475569; pointer-events: none;">kg</span>
         </div>
       </td>
@@ -174,9 +371,89 @@ function buildRowHTML(item, idx) {
   `;
 }
 
+function buildEmptyStockRowHTML() {
+  return `
+    <tr data-f9004-empty="1">
+      <td colspan="5" style="border: 1px solid #000; padding: 12px 8px; text-align: center; color: #64748b; font-size: 12px; font-weight: 600; background: #f8fafc;">
+        현재 등록된 고무실 재고가 없습니다. 아래 입력란에서 입고/재고 기록 후 업데이트하세요.
+      </td>
+    </tr>
+  `;
+}
+
+function buildEntryRowHTML() {
+  const typeOptions = F9004_IO_TYPES.map((tp) => (
+    `<option value="${escapeHtml(tp)}" ${tp === '입고' ? 'selected' : ''}>${escapeHtml(tp)}</option>`
+  )).join('');
+
+  const rubberOptions = F9004_RUBBER_OPTIONS.map((rb) => (
+    `<option value="${escapeHtml(rb)}" translate="no">${escapeHtml(rb)}</option>`
+  )).join('');
+
+  return `
+    <tr data-f9004-entry-row="1" style="background: #eff6ff; border-top: 2px solid #0f172a;">
+      <td style="border: 1px solid #000; text-align: center; font-size: 11px; font-weight: 800; color: #1d4ed8; padding: 4px 2px; white-space: nowrap;">신규</td>
+      <td style="border: 1px solid #000; padding: 3px 2px;">
+        <select id="f9004_new_type" name="f9004_new_type" data-f9004-new="type" class="form-control" style="font-size: 12px; font-weight: 800; padding: 4px 2px; height: auto; width: 100%; background: #ffffff;">
+          ${typeOptions}
+        </select>
+      </td>
+      <td style="border: 1px solid #000; padding: 3px 4px;">
+        <select id="f9004_new_rubber" name="f9004_new_rubber" data-f9004-new="rubberName" class="form-control" style="font-size: 12.5px; font-weight: 700; padding: 4px 6px; height: auto; width: 100%; background: #ffffff;">
+          <option value="">선택</option>
+          ${rubberOptions}
+        </select>
+      </td>
+      <td style="border: 1px solid #000; padding: 3px 3px;">
+        <div class="f9004-mmdd-wrap" style="position: relative; width: 100%;">
+          <input type="text" readonly tabindex="-1" id="f9004_new_expiry" name="f9004_new_expiry" data-f9004-new="expiryDate" data-expiry-iso="" data-wheel-skip="1" class="form-control" value="" placeholder="MM/DD" style="font-size: 12.5px; font-weight: 700; padding: 4px 2px; height: auto; width: 100%; text-align: center; background: #ffffff; pointer-events: none;" />
+          <input type="date" id="f9004_new_expiry_picker" data-f9004-date-picker="1" data-wheel-skip="1" aria-label="유효기간 날짜 선택" value="" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; border: 0; z-index: 2;" />
+        </div>
+      </td>
+      <td style="border: 1px solid #000; padding: 3px 3px;">
+        <div style="position: relative; display: flex; align-items: center;">
+          <input type="text" inputmode="decimal" maxlength="6" id="f9004_new_qty" name="f9004_new_qty" data-f9004-new="amount" data-wheel-skip="1" class="form-control" value="" placeholder="000" style="font-size: 12.5px; font-weight: 700; padding: 4px 21px 4px 4px; height: auto; width: 100%; text-align: right; background: #ffffff;" />
+          <span translate="no" style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 11px; font-weight: 800; color: #475569; pointer-events: none;">kg</span>
+        </div>
+      </td>
+    </tr>
+  `;
+}
+
+function buildDispatchedBoxHTML(dispatchedToday) {
+  if (!Array.isArray(dispatchedToday) || dispatchedToday.length === 0) return '';
+  const rows = dispatchedToday.map((it, idx) => {
+    const tp = normalizeIoType(it?.f9004_type || '불출');
+    const rb = String(it?.f9004_rubberName || '').trim();
+    const exp = formatExpiryMonthDay(it?.f9004_expiryDate || '');
+    const amt = formatQtyWithKg(it?.f9004_amount || '') || '-';
+    return `
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 8px; background: #ffffff; border: 1px solid #fecdd3; border-radius: 4px; font-size: 12px;">
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <span style="padding: 1px 6px; border-radius: 4px; background: #ffe4e6; color: #be123c; font-weight: 800; font-size: 11px;">${escapeHtml(tp)}</span>
+          <strong translate="no" style="color: #0f172a;">${escapeHtml(rb)}</strong>
+          ${exp ? `<span style="color: #64748b;" translate="no">(${escapeHtml(exp)})</span>` : ''}
+          <strong translate="no" style="color: #be123c;">${escapeHtml(amt)}</strong>
+        </div>
+        <button type="button" data-f9004-undo-dispatch="${idx}" style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; cursor: pointer; white-space: nowrap;">되돌리기</button>
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div style="margin-top: 8px; padding: 8px 10px; background: #fff1f2; border: 1px solid #fda4af; border-radius: 6px;">
+      <div style="font-size: 11.5px; font-weight: 800; color: #9f1239; margin-bottom: 6px;">📤 금일 불출·반납 완료 (재고 차감됨)</div>
+      <div style="display: flex; flex-direction: column; gap: 4px;">
+        ${rows}
+      </div>
+    </div>
+  `;
+}
+
 export function renderFmbPaperForm(container, existingData, loggedInWorkerName) {
   const todayStr = new Date().toLocaleDateString('sv-SE');
-  const dateParts = (existingData?.date || todayStr).split('-');
+  let currentReportDate = existingData?.date || todayStr;
+  const dateParts = currentReportDate.split('-');
 
   let defaultStartTime = '08:00';
   let defaultEndTime = '17:00';
@@ -188,12 +465,43 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
 
   const envData = existingData?.f9004_env || {};
   const chkData = existingData?.f9004_checks || {};
-  const savedItems = Array.isArray(existingData?.f9004_items) && existingData.f9004_items.length > 0
-    ? existingData.f9004_items
-    : [];
-  const rowCount = Math.max(5, savedItems.length);
-  const initialRows = Array.from({ length: rowCount }, (_, i) => savedItems[i] || {});
   const workDetails = existingData?.workDetails || '';
+
+  // 초기 재고 및 금일 불출 목록 구성
+  let stockItems = [];
+  let dispatchedToday = [];
+  let lastKnownServerDate = '';
+  let hasUserAppliedUpdate = false;
+
+  if (existingData) {
+    const rawSaved = Array.isArray(existingData.f9004_items) ? existingData.f9004_items : [];
+    const rawDispatched = Array.isArray(existingData.f9004_dispatched) ? existingData.f9004_dispatched : [];
+    rawSaved.forEach((it, idx) => {
+      const norm = normalizeStockItem(it, currentReportDate, idx);
+      if (!norm.f9004_rubberName && !norm.f9004_expiryDate && !norm.f9004_amount) return;
+      if (isOutflowType(norm.f9004_type)) {
+        dispatchedToday.push(norm);
+      } else {
+        stockItems.push(norm);
+      }
+    });
+    rawDispatched.forEach((it, idx) => {
+      const norm = normalizeStockItem(it, currentReportDate, idx + 100);
+      if (norm.f9004_rubberName || norm.f9004_amount) {
+        dispatchedToday.push(norm);
+      }
+    });
+  } else {
+    const cached = readLocalFmbCache();
+    if (cached && Array.isArray(cached.items)) {
+      lastKnownServerDate = cached.lastReportDate || '';
+      stockItems = cached.items
+        .map((it, idx) => normalizeStockItem(it, cached.lastReportDate || currentReportDate, idx))
+        .filter((it) => it.f9004_rubberName && !isOutflowType(it.f9004_type));
+    }
+  }
+
+  stockItems = sortStockItems(stockItems, currentReportDate);
 
   container.innerHTML = `
     <div data-form-code="9004" class="paper-form-container" style="font-family: 'Noto Sans KR', sans-serif; color: #000; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 820px; margin: 0 auto;">
@@ -251,11 +559,34 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
             grid-template-columns: 1fr 1fr;
             gap: 10px;
           }
+          [data-form-code="9004"] .f9004-stock-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+          }
+          [data-form-code="9004"] input[data-f9004-date-picker="1"]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            cursor: pointer;
+          }
           body.mobile-preview-mode [data-form-code="9004"] .f9004-env-split-grid {
+            grid-template-columns: 1fr;
+          }
+          body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid {
             grid-template-columns: 1fr;
           }
           @container (max-width: 640px) {
             [data-form-code="9004"] .f9004-env-split-grid {
+              grid-template-columns: 1fr;
+            }
+          }
+          @container (max-width: 520px) {
+            [data-form-code="9004"] .f9004-stock-summary-grid {
               grid-template-columns: 1fr;
             }
           }
@@ -266,6 +597,9 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
           }
           @media (max-width: 768px) {
             [data-form-code="9004"] .f9004-env-split-grid {
+              grid-template-columns: 1fr;
+            }
+            [data-form-code="9004"] .f9004-stock-summary-grid {
               grid-template-columns: 1fr;
             }
           }
@@ -353,14 +687,22 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         </table>
       </div>
 
-      <!-- 2. 금일 FMB 입고·불출 및 작업 내역 -->
-      <div style="margin-bottom: 20px;">
+      <!-- 2. 금일 입고·불출 및 재고 관리 내역 -->
+      <div style="margin-bottom: 20px; container-type: inline-size;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
           <h3 style="font-size: 14px; font-weight: 800; color: #000; margin: 0;">2. 금일 입고 · 불출 및 재고 관리 내역</h3>
-          <button type="button" id="f9004_btnAddRow" class="btn btn-secondary btn-sm" style="font-size: 12px; font-weight: 700; padding: 4px 10px;">
-            ➕ 내역 행 추가
-          </button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span id="f9004_stockSyncStatus" style="font-size: 11px; font-weight: 700; color: #64748b;"></span>
+            <button type="button" id="f9004_btnUpdateStock" class="btn btn-primary btn-sm" style="font-size: 12px; font-weight: 800; padding: 5px 12px; border-radius: 6px; cursor: pointer;">
+              🔄 기록 업데이트
+            </button>
+          </div>
         </div>
+
+        <div id="f9004_stockSummaryBar">
+          ${buildStockSummaryBarHTML(stockItems, false)}
+        </div>
+
         <div style="overflow-x: auto;">
           <table class="data-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 340px;">
             <colgroup>
@@ -380,9 +722,18 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
               </tr>
             </thead>
             <tbody id="f9004_tbody">
-              ${initialRows.map((item, idx) => buildRowHTML(item, idx)).join('')}
+              ${stockItems.length > 0
+                ? stockItems.map((item, idx) => buildStockRowHTML(item, idx, currentReportDate)).join('')
+                : buildEmptyStockRowHTML()}
             </tbody>
+            <tfoot id="f9004_entryTfoot">
+              ${buildEntryRowHTML()}
+            </tfoot>
           </table>
+        </div>
+
+        <div id="f9004_dispatchedBox">
+          ${buildDispatchedBoxHTML(dispatchedToday)}
         </div>
       </div>
 
@@ -408,7 +759,11 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
   if (!root) return;
 
   const tbody = root.querySelector('#f9004_tbody');
-  const btnAddRow = root.querySelector('#f9004_btnAddRow');
+  const entryTfoot = root.querySelector('#f9004_entryTfoot');
+  const stockSummaryBar = root.querySelector('#f9004_stockSummaryBar');
+  const dispatchedBox = root.querySelector('#f9004_dispatchedBox');
+  const stockSyncStatus = root.querySelector('#f9004_stockSyncStatus');
+  const btnUpdateStock = root.querySelector('#f9004_btnUpdateStock');
   const btnDraftSave = root.querySelector('#f9004_btnDraftSave');
   const btnFinalSubmit = root.querySelector('#f9004_btnFinalSubmit');
   const tempInput = root.querySelector('#f9004_temp');
@@ -425,6 +780,320 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
     el.replaceChildren(doc.createTextNode(koText));
     i18n.applyTranslations(el);
   };
+
+  const resolveEffectiveDate = () => {
+    const formRoot = container.closest('form, [id="mobileWorkReportForm"]')?.parentElement || container.closest('[data-form-root]');
+    const outerDate = formRoot?.querySelector('#reportDate')?.value;
+    if (outerDate) return outerDate;
+    const yy = root.querySelector('#f9004_year')?.value;
+    const mm = root.querySelector('#f9004_month')?.value;
+    const dd = root.querySelector('#f9004_day')?.value;
+    if (yy && mm && dd) return `20${yy}-${mm}-${dd}`;
+    return currentReportDate;
+  };
+
+  const renderStockSection = () => {
+    currentReportDate = resolveEffectiveDate();
+    stockItems = sortStockItems(stockItems, currentReportDate);
+    if (tbody) {
+      tbody.innerHTML = stockItems.length > 0
+        ? stockItems.map((item, idx) => buildStockRowHTML(item, idx, currentReportDate)).join('')
+        : buildEmptyStockRowHTML();
+      i18n.applyTranslations(tbody);
+    }
+    if (stockSummaryBar) {
+      stockSummaryBar.innerHTML = buildStockSummaryBarHTML(stockItems, false);
+      i18n.applyTranslations(stockSummaryBar);
+    }
+    if (dispatchedBox) {
+      dispatchedBox.innerHTML = buildDispatchedBoxHTML(dispatchedToday);
+      i18n.applyTranslations(dispatchedBox);
+    }
+  };
+
+  const resetEntryRow = () => {
+    if (!entryTfoot) return;
+    entryTfoot.innerHTML = buildEntryRowHTML();
+    i18n.applyTranslations(entryTfoot);
+  };
+
+  const persistLiveInventory = (effectiveDate) => {
+    // 과거 날짜의 이미 저장된 일보를 사후 수정할 때는 최신 실시간 재고를 덮어쓰지 않음
+    if (existingData?.id && lastKnownServerDate && effectiveDate < lastKnownServerDate) {
+      return;
+    }
+    writeLocalFmbCache(stockItems, effectiveDate);
+    const roleInfo = store.getUserRole?.();
+    const worker = existingData?.workerName || roleInfo?.workerName || loggedInWorkerName || '작업자';
+    saveFmbInventory(stockItems, { reportDate: effectiveDate, workerName: worker })
+      .then(() => {
+        lastKnownServerDate = effectiveDate;
+        if (stockSyncStatus && root.isConnected) {
+          stockSyncStatus.style.color = '#059669';
+          setTranslatableText(stockSyncStatus, '✓ 재고 업데이트됨');
+        }
+      })
+      .catch(() => {
+        if (stockSyncStatus && root.isConnected) {
+          stockSyncStatus.style.color = '#64748b';
+          setTranslatableText(stockSyncStatus, '로컬 저장됨');
+        }
+      });
+  };
+
+  /**
+   * [🔄 기록 업데이트] 실행:
+   * 1) 기존 재고 행에서 수정된 내용 반영 (구분을 '불출'/'반납'으로 변경한 행은 재고에서 즉시 제거)
+   * 2) 하단 '신규' 입력 행에 기록된 입고/재고 추가 또는 불출/반납 차감·제거
+   * 3) 이월 재고 최상단 정렬 및 실시간 재고(Firestore + localStorage) 동기화
+   */
+  const applyStockUpdate = ({ fromSave = false } = {}) => {
+    currentReportDate = resolveEffectiveDate();
+    hasUserAppliedUpdate = true;
+
+    // 1. 기존 재고 행 동기화
+    if (tbody) {
+      const nextStock = [];
+      tbody.querySelectorAll('tr[data-f9004-row]').forEach((tr, idx) => {
+        const prev = stockItems[idx] || {};
+        const rawType = normalizeIoType(tr.querySelector('[data-f9004-field="type"]')?.value || '재고');
+        const rubberName = String(tr.querySelector('[data-f9004-field="rubberName"]')?.value || '').trim();
+        const expiryInput = tr.querySelector('[data-f9004-field="expiryDate"]');
+        const expiryDate = formatExpiryMonthDay(expiryInput?.value || '');
+        const createdDate = tr.getAttribute('data-created-date') || prev.createdDate || currentReportDate;
+        const expiryIso = expiryInput?.getAttribute('data-expiry-iso') || toExpiryIso(expiryDate, createdDate);
+        const qtyRaw = tr.querySelector('[data-f9004-field="amount"]')?.value || '';
+        const qtyNum = parseKgNum(qtyRaw);
+        const amount = formatQtyWithKg(qtyRaw);
+
+        if (!rubberName) return;
+
+        // 기존 행의 구분을 '불출' 또는 '반납'으로 변경하거나 수량을 0으로 만든 경우 -> 고무실 재고에서 제거
+        if (isOutflowType(rawType) || (qtyRaw.trim() !== '' && qtyNum !== null && qtyNum <= 0)) {
+          dispatchedToday.push({
+            stockId: prev.stockId || makeStockId(idx),
+            f9004_type: isOutflowType(rawType) ? rawType : '불출',
+            f9004_rubberName: rubberName,
+            f9004_expiryDate: expiryDate,
+            f9004_expiryIso: expiryIso,
+            f9004_amount: amount || prev.f9004_amount || '',
+            createdDate
+          });
+          return;
+        }
+
+        nextStock.push({
+          stockId: prev.stockId || tr.getAttribute('data-stock-id') || makeStockId(idx),
+          f9004_type: rawType,
+          f9004_rubberName: rubberName,
+          f9004_expiryDate: expiryDate,
+          f9004_expiryIso: expiryIso,
+          f9004_amount: amount,
+          createdDate
+        });
+      });
+      stockItems = nextStock;
+    }
+
+    // 2. 하단 '신규' 입력 행 처리
+    if (entryTfoot) {
+      const newType = normalizeIoType(entryTfoot.querySelector('#f9004_new_type')?.value || '입고');
+      const newRubberEl = entryTfoot.querySelector('#f9004_new_rubber');
+      const newRubber = String(newRubberEl?.value || '').trim();
+      const newExpiryEl = entryTfoot.querySelector('#f9004_new_expiry');
+      const newExpiry = formatExpiryMonthDay(newExpiryEl?.value || '');
+      const newExpiryIso = newExpiryEl?.getAttribute('data-expiry-iso') || toExpiryIso(newExpiry, currentReportDate);
+      const newQtyRaw = String(entryTfoot.querySelector('#f9004_new_qty')?.value || '').trim();
+      const newAmount = formatQtyWithKg(newQtyRaw);
+
+      if (!newRubber && (newExpiry || newQtyRaw)) {
+        if (!fromSave) {
+          windowMock?.showToast?.('⚠️ 고무명을 선택해 주세요.', 'warning');
+          newRubberEl?.focus?.();
+          return false;
+        }
+      } else if (newRubber) {
+        if (isOutflowType(newType)) {
+          // 불출/반납 등록 -> 현재 고무실 재고에서 일치 항목 제거 또는 중량 차감
+          stockItems = sortStockItems(stockItems, currentReportDate);
+          const reqKg = parseKgNum(newQtyRaw);
+          const candidateIndices = [];
+          // 유효기간 지정 시 해당 유효기간 재고 우선 매칭, 그 외 선입선출(FIFO) 순서 매칭
+          stockItems.forEach((st, i) => {
+            if (st.f9004_rubberName === newRubber && newExpiry && st.f9004_expiryDate === newExpiry) {
+              candidateIndices.push(i);
+            }
+          });
+          stockItems.forEach((st, i) => {
+            if (st.f9004_rubberName === newRubber && !candidateIndices.includes(i)) {
+              candidateIndices.push(i);
+            }
+          });
+
+          if (candidateIndices.length === 0) {
+            if (!fromSave) {
+              windowMock?.showToast?.('⚠️ 해당 고무명의 현재 재고가 없습니다.', 'warning');
+            }
+          } else if (reqKg === null || reqKg <= 0) {
+            // 수량 미입력 불출 시 최우선 매칭 재고 1건을 전량 불출 제거
+            const targetIdx = candidateIndices[0];
+            const removed = stockItems.splice(targetIdx, 1)[0];
+            dispatchedToday.push({
+              ...removed,
+              f9004_type: newType
+            });
+          } else {
+            let remaining = reqKg;
+            const toRemove = new Set();
+            let matchedExpiry = newExpiry;
+            for (const cIdx of candidateIndices) {
+              if (remaining <= 0) break;
+              const st = stockItems[cIdx];
+              if (!matchedExpiry && st.f9004_expiryDate) matchedExpiry = st.f9004_expiryDate;
+              const stKg = parseKgNum(st.f9004_amount);
+              if (stKg === null || stKg <= remaining) {
+                toRemove.add(cIdx);
+                remaining -= (stKg || remaining);
+              } else {
+                st.f9004_amount = `${formatKgNumber(stKg - remaining)}kg`;
+                remaining = 0;
+              }
+            }
+            stockItems = stockItems.filter((_, i) => !toRemove.has(i));
+            dispatchedToday.push({
+              stockId: makeStockId(dispatchedToday.length),
+              f9004_type: newType,
+              f9004_rubberName: newRubber,
+              f9004_expiryDate: matchedExpiry,
+              f9004_expiryIso: newExpiryIso || toExpiryIso(matchedExpiry, currentReportDate),
+              f9004_amount: `${formatKgNumber(reqKg)}kg`,
+              createdDate: currentReportDate
+            });
+          }
+        } else {
+          // 입고 / 재고 / 보류 신규 등록
+          stockItems.push({
+            stockId: makeStockId(stockItems.length),
+            f9004_type: newType || '입고',
+            f9004_rubberName: newRubber,
+            f9004_expiryDate: newExpiry,
+            f9004_expiryIso: newExpiryIso,
+            f9004_amount: newAmount,
+            createdDate: currentReportDate
+          });
+        }
+        resetEntryRow();
+      }
+    }
+
+    renderStockSection();
+    persistLiveInventory(currentReportDate);
+    return true;
+  };
+
+  // 날짜 변경 동기화 콜백 등록 (작성일을 다음날로 바꾸면 이월 항목이 즉시 최상단 '재고'로 표시됨)
+  container._onF9004DateSync = (newDateVal) => {
+    if (newDateVal && newDateVal !== currentReportDate) {
+      currentReportDate = newDateVal;
+      renderStockSection();
+    }
+  };
+
+  // 신규 일보 작성 시 Firestore 실시간 고무실 재고 로드
+  if (!existingData) {
+    fetchFmbInventory().then((res) => {
+      if (!root.isConnected || hasUserAppliedUpdate || res?.offlineError) return;
+      lastKnownServerDate = res.lastReportDate || '';
+      const loaded = (Array.isArray(res.items) ? res.items : [])
+        .map((it, idx) => normalizeStockItem(it, res.lastReportDate || currentReportDate, idx))
+        .filter((it) => it.f9004_rubberName && !isOutflowType(it.f9004_type));
+      stockItems = sortStockItems(loaded, resolveEffectiveDate());
+      writeLocalFmbCache(stockItems, res.lastReportDate || resolveEffectiveDate());
+      renderStockSection();
+    });
+  } else {
+    fetchFmbInventory().then((res) => {
+      if (!res?.offlineError) {
+        lastKnownServerDate = res.lastReportDate || '';
+      }
+    });
+  }
+
+  // 유효기간 달력 선택창(showPicker) 및 MM/DD 표기 동기화 (root 내부 한정 - 원칙 13)
+  root.addEventListener('click', (e) => {
+    const picker = e.target.closest?.('input[data-f9004-date-picker="1"]');
+    if (picker) {
+      if (typeof picker.showPicker === 'function') {
+        try {
+          picker.showPicker();
+        } catch {
+          // 모바일 등 기본 브라우저 데이트피커 동작으로 위임
+        }
+      }
+      return;
+    }
+
+    const undoBtn = e.target.closest?.('[data-f9004-undo-dispatch]');
+    if (undoBtn) {
+      const uIdx = Number(undoBtn.getAttribute('data-f9004-undo-dispatch'));
+      if (Number.isInteger(uIdx) && dispatchedToday[uIdx]) {
+        const restored = dispatchedToday.splice(uIdx, 1)[0];
+        hasUserAppliedUpdate = true;
+        const restoreDate = restored.createdDate || currentReportDate;
+        stockItems.push({
+          ...restored,
+          f9004_type: restoreDate < currentReportDate ? '재고' : '입고'
+        });
+        renderStockSection();
+        persistLiveInventory(currentReportDate);
+      }
+    }
+  });
+
+  const syncDatePickerValue = (e) => {
+    const picker = e.target.closest?.('input[data-f9004-date-picker="1"]');
+    if (!picker) return;
+    const wrap = picker.closest('.f9004-mmdd-wrap');
+    const dispInput = wrap?.querySelector('[data-f9004-field="expiryDate"], #f9004_new_expiry');
+    if (dispInput) {
+      const iso = picker.value || '';
+      dispInput.value = formatExpiryMonthDay(iso);
+      dispInput.setAttribute('data-expiry-iso', iso);
+    }
+  };
+  root.addEventListener('input', syncDatePickerValue);
+  root.addEventListener('change', (e) => {
+    syncDatePickerValue(e);
+    // 기존 재고 행에서 구분을 '불출'/'반납'으로 바꾸면 업데이트 대기 강조 표시
+    const sel = e.target.closest?.('tr[data-f9004-row] [data-f9004-field="type"]');
+    if (sel) {
+      const tr = sel.closest('tr[data-f9004-row]');
+      if (tr) {
+        if (isOutflowType(sel.value)) {
+          tr.style.background = '#fff1f2';
+          sel.style.color = '#be123c';
+        } else {
+          tr.style.background = sel.value === '재고' ? '#f8fafc' : sel.value === '입고' ? '#f0fdf4' : '#fffbeb';
+          sel.style.color = sel.value === '재고' ? '#1d4ed8' : sel.value === '입고' ? '#047857' : '#b45309';
+        }
+      }
+    }
+  });
+
+  if (entryTfoot) {
+    entryTfoot.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target?.id === 'f9004_new_qty') {
+        e.preventDefault();
+        applyStockUpdate({ fromSave: false });
+      }
+    });
+  }
+
+  if (btnUpdateStock) {
+    btnUpdateStock.addEventListener('click', () => {
+      applyStockUpdate({ fromSave: false });
+    });
+  }
 
   const updateEnvSpecFeedback = () => {
     const { tempOk, humOk } = evaluateF9004EnvSpec(tempInput?.value, humInput?.value);
@@ -494,44 +1163,16 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
     });
   }
 
-  if (tbody) {
-    // 유효기간(MM/DD) 숫자 입력 시 자동 슬래시 포맷팅 (예: 1120 -> 11/20)
-    tbody.addEventListener('input', (e) => {
-      const target = e.target;
-      if (!target || target.getAttribute('data-f9004-field') !== 'expiryDate') return;
-      const raw = target.value;
-      if (/^\d{3,4}$/.test(raw)) {
-        target.value = `${raw.slice(0, 2)}/${raw.slice(2)}`;
-      }
-    });
-    tbody.addEventListener('focusout', (e) => {
-      const target = e.target;
-      if (!target || target.getAttribute('data-f9004-field') !== 'expiryDate') return;
-      target.value = formatExpiryMonthDay(target.value);
-    });
-  }
-
-  if (btnAddRow && tbody) {
-    btnAddRow.addEventListener('click', () => {
-      const nextIdx = tbody.querySelectorAll('tr[data-f9004-row]').length;
-      tbody.insertAdjacentHTML('beforeend', buildRowHTML({}, nextIdx));
-      i18n.applyTranslations(tbody);
-    });
-  }
-
   i18n.applyTranslations(root);
   updateEnvSpecFeedback();
 
   const processFmbSave = (targetStatus) => {
     try {
-      const yy = root.querySelector('#f9004_year')?.value || dateParts[0].substring(2);
-      const mm = root.querySelector('#f9004_month')?.value || dateParts[1];
-      const dd = root.querySelector('#f9004_day')?.value || dateParts[2];
-      let fullDate = `20${yy}-${mm}-${dd}`;
+      // 저장/제출 전 입력란에 남아있는 미반영 기록도 자동 업데이트
+      applyStockUpdate({ fromSave: true });
 
+      const fullDate = resolveEffectiveDate();
       const formRoot = container.closest('form, [id="mobileWorkReportForm"]')?.parentElement || container.closest('[data-form-root]');
-      const reportDateInput = formRoot?.querySelector('#reportDate')?.value;
-      if (reportDateInput) fullDate = reportDateInput;
 
       const stFromOuter = formRoot?.querySelector('#startTimeInput')?.value;
       const etFromOuter = formRoot?.querySelector('#endTimeInput')?.value;
@@ -551,21 +1192,25 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         f9004_checks[item.id] = checked ? checked.value === 'true' : true;
       });
 
-      const f9004_items = [];
-      root.querySelectorAll('tr[data-f9004-row]').forEach((tr) => {
-        const f9004_type = (tr.querySelector('[data-f9004-field="type"]')?.value || '').trim();
-        const f9004_rubberName = (tr.querySelector('[data-f9004-field="rubberName"]')?.value || '').trim();
-        const f9004_expiryDate = formatExpiryMonthDay(tr.querySelector('[data-f9004-field="expiryDate"]')?.value || '');
-        const f9004_amount = formatQtyWithKg(tr.querySelector('[data-f9004-field="amount"]')?.value || '');
-        if (f9004_type || f9004_rubberName || f9004_expiryDate || f9004_amount) {
-          f9004_items.push({
-            f9004_type,
-            f9004_rubberName,
-            f9004_expiryDate,
-            f9004_amount
-          });
-        }
-      });
+      const f9004_items = sortStockItems(stockItems, fullDate).map((it) => ({
+        stockId: it.stockId,
+        f9004_type: resolveDisplayType(it, fullDate),
+        f9004_rubberName: it.f9004_rubberName,
+        f9004_expiryDate: formatExpiryMonthDay(it.f9004_expiryDate),
+        f9004_expiryIso: it.f9004_expiryIso || toExpiryIso(it.f9004_expiryDate, it.createdDate || fullDate),
+        f9004_amount: formatQtyWithKg(it.f9004_amount),
+        createdDate: it.createdDate || fullDate
+      }));
+
+      const f9004_dispatched = dispatchedToday.map((it) => ({
+        stockId: it.stockId || '',
+        f9004_type: normalizeIoType(it.f9004_type || '불출'),
+        f9004_rubberName: it.f9004_rubberName || '',
+        f9004_expiryDate: formatExpiryMonthDay(it.f9004_expiryDate || ''),
+        f9004_expiryIso: it.f9004_expiryIso || '',
+        f9004_amount: formatQtyWithKg(it.f9004_amount || ''),
+        createdDate: it.createdDate || fullDate
+      }));
 
       const workDetailsText = root.querySelector('#f9004_workDetails')?.value || '';
       const currentUserRole = store.getUserRole();
@@ -590,6 +1235,7 @@ export function renderFmbPaperForm(container, existingData, loggedInWorkerName) 
         f9004_env,
         f9004_checks,
         f9004_items,
+        f9004_dispatched,
         workDetails: workDetailsText,
         status: targetStatus,
         notes: targetStatus === '임시저장'
@@ -669,7 +1315,8 @@ export function mountF9004InReportForm(container, existingData, loggedInWorkerNa
   const paperHeader = fmbContainer.querySelector('[data-f9004-paper-header="1"]');
   if (paperHeader) paperHeader.style.display = 'none';
 
-  const syncAbort = new AbortController();
+  const AbortCtrl = container.ownerDocument?.defaultView?.AbortController || AbortController;
+  const syncAbort = new AbortCtrl();
   const syncDate = (val) => {
     const parts = String(val || '').split('-');
     if (parts.length === 3) {
@@ -679,6 +1326,9 @@ export function mountF9004InReportForm(container, existingData, loggedInWorkerNa
       if (fy) fy.value = parts[0].substring(2);
       if (fm) fm.value = parts[1];
       if (fd) fd.value = parts[2];
+      if (typeof fmbContainer._onF9004DateSync === 'function') {
+        fmbContainer._onF9004DateSync(val);
+      }
     }
   };
 
@@ -709,8 +1359,9 @@ export function mountF9004InReportForm(container, existingData, loggedInWorkerNa
 export function buildFmbDetailHTML(r) {
   const env = r?.f9004_env || {};
   const chkData = r?.f9004_checks || {};
-  const items = Array.isArray(r?.f9004_items) ? r.f9004_items : [];
-  const rowCount = Math.max(5, items.length);
+  const rawItems = Array.isArray(r?.f9004_items) ? r.f9004_items : [];
+  const dispatched = Array.isArray(r?.f9004_dispatched) ? r.f9004_dispatched : [];
+  const items = sortStockItems(rawItems, r?.date || '');
   const statusClass = r?.status === '승인 완료' ? 'approved' : r?.status === '반려' ? 'rejected' : 'pending';
 
   return `
@@ -763,8 +1414,14 @@ export function buildFmbDetailHTML(r) {
             align-items: stretch;
             margin-bottom: 8px;
           }
+          [data-form-code="9004"] .f9004-stock-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px;
+          }
           @media screen {
-            body.mobile-preview-mode [data-form-code="9004"] .f9004-detail-split-grid {
+            body.mobile-preview-mode [data-form-code="9004"] .f9004-detail-split-grid,
+            body.mobile-preview-mode [data-form-code="9004"] .f9004-stock-summary-grid {
               grid-template-columns: 1fr;
             }
             @container (max-width: 640px) {
@@ -772,8 +1429,14 @@ export function buildFmbDetailHTML(r) {
                 grid-template-columns: 1fr;
               }
             }
+            @container (max-width: 520px) {
+              [data-form-code="9004"] .f9004-stock-summary-grid {
+                grid-template-columns: 1fr;
+              }
+            }
             @media (max-width: 768px) {
-              [data-form-code="9004"] .f9004-detail-split-grid {
+              [data-form-code="9004"] .f9004-detail-split-grid,
+              [data-form-code="9004"] .f9004-stock-summary-grid {
                 grid-template-columns: 1fr;
               }
             }
@@ -855,8 +1518,9 @@ export function buildFmbDetailHTML(r) {
         </table>
       </div>
 
-      <div style="margin-bottom: 14px;">
+      <div style="margin-bottom: 14px; container-type: inline-size;">
         <div style="font-size: 13px; font-weight: 800; margin-bottom: 4px;">2. 금일 입고 · 불출 및 재고 관리 내역</div>
+        ${buildStockSummaryBarHTML(items, true)}
         <table class="data-table print-table" style="border: 1px solid #000; font-size: 13px; width: 100%; border-collapse: collapse; table-layout: fixed;">
           <colgroup>
             <col style="width: 34px;" />
@@ -875,24 +1539,39 @@ export function buildFmbDetailHTML(r) {
             </tr>
           </thead>
           <tbody>
-            ${Array.from({ length: rowCount }, (_, idx) => {
-              const row = items[idx] || {};
-              const ioType = normalizeIoType(row.f9004_type || '');
+            ${items.length > 0 ? items.map((row, idx) => {
+              const ioType = resolveDisplayType(row, r?.date || '');
               const rubberName = row.f9004_rubberName ?? row.f9004_carModel ?? '';
               const expiryDate = formatExpiryMonthDay(row.f9004_expiryDate ?? row.f9004_compoundLot ?? '');
               const amountDisp = formatQtyWithKg(row.f9004_amount || '');
               return `
                 <tr>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px 2px; font-weight: 700;">${idx + 1}</td>
-                  <td style="border: 1px solid #000; text-align: center; padding: 4px 2px;">${escapeHtml(ioType)}</td>
+                  <td style="border: 1px solid #000; text-align: center; padding: 4px 2px; font-weight: 700;">${escapeHtml(ioType)}</td>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px 6px; font-weight: 700;" translate="no">${escapeHtml(rubberName)}</td>
                   <td style="border: 1px solid #000; text-align: center; padding: 4px 2px;">${escapeHtml(expiryDate)}</td>
                   <td style="border: 1px solid #000; text-align: right; padding: 4px 8px; font-weight: 700;">${escapeHtml(amountDisp)}</td>
                 </tr>
               `;
-            }).join('')}
+            }).join('') : `
+              <tr>
+                <td colspan="5" style="border: 1px solid #000; text-align: center; padding: 8px; color: #64748b;">등록된 잔여 재고 없음</td>
+              </tr>
+            `}
           </tbody>
         </table>
+        ${dispatched.length > 0 ? `
+          <div style="margin-top: 6px; padding: 6px 8px; background: #fff1f2; border: 1px solid #fda4af; border-radius: 4px; font-size: 12px;">
+            <div style="font-weight: 800; color: #9f1239; margin-bottom: 4px;">📤 금일 불출·반납 완료 내역</div>
+            ${dispatched.map((d) => {
+              const tp = normalizeIoType(d.f9004_type || '불출');
+              const rb = d.f9004_rubberName || '';
+              const exp = formatExpiryMonthDay(d.f9004_expiryDate || '');
+              const amt = formatQtyWithKg(d.f9004_amount || '') || '-';
+              return `<div style="color: #0f172a;">• [${escapeHtml(tp)}] <strong translate="no">${escapeHtml(rb)}</strong> ${exp ? `(${escapeHtml(exp)})` : ''} — <strong translate="no">${escapeHtml(amt)}</strong></div>`;
+            }).join('')}
+          </div>
+        ` : ''}
       </div>
 
       <div style="margin-bottom: 14px;">

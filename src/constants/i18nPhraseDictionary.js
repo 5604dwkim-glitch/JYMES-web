@@ -1208,7 +1208,22 @@ export const PHRASE_TUPLES = [
   ['수량(kg)', 'Qty (kg)', 'จำนวน (kg)', 'SL (kg)'],
   ['불출', 'Issue', 'เบิกจ่าย', 'Xuất'],
   ['재고', 'Stock', 'สต็อก', 'Tồn kho'],
-  ['보류', 'Hold', 'กักกัน', 'Tạm giữ']
+  ['보류', 'Hold', 'กักกัน', 'Tạm giữ'],
+  ['📦 고무실 현재 재고 현황', '📦 Current Rubber Room Stock', '📦 สถานะสต็อกห้องยางปัจจุบัน', '📦 Tồn kho phòng cao su hiện tại'],
+  ['총 재고', 'Total Stock', 'สต็อกรวม', 'Tổng tồn kho'],
+  ['🔄 기록 업데이트', '🔄 Update Record', '🔄 อัปเดตบันทึก', '🔄 Cập nhật bản ghi'],
+  ['현재 등록된 고무실 재고가 없습니다. 아래 입력란에서 입고/재고 기록 후 업데이트하세요.', 'No rubber room stock registered. Enter receipt/stock below and click Update.', 'ยังไม่มีสต็อกห้องยาง กรุณาบันทึกการรับเข้า/สต็อกด้านล่างแล้วกดอัปเดต', 'Chưa có tồn kho phòng cao su. Hãy nhập ở dòng dưới rồi nhấn Cập nhật.'],
+  ['신규', 'New', 'ใหม่', 'Mới'],
+  ['유효기간 날짜 선택', 'Select Shelf Life Date', 'เลือกวันหมดอายุ', 'Chọn ngày hạn sử dụng'],
+  ['되돌리기', 'Undo', 'เรียกคืน', 'Hoàn tác'],
+  ['📤 금일 불출·반납 완료 (재고 차감됨)', '📤 Issued / Returned Today (Deducted from Stock)', '📤 เบิกจ่าย/คืนวันนี้แล้ว (ตัดสต็อกแล้ว)', '📤 Đã xuất/trả hôm nay (Đã trừ tồn kho)'],
+  ['📤 금일 불출·반납 완료 내역', '📤 Today\'s Issued / Returned Items', '📤 รายการเบิกจ่าย/คืนวันนี้', '📤 Chi tiết xuất/trả hôm nay'],
+  ['등록된 잔여 재고 없음', 'No Remaining Stock', 'ไม่มีสต็อกคงเหลือ', 'Không có tồn kho còn lại'],
+  ['✓ 재고 업데이트됨', '✓ Stock Updated', '✓ อัปเดตสต็อกแล้ว', '✓ Đã cập nhật tồn kho'],
+  ['로컬 저장됨', 'Saved Locally', 'บันทึกในเครื่องแล้ว', 'Đã lưu cục bộ'],
+  ['⚠️ 고무명을 선택해 주세요.', '⚠️ Please select a rubber name.', '⚠️ กรุณาเลือกชื่อยาง', '⚠️ Vui lòng chọn tên cao su.'],
+  ['⚠️ 해당 고무명의 현재 재고가 없습니다.', '⚠️ No current stock found for this rubber.', '⚠️ ไม่มีสต็อกปัจจุบันสำหรับยางนี้', '⚠️ Không có tồn kho hiện tại cho loại cao su này.'],
+  ['[공통] 공통 - FMB보관실 공정 전용 양식', '[Common] Common - FMB Storage Room Dedicated Form', '[ทั่วไป] ทั่วไป - แบบฟอร์มเฉพาะห้องจัดเก็บ FMB', '[Chung] Chung - Biểu mẫu chuyên dụng kho FMB']
 ];
 
 /**

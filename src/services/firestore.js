@@ -880,3 +880,80 @@ export const deleteChangePoint = async (id) => {
     throw error;
   }
 };
+
+// ==================== FMB STORAGE INVENTORY (#9004 고무실 실시간 재고) ====================
+const FMB_INVENTORY_DOC_ID = 'current';
+
+export async function fetchFmbInventory() {
+  try {
+    const snap = await getDoc(doc(db, 'fmb_inventory', FMB_INVENTORY_DOC_ID));
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      return {
+        items: Array.isArray(data.items) ? data.items : [],
+        lastReportDate: data.lastReportDate || '',
+        updatedAt: data.updatedAt || '',
+        fromServer: true
+      };
+    }
+
+    // 최초 1회 부트스트랩: fmb_inventory 문서가 아직 없으면 직전 FMB 일보에서 잔여 재고 추출
+    const recentReports = await fetchFmbReports();
+    if (recentReports.length > 0) {
+      const latest = recentReports[0];
+      const seedItems = (Array.isArray(latest.f9004_items) ? latest.f9004_items : [])
+        .filter((it) => {
+          const tp = String(it?.f9004_type || '').trim();
+          return tp !== '불출' && tp !== '불출(투입)' && tp !== '반납' && (it?.f9004_rubberName || it?.f9004_carModel);
+        })
+        .map((it, idx) => ({
+          stockId: it.stockId || `stk_seed_${latest.id}_${idx}`,
+          f9004_rubberName: String(it.f9004_rubberName ?? it.f9004_carModel ?? '').trim(),
+          f9004_expiryDate: String(it.f9004_expiryDate ?? it.f9004_compoundLot ?? '').trim(),
+          f9004_expiryIso: String(it.f9004_expiryIso || '').trim(),
+          f9004_amount: String(it.f9004_amount || '').trim(),
+          f9004_type: String(it.f9004_type || '재고').trim(),
+          createdDate: String(it.createdDate || latest.date || '')
+        }));
+      return {
+        items: seedItems,
+        lastReportDate: latest.date || '',
+        updatedAt: '',
+        fromServer: true
+      };
+    }
+
+    return { items: [], lastReportDate: '', updatedAt: '', fromServer: true };
+  } catch (error) {
+    console.warn('Error fetching FMB inventory:', error);
+    return { items: [], lastReportDate: '', updatedAt: '', offlineError: true };
+  }
+}
+
+export async function saveFmbInventory(items, meta = {}) {
+  try {
+    const fallbackDate = meta.reportDate || new Date().toLocaleDateString('sv-SE');
+    const cleanItems = (Array.isArray(items) ? items : [])
+      .map((it, idx) => ({
+        stockId: it.stockId || `stk_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 6)}`,
+        f9004_rubberName: String(it.f9004_rubberName || '').trim(),
+        f9004_expiryDate: String(it.f9004_expiryDate || '').trim(),
+        f9004_expiryIso: String(it.f9004_expiryIso || '').trim(),
+        f9004_amount: String(it.f9004_amount || '').trim(),
+        f9004_type: String(it.f9004_type || '재고').trim(),
+        createdDate: String(it.createdDate || fallbackDate)
+      }))
+      .filter((it) => it.f9004_rubberName);
+
+    await setDoc(doc(db, 'fmb_inventory', FMB_INVENTORY_DOC_ID), {
+      items: cleanItems,
+      lastReportDate: fallbackDate,
+      updatedBy: meta.workerName || '',
+      updatedAt: new Date().toISOString()
+    });
+    return cleanItems;
+  } catch (error) {
+    console.error('Error saving FMB inventory:', error);
+    throw error;
+  }
+}
