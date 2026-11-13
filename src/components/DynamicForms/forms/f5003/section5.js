@@ -3,10 +3,13 @@
  * "5. 치수확인" 전용 렌더러
  *
  * - 상단 헤더: 구 분(Division)[colspan=3] | FRT LH | FRT RH
- * - 좌측 병합(rowspan=7): FRT / 단 컷팅 / (Step cutting)
- * - 1행(규격): 규격[colspan=2] | 83mm | 83mm
- * - 2~4행(A): A[rowspan=3] | 초물 / 중물 / 종물 | FRT LH 실측 | FRT RH 실측
- * - 5~7행(B): B[rowspan=3] | 초물 / 중물 / 종물 | FRT LH 실측 | FRT RH 실측
+ * - 상단 블록 — FRT 단 컷팅(rowspan=7):
+ *   · 1행(규격): 규격[colspan=2] | 83mm | 83mm
+ *   · 2~4행(A): A[rowspan=3] | 초물 / 중물 / 종물 | FRT LH 실측 | FRT RH 실측
+ *   · 5~7행(B): B[rowspan=3] | 초물 / 중물 / 종물 | FRT LH 실측 | FRT RH 실측
+ * - 하단 블록 — RR 단 컷팅(rowspan=8):
+ *   · A 그룹(rowspan=4): 규격(68mm / 68mm) + 초물 / 중물 / 종물 실측
+ *   · B 그룹(rowspan=4): 규격(67mm / 67mm) + 초물 / 중물 / 종물 실측
  * - 모든 입력칸 ID 는 `f5003_` 접두사 + `data-save-group="dimData"` 및 명시적 `data-*` 속성만 사용
  *   (GEMINI.md 원칙 1·2·8·9·10·11·12·13·16)
  */
@@ -20,6 +23,11 @@ export const F5003_DIM_GROUPS = [
   { key: 'B', label: 'B', legacyPrefix: 'step_r' }
 ];
 
+export const F5003_RR_DIM_GROUPS = [
+  { key: 'A', label: 'A', spec: 68, specText: '68mm', legacyPrefix: 'step_f' },
+  { key: 'B', label: 'B', spec: 67, specText: '67mm', legacyPrefix: 'step_r' }
+];
+
 export const F5003_DIM_STAGES = [
   { key: '초', label: '초물' },
   { key: '중', label: '중물' },
@@ -27,8 +35,8 @@ export const F5003_DIM_STAGES = [
 ];
 
 export const F5003_DIM_SIDES = [
-  { key: 'FL', label: 'FRT LH' },
-  { key: 'FR', label: 'FRT RH' }
+  { key: 'FL', rrKey: 'RL', label: 'FRT LH', rrLabel: 'RR LH' },
+  { key: 'FR', rrKey: 'RR', label: 'FRT RH', rrLabel: 'RR RH' }
 ];
 
 const INPUT_STYLE = 'width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;';
@@ -46,23 +54,25 @@ function escapeAttr(val) {
  * @returns {string} 카드 전체 HTML
  */
 export function renderF5003Section5HTML(savedValues = {}) {
-  const totalBodyRows = 1 + F5003_DIM_GROUPS.length * F5003_DIM_STAGES.length;
+  const frtTotalRows = 1 + F5003_DIM_GROUPS.length * F5003_DIM_STAGES.length;
+  const rrGroupRowSpan = 1 + F5003_DIM_STAGES.length;
+  const rrTotalRows = F5003_RR_DIM_GROUPS.length * rrGroupRowSpan;
 
   const sideHeaders = F5003_DIM_SIDES
     .map(side => `<th scope="col" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">${side.label}</th>`)
     .join('\n                  ');
 
-  const specCells = F5003_DIM_SIDES
+  const frtSpecCells = F5003_DIM_SIDES
     .map(() => `<td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">${F5003_STEP_SPEC_TEXT}</td>`)
     .join('\n                  ');
 
-  const groupRows = F5003_DIM_GROUPS.map((group, gIdx) => {
+  const frtGroupRows = F5003_DIM_GROUPS.map((group, gIdx) => {
     const isLastGroup = gIdx === F5003_DIM_GROUPS.length - 1;
     const groupBottomBorder = isLastGroup ? '1px solid #000' : '1px dotted #000';
 
     return F5003_DIM_STAGES.map((stage, sIdx) => {
-      const isLastRow = isLastGroup && sIdx === F5003_DIM_STAGES.length - 1;
-      const rowBottomBorder = isLastRow ? '1px solid #000' : '1px dotted #000';
+      const isLastFrtRow = isLastGroup && sIdx === F5003_DIM_STAGES.length - 1;
+      const rowBottomBorder = isLastFrtRow ? '1px solid #000' : '1px dotted #000';
 
       const groupCell = sIdx === 0
         ? `\n                  <th rowspan="${F5003_DIM_STAGES.length}" scope="rowgroup" style="border-left: 1px solid #000; border-right: 1px dotted #000; border-top: 1px dotted #000; border-bottom: ${groupBottomBorder}; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">${group.label}</th>`
@@ -87,6 +97,55 @@ export function renderF5003Section5HTML(savedValues = {}) {
                   ${inputCells}
                 </tr>`;
     }).join('');
+  }).join('');
+
+  const rrGroupRows = F5003_RR_DIM_GROUPS.map((group, gIdx) => {
+    const isFirstGroup = gIdx === 0;
+    const isLastGroup = gIdx === F5003_RR_DIM_GROUPS.length - 1;
+    const groupTopBorder = isFirstGroup ? '1px solid #000' : '1px dotted #000';
+    const groupBottomBorder = isLastGroup ? '1px solid #000' : '1px dotted #000';
+
+    const rrTitleCell = isFirstGroup
+      ? `\n                  <th rowspan="${rrTotalRows}" scope="rowgroup" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; line-height: 1.35;">RR<br>단 컷팅<br>(Step cutting)</th>`
+      : '';
+
+    const groupCell = `\n                  <th rowspan="${rrGroupRowSpan}" scope="rowgroup" style="border-left: 1px solid #000; border-right: 1px dotted #000; border-top: ${groupTopBorder}; border-bottom: ${groupBottomBorder}; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">${group.label}</th>`;
+
+    const rrSpecCells = F5003_DIM_SIDES
+      .map(() => `<td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: ${groupTopBorder}; border-bottom: 1px dotted #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">${group.specText}</td>`)
+      .join('\n                  ');
+
+    const specRow = `
+                <tr>${rrTitleCell}${groupCell}
+                  <th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: ${groupTopBorder}; border-bottom: 1px dotted #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">규격</th>
+                  ${rrSpecCells}
+                </tr>`;
+
+    const stageRows = F5003_DIM_STAGES.map((stage, sIdx) => {
+      const isLastRrRow = isLastGroup && sIdx === F5003_DIM_STAGES.length - 1;
+      const rowBottomBorder = isLastRrRow ? '1px solid #000' : '1px dotted #000';
+
+      const stageCell = `<th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: ${rowBottomBorder}; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">${stage.label}</th>`;
+
+      const inputCells = F5003_DIM_SIDES.map(side => {
+        const id = `f5003_step_RR_${group.key}_${stage.key}_${side.rrKey}`;
+        // 구버전(공통 단컷팅 표) 저장 키 하위 호환 복원 (GEMINI.md 원칙 11)
+        const legacyKey = `${group.legacyPrefix}_${stage.key}_${side.rrKey}`;
+        const val = escapeAttr(savedValues[id] ?? savedValues[legacyKey] ?? '');
+        const wheelTitle = `RR 단 컷팅 ${group.label} ${side.rrLabel} (${stage.label})`;
+        return `<td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: ${rowBottomBorder}; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="${id}" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="${group.spec}" data-wheel-unit="mm" data-wheel-range="${F5003_STEP_RANGE}" data-wheel-title="${wheelTitle}" class="form-control" style="${INPUT_STYLE}" value="${val}" />
+                  </td>`;
+      }).join('\n                  ');
+
+      return `
+                <tr>
+                  ${stageCell}
+                  ${inputCells}
+                </tr>`;
+    }).join('');
+
+    return `${specRow}${stageRows}`;
   }).join('');
 
   return `
@@ -118,10 +177,10 @@ export function renderF5003Section5HTML(savedValues = {}) {
               </thead>
               <tbody>
                 <tr>
-                  <th rowspan="${totalBodyRows}" scope="rowgroup" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; line-height: 1.35;">FRT<br>단 컷팅<br>(Step cutting)</th>
+                  <th rowspan="${frtTotalRows}" scope="rowgroup" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; line-height: 1.35;">FRT<br>단 컷팅<br>(Step cutting)</th>
                   <th colspan="2" scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">규격</th>
-                  ${specCells}
-                </tr>${groupRows}
+                  ${frtSpecCells}
+                </tr>${frtGroupRows}${rrGroupRows}
               </tbody>
             </table>
           </div>
