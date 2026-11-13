@@ -343,6 +343,16 @@ export function extractDefectBreakdown(r) {
       addDefect('[정치절단] 공정기타',     r.qtyTable[`f5002_${sec}_def_proc_etc`]);
     });
 
+    // #5003 (GM 9BQC G/RUN 소재준비-단컷팅)
+    ['FRT_LH_A', 'FRT_LH_B', 'FRT_RH_A', 'FRT_RH_B', 'RR_LH_A', 'RR_LH_B', 'RR_RH_A', 'RR_RH_B'].forEach(sec => {
+      addDefect('[단컷팅] 스코치',     r.qtyTable[`f5003_${sec}_def_ext_scorch`]);
+      addDefect('[단컷팅] 외면흠',     r.qtyTable[`f5003_${sec}_def_ext_scratch`]);
+      addDefect('[단컷팅] 오염',       r.qtyTable[`f5003_${sec}_def_ext_contam`]);
+      addDefect('[단컷팅] 압출기타',   r.qtyTable[`f5003_${sec}_def_ext_etc`]);
+      addDefect('[단컷팅] 단컷팅불량', r.qtyTable[`f5003_${sec}_def_proc_step_cut`]);
+      addDefect('[단컷팅] 공정기타',   r.qtyTable[`f5003_${sec}_def_proc_etc`]);
+    });
+
     // #5007 (GM 9BQC G/RUN 후가공-D/V) — LH/RH × D/V·RR가공 (압출·조인트·후가공 불량)
     {
       const F5007_EXT = [

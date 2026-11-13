@@ -1,6 +1,7 @@
 import * as Templates from '../FormTemplates.jsx';
 import { renderF5001QtySection } from '../forms/f5001/qtySection';
 import { renderF5002QtySection } from '../forms/f5002/qtySection';
+import { renderF5003QtySection } from '../forms/f5003/qtySection';
 import { renderF5004QtySection } from '../forms/f5004/qtySection';
 import { renderF5005QtySection } from '../forms/f5005/qtySection';
 import { renderF5006QtySection } from '../forms/f5006/qtySection';
@@ -900,6 +901,9 @@ export function renderQtySection(ctx) {
         break;
       case 5002:
         renderF5002QtySection(qtySection, ctx);
+        break;
+      case 5003:
+        renderF5003QtySection(qtySection, ctx);
         break;
       case 5004:
         renderF5004QtySection(qtySection, ctx);
