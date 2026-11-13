@@ -2,6 +2,7 @@ import * as Templates from '../FormTemplates.jsx';
 import { autoFormatDateTimeString } from './formUtils.js';
 import { renderF5001Section5 } from '../forms/f5001/section5.js';
 import { renderF5002Section5 } from '../forms/f5002/section5.js';
+import { renderF5003Section5 } from '../forms/f5003/section5.js';
 import { renderF5004Section5 } from '../forms/f5004/section5.js';
 import { renderF5005Section5 } from '../forms/f5005/section5.js';
 import { renderF5006Section5 } from '../forms/f5006/section5.js';
@@ -55,6 +56,11 @@ export function renderSection5(ctx) {
 
     if (formCode === 5002 && curProc) {
       renderF5002Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5003 && curProc) {
+      renderF5003Section5(section5, ctx);
       return;
     }
 

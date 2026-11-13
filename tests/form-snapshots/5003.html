@@ -152,193 +152,99 @@
         </div></div>
 <!-- [section5] -->
 <div id="section5DynamicContainer">
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <div class="card f5003-sec5-card" data-form-code="5003" style="padding: 16px; margin-bottom: 16px;">
+          <style>
+            .f5003-sec5-card[data-form-code="5003"] input[type="text"] {
+              font-size: 11px !important;
+              min-width: 0;
+              box-sizing: border-box;
+            }
+          </style>
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
             📐 <span class="sec-num"></span> 치수확인
           </label>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <div class="f5003-sec5-wrap" data-form-code="5003" style="width: 100%; overflow-x: hidden;">
+            <table data-form-code="5003" style="width: 100%; table-layout: fixed; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <colgroup>
+                <col style="width: 15%;">
+                <col style="width: 5%;">
+                <col style="width: 10%;">
+                <col style="width: 35%;">
+                <col style="width: 35%;">
+              </colgroup>
               <thead>
-                <tr style="background: #fffde7; font-weight: 700; color: #000;">
-                  <th colspan="3" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">FRT LH</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">FRT RH</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">RR LH</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 18%;">RR RH</th>
+                <tr>
+                  <th colspan="3" scope="colgroup" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px; vertical-align: middle;">구 분(Division)</th>
+                  <th scope="col" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">FRT LH</th>
+                  <th scope="col" style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">FRT RH</th>
                 </tr>
               </thead>
               <tbody>
-                <!-- 1. 정치절단길이 -->
                 <tr>
-                  <td rowspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    정치절단길이<br>(Spec Cutt,g )
+                  <th rowspan="7" scope="rowgroup" style="border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; line-height: 1.35;">FRT<br>단 컷팅<br>(Step cutting)</th>
+                  <th colspan="2" scope="row" style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">규격</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">83mm</td>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">83mm</td>
+                </tr>
+                <tr>
+                  <th rowspan="3" scope="rowgroup" style="border-left: 1px solid #000; border-right: 1px dotted #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">A</th>
+                  <th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">초물</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_A_초_FL" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 A FRT LH (초물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
-                  <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    스펙(mm)
-                  </td>
-                  <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
-                    745 ± 1mm
-                  </td>
-                  <td colspan="2" style="border: 1px solid #000; font-weight: 700; padding: 4px;">
-                    687 ± 1mm
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_A_초_FR" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 A FRT RH (초물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
+                  <th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">중물</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_A_중_FL" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 A FRT LH (중물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
-                  <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
-                    <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
-                      <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="" placeholder="(초)">
-                      <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="" placeholder="(중)">
-                      <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="745" value="" placeholder="(종)">
-                    </div>
-                  </td>
-                  <td colspan="2" style="border: 1px solid #000; padding: 3px 2px;">
-                    <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
-                      <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="" placeholder="(초)">
-                      <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="" placeholder="(중)">
-                      <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="687" value="" placeholder="(종)">
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- 2. 단컷팅 (Step cutt,g) - 전방 & 후방 -->
-                <tr>
-                  <td rowspan="8" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    단컷팅<br>(Step cutt,g)
-                  </td>
-                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    전방
-                  </td>
-                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    스펙(mm)
-                  </td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">36</td>
-                </tr>
-                <tr>
-                  <td rowspan="3" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    실측(Act)
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                      <input type="text" id="dim_step_f_초_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
-                    </div>
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_A_중_FR" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 A FRT RH (중물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                      <input type="text" id="dim_step_f_중_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
-                    </div>
+                  <th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">종물</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_A_종_FL" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 A FRT LH (종물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_A_종_FR" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 A FRT RH (종물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                      <input type="text" id="dim_step_f_종_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
-                    </div>
+                  <th rowspan="3" scope="rowgroup" style="border-left: 1px solid #000; border-right: 1px dotted #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle;">B</th>
+                  <th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">초물</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_B_초_FL" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 B FRT LH (초물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_f_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
-                  </td>
-                </tr>
-
-                <!-- 3. 단컷팅 (Step cutt,g) - 후방 -->
-                <tr>
-                  <td rowspan="4" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    후방
-                  </td>
-                  <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
-                    스펙(mm)
-                  </td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">28</td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">29</td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">29</td>
-                </tr>
-                <tr>
-                  <td rowspan="3" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px; vertical-align: middle;">
-                    실측(Act)
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                      <input type="text" id="dim_step_r_초_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
-                    </div>
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_B_초_FR" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 B FRT RH (초물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                      <input type="text" id="dim_step_r_중_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
-                    </div>
+                  <th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">중물</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_B_중_FL" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 B FRT LH (중물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_B_중_FR" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 B FRT RH (중물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
                 </tr>
                 <tr>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                      <input type="text" id="dim_step_r_종_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
-                    </div>
+                  <th scope="row" style="border-left: 1px dotted #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; vertical-align: middle; white-space: nowrap;">종물</th>
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_B_종_FL" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 B FRT LH (종물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
-                  </td>
-                  <td style="border: 1px solid #000; padding: 2px;">
-                    <input type="text" id="dim_step_r_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                  <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff; vertical-align: middle;">
+                    <input type="text" id="f5003_step_B_종_FR" data-form-code="5003" data-save-group="dimData" data-f5003-dim="1" data-wheel-parsed-spec="83" data-wheel-unit="mm" data-wheel-range="20" data-wheel-title="FRT 단 컷팅 B FRT RH (종물)" class="form-control" style="width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;" value="">
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
 <!-- [qtySection] -->
