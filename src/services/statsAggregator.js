@@ -386,7 +386,7 @@ export function extractDefectBreakdown(r) {
       });
     }
 
-    // #5014 (GM 9BQC G/RUN 검사포장-길이) — #5011 양식틀 복사본 (FRT LH / FRT RH)
+    // #5014 (GM 9BQC G/RUN 검사포장-길이) — PRI LH / PRI RH / TINT LH / TINT RH (구 FRT_LH / FRT_RH 하위 호환 포함)
     {
       const F5014_EXT = [
         ['scorch', '스코치'], ['scratch', '외면흠'], ['contam', '오염'],
@@ -400,7 +400,7 @@ export function extractDefectBreakdown(r) {
         ['len', '길이불량'], ['mark_miss', '마킹누락'], ['overtrim', '과사상'], ['undertrim', '미사상'],
         ['contam', '외면오염'], ['rim_cut_miss', '림컷팅누락'], ['pad_miss', '패드누락'], ['etc', '기타']
       ];
-      ['FRT_LH', 'FRT_RH'].forEach(col => {
+      ['PRI_LH', 'PRI_RH', 'TINT_LH', 'TINT_RH', 'FRT_LH', 'FRT_RH'].forEach(col => {
         F5014_EXT.forEach(([k, name]) => addDefect(`[검사포장-길이 압출] ${name}`, r.qtyTable[`f5014_${col}_def_ext_${k}`]));
         F5014_JOINT.forEach(([k, name]) => addDefect(`[검사포장-길이 조인트] ${name}`, r.qtyTable[`f5014_${col}_def_joint_${k}`]));
         F5014_POST.forEach(([k, name]) => addDefect(`[검사포장-길이 후가공] ${name}`, r.qtyTable[`f5014_${col}_def_post_${k}`]));

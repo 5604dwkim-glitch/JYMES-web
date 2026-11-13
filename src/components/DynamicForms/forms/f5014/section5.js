@@ -5,7 +5,7 @@
  *
  * - 5. 부자재 LOT 번호 입력 카드:
  *   · 헤더: 부자재 LOT NO.(초/중/종) | 초 | 중 | 종
- *   · 세로 행: 패드(5T) / 패드(7T) (`data-wheel-skip="1"`, 자유 입력)
+ *   · 세로 행: 패드(5T) (`data-wheel-skip="1"`, 자유 입력)
  * - 6. 주요 치수 입력 카드:
  *   · 상단 표: 중요 치수 및 검사 현황 (RR LH)
  *   · 하단 표: 중요 치수 및 검사 현황 (RR RH)
@@ -18,8 +18,7 @@
  */
 
 export const F5014_SUBLOT_ROWS = [
-  { key: 'PAD_5T', label: '패드(5T)' },
-  { key: 'PAD_7T', label: '패드(7T)' }
+  { key: 'PAD_5T', label: '패드(5T)' }
 ];
 
 export const F5014_SUBLOT_STAGES = [

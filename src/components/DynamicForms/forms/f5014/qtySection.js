@@ -3,7 +3,7 @@
  * — #5011 양식틀 복사본
  * "7. 생산실적 및 불량 현황" 전용 렌더러
  *
- * - 상단 열 구성 (2열): FRT LH / FRT RH
+ * - 상단 열 구성 (4열): PRI LH / PRI RH / TINT LH / TINT RH
  * - 제품 수량 (5행): 계 획(기본 1200) / 검 사 / 정 품 / 공정불량(리워크) / 완전불량(폐기)
  * - 압출 소재 불량 (6행 + 소 계): 스코치 / 외면 흠 / 오 염 / 코팅 불량 / 단면 불량 / 기타( ) / 소 계
  * - 조인트 불량 (9행 + 소 계): 떨어짐 / 양부족 / 밀 림 / 단 차 / 기 포 / 씹 힘 / 삽입 불량 / 수 축 / 기타( ) / 소 계
@@ -13,8 +13,10 @@
  */
 
 export const F5014_QTY_COLS = [
-  { key: 'FRT_LH', label: 'FRT LH', legacyKey: 'FL', defaultPlan: 1200 },
-  { key: 'FRT_RH', label: 'FRT RH', legacyKey: 'FR', defaultPlan: 1200 }
+  { key: 'PRI_LH', label: 'PRI LH', legacyF5014ColKey: 'FRT_LH', legacyKey: 'FL', defaultPlan: 1200 },
+  { key: 'PRI_RH', label: 'PRI RH', legacyF5014ColKey: 'FRT_RH', legacyKey: 'FR', defaultPlan: 1200 },
+  { key: 'TINT_LH', label: 'TINT LH', legacyKey: 'RL', defaultPlan: 1200 },
+  { key: 'TINT_RH', label: 'TINT RH', legacyKey: 'RR', defaultPlan: 1200 }
 ];
 
 export const F5014_COUNT_ROWS = [
@@ -95,7 +97,12 @@ function etcNoteIdOf(groupKey) {
 
 function readCountValue(savedValues, colCfg, rowKey, hasF5014Keys) {
   const id = countIdOf(colCfg.key, rowKey);
-  if (hasF5014Keys || savedValues[id] !== undefined) return savedValues[id];
+  if (savedValues[id] !== undefined) return savedValues[id];
+  if (colCfg.legacyF5014ColKey) {
+    const prevId = countIdOf(colCfg.legacyF5014ColKey, rowKey);
+    if (savedValues[prevId] !== undefined) return savedValues[prevId];
+  }
+  if (hasF5014Keys) return undefined;
 
   // 구버전 표준 수량표 키 하위 호환 복원 (GEMINI.md 원칙 11)
   if (rowKey === 'plan') return savedValues[`plan_${colCfg.legacyKey}`];
@@ -105,7 +112,12 @@ function readCountValue(savedValues, colCfg, rowKey, hasF5014Keys) {
 
 function readDefectValue(savedValues, colCfg, groupKey, item, hasF5014Keys) {
   const id = defIdOf(colCfg.key, groupKey, item.key);
-  if (hasF5014Keys || savedValues[id] !== undefined) return savedValues[id];
+  if (savedValues[id] !== undefined) return savedValues[id];
+  if (colCfg.legacyF5014ColKey) {
+    const prevId = defIdOf(colCfg.legacyF5014ColKey, groupKey, item.key);
+    if (savedValues[prevId] !== undefined) return savedValues[prevId];
+  }
+  if (hasF5014Keys) return undefined;
 
   if (item.legacyPrefix) {
     return savedValues[`${item.legacyPrefix}_${colCfg.legacyKey}`];
@@ -197,7 +209,7 @@ export function renderF5014QtySectionHTML(savedValues = {}) {
   } = computeF5014Totals(savedValues);
 
   const headerCells = F5014_QTY_COLS
-    .map(col => `<th scope="col" style="border: ${SOLID}; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">${col.label}</th>`)
+    .map(col => `<th scope="col" style="border: ${SOLID}; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap; vertical-align: middle;">${col.label}</th>`)
     .join('\n                  ');
 
   // ── 1) 제품 수량 5행 (계 획 / 검 사 / 정 품 / 공정불량(리워크) / 완전불량(폐기)) ──
@@ -331,9 +343,11 @@ export function renderF5014QtySectionHTML(savedValues = {}) {
             <table data-form-code="5014" style="width: 100%; table-layout: fixed; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
               <colgroup>
                 <col style="width: 10%;" />
-                <col style="width: 24%;" />
-                <col style="width: 33%;" />
-                <col style="width: 33%;" />
+                <col style="width: 22%;" />
+                <col style="width: 17%;" />
+                <col style="width: 17%;" />
+                <col style="width: 17%;" />
+                <col style="width: 17%;" />
               </colgroup>
               <thead>
                 <tr>
