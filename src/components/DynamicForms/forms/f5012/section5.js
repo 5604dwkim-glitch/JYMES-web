@@ -9,7 +9,6 @@
  *   · 구성: 항 목 | 규 격 | 실측치(초물 / 중물 / 종물)
  *     - RR {LH|RH} A : 482±3
  *     - RR {LH|RH} B : 658±5
- *     - 패드 규격    : 5T*5W*60L (실측치 3열 병합 `colspan="3"`, 자유 입력 `data-wheel-skip="1"`)
  * - 모든 입력칸 ID 는 `f5012_` 접두사 + `data-save-group="dimData"` 및 명시적 `data-*` 속성만 사용
  *   (GEMINI.md 원칙 1·2·8·9·10·12·13·16)
  */
@@ -44,7 +43,7 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
 
   const dimRows = F5012_DIM_ITEMS.map((item, idx) => {
     const topBorder = idx === 0 ? '1px solid #000' : '1px dotted #000';
-    const bottomBorder = '1px dotted #000';
+    const bottomBorder = idx === F5012_DIM_ITEMS.length - 1 ? '1px solid #000' : '1px dotted #000';
     const rowCellBase = `border-left: 1px solid #000; border-right: 1px solid #000; border-top: ${topBorder}; border-bottom: ${bottomBorder}; background: #ffffff; vertical-align: middle;`;
     const itemLabel = `RR ${side} ${item.key}`;
 
@@ -66,10 +65,6 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
                 </tr>`;
   }).join('');
 
-  const padId = `f5012_dim_RR_${side}_PAD_SPEC`;
-  const legacyPadId = `f5012_dim_FRT_${side}_PAD_SPEC`;
-  const padVal = escapeAttr(savedValues[padId] ?? savedValues[legacyPadId]);
-  const padRowCellBase = 'border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; background: #ffffff; vertical-align: middle;';
   const mbStyle = isLast ? '' : ' margin-bottom: 14px;';
 
   return `
@@ -95,13 +90,6 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
                 </tr>
               </thead>
               <tbody>${dimRows}
-                <tr>
-                  <th scope="row" style="${padRowCellBase} padding: 7px 4px; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap;">패드 규격</th>
-                  <td style="${padRowCellBase} padding: 7px 2px; font-weight: 700; color: #000; font-size: 10.5px; white-space: nowrap;">5T*5W*60L</td>
-                  <td colspan="3" style="${padRowCellBase} padding: 2px 4px;">
-                    <input type="text" id="${padId}" data-form-code="5012" data-save-group="dimData" data-wheel-skip="1" class="form-control" style="${INPUT_STYLE}" value="${padVal}" />
-                  </td>
-                </tr>
               </tbody>
             </table>`;
 }
