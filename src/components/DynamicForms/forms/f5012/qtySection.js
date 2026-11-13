@@ -1,9 +1,9 @@
 /**
  * 양식 고유 번호 #5012 (GM 9BQC / G/RUN / 검사포장-RR R부)
  * — #5014 양식틀 복사본
- * "7. 생산실적 및 불량 현황" 전용 렌더러
+ * "6. 생산실적 및 불량 현황" 전용 렌더러
  *
- * - 상단 열 구성 (4열): PRI LH / PRI RH / TINT LH / TINT RH
+ * - 상단 열 구성 (4열): LH 2호기 / LH 3호기 / RH 2호기 / RH 3호기
  * - 제품 수량 (5행): 계 획(기본 1200) / 검 사 / 정 품 / 공정불량(리워크) / 완전불량(폐기)
  * - 압출 소재 불량 (6행 + 소 계): 스코치 / 외면 흠 / 오 염 / 코팅 불량 / 단면 불량 / 기타( ) / 소 계
  * - 조인트 불량 (9행 + 소 계): 떨어짐 / 양부족 / 밀 림 / 단 차 / 기 포 / 씹 힘 / 삽입 불량 / 수 축 / 기타( ) / 소 계
@@ -13,10 +13,10 @@
  */
 
 export const F5012_QTY_COLS = [
-  { key: 'PRI_LH', label: 'PRI LH', legacyF5012ColKey: 'FRT_LH', legacyKey: 'FL', defaultPlan: 1200 },
-  { key: 'PRI_RH', label: 'PRI RH', legacyF5012ColKey: 'FRT_RH', legacyKey: 'FR', defaultPlan: 1200 },
-  { key: 'TINT_LH', label: 'TINT LH', legacyKey: 'RL', defaultPlan: 1200 },
-  { key: 'TINT_RH', label: 'TINT RH', legacyKey: 'RR', defaultPlan: 1200 }
+  { key: 'LH_2', label: 'LH 2호기', legacyF5012ColKey: 'PRI_LH', legacyKey: 'FL', defaultPlan: 1200 },
+  { key: 'LH_3', label: 'LH 3호기', legacyF5012ColKey: 'PRI_RH', legacyKey: 'FR', defaultPlan: 1200 },
+  { key: 'RH_2', label: 'RH 2호기', legacyF5012ColKey: 'TINT_LH', legacyKey: 'RL', defaultPlan: 1200 },
+  { key: 'RH_3', label: 'RH 3호기', legacyF5012ColKey: 'TINT_RH', legacyKey: 'RR', defaultPlan: 1200 }
 ];
 
 export const F5012_COUNT_ROWS = [
