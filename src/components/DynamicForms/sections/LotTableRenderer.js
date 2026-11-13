@@ -1,6 +1,7 @@
 import { autoFormatDateTimeString } from './formUtils.js';
 import { renderF5001LotTable } from '../forms/f5001/lotTable.js';
 import { renderF5002LotTable } from '../forms/f5002/lotTable.js';
+import { renderF5003LotTable } from '../forms/f5003/lotTable.js';
 import { renderF5004LotTable } from '../forms/f5004/lotTable.js';
 import { renderF5005LotTable } from '../forms/f5005/lotTable.js';
 import { renderF5006LotTable } from '../forms/f5006/lotTable.js';
@@ -80,6 +81,11 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       // #5002 (9BQC G/RUN 소재준비-정치절단): 전용 템플릿으로 위임 (forms/f5002/lotTable.js)
       case 5002:
         renderF5002LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #5003 (9BQC G/RUN 소재준비-단컷팅): 전용 템플릿으로 위임 (forms/f5003/lotTable.js)
+      case 5003:
+        renderF5003LotTable(lotContainer, curLots, materialLots);
         break;
 
       // #5004 (9BQC G/RUN 조인트-FRT): 전용 템플릿으로 위임 (forms/f5004/lotTable.js)
