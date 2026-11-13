@@ -6,6 +6,7 @@ import { renderF5004Section5 } from '../forms/f5004/section5.js';
 import { renderF5005Section5 } from '../forms/f5005/section5.js';
 import { renderF5006Section5 } from '../forms/f5006/section5.js';
 import { renderF5011Section5 } from '../forms/f5011/section5.js';
+import { renderF5012Section5 } from '../forms/f5012/section5.js';
 import { renderF5014Section5 } from '../forms/f5014/section5.js';
 import { renderJointMoldStrokeCard } from './jointMoldStrokeCard.js';
 
@@ -74,6 +75,11 @@ export function renderSection5(ctx) {
 
     if (formCode === 5011 && curProc) {
       renderF5011Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5012 && curProc) {
+      renderF5012Section5(section5, ctx);
       return;
     }
 

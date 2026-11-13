@@ -6,6 +6,7 @@ import { renderF5005LotTable } from '../forms/f5005/lotTable.js';
 import { renderF5006LotTable } from '../forms/f5006/lotTable.js';
 import { renderF5007LotTable } from '../forms/f5007/lotTable.js';
 import { renderF5011LotTable } from '../forms/f5011/lotTable.js';
+import { renderF5012LotTable } from '../forms/f5012/lotTable.js';
 import { renderF5014LotTable } from '../forms/f5014/lotTable.js';
 
 /**
@@ -44,6 +45,12 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const isStellantisInsp = [2005, 2015, 2027, 2035, 2044].includes(formCode);
     
     if (formCode === 5011) {
+      if (!curProc) {
+        if (section4Card) section4Card.style.display = 'none';
+        return;
+      }
+      if (section4Card) section4Card.style.display = 'block';
+    } else if (formCode === 5012) {
       if (!curProc) {
         if (section4Card) section4Card.style.display = 'none';
         return;
@@ -98,6 +105,11 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       // #5011 (9BQC G/RUN 검사포장-FRT): 전용 템플릿으로 위임 (forms/f5011/lotTable.js)
       case 5011:
         renderF5011LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #5012 (9BQC G/RUN 검사포장-RR R부): #5014 양식틀 복사본 (forms/f5012/lotTable.js)
+      case 5012:
+        renderF5012LotTable(lotContainer, curLots, materialLots);
         break;
 
       // #5014 (9BQC G/RUN 검사포장-길이): #5011 양식틀 복사본 (forms/f5014/lotTable.js)
