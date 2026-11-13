@@ -20,6 +20,7 @@ export const F5003_QTY_GROUPS = [
       { sideKey: 'RH', label: 'FRT RH', legacySuffix: 'FR' }
     ],
     subSections: ['A', 'B'],
+    defaultPlan: 1200,
     marginBottom: '18px'
   },
   {
@@ -29,6 +30,7 @@ export const F5003_QTY_GROUPS = [
       { sideKey: 'RH', label: 'RR RH', legacySuffix: 'RR' }
     ],
     subSections: ['A', 'B'],
+    defaultPlan: 1200,
     marginBottom: '0'
   }
 ];
@@ -72,10 +74,11 @@ export function computeF5003Totals(savedValues = {}) {
         const legacyPlan = sub === 'A' ? savedValues[`plan_${side.legacySuffix}`] : undefined;
         const legacyAct = sub === 'A' ? savedValues[`act_${side.legacySuffix}`] : undefined;
 
-        const rawPlan = savedValues[planKey] ?? legacyPlan ?? '';
+        const rawPlan = savedValues[planKey] ?? legacyPlan;
         const rawAct = savedValues[actKey] ?? legacyAct ?? '';
+        const planVal = rawPlan !== undefined ? rawPlan : group.defaultPlan;
 
-        totalPlan += Number(rawPlan) || 0;
+        totalPlan += Number(planVal) || 0;
         totalActual += Number(rawAct) || 0;
 
         let colSum = 0;
@@ -130,7 +133,8 @@ function renderGroupBlock(group, savedValues, secDefSums, secHasDefectInput) {
       const secId = `${group.groupKey}_${side.sideKey}_${sub}`;
       const planId = `f5003_${secId}_plan`;
       const legacyPlan = sub === 'A' ? savedValues[`plan_${side.legacySuffix}`] : undefined;
-      const planVal = savedValues[planId] ?? legacyPlan ?? '';
+      const rawPlan = savedValues[planId] ?? legacyPlan;
+      const planVal = rawPlan !== undefined ? rawPlan : String(group.defaultPlan);
       const rightBorder = sideIdx === group.sides.length - 1 ? '1px solid #000' : '1px dotted #000';
       return `<td colspan="2" style="${planTopBorder}border-bottom: 1px dotted #000; border-right: ${rightBorder}; padding: 0; background: #ffffff; vertical-align: middle;">
                       <input type="number" min="0" inputmode="numeric" id="${planId}" data-form-code="5003" data-save-group="qtyTable" data-qty-role="plan" class="form-control" style="${INPUT_STYLE}" value="${planVal}" />

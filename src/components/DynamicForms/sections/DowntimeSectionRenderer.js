@@ -1,6 +1,7 @@
 import { DOWNTIME_REASONS } from '../../../constants/masterData.js';
 import { applyF5001DowntimeSection, restoreDefaultDowntimeReasonsIfNeeded } from '../forms/f5001/downtimeSection.js';
 import { applyF5002DowntimeSection } from '../forms/f5002/downtimeSection.js';
+import { applyF5003DowntimeSection } from '../forms/f5003/downtimeSection.js';
 import { applyF5004DowntimeSection } from '../forms/f5004/downtimeSection.js';
 import { applyF5005DowntimeSection } from '../forms/f5005/downtimeSection.js';
 import { applyF5006DowntimeSection } from '../forms/f5006/downtimeSection.js';
@@ -30,6 +31,11 @@ export function updateDowntimeSection(ctx) {
     }
     if (formCode === 5002) {
       applyF5002DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 5003) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF5003DowntimeSection(container, downtimeCard, existingData);
       return;
     }
     if (formCode === 5004) {
