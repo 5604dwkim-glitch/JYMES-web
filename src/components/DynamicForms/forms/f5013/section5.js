@@ -12,6 +12,8 @@
  *   · 구성: 항 목 | 규 격 | 실측치(초물 / 중물 / 종물)
  *     - RR {LH|RH} A : 482±3
  *     - RR {LH|RH} B : 658±5
+ *     - 스폰지패드규격 : 5T*5W*60L (실측치 3열 병합 `colspan="3"`, 자유 입력 `data-wheel-skip="1"`)
+ *     - 스폰지패드규격 : 7T*10W*50L (실측치 3열 병합 `colspan="3"`, 자유 입력 `data-wheel-skip="1"`)
  * - 모든 입력칸 ID 는 `f5013_` 접두사 + `data-save-group="dimData"` 및 명시적 `data-*` 속성만 사용
  *   (GEMINI.md 원칙 1·2·8·9·10·12·13·16)
  */
@@ -31,6 +33,11 @@ export const F5013_DIM_SIDES = ['LH', 'RH'];
 export const F5013_DIM_ITEMS = [
   { key: 'A', specText: '482±3', spec: 482, tolerance: 3, range: 30 },
   { key: 'B', specText: '658±5', spec: 658, tolerance: 5, range: 30 }
+];
+
+export const F5013_PAD_SPECS = [
+  { key: 'PAD_5T', label: '스폰지패드규격', specText: '5T*5W*60L', legacyKey: 'PAD_SPEC' },
+  { key: 'PAD_7T', label: '스폰지패드규격', specText: '7T*10W*50L' }
 ];
 
 export const F5013_DIM_STAGES = [
@@ -107,7 +114,7 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
 
   const dimRows = F5013_DIM_ITEMS.map((item, idx) => {
     const topBorder = idx === 0 ? '1px solid #000' : '1px dotted #000';
-    const bottomBorder = idx === F5013_DIM_ITEMS.length - 1 ? '1px solid #000' : '1px dotted #000';
+    const bottomBorder = '1px dotted #000';
     const rowCellBase = `border-left: 1px solid #000; border-right: 1px solid #000; border-top: ${topBorder}; border-bottom: ${bottomBorder}; background: #ffffff; vertical-align: middle;`;
     const itemLabel = `RR ${side} ${item.key}`;
 
@@ -126,6 +133,24 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
                   <th scope="row" style="${rowCellBase} padding: 7px 4px; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap;">${itemLabel}</th>
                   <td style="${rowCellBase} padding: 7px 4px; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap;">${item.specText}</td>
                   ${stageCells}
+                </tr>`;
+  }).join('');
+
+  const padRows = F5013_PAD_SPECS.map((pad, padIdx) => {
+    const isLastPad = padIdx === F5013_PAD_SPECS.length - 1;
+    const bottomBorder = isLastPad ? '1px solid #000' : '1px dotted #000';
+    const padRowCellBase = `border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: ${bottomBorder}; background: #ffffff; vertical-align: middle;`;
+    const padId = `f5013_dim_RR_${side}_${pad.key}`;
+    const legacyPadId = pad.legacyKey ? `f5013_dim_RR_${side}_${pad.legacyKey}` : undefined;
+    const padVal = escapeAttr(savedValues[padId] ?? (legacyPadId ? savedValues[legacyPadId] : undefined));
+
+    return `
+                <tr>
+                  <th scope="row" style="${padRowCellBase} padding: 7px 4px; font-weight: 700; color: #000; font-size: 10.5px; letter-spacing: -0.3px; white-space: nowrap;">${pad.label}</th>
+                  <td style="${padRowCellBase} padding: 7px 2px; font-weight: 700; color: #000; font-size: 10.5px; white-space: nowrap;">${pad.specText}</td>
+                  <td colspan="3" style="${padRowCellBase} padding: 2px 4px;">
+                    <input type="text" id="${padId}" data-form-code="5013" data-save-group="dimData" data-wheel-skip="1" class="form-control" style="${INPUT_STYLE}" value="${padVal}" />
+                  </td>
                 </tr>`;
   }).join('');
 
@@ -153,7 +178,7 @@ function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
                   ${stageHeaders}
                 </tr>
               </thead>
-              <tbody>${dimRows}
+              <tbody>${dimRows}${padRows}
               </tbody>
             </table>`;
 }
