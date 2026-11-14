@@ -1,4 +1,5 @@
 import { autoFormatDateTimeString } from './formUtils.js';
+import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF5001LotTable } from '../forms/f5001/lotTable.js';
 import { renderF5002LotTable } from '../forms/f5002/lotTable.js';
 import { renderF5003LotTable } from '../forms/f5003/lotTable.js';
@@ -40,7 +41,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const curPart = partValueInput ? partValueInput.value : '';
     const curProc = processValue ? processValue.value : '';
 
-    const formCode = getCurrentFormCode();
+    const formCode = resolveFormCodeSource(getCurrentFormCode());
     const section4Card = container.querySelector('#section4Card') || lotContainer.closest('.card');
 
     // [1] 소재 LOT 영역 표시 여부 판단 (공정 미선택 또는 LOT 입력이 불필요한 고유 양식)

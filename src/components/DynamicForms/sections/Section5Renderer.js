@@ -1,5 +1,6 @@
 import * as Templates from '../FormTemplates.jsx';
 import { autoFormatDateTimeString } from './formUtils.js';
+import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF5001Section5 } from '../forms/f5001/section5.js';
 import { renderF5002Section5 } from '../forms/f5002/section5.js';
 import { renderF5003Section5 } from '../forms/f5003/section5.js';
@@ -23,7 +24,7 @@ export function renderSection5(ctx) {
     if (!section5) return;
 
     const curProc = processValue ? processValue.value : '';
-    const formCode = getCurrentFormCode();
+    const formCode = resolveFormCodeSource(getCurrentFormCode());
 
     const molds = ctx.molds || [];
     const _carModel = carModelValue ? carModelValue.value : '';

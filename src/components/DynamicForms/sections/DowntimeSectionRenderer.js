@@ -1,4 +1,5 @@
 import { DOWNTIME_REASONS } from '../../../constants/masterData.js';
+import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { applyF5001DowntimeSection, restoreDefaultDowntimeReasonsIfNeeded } from '../forms/f5001/downtimeSection.js';
 import { applyF5002DowntimeSection } from '../forms/f5002/downtimeSection.js';
 import { applyF5003DowntimeSection } from '../forms/f5003/downtimeSection.js';
@@ -20,7 +21,7 @@ export function updateDowntimeSection(ctx) {
   const { container, processValue, existingData, getCurrentFormCode, carModelValue, currentCarCode } = ctx;
     const curProc = processValue ? processValue.value : '';
     const downtimeCard = container.querySelector('#downtimeCard');
-    const formCode = getCurrentFormCode();
+    const formCode = resolveFormCodeSource(getCurrentFormCode());
 
     if (!curProc) {
       if (downtimeCard) downtimeCard.style.display = 'none';

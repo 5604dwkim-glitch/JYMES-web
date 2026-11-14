@@ -65,6 +65,7 @@ export const CAR_MODEL_PARTS = {
   'JG1': [
     { code: '인벨트', name: '인벨트' },
     { code: "RR C PART'G", name: "RR C PART'G" },
+    { code: 'FRUNK', name: 'FRUNK' },
     { code: "G/RUN 'E'", name: "G/RUN 'E'" }
   ],
   'JG1S': [

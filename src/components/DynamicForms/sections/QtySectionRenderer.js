@@ -1,4 +1,5 @@
 import * as Templates from '../FormTemplates.jsx';
+import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF5001QtySection } from '../forms/f5001/qtySection';
 import { renderF5002QtySection } from '../forms/f5002/qtySection';
 import { renderF5003QtySection } from '../forms/f5003/qtySection';
@@ -29,7 +30,7 @@ export function renderQtySection(ctx) {
     }
 
     const curProc = processValue ? processValue.value : '';
-    const formCode = getCurrentFormCode();
+    const formCode = resolveFormCodeSource(getCurrentFormCode());
 
   function calcDtCrewSummary() {
     if (!qtySection || !isDtCrewClip()) return;
