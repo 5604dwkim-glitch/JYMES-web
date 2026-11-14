@@ -209,7 +209,7 @@ export function computeF5013Totals(savedValues = {}) {
 
     colTotals[colKey] = colDefSum;
     colHasInput[colKey] = colAnyInput;
-    totalDefect += hasScrap ? scrapNum : colDefSum;
+    totalDefect += (hasScrap && scrapNum > 0) ? scrapNum : colDefSum;
   });
 
   const totalTarget = totalInsp > 0 ? totalInsp : (totalGood + totalDefect);
@@ -485,7 +485,7 @@ export function calcF5013QtySummary(qtySection) {
     const hasScrap = scrapEl && String(scrapEl.value).trim() !== '';
     const scrapNum = scrapEl ? (Number(scrapEl.value) || 0) : 0;
 
-    totalDefect += hasScrap ? scrapNum : colDefSum;
+    totalDefect += (hasScrap && scrapNum > 0) ? scrapNum : colDefSum;
   });
 
   const totalTarget = totalInsp > 0 ? totalInsp : (totalGood + totalDefect);

@@ -94,9 +94,7 @@ function pick(savedValues, ...keys) {
 export function computeF5005Totals(savedValues = {}) {
   let totalPlan = 0;
   let totalGood = 0;
-  let totalBadInput = 0;
-  let hasBadInput = false;
-  let totalTableDefect = 0;
+  let totalDefect = 0;
   const colSums = {};
   const colHasInput = {};
 
@@ -107,9 +105,10 @@ export function computeF5005Totals(savedValues = {}) {
     totalGood += Number(pick(savedValues, idOf(side, 'good'), legacy.good)) || 0;
 
     const rawBad = savedValues[idOf(side, 'bad')];
-    if (rawBad !== undefined && String(rawBad).trim() !== '') hasBadInput = true;
-    totalBadInput += Number(rawBad) || 0;
+    const sideHasBad = rawBad !== undefined && String(rawBad).trim() !== '';
+    const sideBadNum = Number(rawBad) || 0;
 
+    let sideTableDefect = 0;
     F5005_DEFECT_COLS.forEach(col => {
       const colKey = `${side}_${col}`;
       let sum = 0;
@@ -121,14 +120,16 @@ export function computeF5005Totals(savedValues = {}) {
       });
       colSums[colKey] = sum;
       colHasInput[colKey] = has;
-      if (col !== F5005_REWORK_COL) totalTableDefect += sum; // 재조인트 열은 폐기 불량 총계에서 제외
+      if (col !== F5005_REWORK_COL) sideTableDefect += sum; // 재조인트 열은 폐기 불량 총계에서 제외
     });
+
+    totalDefect += (sideHasBad && sideBadNum > 0) ? sideBadNum : sideTableDefect;
   });
 
   return {
     totalPlan,
     totalGood,
-    totalDefect: hasBadInput ? totalBadInput : totalTableDefect,
+    totalDefect,
     colSums,
     colHasInput
   };
@@ -283,9 +284,7 @@ export function calcF5005QtySummary(qtySection) {
 
   let totalPlan = 0;
   let totalGood = 0;
-  let totalBadInput = 0;
-  let hasBadInput = false;
-  let totalTableDefect = 0;
+  let totalDefect = 0;
 
   qtySection.querySelectorAll('input[data-form-code="5005"][data-qty-role="plan"]').forEach(el => {
     totalPlan += Number(el.value) || 0;
@@ -293,12 +292,13 @@ export function calcF5005QtySummary(qtySection) {
   qtySection.querySelectorAll('input[data-form-code="5005"][data-qty-role="good"]').forEach(el => {
     totalGood += Number(el.value) || 0;
   });
-  qtySection.querySelectorAll('input[data-form-code="5005"][data-qty-role="bad"]').forEach(el => {
-    if (String(el.value).trim() !== '') hasBadInput = true;
-    totalBadInput += Number(el.value) || 0;
-  });
 
   F5005_QTY_SIDES.forEach(({ side }) => {
+    const badEl = qtySection.querySelector(`#${idOf(side, 'bad')}`);
+    const sideHasBad = Boolean(badEl && String(badEl.value).trim() !== '');
+    const sideBadNum = Number(badEl?.value) || 0;
+
+    let sideTableDefect = 0;
     F5005_DEFECT_COLS.forEach(col => {
       const colKey = `${side}_${col}`;
       let sum = 0;
@@ -309,8 +309,10 @@ export function calcF5005QtySummary(qtySection) {
       });
       const sumCell = qtySection.querySelector(`td[data-form-code="5005"][data-qty-role="defect-sum"][data-sec="${colKey}"]`);
       if (sumCell) sumCell.textContent = (sum > 0 || has) ? String(sum) : '';
-      if (col !== F5005_REWORK_COL) totalTableDefect += sum; // 재조인트 열은 폐기 불량 총계에서 제외
+      if (col !== F5005_REWORK_COL) sideTableDefect += sum; // 재조인트 열은 폐기 불량 총계에서 제외
     });
+
+    totalDefect += (sideHasBad && sideBadNum > 0) ? sideBadNum : sideTableDefect;
   });
 
   const targetInput = qtySection.querySelector('#targetQty');
@@ -318,7 +320,7 @@ export function calcF5005QtySummary(qtySection) {
   const defectInput = qtySection.querySelector('#defectQty');
   if (targetInput) targetInput.value = String(totalPlan);
   if (actualInput) actualInput.value = String(totalGood);
-  if (defectInput) defectInput.value = String(hasBadInput ? totalBadInput : totalTableDefect);
+  if (defectInput) defectInput.value = String(totalDefect);
 }
 
 /**

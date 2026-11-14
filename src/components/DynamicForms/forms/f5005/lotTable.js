@@ -37,6 +37,14 @@ export function renderF5005LotTable(lotContainer, curLots = {}, materialLots = {
   lotContainer.innerHTML = renderF5005LotTableHTML(typed, materialLots);
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 /**
  * @param {Object} curLots      현재 화면 입력값 맵
  * @param {Object} materialLots 저장된 일보 복원값 맵
@@ -57,7 +65,7 @@ export function renderF5005LotTableHTML(curLots = {}, materialLots = {}) {
         ?? (legacyKey ? materialLots[legacyKey] : undefined)
         ?? '';
       return `<td style="${TD_STYLE}">
-                  <textarea id="${id}" data-form-code="5005" data-save-group="materialLots" class="form-control lot-datetime-input" style="${TEXTAREA_STYLE}" placeholder="년월일\n시분">${val}</textarea>
+                  <textarea id="${id}" data-form-code="5005" data-save-group="materialLots" class="form-control lot-datetime-input" style="${TEXTAREA_STYLE}" placeholder="년월일\n시분">${escapeHtml(val)}</textarea>
                 </td>`;
     }).join('\n                ');
 

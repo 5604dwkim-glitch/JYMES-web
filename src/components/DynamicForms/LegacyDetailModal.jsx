@@ -92,10 +92,15 @@ export function printIsolatedReport(element, title = '공정작업일보') {
           table-layout: fixed !important;
           margin-left: auto !important;
         }
-        /* 소형 카드 내부 테이블은 넘김 방지 */
+        /* 소형 카드 내부 테이블은 넘김 방지, 다행 생산실적(#qtySection)은 페이지 넘김 허용 */
         .card table {
           break-inside: avoid !important;
           page-break-inside: avoid !important;
+        }
+        #qtySection .card,
+        #qtySection .card table {
+          break-inside: auto !important;
+          page-break-inside: auto !important;
         }
         th, td {
           border: 1px solid #475569 !important;
@@ -704,19 +709,41 @@ export default function LegacyDetailModal({ report, onClose }) {
           return clone.outerHTML;
         };
 
+        const escapeHtmlText = (str) =>
+          String(str ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+
+        const isDowntimeVisible = Boolean(downtimeSection && downtimeSection.style.display !== 'none');
+        if (downtimeSection) {
+          const notesEl = downtimeSection.querySelector('#notesInput');
+          if (notesEl) {
+            if (isDowntimeVisible) {
+              const notesBox = document.createElement('div');
+              notesBox.style.cssText = 'background: #ffffff; padding: 3px 6px; margin-top: 4px; border-radius: 3px; border: 1px solid #e2e8f0; font-size: 13px; min-height: 16px; line-height: 1.4;';
+              notesBox.textContent = r.notes || '특이사항 없음.';
+              notesEl.parentNode.replaceChild(notesBox, notesEl);
+            } else {
+              notesEl.remove();
+            }
+          }
+        }
+
         const cardDynamicContent = 
           makeReadOnly(materialLotsSection) + 
           makeReadOnly(dynamicSection) + 
           makeReadOnly(qtySection) + 
           makeReadOnly(downtimeSection);
 
-        const cardNotes = `
+        const cardNotes = isDowntimeVisible ? '' : `
           <div class="card" style="padding: 3px 6px; margin-bottom: 3px; border: 1px solid #94a3b8; background: #fff;">
             <label style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 2px; display: block;">
               📝 <span class="sec-num"></span> 작업 특이사항
             </label>
             <div style="background: #ffffff; padding: 3px 6px; border-radius: 3px; border: 1px solid #e2e8f0; font-size: 13px; min-height: 16px; line-height: 1.4;">
-              ${r.notes || '특이사항 없음.'}
+              ${escapeHtmlText(r.notes || '특이사항 없음.')}
             </div>
           </div>
         `;
@@ -784,6 +811,7 @@ export default function LegacyDetailModal({ report, onClose }) {
 
       let currentSecIdx = 3;
       modalBodyRef.current.querySelectorAll('.sec-num').forEach(el => {
+        if (el.closest('[style*="display: none"], [style*="display:none"]')) return;
         el.textContent = currentSecIdx + '.';
         currentSecIdx++;
       });

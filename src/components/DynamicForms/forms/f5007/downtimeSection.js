@@ -25,7 +25,7 @@ export function applyF5007DowntimeSection(container, downtimeCard, existingData 
     titleLabel.innerHTML = '';
   }
 
-  if (!existingData) {
+  if (!existingData || Number(existingData.formCode) !== 5007) {
     ['#downtimeMinutes', '#downtimeMinutes2', '#downtimeMinutes3'].forEach(sel => {
       const el = container.querySelector(sel);
       if (el) el.value = '0';
@@ -37,7 +37,8 @@ export function applyF5007DowntimeSection(container, downtimeCard, existingData 
       '#downtimeEquip3',
       '#downtimeReason',
       '#downtimeReason2',
-      '#downtimeReason3'
+      '#downtimeReason3',
+      '#notesInput'
     ].forEach(sel => {
       const el = container.querySelector(sel);
       if (el) el.value = '';

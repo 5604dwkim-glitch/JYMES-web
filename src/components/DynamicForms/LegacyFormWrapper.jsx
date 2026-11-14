@@ -2335,7 +2335,8 @@ function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCe
     if (e) e.stopPropagation();
     const rawVal = parseFloat(inputElem.value);
     const initialVal = !isNaN(rawVal) ? rawVal : defaultCenter;
-    openNumberWheelPicker(initialVal, titleText, defaultCenter, range, unit, tolerance, (selectedVal) => {
+    const resolvedTitle = inputElem.dataset?.wheelTitle || titleText;
+    openNumberWheelPicker(initialVal, resolvedTitle, defaultCenter, range, unit, tolerance, (selectedVal) => {
       inputElem.value = selectedVal;
       inputElem.dispatchEvent(new Event('input', { bubbles: true }));
       inputElem.dispatchEvent(new Event('change', { bubbles: true }));
@@ -2723,24 +2724,31 @@ function openTimeWheelPicker(initialValue = '08:00', title = '시간 선택', ca
 }
 
 export function bindLotDateWheelPicker(inputElem, titleText = '소재 LOT 날짜 선택') {
-  if (!inputElem) return;
+  if (!inputElem || inputElem._lotDateBound) return;
+  void titleText;
   
   // Remove readonly and click listener if they were set
   inputElem.readOnly = false;
   inputElem.style.cursor = 'text';
-  inputElem.placeholder = '숫자 10자리 입력';
+  if (!inputElem.placeholder) {
+    inputElem.placeholder = '숫자 10자리 입력';
+  }
   
-  // Create a clean clone to remove the old click event listener
+  // Create a clean clone once to remove any legacy click event listener without wiping subsequent blur/keydown listeners
   const newElem = inputElem.cloneNode(true);
-  inputElem.parentNode.replaceChild(newElem, inputElem);
+  newElem._lotDateBound = true;
+  if (inputElem.parentNode) {
+    inputElem.parentNode.replaceChild(newElem, inputElem);
+  }
   
   const noSpace = newElem.dataset.noSpace === 'true';
   const multiline = newElem.dataset.multiline === 'true';
   const sp = noSpace ? '' : ' ';
   const separator = multiline ? '\n' : sp;
 
-  // Re-format initial value if it already exists
-  let initial = newElem.value.replace(/\D/g, '');
+  // Re-format initial value if it already exists (preserving 10/8/6-digit dates and custom strings)
+  const rawInitial = newElem.value || '';
+  const initial = rawInitial.replace(/\D/g, '');
   if (initial.length === 10) {
     const yy = initial.substring(0, 2);
     const mm = initial.substring(2, 4);
@@ -2755,8 +2763,15 @@ export function bindLotDateWheelPicker(inputElem, titleText = '소재 LOT 날짜
     const dd = initial.substring(4, 6);
     const hh = initial.substring(6, 8);
     newElem.value = `${yy}년${sp}${mm}월${sp}${dd}일${separator}${hh}시${sp}00분`;
+  } else if (initial.length === 6) {
+    const yy = initial.substring(0, 2);
+    const mm = initial.substring(2, 4);
+    const dd = initial.substring(4, 6);
+    newElem.value = `${yy}년${sp}${mm}월${sp}${dd}일`;
+  } else if (rawInitial.trim() !== '') {
+    newElem.value = rawInitial;
   } else {
-    newElem.value = initial;
+    newElem.value = '';
   }
 
   newElem.addEventListener('input', (e) => {

@@ -3,8 +3,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { fetchReports, deleteReport, bulkApproveReports, bulkDeleteReports, fetchWorkersSlim as fetchWorkers } from '../services/firestore';
 import { CAR_MODELS, DEFAULT_PROCESSES, CAR_MODEL_PARTS } from '../constants/masterData';
+import { GM_9BQC_GRUN_PROCESSES } from '../constants/formProcessOverrides';
 import { useNavigate } from 'react-router-dom';
 import LegacyDetailModal from './DynamicForms/LegacyDetailModal';
+
+const BASE_PREFIX_PROCESSES = ['소재준비', '조인트', '후가공', '검사포장'];
 
 export default function ReportList({ initialStatus = 'ALL' }) {
   const { userRole } = useAuth();
@@ -64,12 +67,22 @@ export default function ReportList({ initialStatus = 'ALL' }) {
 
   const loadReports = useCallback(async () => {
     setLoading(true);
-    const filters = { startDate, endDate, carModel, processName, status };
+    const isBasePrefix = BASE_PREFIX_PROCESSES.includes(processName);
+    const filters = {
+      startDate,
+      endDate,
+      carModel,
+      processName: isBasePrefix ? 'ALL' : processName,
+      status
+    };
     // 작업자 계정인 경우 자신의 일보만 표시
     if (userRole && userRole.role === 'worker') {
       filters.workerName = userRole.workerName;
     }
-    const data = await fetchReports(filters);
+    const rawData = await fetchReports(filters);
+    const data = isBasePrefix
+      ? rawData.filter(r => r.processName === processName || (typeof r.processName === 'string' && r.processName.startsWith(`${processName}-`)))
+      : rawData;
     const curQuery = searchQueryRef.current;
 
     setReports(data);
@@ -79,6 +92,8 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           return (r.id && r.id.toLowerCase().includes(kw)) ||
             (r.carModel && r.carModel.toLowerCase().includes(kw)) ||
             (r.itemName && r.itemName.toLowerCase().includes(kw)) ||
+            (r.processName && r.processName.toLowerCase().includes(kw)) ||
+            (r.formCode && String(r.formCode).includes(kw)) ||
             (r.workerName && r.workerName.toLowerCase().includes(kw)) ||
             (r.notes && r.notes.toLowerCase().includes(kw));
         })
@@ -103,6 +118,8 @@ export default function ReportList({ initialStatus = 'ALL' }) {
       (r.id && r.id.toLowerCase().includes(kw)) ||
       (r.carModel && r.carModel.toLowerCase().includes(kw)) ||
       (r.itemName && r.itemName.toLowerCase().includes(kw)) ||
+      (r.processName && r.processName.toLowerCase().includes(kw)) ||
+      (r.formCode && String(r.formCode).includes(kw)) ||
       (r.workerName && r.workerName.toLowerCase().includes(kw)) ||
       (r.notes && r.notes.toLowerCase().includes(kw))
     ));
@@ -463,7 +480,17 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           </div>
           <div className="form-group" style={{ minWidth: '110px' }}>
             <label style={{ fontSize: '11px', color: 'var(--accent-emerald)' }}>{t('th_vehicle')}</label>
-            <select className="form-control" value={carModel} onChange={e => setCarModel(e.target.value)}>
+            <select
+              className="form-control"
+              value={carModel}
+              onChange={e => {
+                const nextCar = e.target.value;
+                setCarModel(nextCar);
+                if (nextCar !== '9BQC' && nextCar !== 'ALL' && GM_9BQC_GRUN_PROCESSES.includes(processName)) {
+                  setProcessName('ALL');
+                }
+              }}
+            >
               <option value="ALL">{t('filter_all_cars')}</option>
               {CAR_MODELS.map(c => <option key={c.code} value={c.code}>{td(c.code)}</option>)}
             </select>
@@ -473,6 +500,13 @@ export default function ReportList({ initialStatus = 'ALL' }) {
             <select className="form-control" value={processName} onChange={e => setProcessName(e.target.value)}>
               <option value="ALL">{t('report_filter_all')}</option>
               {DEFAULT_PROCESSES.map(p => <option key={p.name} value={p.name}>{td(p.name)}</option>)}
+              {(carModel === '9BQC' || carModel === 'ALL') && (
+                <optgroup label={`9BQC ${td('세부 공정')}`}>
+                  {GM_9BQC_GRUN_PROCESSES.map(pName => (
+                    <option key={pName} value={pName}>{td(pName)}</option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
           <div className="form-group" style={{ minWidth: '110px' }}>
@@ -608,6 +642,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           let hasLotCho = false, hasDimCho = false;
           let hasLotJung = false, hasDimJung = false;
           let hasLotJong = false, hasDimJong = false;
+          const hasNoDimSection = Boolean(draft && (Number(draft.formCode) === 5007 || draft.processName === '후가공-D/V'));
 
           if (draft) {
             hasLotCho = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('초물') && v && String(v).trim() !== '');
@@ -653,9 +688,11 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                   <div style={{ color: hasLotCho ? '#15803d' : '#94a3b8', fontWeight: hasLotCho ? 'bold' : 'normal' }}>
                     {hasLotCho ? '✅' : '⏳'} {td('소재 LOT (초물)')}
                   </div>
-                  <div style={{ color: hasDimCho ? '#15803d' : '#94a3b8', fontWeight: hasDimCho ? 'bold' : 'normal' }}>
-                    {hasDimCho ? '✅' : '⏳'} {td('치수검사 (초물)')}
-                  </div>
+                  {!hasNoDimSection && (
+                    <div style={{ color: hasDimCho ? '#15803d' : '#94a3b8', fontWeight: hasDimCho ? 'bold' : 'normal' }}>
+                      {hasDimCho ? '✅' : '⏳'} {td('치수검사 (초물)')}
+                    </div>
+                  )}
                   
                   {(hasLotJung || hasDimJung) && (
                     <>
@@ -663,9 +700,11 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                       <div style={{ color: hasLotJung ? '#15803d' : '#94a3b8', fontWeight: hasLotJung ? 'bold' : 'normal' }}>
                         {hasLotJung ? '✅' : '⏳'} {td('소재 LOT (중물)')}
                       </div>
-                      <div style={{ color: hasDimJung ? '#15803d' : '#94a3b8', fontWeight: hasDimJung ? 'bold' : 'normal' }}>
-                        {hasDimJung ? '✅' : '⏳'} {td('치수검사 (중물)')}
-                      </div>
+                      {!hasNoDimSection && (
+                        <div style={{ color: hasDimJung ? '#15803d' : '#94a3b8', fontWeight: hasDimJung ? 'bold' : 'normal' }}>
+                          {hasDimJung ? '✅' : '⏳'} {td('치수검사 (중물)')}
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -675,9 +714,11 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                       <div style={{ color: hasLotJong ? '#15803d' : '#94a3b8', fontWeight: hasLotJong ? 'bold' : 'normal' }}>
                         {hasLotJong ? '✅' : '⏳'} {td('소재 LOT (종물)')}
                       </div>
-                      <div style={{ color: hasDimJong ? '#15803d' : '#94a3b8', fontWeight: hasDimJong ? 'bold' : 'normal' }}>
-                        {hasDimJong ? '✅' : '⏳'} {td('치수검사 (종물)')}
-                      </div>
+                      {!hasNoDimSection && (
+                        <div style={{ color: hasDimJong ? '#15803d' : '#94a3b8', fontWeight: hasDimJong ? 'bold' : 'normal' }}>
+                          {hasDimJong ? '✅' : '⏳'} {td('치수검사 (종물)')}
+                        </div>
+                      )}
                     </>
                   )}
                 </div>

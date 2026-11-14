@@ -81,6 +81,11 @@ export function renderSection5(ctx) {
       return;
     }
 
+    if (formCode === 5007 && curProc) {
+      section5.innerHTML = '';
+      return;
+    }
+
     if (formCode === 5010 && curProc) {
       renderF5010Section5(section5, ctx);
       return;

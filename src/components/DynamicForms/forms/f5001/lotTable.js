@@ -40,6 +40,14 @@ export function renderF5001LotTable(lotContainer, curLots = {}, materialLots = {
   lotContainer.innerHTML = renderF5001LotTableHTML(typed, materialLots);
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 /**
  * @param {Object} curLots     현재 화면에 입력돼 있던 값 (id -> value)
  * @param {Object} materialLots 저장된 일보에서 복원한 값 (key -> value)
@@ -53,7 +61,7 @@ export function renderF5001LotTableHTML(curLots = {}, materialLots = {}) {
                   const id = `f5001_${row.key}_${col}`;
                   const value = curLots[id] || materialLots[id] || '';
                   return `<td style="${TD_STYLE}">
-                  <textarea id="${id}" data-form-code="5001" class="form-control lot-datetime-input" style="${TEXTAREA_STYLE}" placeholder="년월일\n시분">${value}</textarea>
+                  <textarea id="${id}" data-form-code="5001" data-save-group="materialLots" class="form-control lot-datetime-input" style="${TEXTAREA_STYLE}" placeholder="년월일\n시분">${escapeHtml(value)}</textarea>
                 </td>`;
                 }).join('')}
               </tr>`).join('');

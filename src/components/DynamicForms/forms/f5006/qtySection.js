@@ -172,7 +172,7 @@ export function computeF5006Totals(savedValues = {}) {
       if (col !== F5006_REWORK_COL) unitTableDefect += sum; // 재조인트 열은 폐기 불량 총계에서 제외
     });
 
-    totalDefect += unitHasBadInput ? unitBadInput : unitTableDefect;
+    totalDefect += (unitHasBadInput && unitBadInput > 0) ? unitBadInput : unitTableDefect;
   });
 
   return {
@@ -401,7 +401,7 @@ export function calcF5006QtySummary(qtySection) {
       if (col !== F5006_REWORK_COL) unitTableDefect += sum; // 재조인트 열은 폐기 불량 총계에서 제외
     });
 
-    totalDefect += unitHasBadInput ? unitBadInput : unitTableDefect;
+    totalDefect += (unitHasBadInput && unitBadInput > 0) ? unitBadInput : unitTableDefect;
   });
 
   const targetInput = qtySection.querySelector('#targetQty');

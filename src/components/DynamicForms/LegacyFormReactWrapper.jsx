@@ -21,6 +21,7 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
 
   // Step 1: Hybrid State to bridge Vanilla JS and React JSX
   const [formSelections, setFormSelections] = useState({ carModel: '', part: '', process: '' });
+  const prevSelectionsRef = useRef({ carModel: '', part: '', process: '' });
   const [badgeContainerElement, setBadgeContainerElement] = useState(null);
   const [tpmGateContainerElement, setTpmGateContainerElement] = useState(null);
 
@@ -29,6 +30,8 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
   const [tpmSkipped, setTpmSkipped] = useState(false);
   const tpmSummaryRef = useRef(tpmSummary);
   tpmSummaryRef.current = tpmSummary;
+  const initialTpmSummaryRef = useRef(initialTpmSummary);
+  initialTpmSummaryRef.current = initialTpmSummary;
   const isSavingRef = useRef(false);
 
   const [showTpmModal, setShowTpmModal] = useState(false);
@@ -69,7 +72,8 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
             if (isSavingRef.current) return;
             isSavingRef.current = true;
             try {
-              const payload = tpmSummaryRef.current
+              const isSavingJoint = typeof data?.processName === 'string' && data.processName.startsWith('조인트');
+              const payload = (isSavingJoint && tpmSummaryRef.current)
                 ? { ...data, tpmCheckSummary: tpmSummaryRef.current }
                 : data;
               if (id) {
@@ -96,12 +100,25 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
             navigate(`/${tab}`);
           },
           showToast: (msg, type) => {
-            if (type === 'error') alert(msg);
+            if (type === 'error' || type === 'warning') alert(msg);
             else console.log(`Toast (${type}):`, msg);
           },
           // Triggered by vanilla JS when dropdowns/chips change
           onFormSelectionChange: (selections) => {
-            setFormSelections(prev => ({ ...prev, ...selections }));
+            const prev = prevSelectionsRef.current;
+            const next = { ...prev, ...selections };
+            if (
+              prev.process &&
+              next.process &&
+              (prev.process !== next.process || prev.carModel !== next.carModel || prev.part !== next.part)
+            ) {
+              setTpmSkipped(false);
+              if (!existingData && !initialTpmSummaryRef.current) {
+                setTpmSummary(null);
+              }
+            }
+            prevSelectionsRef.current = next;
+            setFormSelections(next);
           }
         };
         setLegacyFormContext(formCtx);
@@ -185,7 +202,11 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
 
   const handleOpenTpmModal = () => {
     const curDate = containerRef.current?.querySelector('#reportDate')?.value || new Date().toLocaleDateString('sv-SE');
-    const curWorker = containerRef.current?.querySelector('#workerSelect')?.value || userRole?.workerName || '';
+    const curWorker =
+      containerRef.current?.querySelector('#workerSearchInput')?.value ||
+      containerRef.current?.querySelector('#workerSelect')?.value ||
+      userRole?.workerName ||
+      '';
     setModalMeta({ reportDate: curDate, workerName: curWorker });
     setShowTpmModal(true);
   };

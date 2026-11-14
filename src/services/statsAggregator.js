@@ -260,29 +260,29 @@ export function extractDefectBreakdown(r) {
       addDefect('[글라스본딩] 조개피(유리깨짐)', r.qtyTable[`f5001_${prod}_def_chip`]);
     });
 
-    // #5004 (GM 9BQC G/RUN 조인트-FRT) — FRT LH / FRT RH, 폐기불량 A·B·C + 공정간불량(P)
+    // #5004 (GM 9BQC G/RUN 조인트-FRT) — FRT LH / FRT RH, 폐기불량 A·B·C + 공정간불량(P) (재조인트 R 열은 폐기 불량 총계 제외)
     const F5004_DEFECT_NAMES = [
       ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'], ['bubble', '기포'],
       ['dent', '씹힘'], ['contam', '오염'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
     ];
     ['LH', 'RH'].forEach(side => {
-      ['A', 'B', 'C', 'R', 'P'].forEach(col => {
-        const prefix = col === 'P' ? '[조인트-FRT 공정간]' : (col === 'R' ? '[조인트-FRT 재조인트]' : '[조인트-FRT]');
+      ['A', 'B', 'C', 'P'].forEach(col => {
+        const prefix = col === 'P' ? '[조인트-FRT 공정간]' : '[조인트-FRT]';
         F5004_DEFECT_NAMES.forEach(([key, label]) => {
           addDefect(`${prefix} ${label}`, r.qtyTable[`f5004_FRT_${side}_def_${key}_${col}`]);
         });
       });
     });
 
-    // #5005 (GM 9BQC G/RUN 조인트-RR R부) — RR LH / RR RH, 불량 10종
+    // #5005 (GM 9BQC G/RUN 조인트-RR R부) — RR LH / RR RH, 불량 10종 (재조인트 R 열은 폐기 불량 총계 제외)
     {
       const F5005_DEFECT_NAMES = [
         ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'], ['bubble', '기포'],
         ['dent', '씹힘'], ['contam', '오염'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
       ];
       ['LH', 'RH'].forEach(side => {
-        ['A', 'B', 'C', 'R', 'P'].forEach(col => {
-          const prefix = col === 'P' ? '[조인트-RR R부 공정간]' : (col === 'R' ? '[조인트-RR R부 재조인트]' : '[조인트-RR R부]');
+        ['A', 'B', 'C', 'P'].forEach(col => {
+          const prefix = col === 'P' ? '[조인트-RR R부 공정간]' : '[조인트-RR R부]';
           F5005_DEFECT_NAMES.forEach(([key, label]) => {
             const val = r.qtyTable[`f5005_RR_${side}_def_${key}_${col}`] ?? r.qtyTable[`f5005_FRT_${side}_def_${key}_${col}`];
             addDefect(`${prefix} ${label}`, val);
@@ -291,7 +291,7 @@ export function extractDefectBreakdown(r) {
       });
     }
 
-    // #5006 (GM 9BQC G/RUN 조인트-RR Fixed) — 동일 방향 2표(u1/u2) + 구버전 단일 표/분리 표 하위 호환 (GEMINI.md 원칙 9·11)
+    // #5006 (GM 9BQC G/RUN 조인트-RR Fixed) — 동일 방향 2표(u1/u2) + 구버전 단일 표/분리 표 하위 호환 (재조인트 R 열 제외, GEMINI.md 원칙 9·11)
     {
       const F5006_DEFECT_NAMES = [
         ['split', '떨어짐'], ['dv_split', 'D/V 떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'],
@@ -304,24 +304,24 @@ export function extractDefectBreakdown(r) {
 
       if (hasUnitKeys) {
         ['u1', 'u2'].forEach(unit => {
-          ['A', 'B', 'D', 'R', 'P'].forEach(col => {
-            const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : (col === 'R' ? '[조인트-RR Fixed 재조인트]' : '[조인트-RR Fixed]');
+          ['A', 'B', 'D', 'P'].forEach(col => {
+            const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : '[조인트-RR Fixed]';
             F5006_DEFECT_NAMES.forEach(([key, label]) => {
               addDefect(`${prefix} ${label}`, r.qtyTable[`f5006_RR_${unit}_def_${key}_${col}`]);
             });
           });
         });
       } else if (hasSingleEquipKeys) {
-        ['A', 'B', 'D', 'R', 'P'].forEach(col => {
-          const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : (col === 'R' ? '[조인트-RR Fixed 재조인트]' : '[조인트-RR Fixed]');
+        ['A', 'B', 'D', 'P'].forEach(col => {
+          const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : '[조인트-RR Fixed]';
           F5006_DEFECT_NAMES.forEach(([key, label]) => {
             addDefect(`${prefix} ${label}`, r.qtyTable[`f5006_RR_def_${key}_${col}`]);
           });
         });
       } else {
         ['LH', 'RH'].forEach(side => {
-          ['A', 'B', 'C', 'D', 'R', 'P'].forEach(col => {
-            const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : (col === 'R' ? '[조인트-RR Fixed 재조인트]' : '[조인트-RR Fixed]');
+          ['A', 'B', 'C', 'D', 'P'].forEach(col => {
+            const prefix = col === 'P' ? '[조인트-RR Fixed 공정간]' : '[조인트-RR Fixed]';
             F5006_DEFECT_NAMES.forEach(([key, label]) => {
               const val = r.qtyTable[`f5006_RR_${side}_def_${key}_${col}`] ?? r.qtyTable[`f5006_FRT_${side}_def_${key}_${col}`];
               addDefect(`${prefix} ${label}`, val);

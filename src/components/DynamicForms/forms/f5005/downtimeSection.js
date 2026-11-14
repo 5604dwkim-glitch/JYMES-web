@@ -25,20 +25,26 @@ export function applyF5005DowntimeSection(container, downtimeCard, existingData 
     titleLabel.innerHTML = '📝 <span class="sec-num"></span> 작업 특이사항';
   }
 
+  const isEditing5005 = Boolean(existingData && Number(existingData.formCode) === 5005);
   [1, 2, 3].forEach(num => {
     const select = container.querySelector(`#downtimeEquip${num}`);
     if (!select) return;
 
-    const savedVal = existingData ? existingData[`downtimeEquip${num}`] : '';
+    const savedVal = isEditing5005 ? String(existingData[`downtimeEquip${num}`] || '').trim() : '';
+    const optionsList = [...F5005_DOWNTIME_EQUIPS];
+    if (savedVal && !optionsList.includes(savedVal)) {
+      optionsList.push(savedVal);
+    }
     const curVal = F5005_DOWNTIME_EQUIPS.includes(select.value)
       ? select.value
-      : (F5005_DOWNTIME_EQUIPS.includes(savedVal) ? savedVal : '');
+      : (optionsList.includes(savedVal) ? savedVal : '');
 
     select.innerHTML =
       `<option value=""${curVal === '' ? ' selected' : ''}>호기 선택</option>` +
-      F5005_DOWNTIME_EQUIPS.map(
-        opt => `<option value="${opt}"${curVal === opt ? ' selected' : ''}>${opt}</option>`
-      ).join('');
+      optionsList.map(opt => {
+        const esc = opt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return `<option value="${esc}"${curVal === opt ? ' selected' : ''}>${esc}</option>`;
+      }).join('');
     select.value = curVal;
   });
 }

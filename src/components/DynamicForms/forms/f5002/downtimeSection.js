@@ -63,19 +63,26 @@ export function applyF5002DowntimeSection(container, downtimeCard, existingData 
     }
   ];
 
+  const isEditing5002 = Boolean(existingData && Number(existingData.formCode) === 5002);
   reasonConfigs.forEach(cfg => {
     const sel = container.querySelector(`#${cfg.id}`);
     if (!sel) return;
     const curVal = sel.value;
+    const savedStr = isEditing5002 ? String(cfg.saved || '').trim() : '';
+    const optionsList = [...F5002_DOWNTIME_REASONS];
+    if (savedStr && !optionsList.includes(savedStr)) {
+      optionsList.push(savedStr);
+    }
     const activeVal = F5002_DOWNTIME_REASONS.includes(curVal)
       ? curVal
-      : (F5002_DOWNTIME_REASONS.includes(cfg.saved) ? cfg.saved : '');
+      : (optionsList.includes(savedStr) ? savedStr : '');
 
     sel.innerHTML =
       `<option value=""${cfg.emptyI18n}${activeVal === '' ? ' selected' : ''}>${cfg.emptyLabel}</option>` +
-      F5002_DOWNTIME_REASONS.map(
-        r => `<option value="${r}"${activeVal === r ? ' selected' : ''}>${r}</option>`
-      ).join('');
+      optionsList.map(r => {
+        const esc = r.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return `<option value="${esc}"${activeVal === r ? ' selected' : ''}>${esc}</option>`;
+      }).join('');
     sel.value = activeVal;
   });
 }
