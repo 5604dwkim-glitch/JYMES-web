@@ -1,9 +1,12 @@
 /**
  * 양식 고유 번호 #5013 (GM 9BQC / G/RUN / 검사포장-RR)
- * — #5012 양식틀 복사본
+ * — #5012 양식틀 복사본 + 부자재 LOT 번호 입력(D/V)
  * Section 5 동적 영역 전용 렌더러
  *
- * - 5. 주요 치수 입력 카드:
+ * - 5. 부자재 LOT 번호 입력 카드:
+ *   · 헤더: [공란] | 초 | 중 | 종
+ *   · 세로 행: D/V (`data-wheel-skip="1"`, 자유 입력)
+ * - 6. 주요 치수 입력 카드:
  *   · 상단 표: 중요 치수 및 검사 현황 (RR LH)
  *   · 하단 표: 중요 치수 및 검사 현황 (RR RH)
  *   · 구성: 항 목 | 규 격 | 실측치(초물 / 중물 / 종물)
@@ -12,6 +15,16 @@
  * - 모든 입력칸 ID 는 `f5013_` 접두사 + `data-save-group="dimData"` 및 명시적 `data-*` 속성만 사용
  *   (GEMINI.md 원칙 1·2·8·9·10·12·13·16)
  */
+
+export const F5013_SUBLOT_ROWS = [
+  { key: 'DV', label: 'D/V' }
+];
+
+export const F5013_SUBLOT_STAGES = [
+  { key: '초', label: '초' },
+  { key: '중', label: '중' },
+  { key: '종', label: '종' }
+];
 
 export const F5013_DIM_SIDES = ['LH', 'RH'];
 
@@ -26,6 +39,10 @@ export const F5013_DIM_STAGES = [
   { key: '종물', label: '종물' }
 ];
 
+const FIRST_TH_STYLE = 'border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;';
+const STAGE_TH_STYLE = 'border: 1px solid #000; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;';
+const ROW_TH_STYLE = 'border: 1px solid #000; padding: 8px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle; white-space: nowrap;';
+const TD_STYLE = 'border: 1px solid #000; padding: 2px 3px; background: #ffffff; vertical-align: middle;';
 const INPUT_STYLE = 'width: 100%; min-width: 0; height: 28px; border: none; text-align: center; font-size: 11.5px; font-weight: 700; color: #000; padding: 2px 2px; background: transparent; outline: none; border-radius: 0; box-sizing: border-box;';
 
 function escapeAttr(val) {
@@ -34,6 +51,53 @@ function escapeAttr(val) {
     .replace(/"/g, '&quot;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+function renderSubLotCardHTML(savedValues = {}) {
+  const stageHeaders = F5013_SUBLOT_STAGES
+    .map(stage => `<th scope="col" style="${STAGE_TH_STYLE}">${stage.label}</th>`)
+    .join('\n                  ');
+
+  const bodyRows = F5013_SUBLOT_ROWS.map(row => {
+    const cells = F5013_SUBLOT_STAGES.map(stage => {
+      const id = `f5013_sub_${row.key}_${stage.key}`;
+      const val = escapeAttr(savedValues[id]);
+      return `<td style="${TD_STYLE}">
+                    <input type="text" id="${id}" data-form-code="5013" data-save-group="dimData" data-wheel-skip="1" class="form-control" style="${INPUT_STYLE} height: 30px;" value="${val}" />
+                  </td>`;
+    }).join('\n                  ');
+
+    return `
+                <tr>
+                  <th scope="row" style="${ROW_TH_STYLE}">${row.label}</th>
+                  ${cells}
+                </tr>`;
+  }).join('');
+
+  return `
+        <div class="card" data-form-code="5013" style="padding: 16px; margin-bottom: 16px;">
+          <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
+            🧪 <span class="sec-num"></span> 부자재 LOT 번호 입력
+          </label>
+          <div class="f5013-sublot-wrap" data-form-code="5013" style="width: 100%; overflow-x: hidden;">
+            <table data-form-code="5013" style="width: 100%; table-layout: fixed; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <colgroup>
+                <col style="width: 22%;" />
+                <col style="width: 26%;" />
+                <col style="width: 26%;" />
+                <col style="width: 26%;" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col" style="${FIRST_TH_STYLE}"></th>
+                  ${stageHeaders}
+                </tr>
+              </thead>
+              <tbody>${bodyRows}
+              </tbody>
+            </table>
+          </div>
+        </div>`;
 }
 
 function renderDimTableBySideHTML(side, savedValues = {}, isLast = false) {
@@ -111,10 +175,10 @@ function renderDimCardHTML(savedValues = {}) {
 
 /**
  * @param {Object} savedValues 저장/현재 입력값 맵 (id -> value)
- * @returns {string} 주요 치수 입력 카드 HTML
+ * @returns {string} 부자재 LOT 번호 입력 + 주요 치수 입력 카드 HTML
  */
 export function renderF5013Section5HTML(savedValues = {}) {
-  return `${renderDimCardHTML(savedValues)}\n      `;
+  return `${renderSubLotCardHTML(savedValues)}\n${renderDimCardHTML(savedValues)}\n      `;
 }
 
 /**
