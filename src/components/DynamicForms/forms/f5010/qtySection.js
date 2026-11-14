@@ -1,16 +1,14 @@
 /**
  * 양식 고유 번호 #5010 (GM 9BQC / G/RUN / 후가공-RR)
- * — #5013 양식틀 복사본
- * "7. 생산실적 및 불량 현황" 전용 렌더러
+ * "6. 생산실적 및 불량 현황" 전용 렌더러
  *
  * - 상단 열 구성 (2단 헤더 × 4열):
  *   · 1행: 구 분 [colspan=2, rowspan=2] | RR LH ( [입력] )호기 [colspan=2] | RR RH ( [입력] )호기 [colspan=2]
  *   · 2행: PRIVACY | TINTED | PRIVACY | TINTED
- * - 제품 수량 (5행): 검 사 / 정 품 / 리워크 D/V / 리워크 직각,둔각 / 완전불량(폐기)
+ * - 제품 수량 (4행): 검 사 / 정 품 / 공정불량(리워크) / 완전불량(폐기)
  * - 압출 소재 불량 (6행 + 소 계): 스코치 / 외면 흠 / 오 염 / 코팅 불량 / 단면 불량 / 기타( ) / 소 계
- * - 조인트 불량 (14행 + 소 계):
- *   떨어짐(직각) / 떨어짐(둔각) / D/V 떨어짐 / 글라스기스 / 벌어짐 / 외면흠 /
- *   양부족 / 밀 림 / 단 차 / 기 포 / 씹 힘 / 삽입 불량 / 수 축 / 기타( ) / 소 계
+ * - 조인트 불량 (9행 + 소 계):
+ *   떨어짐 / 양부족 / 밀 림 / 단 차 / 기 포 / 씹 힘 / 삽입 불량 / 수 축 / 기타( ) / 소 계
  * - 후가공 불량 (9행 + 소 계):
  *   길이 불량 / 외면 오염 / 과사상 / 미사상 / 마킹 누락 / PAD 누락 / PROTECT FILM 누락 / 본드 오염 / 기타( ) / 소 계
  * - 불량 합계: 열별 압출·조인트·후가공 소계 자동 합산
@@ -32,8 +30,7 @@ export const F5010_QTY_COLS = [
 export const F5010_COUNT_ROWS = [
   { key: 'insp', label: '검 사', role: 'insp', fontSize: '10.5px' },
   { key: 'good', label: '정 품', role: 'good', fontSize: '10.5px' },
-  { key: 'rework_dv', label: '리워크 D/V', role: 'rework', fontSize: '10px', legacyRowKey: 'rework' },
-  { key: 'rework_angle', label: '리워크 직각,둔각', role: 'rework', fontSize: '9.5px' },
+  { key: 'rework', label: '공정불량(리워크)', role: 'rework', fontSize: '9.5px', legacyRowKey: 'rework_dv' },
   { key: 'scrap', label: '완전불량(폐기)', role: 'scrap', fontSize: '9.5px' }
 ];
 
@@ -54,12 +51,7 @@ export const F5010_DEFECT_GROUPS = [
     key: 'joint',
     groupHtml: '조인<br>트<br>불량',
     items: [
-      { key: 'split_right', label: '떨어짐(직각)', legacyItemKey: 'split' },
-      { key: 'split_obtuse', label: '떨어짐(둔각)' },
-      { key: 'split_dv', label: 'D/V 떨어짐' },
-      { key: 'glass_scratch', label: '글라스기스' },
-      { key: 'gap', label: '벌어짐' },
-      { key: 'ext_scratch', label: '외면흠' },
+      { key: 'split', label: '떨어짐', legacyItemKey: 'split_right' },
       { key: 'short', label: '양부족' },
       { key: 'push', label: '밀 림' },
       { key: 'step', label: '단 차' },
