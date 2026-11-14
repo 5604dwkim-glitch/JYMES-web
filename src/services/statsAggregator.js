@@ -375,6 +375,30 @@ export function extractDefectBreakdown(r) {
       });
     }
 
+    // #5010 (GM 9BQC G/RUN 후가공-RR) — #5013 양식틀 복사본 (RR LH/RH ( )호기 × PRIVACY / TINTED)
+    {
+      const F5010_EXT = [
+        ['scorch', '스코치'], ['scratch', '외면흠'], ['contam', '오염'],
+        ['coat', '코팅불량'], ['cross', '단면불량'], ['etc', '기타']
+      ];
+      const F5010_JOINT = [
+        ['split_right', '떨어짐(직각)'], ['split_obtuse', '떨어짐(둔각)'], ['split_dv', 'D/V 떨어짐'],
+        ['glass_scratch', '글라스기스'], ['gap', '벌어짐'], ['ext_scratch', '외면흠'],
+        ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'],
+        ['bubble', '기포'], ['dent', '씹힘'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
+      ];
+      const F5010_POST = [
+        ['len', '길이불량'], ['contam', '외면오염'], ['overtrim', '과사상'], ['undertrim', '미사상'],
+        ['mark_miss', '마킹누락'], ['pad_miss', 'PAD누락'], ['film_miss', 'PROTECT FILM누락'],
+        ['bond_contam', '본드오염'], ['rim_cut_miss', '림컷팅누락'], ['etc', '기타']
+      ];
+      ['LH_PRI', 'LH_TINT', 'RH_PRI', 'RH_TINT', 'LH_2', 'LH_3', 'RH_2', 'RH_3', 'PRI_LH', 'PRI_RH', 'TINT_LH', 'TINT_RH', 'FRT_LH', 'FRT_RH'].forEach(col => {
+        F5010_EXT.forEach(([k, name]) => addDefect(`[후가공-RR 압출] ${name}`, r.qtyTable[`f5010_${col}_def_ext_${k}`]));
+        F5010_JOINT.forEach(([k, name]) => addDefect(`[후가공-RR 조인트] ${name}`, r.qtyTable[`f5010_${col}_def_joint_${k}`]));
+        F5010_POST.forEach(([k, name]) => addDefect(`[후가공-RR 후가공] ${name}`, r.qtyTable[`f5010_${col}_def_post_${k}`]));
+      });
+    }
+
     // #5011 (GM 9BQC G/RUN 검사포장-FRT) — FRT LH / FRT RH (압출·조인트·후가공 불량)
     {
       const F5011_EXT = [
@@ -417,21 +441,24 @@ export function extractDefectBreakdown(r) {
       });
     }
 
-    // #5013 (GM 9BQC G/RUN 검사포장-RR) — #5012 양식틀 복사본 (LH 2호기 / LH 3호기 / RH 2호기 / RH 3호기)
+    // #5013 (GM 9BQC G/RUN 검사포장-RR) — RR LH/RH ( )호기 × PRIVACY / TINTED (구 열 키 하위 호환 포함)
     {
       const F5013_EXT = [
         ['scorch', '스코치'], ['scratch', '외면흠'], ['contam', '오염'],
         ['coat', '코팅불량'], ['cross', '단면불량'], ['etc', '기타']
       ];
       const F5013_JOINT = [
+        ['split_right', '떨어짐(직각)'], ['split_obtuse', '떨어짐(둔각)'], ['split_dv', 'D/V 떨어짐'],
+        ['glass_scratch', '글라스기스'], ['gap', '벌어짐'], ['ext_scratch', '외면흠'],
         ['split', '떨어짐'], ['short', '양부족'], ['push', '밀림'], ['step', '단차'],
         ['bubble', '기포'], ['dent', '씹힘'], ['insert', '삽입불량'], ['sink', '수축'], ['etc', '기타']
       ];
       const F5013_POST = [
-        ['len', '길이불량'], ['mark_miss', '마킹누락'], ['overtrim', '과사상'], ['undertrim', '미사상'],
-        ['contam', '외면오염'], ['rim_cut_miss', '림컷팅누락'], ['pad_miss', '패드누락'], ['etc', '기타']
+        ['len', '길이불량'], ['contam', '외면오염'], ['overtrim', '과사상'], ['undertrim', '미사상'],
+        ['mark_miss', '마킹누락'], ['pad_miss', 'PAD누락'], ['film_miss', 'PROTECT FILM누락'],
+        ['bond_contam', '본드오염'], ['rim_cut_miss', '림컷팅누락'], ['etc', '기타']
       ];
-      ['LH_2', 'LH_3', 'RH_2', 'RH_3', 'PRI_LH', 'PRI_RH', 'TINT_LH', 'TINT_RH', 'FRT_LH', 'FRT_RH'].forEach(col => {
+      ['LH_PRI', 'LH_TINT', 'RH_PRI', 'RH_TINT', 'LH_2', 'LH_3', 'RH_2', 'RH_3', 'PRI_LH', 'PRI_RH', 'TINT_LH', 'TINT_RH', 'FRT_LH', 'FRT_RH'].forEach(col => {
         F5013_EXT.forEach(([k, name]) => addDefect(`[검사포장-RR 압출] ${name}`, r.qtyTable[`f5013_${col}_def_ext_${k}`]));
         F5013_JOINT.forEach(([k, name]) => addDefect(`[검사포장-RR 조인트] ${name}`, r.qtyTable[`f5013_${col}_def_joint_${k}`]));
         F5013_POST.forEach(([k, name]) => addDefect(`[검사포장-RR 후가공] ${name}`, r.qtyTable[`f5013_${col}_def_post_${k}`]));

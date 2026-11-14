@@ -6,6 +6,7 @@ import { renderF5004QtySection } from '../forms/f5004/qtySection';
 import { renderF5005QtySection } from '../forms/f5005/qtySection';
 import { renderF5006QtySection } from '../forms/f5006/qtySection';
 import { renderF5007QtySection } from '../forms/f5007/qtySection';
+import { renderF5010QtySection } from '../forms/f5010/qtySection';
 import { renderF5011QtySection } from '../forms/f5011/qtySection';
 import { renderF5012QtySection } from '../forms/f5012/qtySection';
 import { renderF5013QtySection } from '../forms/f5013/qtySection';
@@ -917,6 +918,9 @@ export function renderQtySection(ctx) {
         break;
       case 5007:
         renderF5007QtySection(qtySection, ctx);
+        break;
+      case 5010:
+        renderF5010QtySection(qtySection, ctx);
         break;
       case 5011:
         renderF5011QtySection(qtySection, ctx);

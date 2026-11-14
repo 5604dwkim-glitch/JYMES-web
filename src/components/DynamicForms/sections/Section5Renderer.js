@@ -6,6 +6,7 @@ import { renderF5003Section5 } from '../forms/f5003/section5.js';
 import { renderF5004Section5 } from '../forms/f5004/section5.js';
 import { renderF5005Section5 } from '../forms/f5005/section5.js';
 import { renderF5006Section5 } from '../forms/f5006/section5.js';
+import { renderF5010Section5 } from '../forms/f5010/section5.js';
 import { renderF5011Section5 } from '../forms/f5011/section5.js';
 import { renderF5012Section5 } from '../forms/f5012/section5.js';
 import { renderF5013Section5 } from '../forms/f5013/section5.js';
@@ -77,6 +78,11 @@ export function renderSection5(ctx) {
 
     if (formCode === 5006 && curProc) {
       renderF5006Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 5010 && curProc) {
+      renderF5010Section5(section5, ctx);
       return;
     }
 

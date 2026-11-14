@@ -1,29 +1,38 @@
 /**
  * 양식 고유 번호 #5013 (GM 9BQC / G/RUN / 검사포장-RR)
- * — #5012 양식틀 복사본
- * "6. 생산실적 및 불량 현황" 전용 렌더러
+ * "7. 생산실적 및 불량 현황" 전용 렌더러
  *
- * - 상단 열 구성 (4열): LH 2호기 / LH 3호기 / RH 2호기 / RH 3호기
- * - 제품 수량 (5행): 계 획(기본 1200) / 검 사 / 정 품 / 공정불량(리워크) / 완전불량(폐기)
+ * - 상단 열 구성 (2단 헤더 × 4열):
+ *   · 1행: 구 분 [colspan=2, rowspan=2] | RR LH ( [입력] )호기 [colspan=2] | RR RH ( [입력] )호기 [colspan=2]
+ *   · 2행: PRIVACY | TINTED | PRIVACY | TINTED
+ * - 제품 수량 (5행): 검 사 / 정 품 / 리워크 D/V / 리워크 직각,둔각 / 완전불량(폐기)
  * - 압출 소재 불량 (6행 + 소 계): 스코치 / 외면 흠 / 오 염 / 코팅 불량 / 단면 불량 / 기타( ) / 소 계
- * - 조인트 불량 (9행 + 소 계): 떨어짐 / 양부족 / 밀 림 / 단 차 / 기 포 / 씹 힘 / 삽입 불량 / 수 축 / 기타( ) / 소 계
- * - 후가공 불량 (8행 + 소 계): 길이 불량 / 마킹 누락 / 과사상 / 미사상 / 외면 오염 / 림컷팅 누락 / 패드 누락 / 기타( ) / 소 계
+ * - 조인트 불량 (14행 + 소 계):
+ *   떨어짐(직각) / 떨어짐(둔각) / D/V 떨어짐 / 글라스기스 / 벌어짐 / 외면흠 /
+ *   양부족 / 밀 림 / 단 차 / 기 포 / 씹 힘 / 삽입 불량 / 수 축 / 기타( ) / 소 계
+ * - 후가공 불량 (9행 + 소 계):
+ *   길이 불량 / 외면 오염 / 과사상 / 미사상 / 마킹 누락 / PAD 누락 / PROTECT FILM 누락 / 본드 오염 / 기타( ) / 소 계
  * - 불량 합계: 열별 압출·조인트·후가공 소계 자동 합산
  * - 모든 ID/저장 키는 `f5013_` 접두사 및 명시적 `data-*` 속성 사용 (GEMINI.md 원칙 1·2·8·9·10·11·12·13·16)
  */
 
+export const F5013_MACHINE_GROUPS = [
+  { side: 'LH', id: 'f5013_RR_LH_machine_no', labelPrefix: 'RR LH' },
+  { side: 'RH', id: 'f5013_RR_RH_machine_no', labelPrefix: 'RR RH' }
+];
+
 export const F5013_QTY_COLS = [
-  { key: 'LH_2', label: 'LH 2호기', legacyF5013ColKey: 'PRI_LH', legacyKey: 'FL', defaultPlan: 1200 },
-  { key: 'LH_3', label: 'LH 3호기', legacyF5013ColKey: 'PRI_RH', legacyKey: 'FR', defaultPlan: 1200 },
-  { key: 'RH_2', label: 'RH 2호기', legacyF5013ColKey: 'TINT_LH', legacyKey: 'RL', defaultPlan: 1200 },
-  { key: 'RH_3', label: 'RH 3호기', legacyF5013ColKey: 'TINT_RH', legacyKey: 'RR', defaultPlan: 1200 }
+  { key: 'LH_PRI', label: 'PRIVACY', legacyF5013ColKey: 'LH_2', legacyAltKey: 'PRI_LH', legacyKey: 'FL' },
+  { key: 'LH_TINT', label: 'TINTED', legacyF5013ColKey: 'LH_3', legacyAltKey: 'PRI_RH', legacyKey: 'FR' },
+  { key: 'RH_PRI', label: 'PRIVACY', legacyF5013ColKey: 'RH_2', legacyAltKey: 'TINT_LH', legacyKey: 'RL' },
+  { key: 'RH_TINT', label: 'TINTED', legacyF5013ColKey: 'RH_3', legacyAltKey: 'TINT_RH', legacyKey: 'RR' }
 ];
 
 export const F5013_COUNT_ROWS = [
-  { key: 'plan', label: '계 획', role: 'plan', fontSize: '10.5px', solidBottom: true },
-  { key: 'insp', label: '검 사', role: 'insp', fontSize: '10.5px', solidTop: true },
+  { key: 'insp', label: '검 사', role: 'insp', fontSize: '10.5px' },
   { key: 'good', label: '정 품', role: 'good', fontSize: '10.5px' },
-  { key: 'rework', label: '공정불량(리워크)', role: 'rework', fontSize: '9.5px' },
+  { key: 'rework_dv', label: '리워크 D/V', role: 'rework', fontSize: '10px', legacyRowKey: 'rework' },
+  { key: 'rework_angle', label: '리워크 직각,둔각', role: 'rework', fontSize: '9.5px' },
   { key: 'scrap', label: '완전불량(폐기)', role: 'scrap', fontSize: '9.5px' }
 ];
 
@@ -44,7 +53,12 @@ export const F5013_DEFECT_GROUPS = [
     key: 'joint',
     groupHtml: '조인<br>트<br>불량',
     items: [
-      { key: 'split', label: '떨어짐' },
+      { key: 'split_right', label: '떨어짐(직각)', legacyItemKey: 'split' },
+      { key: 'split_obtuse', label: '떨어짐(둔각)' },
+      { key: 'split_dv', label: 'D/V 떨어짐' },
+      { key: 'glass_scratch', label: '글라스기스' },
+      { key: 'gap', label: '벌어짐' },
+      { key: 'ext_scratch', label: '외면흠' },
       { key: 'short', label: '양부족' },
       { key: 'push', label: '밀 림' },
       { key: 'step', label: '단 차' },
@@ -60,12 +74,13 @@ export const F5013_DEFECT_GROUPS = [
     groupHtml: '후가<br>공<br>불량',
     items: [
       { key: 'len', label: '길이 불량', legacyPrefix: 'proc_len' },
-      { key: 'mark_miss', label: '마킹 누락' },
+      { key: 'contam', label: '외면 오염' },
       { key: 'overtrim', label: '과사상' },
       { key: 'undertrim', label: '미사상' },
-      { key: 'contam', label: '외면 오염' },
-      { key: 'rim_cut_miss', label: '림컷팅 누락', legacyPrefix: 'proc_cut' },
-      { key: 'pad_miss', label: '패드 누락' },
+      { key: 'mark_miss', label: '마킹 누락' },
+      { key: 'pad_miss', label: 'PAD 누락' },
+      { key: 'film_miss', label: 'PROTECT FILM 누락', fontSize: '8.5px' },
+      { key: 'bond_contam', label: '본드 오염' },
       { key: 'etc', label: '기타', isEtc: true, legacyPrefix: 'proc_oth' }
     ]
   }
@@ -95,17 +110,27 @@ function etcNoteIdOf(groupKey) {
   return `f5013_def_${groupKey}_etc_note`;
 }
 
-function readCountValue(savedValues, colCfg, rowKey, hasF5013Keys) {
+function readCountValue(savedValues, colCfg, rowCfg, hasF5013Keys) {
+  const rowKey = typeof rowCfg === 'string' ? rowCfg : rowCfg.key;
+  const legacyRowKey = typeof rowCfg === 'object' ? rowCfg.legacyRowKey : undefined;
+
   const id = countIdOf(colCfg.key, rowKey);
   if (savedValues[id] !== undefined) return savedValues[id];
-  if (colCfg.legacyF5013ColKey) {
-    const prevId = countIdOf(colCfg.legacyF5013ColKey, rowKey);
-    if (savedValues[prevId] !== undefined) return savedValues[prevId];
+
+  const candidateCols = [colCfg.key, colCfg.legacyF5013ColKey, colCfg.legacyAltKey].filter(Boolean);
+  const candidateRows = [rowKey, legacyRowKey].filter(Boolean);
+
+  for (const cKey of candidateCols) {
+    for (const rKey of candidateRows) {
+      const candId = countIdOf(cKey, rKey);
+      if (savedValues[candId] !== undefined) return savedValues[candId];
+    }
   }
+
   if (hasF5013Keys) return undefined;
 
   // 구버전 표준 수량표 키 하위 호환 복원 (GEMINI.md 원칙 11)
-  if (rowKey === 'plan') return savedValues[`plan_${colCfg.legacyKey}`];
+  if (rowKey === 'insp') return savedValues[`plan_${colCfg.legacyKey}`];
   if (rowKey === 'good') return savedValues[`act_${colCfg.legacyKey}`];
   return undefined;
 }
@@ -113,10 +138,17 @@ function readCountValue(savedValues, colCfg, rowKey, hasF5013Keys) {
 function readDefectValue(savedValues, colCfg, groupKey, item, hasF5013Keys) {
   const id = defIdOf(colCfg.key, groupKey, item.key);
   if (savedValues[id] !== undefined) return savedValues[id];
-  if (colCfg.legacyF5013ColKey) {
-    const prevId = defIdOf(colCfg.legacyF5013ColKey, groupKey, item.key);
-    if (savedValues[prevId] !== undefined) return savedValues[prevId];
+
+  const candidateCols = [colCfg.key, colCfg.legacyF5013ColKey, colCfg.legacyAltKey].filter(Boolean);
+  const candidateItems = [item.key, item.legacyItemKey].filter(Boolean);
+
+  for (const cKey of candidateCols) {
+    for (const iKey of candidateItems) {
+      const candId = defIdOf(cKey, groupKey, iKey);
+      if (savedValues[candId] !== undefined) return savedValues[candId];
+    }
   }
+
   if (hasF5013Keys) return undefined;
 
   if (item.legacyPrefix) {
@@ -126,14 +158,14 @@ function readDefectValue(savedValues, colCfg, groupKey, item, hasF5013Keys) {
 }
 
 /**
- * 저장값 맵에서 계획·정품·그룹별 소계·열별 불량 합계·전체 불량 총계를 산출한다.
+ * 저장값 맵에서 검사·정품·그룹별 소계·열별 불량 합계·전체 불량 총계를 산출한다.
  * - 열별로 `완전불량(폐기)` 입력칸에 값이 있으면 해당 값을, 없으면 해당 열의 불량 합계(압출+조인트+후가공)를 폐기 불량 총계에 반영
  * @param {Object} savedValues (id -> value)
  */
 export function computeF5013Totals(savedValues = {}) {
   const hasF5013Keys = Object.keys(savedValues).some(k => k.startsWith('f5013_'));
 
-  let totalPlan = 0;
+  let totalInsp = 0;
   let totalGood = 0;
   let totalDefect = 0;
 
@@ -145,8 +177,8 @@ export function computeF5013Totals(savedValues = {}) {
   F5013_QTY_COLS.forEach(colCfg => {
     const colKey = colCfg.key;
 
-    const rawPlan = readCountValue(savedValues, colCfg, 'plan', hasF5013Keys);
-    totalPlan += Number(rawPlan !== undefined && rawPlan !== '' ? rawPlan : colCfg.defaultPlan) || 0;
+    const rawInsp = readCountValue(savedValues, colCfg, 'insp', hasF5013Keys);
+    totalInsp += Number(rawInsp) || 0;
 
     const rawGood = readCountValue(savedValues, colCfg, 'good', hasF5013Keys);
     totalGood += Number(rawGood) || 0;
@@ -180,8 +212,10 @@ export function computeF5013Totals(savedValues = {}) {
     totalDefect += hasScrap ? scrapNum : colDefSum;
   });
 
+  const totalTarget = totalInsp > 0 ? totalInsp : (totalGood + totalDefect);
+
   return {
-    totalPlan,
+    totalTarget,
     totalGood,
     totalDefect,
     groupSubtotals,
@@ -198,7 +232,7 @@ export function computeF5013Totals(savedValues = {}) {
  */
 export function renderF5013QtySectionHTML(savedValues = {}) {
   const {
-    totalPlan,
+    totalTarget,
     totalGood,
     totalDefect,
     groupSubtotals,
@@ -208,16 +242,29 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
     hasF5013Keys
   } = computeF5013Totals(savedValues);
 
-  const headerCells = F5013_QTY_COLS
-    .map(col => `<th scope="col" style="border: ${SOLID}; padding: 6px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap; vertical-align: middle;">${col.label}</th>`)
+  const machineGroupHeaders = F5013_MACHINE_GROUPS
+    .map(m => {
+      const val = savedValues[m.id] ?? '';
+      return `<th colspan="2" scope="colgroup" style="border: ${SOLID}; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap; vertical-align: middle;">
+                    <span style="display: inline-flex; align-items: center; justify-content: center; gap: 1px;">
+                      <span>${m.labelPrefix} (&nbsp;</span>
+                      <input type="text" inputmode="numeric" id="${m.id}" data-form-code="5013" data-save-group="qtyTable" data-wheel-skip="1" class="form-control f5013-machine-no-input" value="${escapeAttr(val)}" aria-label="${m.labelPrefix} 호기 번호" />
+                      <span>&nbsp;)호기</span>
+                    </span>
+                  </th>`;
+    })
     .join('\n                  ');
 
-  // ── 1) 제품 수량 5행 (계 획 / 검 사 / 정 품 / 공정불량(리워크) / 완전불량(폐기)) ──
+  const subHeaderCells = F5013_QTY_COLS
+    .map(col => `<th scope="col" style="border: ${SOLID}; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10.5px; white-space: nowrap; vertical-align: middle;">${col.label}</th>`)
+    .join('\n                  ');
+
+  // ── 1) 제품 수량 5행 (검 사 / 정 품 / 리워크 D/V / 리워크 직각,둔각 / 완전불량(폐기)) ──
   const countRowsHtml = F5013_COUNT_ROWS.map((row, rowIdx) => {
     const isFirst = rowIdx === 0;
     const isLast = rowIdx === F5013_COUNT_ROWS.length - 1;
-    const top = (isFirst || row.solidTop) ? SOLID : DOTTED;
-    const bottom = (isLast || row.solidBottom) ? SOLID : DOTTED;
+    const top = isFirst ? SOLID : DOTTED;
+    const bottom = isLast ? SOLID : DOTTED;
 
     const groupCell = isFirst
       ? `\n                  <th scope="rowgroup" rowspan="${F5013_COUNT_ROWS.length}" style="border: ${SOLID}; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 10.5px; line-height: 1.25; vertical-align: middle;">제품<br>수량</th>`
@@ -225,10 +272,7 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
 
     const cells = F5013_QTY_COLS.map(col => {
       const id = countIdOf(col.key, row.key);
-      let val = readCountValue(savedValues, col, row.key, hasF5013Keys);
-      if (val === undefined || (row.key === 'plan' && !hasF5013Keys && val === '')) {
-        val = row.key === 'plan' ? String(col.defaultPlan) : '';
-      }
+      const val = readCountValue(savedValues, col, row, hasF5013Keys) ?? '';
       return `<td style="border-left: ${SOLID}; border-right: ${SOLID}; border-top: ${top}; border-bottom: ${bottom}; padding: 0; background: #ffffff; vertical-align: middle;">
                     <input type="number" min="0" inputmode="numeric" id="${id}" data-form-code="5013" data-save-group="qtyTable" data-qty-role="${row.role}" data-col="${col.key}" class="form-control" style="${INPUT_STYLE}" value="${escapeAttr(val)}" />
                   </td>`;
@@ -316,6 +360,25 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
               min-width: 0;
               font-size: 11px !important;
             }
+            .f5013-qty-card[data-form-code="5013"] .f5013-machine-no-input {
+              width: 28px;
+              height: 20px;
+              border: none;
+              border-bottom: 1px solid #64748b;
+              text-align: center;
+              font-size: 11px !important;
+              font-weight: 700;
+              color: #000;
+              padding: 0 1px;
+              background: transparent;
+              outline: none;
+              border-radius: 0;
+              box-sizing: border-box;
+            }
+            .f5013-qty-card[data-form-code="5013"] .f5013-machine-no-input:focus {
+              border-bottom: 1.5px solid #2563eb;
+              background: #eff6ff;
+            }
             .f5013-qty-card[data-form-code="5013"] .f5013-etc-note-input {
               width: 36px;
               height: 18px;
@@ -336,7 +399,7 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; padding: 0 4px; display: block;">
             📊 <span class="sec-num"></span> 생산실적 및 불량 현황
           </label>
-          <input type="hidden" id="targetQty" value="${totalPlan}" />
+          <input type="hidden" id="targetQty" value="${totalTarget}" />
           <input type="hidden" id="actualQty" value="${totalGood}" />
           <input type="hidden" id="defectQty" value="${totalDefect}" />
           <div style="width: 100%; overflow-x: hidden;">
@@ -351,8 +414,11 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
               </colgroup>
               <thead>
                 <tr>
-                  <th colspan="2" scope="colgroup" style="border: ${SOLID}; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">구 분</th>
-                  ${headerCells}
+                  <th colspan="2" rowspan="2" scope="colgroup" style="border: ${SOLID}; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 11.5px; vertical-align: middle;">구 분</th>
+                  ${machineGroupHeaders}
+                </tr>
+                <tr>
+                  ${subHeaderCells}
                 </tr>
               </thead>
               <tbody>${countRowsHtml}${defectGroupsHtml}
@@ -374,12 +440,12 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
 export function calcF5013QtySummary(qtySection) {
   if (!qtySection) return;
 
-  let totalPlan = 0;
+  let totalInsp = 0;
   let totalGood = 0;
   let totalDefect = 0;
 
-  qtySection.querySelectorAll('input[data-form-code="5013"][data-qty-role="plan"]').forEach(el => {
-    totalPlan += Number(el.value) || 0;
+  qtySection.querySelectorAll('input[data-form-code="5013"][data-qty-role="insp"]').forEach(el => {
+    totalInsp += Number(el.value) || 0;
   });
 
   qtySection.querySelectorAll('input[data-form-code="5013"][data-qty-role="good"]').forEach(el => {
@@ -422,10 +488,12 @@ export function calcF5013QtySummary(qtySection) {
     totalDefect += hasScrap ? scrapNum : colDefSum;
   });
 
+  const totalTarget = totalInsp > 0 ? totalInsp : (totalGood + totalDefect);
+
   const targetInput = qtySection.querySelector('#targetQty');
   const actualInput = qtySection.querySelector('#actualQty');
   const defectInput = qtySection.querySelector('#defectQty');
-  if (targetInput) targetInput.value = String(totalPlan);
+  if (targetInput) targetInput.value = String(totalTarget);
   if (actualInput) actualInput.value = String(totalGood);
   if (defectInput) defectInput.value = String(totalDefect);
 }
