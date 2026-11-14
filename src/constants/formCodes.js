@@ -89,7 +89,7 @@ export const FORM_CODE_MAP = {
   'MV1a_PTG_검사포장': 4034,
 
   // ── GM(지엠) ──────────────────────────────────────────
-  // 9BQC G/RUN : 공정 14개로 세분화 (공정 목록은 formProcessOverrides.js 와 동일해야 함)
+  // 9BQC G/RUN : 공정 12개로 세분화 (#5008·#5009 제외, 공정 목록은 formProcessOverrides.js 와 동일해야 함)
   '9BQC_G/RUN_소재준비-글라스본딩': 5001,
   '9BQC_G/RUN_소재준비-정치절단': 5002,
   '9BQC_G/RUN_소재준비-단컷팅': 5003,
@@ -97,8 +97,6 @@ export const FORM_CODE_MAP = {
   '9BQC_G/RUN_조인트-RR R부': 5005,
   '9BQC_G/RUN_조인트-RR Fixed': 5006,
   '9BQC_G/RUN_후가공-D/V': 5007,
-  '9BQC_G/RUN_후가공-글라스': 5008,
-  '9BQC_G/RUN_후가공-FRT': 5009,
   '9BQC_G/RUN_후가공-RR': 5010,
   '9BQC_G/RUN_검사포장-FRT': 5011,
   '9BQC_G/RUN_검사포장-RR R부': 5012,
