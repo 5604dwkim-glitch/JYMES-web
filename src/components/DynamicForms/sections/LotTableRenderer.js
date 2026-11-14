@@ -1,6 +1,8 @@
 import { autoFormatDateTimeString } from './formUtils.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF1051LotTable } from '../forms/f1051/lotTable.js';
+import { renderF1052LotTable } from '../forms/f1052/lotTable.js';
+import { renderF1054LotTable } from '../forms/f1054/lotTable.js';
 import { renderF5001LotTable } from '../forms/f5001/lotTable.js';
 import { renderF5002LotTable } from '../forms/f5002/lotTable.js';
 import { renderF5003LotTable } from '../forms/f5003/lotTable.js';
@@ -43,14 +45,20 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const curProc = processValue ? processValue.value : '';
 
     const rawFormCode = getCurrentFormCode();
-    const formCode = rawFormCode === 1051 ? 1051 : resolveFormCodeSource(rawFormCode);
+    const formCode = (rawFormCode === 1051 || rawFormCode === 1052 || rawFormCode === 1054) ? rawFormCode : resolveFormCodeSource(rawFormCode);
     const section4Card = container.querySelector('#section4Card') || lotContainer.closest('.card');
 
     // [1] 소재 LOT 영역 표시 여부 판단 (공정 미선택 또는 LOT 입력이 불필요한 고유 양식)
     const noLotFormCodes = [1011, 1012, 1013]; // RR C PART'G 조인트/후가공 등
     const isStellantisInsp = [2005, 2015, 2027, 2035, 2044].includes(formCode);
     
-    if (formCode === 5010) {
+    if (formCode === 1054) {
+      if (!curProc) {
+        if (section4Card) section4Card.style.display = 'none';
+        return;
+      }
+      if (section4Card) section4Card.style.display = 'block';
+    } else if (formCode === 5010) {
       if (!curProc) {
         if (section4Card) section4Card.style.display = 'none';
         return;
@@ -93,6 +101,16 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       // #1051 (JG1 FRUNK 소재준비): 전용 템플릿으로 위임 (forms/f1051/lotTable.js)
       case 1051:
         renderF1051LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #1052 (JG1 FRUNK 조인트): 전용 템플릿으로 위임 (forms/f1052/lotTable.js)
+      case 1052:
+        renderF1052LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #1054 (JG1 FRUNK 검사포장): 전용 템플릿으로 위임 (forms/f1054/lotTable.js)
+      case 1054:
+        renderF1054LotTable(lotContainer, curLots, materialLots);
         break;
 
       // #5001 (9BQC G/RUN 소재준비-글라스본딩): 전용 템플릿으로 위임 (forms/f5001/lotTable.js)

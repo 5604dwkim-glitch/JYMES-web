@@ -9,10 +9,9 @@
  *   이 표에서 해당 항목을 삭제하세요.
  */
 export const FORM_CLONE_SOURCE = {
-  // 제네시스 JG1 - FRUNK : 기아 OV1K - FRUNK (#4011~#4014) 복사본
+  // 제네시스 JG1 - FRUNK : 기아 OV1K - FRUNK 복사본 (후가공 제외)
   1051: 4011, // JG1_FRUNK_소재준비
   1052: 4012, // JG1_FRUNK_조인트
-  1053: 4013, // JG1_FRUNK_후가공
   1054: 4014  // JG1_FRUNK_검사포장
 };
 

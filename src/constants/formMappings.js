@@ -21,10 +21,9 @@ export const FORM_CODE_MAP = {
   "JG1S_G/RUN 'E'_조인트"   : 1042,
   "JG1S_G/RUN 'E'_후가공"   : 1043,
   "JG1S_G/RUN 'E'_검사포장" : 1044,
-  // JG1(스윙도어) FRUNK — 기아 OV1K FRUNK(#4011~#4014) 복사본 (src/constants/formCloneSources.js)
+  // JG1(스윙도어) FRUNK — 기아 OV1K FRUNK 복사본 (후가공 제외)
   'JG1_FRUNK_소재준비'      : 1051,
   'JG1_FRUNK_조인트'        : 1052,
-  'JG1_FRUNK_후가공'        : 1053,
   'JG1_FRUNK_검사포장'      : 1054,
 
   // ── 스텔란티스(Stellantis) ────────────────────────────

@@ -1,5 +1,7 @@
 import { DOWNTIME_REASONS } from '../../../constants/masterData.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
+import { applyF1051DowntimeSection } from '../forms/f1051/downtimeSection.js';
+import { applyF1052DowntimeSection } from '../forms/f1052/downtimeSection.js';
 import { applyF5001DowntimeSection, restoreDefaultDowntimeReasonsIfNeeded } from '../forms/f5001/downtimeSection.js';
 import { applyF5002DowntimeSection } from '../forms/f5002/downtimeSection.js';
 import { applyF5003DowntimeSection } from '../forms/f5003/downtimeSection.js';
@@ -21,13 +23,24 @@ export function updateDowntimeSection(ctx) {
   const { container, processValue, existingData, getCurrentFormCode, carModelValue, currentCarCode } = ctx;
     const curProc = processValue ? processValue.value : '';
     const downtimeCard = container.querySelector('#downtimeCard');
-    const formCode = resolveFormCodeSource(getCurrentFormCode());
+    const rawFormCode = getCurrentFormCode();
+    const formCode = (rawFormCode === 1051 || rawFormCode === 1052) ? rawFormCode : resolveFormCodeSource(rawFormCode);
 
     if (!curProc) {
       if (downtimeCard) downtimeCard.style.display = 'none';
       return;
     }
 
+    if (formCode === 1051) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF1051DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
+    if (formCode === 1052) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF1052DowntimeSection(container, downtimeCard, existingData);
+      return;
+    }
     if (formCode === 5001) {
       applyF5001DowntimeSection(container, downtimeCard, existingData);
       return;

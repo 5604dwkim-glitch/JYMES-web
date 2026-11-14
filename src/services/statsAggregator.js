@@ -264,6 +264,22 @@ export function extractDefectBreakdown(r) {
       addDefect('[검사/후가공] 기타',     r.qtyTable[`f1051_def_etc_other_${col}`]);
     });
 
+    // #1052 (JG1 FRUNK 조인트 — 후로킹 제외)
+    addDefect('[검사/압출] 스코치',     r.qtyTable.f1052_def_ext_scorch_FL);
+    addDefect('[검사/압출] 외면흠',     r.qtyTable.f1052_def_ext_scratch_FL);
+    addDefect('[검사/압출] 오염',       r.qtyTable.f1052_def_ext_contam_FL);
+    addDefect('[검사/후가공] 길이불량', r.qtyTable.f1052_def_proc_len_FL);
+    addDefect('[검사/후가공] 커팅불량', r.qtyTable.f1052_def_proc_cut_FL);
+    addDefect('[검사/후가공] 기타',     r.qtyTable.f1052_def_proc_oth_FL);
+
+    // #1054 (JG1 FRUNK 검사포장 — 후로킹 제외)
+    addDefect('[검사/압출] 스코치',     r.qtyTable.f1054_def_ext_scorch_FL);
+    addDefect('[검사/압출] 외면흠',     r.qtyTable.f1054_def_ext_scratch_FL);
+    addDefect('[검사/압출] 오염',       r.qtyTable.f1054_def_ext_contam_FL);
+    addDefect('[검사/후가공] 길이불량', r.qtyTable.f1054_def_proc_len_FL);
+    addDefect('[검사/후가공] 커팅불량', r.qtyTable.f1054_def_proc_cut_FL);
+    addDefect('[검사/후가공] 기타',     r.qtyTable.f1054_def_proc_oth_FL);
+
     // #5001 (GM 9BQC G/RUN 소재준비-글라스본딩)
     ['PRI_LH', 'PRI_RH', 'TIN_LH', 'TIN_RH'].forEach(prod => {
       addDefect('[글라스본딩] 곡률',             r.qtyTable[`f5001_${prod}_def_curv`]);

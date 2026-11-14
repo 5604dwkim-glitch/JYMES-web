@@ -1,6 +1,8 @@
 import * as Templates from '../FormTemplates.jsx';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF1051QtySection } from '../forms/f1051/qtySection';
+import { renderF1052QtySection } from '../forms/f1052/qtySection';
+import { renderF1054QtySection } from '../forms/f1054/qtySection';
 import { renderF5001QtySection } from '../forms/f5001/qtySection';
 import { renderF5002QtySection } from '../forms/f5002/qtySection';
 import { renderF5003QtySection } from '../forms/f5003/qtySection';
@@ -32,7 +34,7 @@ export function renderQtySection(ctx) {
 
     const curProc = processValue ? processValue.value : '';
     const rawFormCode = getCurrentFormCode();
-    const formCode = rawFormCode === 1051 ? 1051 : resolveFormCodeSource(rawFormCode);
+    const formCode = (rawFormCode === 1051 || rawFormCode === 1052 || rawFormCode === 1054) ? rawFormCode : resolveFormCodeSource(rawFormCode);
 
   function calcDtCrewSummary() {
     if (!qtySection || !isDtCrewClip()) return;
@@ -903,6 +905,12 @@ export function renderQtySection(ctx) {
     switch (formCode) {
       case 1051:
         renderF1051QtySection(qtySection, ctx);
+        break;
+      case 1052:
+        renderF1052QtySection(qtySection, ctx);
+        break;
+      case 1054:
+        renderF1054QtySection(qtySection, ctx);
         break;
       case 5001:
         renderF5001QtySection(qtySection, ctx);

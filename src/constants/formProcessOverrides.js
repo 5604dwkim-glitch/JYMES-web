@@ -22,12 +22,22 @@ export const GM_9BQC_GRUN_PROCESSES = [
   '검사포장-길이'          // 5014
 ];
 
+// 제네시스 JG1 / FRUNK : 후가공 제외 (소재준비 1051, 조인트 1052, 검사포장 1054)
+export const JG1_FRUNK_PROCESSES = [
+  '소재준비', // 1051
+  '조인트',   // 1052
+  '검사포장'  // 1054
+];
+
 /**
  * 해당 차종/부품에 전용 공정 목록이 있으면 복사본을 반환하고, 없으면 null (기본 목록 사용).
  */
 export function getProcessListOverride(carCode, partName) {
   if (carCode === '9BQC' && (!partName || partName === 'G/RUN')) {
     return [...GM_9BQC_GRUN_PROCESSES];
+  }
+  if (carCode === 'JG1' && partName === 'FRUNK') {
+    return [...JG1_FRUNK_PROCESSES];
   }
   return null;
 }

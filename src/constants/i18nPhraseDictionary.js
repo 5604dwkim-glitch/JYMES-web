@@ -100,6 +100,7 @@ export const PHRASE_TUPLES = [
   ['정치절단기', 'Fixed Length Cutter', 'เครื่องตัดตามขนาด', 'Máy cắt định mức'],
   ['단컷팅기', 'Step Cutter', 'เครื่องตัดขั้น', 'Máy cắt bậc'],
   ['로봇본딩기', 'Robot Bonding Machine', 'เครื่องติดกาวหุ่นยนต์', 'Máy dán keo robot'],
+  ['열융착기', 'Heat Fusion Machine', 'เครื่องเชื่อมความร้อน', 'Máy hàn nhiệt'],
   ['정치절단', 'Fixed Cut', 'ตัดตามขนาด', 'Cắt định mức'],
   ['단컷팅 A', 'Step Cut A', 'ตัดขั้น A', 'Cắt bậc A'],
   ['단컷팅 C', 'Step Cut C', 'ตัดขั้น C', 'Cắt bậc C'],
@@ -1362,7 +1363,8 @@ export const PHRASE_TUPLES = [
   ['타공단면 LOT', 'Perforated Section LOT', 'LOT หน้าตัดเจาะรู', 'LOT mặt cắt đục lỗ'],
   ['무다공단면 LOT', 'Non-Perforated Section LOT', 'LOT หน้าตัดไม่เจาะรู', 'LOT mặt cắt không lỗ'],
   ['타공 단면', 'Perforated Section', 'หน้าตัดเจาะรู', 'Mặt cắt đục lỗ'],
-  ['무타공 단면', 'Non-Perforated Section', 'หน้าตัดไม่เจาะรู', 'Mặt cắt không lỗ']
+  ['무타공 단면', 'Non-Perforated Section', 'หน้าตัดไม่เจาะรู', 'Mặt cắt không lỗ'],
+  ['JG 열융착 금형', 'JG Heat-Fusion Mold', 'แม่พิมพ์เชื่อมความร้อน JG', 'Khuôn hàn nhiệt JG']
 ];
 
 /**
