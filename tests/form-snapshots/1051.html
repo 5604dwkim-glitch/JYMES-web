@@ -2,32 +2,45 @@
 <!-- ERRORS: none -->
 <!-- [section4LotTable] -->
 <div id="section4Card" style="display: block;"><div id="section4LotTableContainer">
-          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <table data-form-code="1051" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #ffffff; font-weight: 700;">
-                <th style="border: 1px solid #000; padding: 6px 2px; width: 30%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">구분</th>
-                <th style="border: 1px solid #000; padding: 6px 2px; width: 70%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">LOT 번호</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 24%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">구분</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 38%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">타공단면 LOT</th>
+                <th style="border: 1px solid #000; padding: 6px 2px; width: 38%; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">무다공단면 LOT</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">초물</td>
                 <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_초물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                  <textarea id="f1051_perf_초물" data-form-code="1051" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="f1051_nonperf_초물" data-form-code="1051" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">중물</td>
                 <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                  <textarea id="f1051_perf_중물" data-form-code="1051" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="f1051_nonperf_중물" data-form-code="1051" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px 4px; background: #ffffff; font-weight: 700; color: #000; font-size: 12px;">종물</td>
                 <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+                  <textarea id="f1051_perf_종물" data-form-code="1051" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
+시분"></textarea>
+                </td>
+                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+                  <textarea id="f1051_nonperf_종물" data-form-code="1051" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0; outline: none; background: transparent;" placeholder="년월일
 시분"></textarea>
                 </td>
               </tr>
@@ -36,16 +49,17 @@
         </div></div>
 <!-- [section5] -->
 <div id="section5DynamicContainer">
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <div class="card" data-form-code="1051" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
             📐 <span class="sec-num"></span> 치수확인
           </label>
           <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <table data-form-code="1051" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
               <thead>
                 <tr style="background: #fffde7; font-weight: 700; color: #000;">
                   <th colspan="3" style="border: 1px solid #000; padding: 6px;">구 분(Division)</th>
-                  <th style="border: 1px solid #000; padding: 6px; width: 72%;">Frunk</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 36%;">타공 단면</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 36%;">무타공 단면</th>
                 </tr>
               </thead>
               <tbody>
@@ -56,9 +70,8 @@
                   <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                     스펙(mm)
                   </td>
-                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">
-                    1870 ± 2.5mm
-                  </td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">1454±5</td>
+                  <td style="border: 1px solid #000; font-weight: 700; padding: 4px;">864±5</td>
                 </tr>
                 <tr>
                   <td colspan="2" style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
@@ -67,13 +80,26 @@
                   <td style="border: 1px solid #000; padding: 3px 2px;">
                     <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="1870" value="" placeholder="(초)">
+                        <input type="text" id="f1051_cut_perf_초" data-form-code="1051" data-save-group="dimData" data-wheel-parsed-spec="1454" data-wheel-tolerance="5" data-wheel-unit="mm" data-wheel-range="50" data-wheel-title="정치절단길이 타공 단면 초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="1870" value="" placeholder="(중)">
+                        <input type="text" id="f1051_cut_perf_중" data-form-code="1051" data-save-group="dimData" data-wheel-parsed-spec="1454" data-wheel-tolerance="5" data-wheel-unit="mm" data-wheel-range="50" data-wheel-title="정치절단길이 타공 단면 중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
                       </div>
                       <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" data-wheel-parsed-spec="1870" value="" placeholder="(종)">
+                        <input type="text" id="f1051_cut_perf_종" data-form-code="1051" data-save-group="dimData" data-wheel-parsed-spec="1454" data-wheel-tolerance="5" data-wheel-unit="mm" data-wheel-range="50" data-wheel-title="정치절단길이 타공 단면 종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
+                      </div>
+                    </div>
+                  </td>
+                  <td style="border: 1px solid #000; padding: 3px 2px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px; padding: 4px;">
+                      <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <input type="text" id="f1051_cut_nonperf_초" data-form-code="1051" data-save-group="dimData" data-wheel-parsed-spec="864" data-wheel-tolerance="5" data-wheel-unit="mm" data-wheel-range="50" data-wheel-title="정치절단길이 무타공 단면 초" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(초)">
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <input type="text" id="f1051_cut_nonperf_중" data-form-code="1051" data-save-group="dimData" data-wheel-parsed-spec="864" data-wheel-tolerance="5" data-wheel-unit="mm" data-wheel-range="50" data-wheel-title="정치절단길이 무타공 단면 중" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(중)">
+                      </div>
+                      <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <input type="text" id="f1051_cut_nonperf_종" data-form-code="1051" data-save-group="dimData" data-wheel-parsed-spec="864" data-wheel-tolerance="5" data-wheel-unit="mm" data-wheel-range="50" data-wheel-title="정치절단길이 무타공 단면 종" class="form-control" style="flex: 1; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="" placeholder="(종)">
                       </div>
                     </div>
                   </td>
@@ -84,22 +110,23 @@
         </div>
       </div>
 <!-- [qtySection] -->
-<div id="qtySection">
-      <div class="card" style="padding: 16px; margin-bottom: 16px;">
+<div id="qtySection" data-f1051-bound="1">
+      <div class="card" data-form-code="1051" style="padding: 16px; margin-bottom: 16px;">
         <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
           📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
-        <input type="hidden" id="targetQty" value="300">
+        <input type="hidden" id="targetQty" value="600">
         <input type="hidden" id="actualQty" value="0">
         <input type="hidden" id="defectQty" value="0">
         <div style="overflow-x: auto;">
-          <table id="jg1QtyTable" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+          <table data-form-code="1051" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
             <thead>
               <tr style="background: #fffde7; font-weight: 700;">
                 <th colspan="2" style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 24%;">
                   구 분(Division)
                 </th>
-                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 70%;">Frunk</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">타공 단면</th>
+                <th style="border: 1px solid #000; padding: 8px 4px; font-size: 12px; color: #000; width: 35%;">무타공 단면</th>
               </tr>
             </thead>
             <tbody>
@@ -108,54 +135,66 @@
                   생산량(Q,TY)
                 </td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 13%;">계획</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="300" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_qty_plan_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="plan" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="300" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_qty_plan_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="plan" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="300" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">실적</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_act_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_qty_act_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="actual" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_qty_act_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="actual" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td rowspan="4" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">압출소재불량<br>(Extrusion Badness)</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">스코치(Scortch)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scorch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_scorch_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_scorch_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">외면흠 (Scratch)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_scratch_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_scratch_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_scratch_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">후로킹 (Flock,g)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_flock_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_flock_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_flock_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">오염 (Contamination)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_ext_contam_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_contam_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_ext_contam_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">공정간불량<br>(Process Badness)</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">길이 (Length)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_len_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_proc_len_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_proc_len_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">컷팅 (Cutting)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_cut_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_proc_cut_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_proc_cut_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">찍힘/변형</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_proc_deform_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_proc_deform_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_proc_deform_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td rowspan="3" style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; vertical-align: middle;">기타불량<br>(Etc Badness)</td>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">조인트 (Joint)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_etc_joint_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_etc_joint_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_etc_joint_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">기타 (Etc)</td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="def_etc_other_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_etc_other_perf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="perf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="f1051_def_etc_other_nonperf" data-form-code="1051" data-save-group="qtyTable" data-qty-role="defect" data-col="nonperf" class="form-control" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="" placeholder="0"></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">합계</td>
-                <td style="border: 1px solid #000; padding: 2px; font-weight: bold; background: #f8f9fa;"><span id="def_sum_FL">0</span></td>
+                <td style="border: 1px solid #000; padding: 2px; font-weight: bold; background: #f8f9fa;"><span id="f1051_def_sum_perf" data-form-code="1051" data-qty-role="defect-sum" data-col="perf">0</span></td>
+                <td style="border: 1px solid #000; padding: 2px; font-weight: bold; background: #f8f9fa;"><span id="f1051_def_sum_nonperf" data-form-code="1051" data-qty-role="defect-sum" data-col="nonperf">0</span></td>
               </tr>
             </tbody>
           </table>

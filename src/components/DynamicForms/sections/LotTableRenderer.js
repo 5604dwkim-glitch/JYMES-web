@@ -1,5 +1,6 @@
 import { autoFormatDateTimeString } from './formUtils.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
+import { renderF1051LotTable } from '../forms/f1051/lotTable.js';
 import { renderF5001LotTable } from '../forms/f5001/lotTable.js';
 import { renderF5002LotTable } from '../forms/f5002/lotTable.js';
 import { renderF5003LotTable } from '../forms/f5003/lotTable.js';
@@ -41,7 +42,8 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const curPart = partValueInput ? partValueInput.value : '';
     const curProc = processValue ? processValue.value : '';
 
-    const formCode = resolveFormCodeSource(getCurrentFormCode());
+    const rawFormCode = getCurrentFormCode();
+    const formCode = rawFormCode === 1051 ? 1051 : resolveFormCodeSource(rawFormCode);
     const section4Card = container.querySelector('#section4Card') || lotContainer.closest('.card');
 
     // [1] 소재 LOT 영역 표시 여부 판단 (공정 미선택 또는 LOT 입력이 불필요한 고유 양식)
@@ -87,6 +89,11 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
 
     // [2] 고유번호(formCode)별 독립 LOT 템플릿 렌더러 분기
     switch (formCode) {
+
+      // #1051 (JG1 FRUNK 소재준비): 전용 템플릿으로 위임 (forms/f1051/lotTable.js)
+      case 1051:
+        renderF1051LotTable(lotContainer, curLots, materialLots);
+        break;
 
       // #5001 (9BQC G/RUN 소재준비-글라스본딩): 전용 템플릿으로 위임 (forms/f5001/lotTable.js)
       case 5001:

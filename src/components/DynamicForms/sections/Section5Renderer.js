@@ -1,6 +1,7 @@
 import * as Templates from '../FormTemplates.jsx';
 import { autoFormatDateTimeString } from './formUtils.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
+import { renderF1051Section5 } from '../forms/f1051/section5.js';
 import { renderF5001Section5 } from '../forms/f5001/section5.js';
 import { renderF5002Section5 } from '../forms/f5002/section5.js';
 import { renderF5003Section5 } from '../forms/f5003/section5.js';
@@ -24,7 +25,8 @@ export function renderSection5(ctx) {
     if (!section5) return;
 
     const curProc = processValue ? processValue.value : '';
-    const formCode = resolveFormCodeSource(getCurrentFormCode());
+    const rawFormCode = getCurrentFormCode();
+    const formCode = rawFormCode === 1051 ? 1051 : resolveFormCodeSource(rawFormCode);
 
     const molds = ctx.molds || [];
     const _carModel = carModelValue ? carModelValue.value : '';
@@ -52,6 +54,11 @@ export function renderSection5(ctx) {
     const d = existingData?.dimData || {};
 
     // 양식별 전용 모듈 위임 (GEMINI.md 원칙 8)
+    if (formCode === 1051 && curProc) {
+      renderF1051Section5(section5, ctx);
+      return;
+    }
+
     if (formCode === 5001 && curProc) {
       renderF5001Section5(section5, ctx);
       return;

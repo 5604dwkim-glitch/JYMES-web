@@ -1358,7 +1358,11 @@ export const PHRASE_TUPLES = [
   ['이상 현상', 'Symptom', 'อาการผิดปกติ', 'Hiện tượng'],
   ['등록된 경보장치 이상발생 및 조치 이력이 없습니다.', 'No alarm abnormality or action history recorded.', 'ไม่มีประวัติความผิดปกติและการแก้ไขของอุปกรณ์เตือนภัย', 'Không có lịch sử bất thường & xử lý thiết bị cảnh báo.'],
   ['등록된 경보장치 이상발생 및 조치 이력 없음', 'No alarm abnormality or action history', 'ไม่มีประวัติความผิดปกติและการแก้ไข', 'Không có lịch sử bất thường & xử lý'],
-  ['현재', 'Live', 'ปัจจุบัน', 'Hiện tại']
+  ['현재', 'Live', 'ปัจจุบัน', 'Hiện tại'],
+  ['타공단면 LOT', 'Perforated Section LOT', 'LOT หน้าตัดเจาะรู', 'LOT mặt cắt đục lỗ'],
+  ['무다공단면 LOT', 'Non-Perforated Section LOT', 'LOT หน้าตัดไม่เจาะรู', 'LOT mặt cắt không lỗ'],
+  ['타공 단면', 'Perforated Section', 'หน้าตัดเจาะรู', 'Mặt cắt đục lỗ'],
+  ['무타공 단면', 'Non-Perforated Section', 'หน้าตัดไม่เจาะรู', 'Mặt cắt không lỗ']
 ];
 
 /**
