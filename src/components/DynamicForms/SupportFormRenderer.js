@@ -117,15 +117,20 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
 
       <!-- 하단 버튼 영역 -->
       <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 16px; border-top: 1px dashed #cbd5e1;">
-        <button id="btnSuppDraftSave" class="btn btn-secondary" style="font-weight: 700; min-width: 120px;">
+        <button type="button" id="btnSuppDraftSave" class="btn btn-secondary" style="font-weight: 700; min-width: 120px;">
           📁 중간 저장
         </button>
-        <button id="btnSuppFinalSubmit" class="btn btn-primary" style="font-weight: 700; min-width: 120px;">
+        <button type="button" id="btnSuppFinalSubmit" class="btn btn-primary" style="font-weight: 700; min-width: 120px;">
           ✅ 제출 (승인 대기)
         </button>
       </div>
     </div>
   `;
+
+  ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'].forEach((barId) => {
+    const barEl = document.getElementById(barId);
+    if (barEl) barEl.style.display = 'none';
+  });
 
   // Init parts dropdowns
   const tbody = container.querySelector('#suppTbody');

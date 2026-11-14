@@ -10,6 +10,47 @@ import { FORM_CODE_MAP } from '../../constants/formMappings.js';
 import { getProcessListOverride } from '../../constants/formProcessOverrides.js';
 
 import { i18n, STRING_TO_KEY_MAP } from '../../constants/translations.js';
+import { renderLeaderPaperForm } from './LeaderFormRenderer.js';
+import { renderForkliftPaperForm } from './ForkliftFormRenderer.js';
+import { renderSupportPaperForm } from './SupportFormRenderer.js';
+
+const F9004_CHUNK_RELOAD_KEY = 'jymes_chunk_reload_at';
+function mountF9004WithRecovery(container, existingData, loggedInWorkerName) {
+  import('./forms/f9004/f9004Renderer.js')
+    .then((m) => m.mountF9004InReportForm(container, existingData, loggedInWorkerName))
+    .catch((error) => {
+      console.error('F9004 load error:', error);
+      const msg = String(error?.message || '');
+      const isChunkError =
+        error?.name === 'ChunkLoadError' ||
+        msg.includes('dynamically imported module') ||
+        msg.includes('Failed to fetch') ||
+        msg.includes('Importing a module script failed');
+      if (isChunkError && typeof window !== 'undefined' && window.location) {
+        let lastReloadAt = 0;
+        try { lastReloadAt = Number(sessionStorage.getItem(F9004_CHUNK_RELOAD_KEY) || 0); } catch { lastReloadAt = 0; }
+        if (Date.now() - lastReloadAt > 30000) {
+          try { sessionStorage.setItem(F9004_CHUNK_RELOAD_KEY, String(Date.now())); } catch { /* ignore */ }
+          window.location.reload();
+          return;
+        }
+      }
+      let fmbContainer = container.querySelector('#f9004FormContainer');
+      if (!fmbContainer) {
+        fmbContainer = document.createElement('div');
+        fmbContainer.id = 'f9004FormContainer';
+        (container.querySelector('#mobileWorkReportForm') || container).appendChild(fmbContainer);
+      }
+      fmbContainer.style.display = 'block';
+      fmbContainer.innerHTML = `
+        <div class="card" style="padding:24px; text-align:center;">
+          <div style="font-size:15px; font-weight:700; color:#1e293b; margin-bottom:8px;">양식 화면을 불러오지 못했습니다.</div>
+          <div style="font-size:13px; color:#64748b; margin-bottom:14px;">배포 업데이트 또는 네트워크 지연이 발생했습니다. 새로고침 후 다시 시도해 주세요.</div>
+          <button type="button" class="btn btn-primary" onclick="window.location.reload()">새로고침</button>
+        </div>
+      `;
+    });
+}
 
 let _ctx = {};
 export function setLegacyFormContext(ctx) {
@@ -68,13 +109,9 @@ export function renderReportForm(container, editingReportId = null) {
   const formArea = container.querySelector('#formContentArea');
 
   if (existingData && existingData.isLeaderForm) {
-    import('./LeaderFormRenderer.js').then(module => {
-      module.renderLeaderPaperForm(formArea, existingData, loggedInWorkerName);
-    });
+    renderLeaderPaperForm(formArea, existingData, loggedInWorkerName);
   } else if (existingData && existingData.isForkliftForm) {
-    import('./ForkliftFormRenderer.js').then(module => {
-      module.renderForkliftPaperForm(formArea, existingData, loggedInWorkerName);
-    });
+    renderForkliftPaperForm(formArea, existingData, loggedInWorkerName);
   } else {
     renderStandardMobileForm(formArea, existingData, loggedInWorkerName);
   }
@@ -691,6 +728,157 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       </div>
     `}).join('');
 
+    const elsToToggle = ['#formCodeBadgeContainer', '#jointTpmGateContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
+    const commonContainerIds = ['#leaderFormContainer', '#forkliftFormContainer', '#supportFormContainer', '#f9004FormContainer'];
+
+    const cleanupCommonSyncAborts = () => {
+      commonContainerIds.forEach((sel) => {
+        const prev = container.querySelector(sel);
+        if (prev && prev._syncAbort) {
+          prev._syncAbort.abort();
+          prev._syncAbort = null;
+        }
+      });
+    };
+
+    const hideAllCommonContainersAndBars = () => {
+      commonContainerIds.forEach((sel) => {
+        const el = container.querySelector(sel);
+        if (el) el.style.display = 'none';
+      });
+      ['leaderFixedActionBar', 'forkliftFixedActionBar'].forEach((barId) => {
+        const barEl = document.getElementById(barId);
+        if (barEl) barEl.style.display = 'none';
+      });
+    };
+
+    const notifyCommonSelection = (procName) => {
+      if (_ctx.onFormSelectionChange) {
+        _ctx.onFormSelectionChange({
+          carModel: carModelValue ? carModelValue.value : carCode,
+          part: partValueInput ? partValueInput.value : '',
+          process: procName
+        });
+      }
+    };
+
+    const mountCommonSpecialForm = (formType, procName) => {
+      notifyCommonSelection(procName);
+      elsToToggle.forEach((id) => {
+        const el = container.querySelector(id);
+        if (el) el.style.display = 'none';
+      });
+
+      const hideUnusedBars = () => {
+        const standardBar = document.getElementById('standardFixedActionBar');
+        if (standardBar) standardBar.style.display = 'none';
+        if (formType !== 'leader') {
+          const leaderBar = document.getElementById('leaderFixedActionBar');
+          if (leaderBar) leaderBar.style.display = 'none';
+        }
+        if (formType !== 'forklift') {
+          const forkliftBar = document.getElementById('forkliftFixedActionBar');
+          if (forkliftBar) forkliftBar.style.display = 'none';
+        }
+      };
+      hideUnusedBars();
+      setTimeout(hideUnusedBars, 50);
+
+      const configMap = {
+        leader: {
+          containerId: 'leaderFormContainer',
+          renderFn: renderLeaderPaperForm,
+          yearId: '#leaderYear',
+          monthId: '#leaderMonth',
+          dayId: '#leaderDay',
+          startId: '#leaderStartTime',
+          endId: '#leaderEndTime'
+        },
+        forklift: {
+          containerId: 'forkliftFormContainer',
+          renderFn: renderForkliftPaperForm,
+          yearId: '#forkYear',
+          monthId: '#forkMonth',
+          dayId: '#forkDay',
+          startId: '#forkStartTime',
+          endId: '#forkEndTime'
+        },
+        support: {
+          containerId: 'supportFormContainer',
+          renderFn: renderSupportPaperForm,
+          yearId: '#suppYear',
+          monthId: '#suppMonth',
+          dayId: '#suppDay',
+          startId: '#suppStartTime',
+          endId: '#suppEndTime'
+        }
+      };
+
+      const cfg = configMap[formType];
+      if (!cfg) return;
+
+      commonContainerIds.forEach((sel) => {
+        if (sel !== `#${cfg.containerId}`) {
+          const otherEl = container.querySelector(sel);
+          if (otherEl) otherEl.style.display = 'none';
+        }
+      });
+
+      let targetContainer = container.querySelector(`#${cfg.containerId}`);
+      if (!targetContainer) {
+        targetContainer = document.createElement('div');
+        targetContainer.id = cfg.containerId;
+        const formRootEl = container.querySelector('#mobileWorkReportForm') || container;
+        formRootEl.appendChild(targetContainer);
+      }
+      targetContainer.style.display = 'block';
+
+      cfg.renderFn(targetContainer, existingData, loggedInWorkerName);
+
+      const paperHeader = targetContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
+      const paperDateRow = targetContainer.querySelector('div[style*="margin-bottom: 14px"]');
+      if (paperHeader) paperHeader.style.display = 'none';
+      if (paperDateRow) paperDateRow.style.display = 'none';
+
+      const syncDate = (val) => {
+        const parts = String(val || '').split('-');
+        if (parts.length === 3) {
+          const yyEl = targetContainer.querySelector(cfg.yearId);
+          const mmEl = targetContainer.querySelector(cfg.monthId);
+          const ddEl = targetContainer.querySelector(cfg.dayId);
+          if (yyEl) yyEl.value = parts[0].substring(2);
+          if (mmEl) mmEl.value = parts[1];
+          if (ddEl) ddEl.value = parts[2];
+        }
+      };
+
+      const AbortCtrl = container.ownerDocument?.defaultView?.AbortController || AbortController;
+      const syncAbort = new AbortCtrl();
+      const reportDate = container.querySelector('#reportDate');
+      if (reportDate) {
+        syncDate(reportDate.value);
+        reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: syncAbort.signal });
+      }
+      const stInput = container.querySelector('#startTimeInput');
+      if (stInput) {
+        const innerSt = targetContainer.querySelector(cfg.startId);
+        if (innerSt) {
+          innerSt.value = stInput.value;
+          stInput.addEventListener('change', (e) => { innerSt.value = e.target.value; }, { signal: syncAbort.signal });
+        }
+      }
+      const etInput = container.querySelector('#endTimeInput');
+      if (etInput) {
+        const innerEt = targetContainer.querySelector(cfg.endId);
+        if (innerEt) {
+          innerEt.value = etInput.value;
+          etInput.addEventListener('change', (e) => { innerEt.value = e.target.value; }, { signal: syncAbort.signal });
+        }
+      }
+      targetContainer.dataset.syncAbortKey = `${formType}Sync`;
+      targetContainer._syncAbort = syncAbort;
+    };
+
     processChipGroup.querySelectorAll('.touch-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         processChipGroup.querySelectorAll('.touch-chip').forEach(c => c.classList.remove('active'));
@@ -701,204 +889,30 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         const isForklift = chip.dataset.name === '지게차작업';
         const isSupport = chip.dataset.name === '출하지원';
         const isFmb = chip.dataset.name === 'FMB보관실';
-        const elsToToggle = ['#formCodeBadgeContainer', '#jointTpmGateContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
-        
+
         // 공정 전환 시 이전 날짜/시간 동기화 리스너 정리
-        if (!isFmb) {
-          const prevFmb = container.querySelector('#f9004FormContainer');
-          if (prevFmb) prevFmb.style.display = 'none';
-        }
-        ['#leaderFormContainer', '#forkliftFormContainer', '#supportFormContainer', '#f9004FormContainer'].forEach(sel => {
-          const prev = container.querySelector(sel);
-          if (prev && prev._syncAbort) { prev._syncAbort.abort(); prev._syncAbort = null; }
-        });
+        cleanupCommonSyncAborts();
 
         if (isFmb) {
+          notifyCommonSelection('FMB보관실');
           elsToToggle.forEach(id => {
             const el = container.querySelector(id);
             if (el) el.style.display = 'none';
           });
-          import('./forms/f9004/f9004Renderer.js').then(m => m.mountF9004InReportForm(container, existingData, loggedInWorkerName));
-        } else if (isLeader || isForklift || isSupport) {
-          elsToToggle.forEach(id => {
-            const el = container.querySelector(id);
-            if (el) el.style.display = 'none';
-          });
-          const standardFixedBar = document.getElementById('standardFixedActionBar');
-          if (standardFixedBar) standardFixedBar.style.display = 'none';
-          
-          if (isLeader) {
-            const forkCont = container.querySelector('#forkliftFormContainer');
-            if (forkCont) forkCont.style.display = 'none';
-            const suppCont = container.querySelector('#supportFormContainer');
-            if (suppCont) suppCont.style.display = 'none';
-            let leaderContainer = container.querySelector('#leaderFormContainer');
-            if (!leaderContainer) {
-               leaderContainer = document.createElement('div');
-               leaderContainer.id = 'leaderFormContainer';
-               container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
-            }
-            leaderContainer.style.display = 'block';
-  
-            import('./LeaderFormRenderer.js').then(module => {
-              module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
-              setTimeout(() => {
-                const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
-                const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
-                if (lfHeader) lfHeader.style.display = 'none';
-                if (lfDate) lfDate.style.display = 'none';
-  
-                const syncDate = (val) => {
-                  const parts = val.split('-');
-                  if (parts.length === 3) {
-                    const ly = leaderContainer.querySelector('#leaderYear');
-                    const lm = leaderContainer.querySelector('#leaderMonth');
-                    const ld = leaderContainer.querySelector('#leaderDay');
-                    if (ly) ly.value = parts[0].substring(2);
-                    if (lm) lm.value = parts[1];
-                    if (ld) ld.value = parts[2];
-                  }
-                };
-                const reportDate = container.querySelector('#reportDate');
-                const leaderSyncAbort = new AbortController();
-                if (reportDate) {
-                  syncDate(reportDate.value);
-                  reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: leaderSyncAbort.signal });
-                }
-                
-                const stInput = container.querySelector('#startTimeInput');
-                if (stInput) {
-                  const lSt = leaderContainer.querySelector('#leaderStartTime');
-                  if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }, { signal: leaderSyncAbort.signal }); }
-                }
-                const etInput = container.querySelector('#endTimeInput');
-                if (etInput) {
-                  const lEt = leaderContainer.querySelector('#leaderEndTime');
-                  if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }, { signal: leaderSyncAbort.signal }); }
-                }
-                leaderContainer.dataset.syncAbortKey = 'leaderSync';
-                leaderContainer._syncAbort = leaderSyncAbort;
-              }, 50);
-            });
-          } else if (isForklift) {
-            const leadCont = container.querySelector('#leaderFormContainer');
-            if (leadCont) leadCont.style.display = 'none';
-            const suppCont = container.querySelector('#supportFormContainer');
-            if (suppCont) suppCont.style.display = 'none';
-            let forkliftContainer = container.querySelector('#forkliftFormContainer');
-            if (!forkliftContainer) {
-               forkliftContainer = document.createElement('div');
-               forkliftContainer.id = 'forkliftFormContainer';
-               container.querySelector('#mobileWorkReportForm').appendChild(forkliftContainer);
-            }
-            forkliftContainer.style.display = 'block';
-  
-            import('./ForkliftFormRenderer.js').then(module => {
-              module.renderForkliftPaperForm(forkliftContainer, existingData, loggedInWorkerName);
-              setTimeout(() => {
-                const ffHeader = forkliftContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
-                const ffDate = forkliftContainer.querySelector('div[style*="margin-bottom: 14px"]');
-                if (ffHeader) ffHeader.style.display = 'none';
-                if (ffDate) ffDate.style.display = 'none';
-                
-                const syncDate = (val) => {
-                  const parts = val.split('-');
-                  if (parts.length === 3) {
-                    const fy = forkliftContainer.querySelector('#forkYear');
-                    const fm = forkliftContainer.querySelector('#forkMonth');
-                    const fd = forkliftContainer.querySelector('#forkDay');
-                    if (fy) fy.value = parts[0].substring(2);
-                    if (fm) fm.value = parts[1];
-                    if (fd) fd.value = parts[2];
-                  }
-                };
-                const reportDate = container.querySelector('#reportDate');
-                const forkliftSyncAbort = new AbortController();
-                if (reportDate) {
-                  syncDate(reportDate.value);
-                  reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: forkliftSyncAbort.signal });
-                }
-                
-                const stInput = container.querySelector('#startTimeInput');
-                if (stInput) {
-                  const fSt = forkliftContainer.querySelector('#forkStartTime');
-                  if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }, { signal: forkliftSyncAbort.signal }); }
-                }
-                const etInput = container.querySelector('#endTimeInput');
-                if (etInput) {
-                  const fEt = forkliftContainer.querySelector('#forkEndTime');
-                  if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }, { signal: forkliftSyncAbort.signal }); }
-                }
-                forkliftContainer._syncAbort = forkliftSyncAbort;
-              }, 50);
-            });
-          } else if (isSupport) {
-            const leadCont = container.querySelector('#leaderFormContainer');
-            if (leadCont) leadCont.style.display = 'none';
-            const forkCont = container.querySelector('#forkliftFormContainer');
-            if (forkCont) forkCont.style.display = 'none';
-            let supportContainer = container.querySelector('#supportFormContainer');
-            if (!supportContainer) {
-               supportContainer = document.createElement('div');
-               supportContainer.id = 'supportFormContainer';
-               container.querySelector('#mobileWorkReportForm').appendChild(supportContainer);
-            }
-            supportContainer.style.display = 'block';
-
-            import('./SupportFormRenderer.js').then(module => {
-              module.renderSupportPaperForm(supportContainer, existingData, loggedInWorkerName);
-              setTimeout(() => {
-                const sfHeader = supportContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
-                const sfDate = supportContainer.querySelector('div[style*="margin-bottom: 14px"]');
-                if (sfHeader) sfHeader.style.display = 'none';
-                if (sfDate) sfDate.style.display = 'none';
-                
-                const syncDate = (val) => {
-                  const parts = val.split('-');
-                  if (parts.length === 3) {
-                    const sy = supportContainer.querySelector('#suppYear');
-                    const sm = supportContainer.querySelector('#suppMonth');
-                    const sd = supportContainer.querySelector('#suppDay');
-                    if (sy) sy.value = parts[0].substring(2);
-                    if (sm) sm.value = parts[1];
-                    if (sd) sd.value = parts[2];
-                  }
-                };
-                const reportDate = container.querySelector('#reportDate');
-                const supportSyncAbort = new AbortController();
-                if (reportDate) {
-                  syncDate(reportDate.value);
-                  reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: supportSyncAbort.signal });
-                }
-                
-                const stInput = container.querySelector('#startTimeInput');
-                if (stInput) {
-                  const sSt = supportContainer.querySelector('#suppStartTime');
-                  if (sSt) { sSt.value = stInput.value; stInput.addEventListener('change', (e) => { sSt.value = e.target.value; }, { signal: supportSyncAbort.signal }); }
-                }
-                const etInput = container.querySelector('#endTimeInput');
-                if (etInput) {
-                  const sEt = supportContainer.querySelector('#suppEndTime');
-                  if (sEt) { sEt.value = etInput.value; etInput.addEventListener('change', (e) => { sEt.value = e.target.value; }, { signal: supportSyncAbort.signal }); }
-                }
-                supportContainer._syncAbort = supportSyncAbort;
-              }, 50);
-            });
-          }
+          mountF9004WithRecovery(container, existingData, loggedInWorkerName);
+        } else if (isLeader) {
+          mountCommonSpecialForm('leader', '반장 작업일보');
+        } else if (isForklift) {
+          mountCommonSpecialForm('forklift', '지게차작업');
+        } else if (isSupport) {
+          mountCommonSpecialForm('support', '출하지원');
         } else {
+          hideAllCommonContainersAndBars();
           elsToToggle.forEach(id => {
             const el = container.querySelector(id);
             if (el) el.style.display = 'block';
           });
-          const leaderContainer = container.querySelector('#leaderFormContainer');
-          if (leaderContainer) leaderContainer.style.display = 'none';
-          const fmbContainer = container.querySelector('#f9004FormContainer');
-          if (fmbContainer) fmbContainer.style.display = 'none';
-          const forkliftContainer = container.querySelector('#forkliftFormContainer');
-          if (forkliftContainer) forkliftContainer.style.display = 'none';
-          const supportContainer = container.querySelector('#supportFormContainer');
-          if (supportContainer) supportContainer.style.display = 'none';
-          
+
           const standardFixedBar = document.getElementById('standardFixedActionBar');
           if (standardFixedBar) standardFixedBar.style.display = 'flex';
 
@@ -912,125 +926,31 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       });
     });
     
-    // 초기 로딩 시에도 반장 작업일보나 지게차작업이 선택되어 있는지 확인하여 동일하게 분기처리
+    // 초기 로딩 시에도 공통 공정(반장 작업일보, 지게차작업, 출하지원, FMB보관실)이 선택되어 있는지 확인하여 동일하게 분기처리
+    cleanupCommonSyncAborts();
     const isLeaderInit = activeProcess === '반장 작업일보';
     const isForkliftInit = activeProcess === '지게차작업';
+    const isSupportInit = activeProcess === '출하지원' || Boolean(existingData?.isSupportForm);
     const isFmbInit = activeProcess === 'FMB보관실' || Boolean(existingData?.isFmbForm);
-    const elsToToggleInit = ['#formCodeBadgeContainer', '#jointTpmGateContainer', '#section4Card', '#section5DynamicContainer', '#qtySection', '#downtimeCard', '#notesInput'];
     if (isFmbInit) {
-      elsToToggleInit.forEach(id => {
+      notifyCommonSelection('FMB보관실');
+      elsToToggle.forEach(id => {
         const el = container.querySelector(id);
         if (el) el.style.display = 'none';
       });
-      import('./forms/f9004/f9004Renderer.js').then(m => m.mountF9004InReportForm(container, existingData, loggedInWorkerName));
-    } else if (isLeaderInit || isForkliftInit) {
-      elsToToggleInit.forEach(id => {
-        const el = container.querySelector(id);
-        if (el) el.style.display = 'none';
-      });
-      setTimeout(() => {
-        const standardFixedBar = document.getElementById('standardFixedActionBar');
-        if (standardFixedBar) standardFixedBar.style.display = 'none';
-      }, 50);
-
-      if (isLeaderInit) {
-        let leaderContainer = container.querySelector('#leaderFormContainer');
-        if (!leaderContainer) {
-           leaderContainer = document.createElement('div');
-           leaderContainer.id = 'leaderFormContainer';
-           container.querySelector('#mobileWorkReportForm').appendChild(leaderContainer);
-        }
-        leaderContainer.style.display = 'block';
-  
-        import('./LeaderFormRenderer.js').then(module => {
-          module.renderLeaderPaperForm(leaderContainer, existingData, loggedInWorkerName);
-          setTimeout(() => {
-            const lfHeader = leaderContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
-            const lfDate = leaderContainer.querySelector('div[style*="margin-bottom: 14px"]');
-            if (lfHeader) lfHeader.style.display = 'none';
-            if (lfDate) lfDate.style.display = 'none';
-  
-            const reportDate = container.querySelector('#reportDate');
-            const stInput = container.querySelector('#startTimeInput');
-            const etInput = container.querySelector('#endTimeInput');
-            const syncDate = (val) => {
-              const parts = val.split('-');
-              if (parts.length === 3) {
-                const ly = leaderContainer.querySelector('#leaderYear');
-                const lm = leaderContainer.querySelector('#leaderMonth');
-                const ld = leaderContainer.querySelector('#leaderDay');
-                if (ly) ly.value = parts[0].substring(2);
-                if (lm) lm.value = parts[1];
-                if (ld) ld.value = parts[2];
-              }
-            };
-            const initLeaderSyncAbort = new AbortController();
-            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: initLeaderSyncAbort.signal }); }
-            if (stInput) {
-              const lSt = leaderContainer.querySelector('#leaderStartTime');
-              if (lSt) { lSt.value = stInput.value; stInput.addEventListener('change', (e) => { lSt.value = e.target.value; }, { signal: initLeaderSyncAbort.signal }); }
-            }
-            if (etInput) {
-              const lEt = leaderContainer.querySelector('#leaderEndTime');
-              if (lEt) { lEt.value = etInput.value; etInput.addEventListener('change', (e) => { lEt.value = e.target.value; }, { signal: initLeaderSyncAbort.signal }); }
-            }
-            leaderContainer._syncAbort = initLeaderSyncAbort;
-          }, 50);
-        });
-      } else if (isForkliftInit) {
-        let forkliftContainer = container.querySelector('#forkliftFormContainer');
-        if (!forkliftContainer) {
-           forkliftContainer = document.createElement('div');
-           forkliftContainer.id = 'forkliftFormContainer';
-           container.querySelector('#mobileWorkReportForm').appendChild(forkliftContainer);
-        }
-        forkliftContainer.style.display = 'block';
-  
-        import('./ForkliftFormRenderer.js').then(module => {
-          module.renderForkliftPaperForm(forkliftContainer, existingData, loggedInWorkerName);
-          setTimeout(() => {
-            const ffHeader = forkliftContainer.querySelector('div[style*="border-bottom: 2px solid #000"]');
-            const ffDate = forkliftContainer.querySelector('div[style*="margin-bottom: 14px"]');
-            if (ffHeader) ffHeader.style.display = 'none';
-            if (ffDate) ffDate.style.display = 'none';
-  
-            const reportDate = container.querySelector('#reportDate');
-            const stInput = container.querySelector('#startTimeInput');
-            const etInput = container.querySelector('#endTimeInput');
-            const syncDate = (val) => {
-              const parts = val.split('-');
-              if (parts.length === 3) {
-                const fy = forkliftContainer.querySelector('#forkYear');
-                const fm = forkliftContainer.querySelector('#forkMonth');
-                const fd = forkliftContainer.querySelector('#forkDay');
-                if (fy) fy.value = parts[0].substring(2);
-                if (fm) fm.value = parts[1];
-                if (fd) fd.value = parts[2];
-              }
-            };
-            const initForkliftSyncAbort = new AbortController();
-            if (reportDate) { syncDate(reportDate.value); reportDate.addEventListener('change', (e) => syncDate(e.target.value), { signal: initForkliftSyncAbort.signal }); }
-            if (stInput) {
-              const fSt = forkliftContainer.querySelector('#forkStartTime');
-              if (fSt) { fSt.value = stInput.value; stInput.addEventListener('change', (e) => { fSt.value = e.target.value; }, { signal: initForkliftSyncAbort.signal }); }
-            }
-            if (etInput) {
-              const fEt = forkliftContainer.querySelector('#forkEndTime');
-              if (fEt) { fEt.value = etInput.value; etInput.addEventListener('change', (e) => { fEt.value = e.target.value; }, { signal: initForkliftSyncAbort.signal }); }
-            }
-            forkliftContainer._syncAbort = initForkliftSyncAbort;
-          }, 50);
-        });
-      }
+      mountF9004WithRecovery(container, existingData, loggedInWorkerName);
+    } else if (isLeaderInit) {
+      mountCommonSpecialForm('leader', '반장 작업일보');
+    } else if (isForkliftInit) {
+      mountCommonSpecialForm('forklift', '지게차작업');
+    } else if (isSupportInit) {
+      mountCommonSpecialForm('support', '출하지원');
     } else {
-      elsToToggleInit.forEach(id => {
+      hideAllCommonContainersAndBars();
+      elsToToggle.forEach(id => {
         const el = container.querySelector(id);
         if (el) el.style.display = 'block';
       });
-      const leaderContainer = container.querySelector('#leaderFormContainer');
-      if (leaderContainer) leaderContainer.style.display = 'none';
-      const fmbContainer = container.querySelector('#f9004FormContainer');
-      if (fmbContainer) fmbContainer.style.display = 'none';
       const standardFixedBar = document.getElementById('standardFixedActionBar');
       if (standardFixedBar) standardFixedBar.style.display = 'flex';
 
@@ -1056,12 +976,18 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   // 초기 렌더링
   renderSubCarChips(currentMakerName, currentCarCode);
   renderProcessChips(currentCarCode, existingData ? existingData.processName : '');
-  renderSection5();
-  renderQtySection();
-  renderSection4LotTable();
-  updateDowntimeSection();
-  renderFormCodeBadge();
-  updateSectionNumbers();
+  const initActiveProc = processValue ? processValue.value : '';
+  const isCommonSpecialInit =
+    ['반장 작업일보', '지게차작업', '출하지원', 'FMB보관실'].includes(initActiveProc) ||
+    Boolean(existingData?.isFmbForm || existingData?.isSupportForm || existingData?.isLeaderForm || existingData?.isForkliftForm);
+  if (!isCommonSpecialInit) {
+    renderSection5();
+    renderQtySection();
+    renderSection4LotTable();
+    updateDowntimeSection();
+    renderFormCodeBadge();
+    updateSectionNumbers();
+  }
 
   container.querySelectorAll('.btn-step-change').forEach(btn => {
     btn.addEventListener('click', () => {

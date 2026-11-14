@@ -41,7 +41,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
   const items = existingData && existingData.leaderFormItems ? existingData.leaderFormItems : DEFAULT_LEADER_ITEMS;
 
   container.innerHTML = `
-    <form id="leaderPaperForm" class="card" style="padding: 24px; font-family: 'Noto Sans KR', sans-serif;">
+    <div id="leaderPaperForm" class="card" style="padding: 24px; font-family: 'Noto Sans KR', sans-serif;">
       <!-- 헤더 -->
       <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px;">
         <div style="flex: 1;">
@@ -210,7 +210,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
 
       <!-- 화면 하단 고정 여백 (고정 버튼 바에 가려지지 않도록) -->
       <div style="height: 80px;"></div>
-    </form>
+    </div>
   `;
 
   // 화면 하단 고정 버튼 바 (leader form) - fixed 방식
@@ -234,6 +234,10 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
   const hideStandardFixedBar = document.getElementById('standardFixedActionBar');
   if (hideStandardFixedBar) {
     hideStandardFixedBar.style.display = 'none';
+  }
+  const hideForkliftFixedBar = document.getElementById('forkliftFixedActionBar');
+  if (hideForkliftFixedBar) {
+    hideForkliftFixedBar.style.display = 'none';
   }
 
   i18n.applyTranslations(container);

@@ -26,7 +26,7 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
   const workDetails = existingData?.workDetails || '';
 
   container.innerHTML = `
-    <form id="forkliftPaperForm" class="card" style="padding: 24px; font-family: 'Noto Sans KR', sans-serif;">
+    <div id="forkliftPaperForm" class="card" style="padding: 24px; font-family: 'Noto Sans KR', sans-serif;">
       <!-- 헤더 -->
       <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px;">
         <div style="flex: 1;">
@@ -128,7 +128,7 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
 
       <!-- 화면 하단 고정 여백 -->
       <div style="height: 80px;"></div>
-    </form>
+    </div>
   `;
 
   // 화면 하단 고정 버튼 바 (fixed 방식)
