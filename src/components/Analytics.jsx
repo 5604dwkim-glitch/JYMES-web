@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import LegacyAnalyticsWrapper from './DynamicForms/LegacyAnalyticsWrapper';
 import ProcessDefectAnalysis from './AnalyticsParts/ProcessDefectAnalysis';
+import Gm9bqcGrunDashboard from './AnalyticsParts/Gm9bqcGrunDashboard';
 import {
   fetchReports,
   fetchDailyStats,
@@ -79,6 +80,11 @@ export default function Analytics() {
           molds={analysisPayload.molds}
           changePoints={analysisPayload.changePoints}
           initialSubTab={location.state?.subTab || 'trend'}
+        />
+      }
+      grunContent={
+        <Gm9bqcGrunDashboard
+          reports={reports}
         />
       }
     />

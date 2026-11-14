@@ -48,6 +48,7 @@ export function renderAnalytics(container) {
         <button class="analytics-tab-btn" data-tab="tab-weekly" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📊 주간 통합 요약</button>
         <button class="analytics-tab-btn" data-tab="tab-leader" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">📋 반장 작업일보</button>
         <button class="analytics-tab-btn" data-tab="tab-dtclip" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">🛠️ DT 클립머신 실적</button>
+        <button class="analytics-tab-btn" data-tab="tab-9bqc-grun" style="padding: 12px 24px; font-weight: 700; background: #e2e8f0; color: #475569; border: none; border-radius: 8px 8px 0 0; font-size: 15px; cursor: pointer;">🏭 9BQC G/RUN 종합 현황판</button>
       </div>
 
       <!-- Tab 0: Process & Defect Analysis (React Portal Mount) -->
@@ -139,6 +140,11 @@ export function renderAnalytics(container) {
           </div>
         </div>
       </div>
+
+      <!-- Tab 3: GM 9BQC G/RUN Comprehensive Dashboard (React Portal Mount) -->
+      <div id="tab-9bqc-grun" class="analytics-tab-content" style="display: none;">
+        <div id="reactGm9bqcGrunMount" data-analytics-react-mount="1"></div>
+      </div>
     </div>
 `;
 
@@ -150,6 +156,7 @@ export function renderAnalytics(container) {
     'tab-leader': 'var(--accent-purple)',
     'tab-dtclip': 'var(--accent-blue)',
     'tab-charts': '#059669',
+    'tab-9bqc-grun': '#4f46e5',
   };
 
   tabBtns.forEach(btn => {
@@ -876,10 +883,11 @@ function exportLeaderMonthlyCsv(reports, selectedMonth) {
 
 import { useI18n } from '../../contexts/I18nContext';
 
-export default function LegacyAnalyticsWrapper({ reports, initialActiveTab, chartsContent }) {
+export default function LegacyAnalyticsWrapper({ reports, initialActiveTab, chartsContent, grunContent }) {
   const containerRef = useRef(null);
   const { lang } = useI18n();
   const [chartsMount, setChartsMount] = useState(null);
+  const [grunMount, setGrunMount] = useState(null);
   const [activeTabId, setActiveTabId] = useState(initialActiveTab || 'tab-charts');
 
   useEffect(() => {
@@ -897,6 +905,7 @@ export default function LegacyAnalyticsWrapper({ reports, initialActiveTab, char
 
     const mountEl = rootEl.querySelector('#reactProcessDefectAnalysisMount');
     setChartsMount(mountEl);
+    setGrunMount(rootEl.querySelector('#reactGm9bqcGrunMount'));
 
     const tabBtns = rootEl.querySelectorAll('.analytics-tab-btn');
     const onTabClick = (e) => {
@@ -923,6 +932,9 @@ export default function LegacyAnalyticsWrapper({ reports, initialActiveTab, char
       <div ref={containerRef} className="legacy-analytics-container"></div>
       {chartsMount && activeTabId === 'tab-charts' && chartsContent
         ? createPortal(chartsContent, chartsMount)
+        : null}
+      {grunMount && activeTabId === 'tab-9bqc-grun' && grunContent
+        ? createPortal(grunContent, grunMount)
         : null}
     </>
   );
