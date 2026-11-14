@@ -1,14 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, Suspense, lazy } from 'react';
 import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import LeaderMonthlyDashboard from './LeaderMonthlyDashboard';
-
-import { Chart, registerables } from 'chart.js';
 import { DEFAULT_LEADER_ITEMS } from '../../constants/masterData';
-
-Chart.register(...registerables);
-
 import { i18n } from '../../constants/translations.js';
+
+const LeaderMonthlyDashboard = lazy(() => import('./LeaderMonthlyDashboard'));
 
 let _ctx = {};
 export function setLegacyAnalyticsContext(ctx) {
@@ -991,18 +987,20 @@ function renderLeaderMonthlySummaryTable(container, reports, selectedMonth) {
     container._reactRoot = createRoot(container);
   }
   container._reactRoot.render(
-    <LeaderMonthlyDashboard
-       selectedMonth={selectedMonth}
-       weeks={weeks}
-       displayWeeksCount={displayWeeksCount}
-       displayWeekTitles={displayWeekTitles}
-       groupData={groupData}
-       totalMonthlyPacked={totalMonthlyPacked}
-       totalMonthlyScrap={totalMonthlyScrap}
-       avgDefectRate={avgDefectRate}
-       avgTotal={avgTotal}
-       attSum={attSum}
-    />
+    <Suspense fallback={<div style={{ padding: '24px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>반장 작업일보 현황을 불러오는 중...</div>}>
+      <LeaderMonthlyDashboard
+         selectedMonth={selectedMonth}
+         weeks={weeks}
+         displayWeeksCount={displayWeeksCount}
+         displayWeekTitles={displayWeekTitles}
+         groupData={groupData}
+         totalMonthlyPacked={totalMonthlyPacked}
+         totalMonthlyScrap={totalMonthlyScrap}
+         avgDefectRate={avgDefectRate}
+         avgTotal={avgTotal}
+         attSum={attSum}
+      />
+    </Suspense>
   );
 }
 
@@ -1047,10 +1045,20 @@ function exportLeaderMonthlyCsv(reports, selectedMonth) {
 
 import { useI18n } from '../../contexts/I18nContext';
 
-export default function LegacyAnalyticsWrapper({ reports, reportsLoading = false, initialActiveTab, chartsContent, grunContent }) {
+export default function LegacyAnalyticsWrapper({
+  reports,
+  reportsLoading = false,
+  initialActiveTab,
+  chartsContent,
+  grunContent,
+  onTabChange = null,
+  onTabHover = null
+}) {
   const containerRef = useRef(null);
   const latestCtxRef = useRef({ reports, reportsLoading });
   latestCtxRef.current = { reports, reportsLoading };
+  const callbacksRef = useRef({ onTabChange, onTabHover });
+  callbacksRef.current = { onTabChange, onTabHover };
   const { lang } = useI18n();
   const [chartsMount, setChartsMount] = useState(null);
   const [grunMount, setGrunMount] = useState(null);
@@ -1059,12 +1067,11 @@ export default function LegacyAnalyticsWrapper({ reports, reportsLoading = false
     : (initialActiveTab || 'tab-charts');
   const [activeTabId, setActiveTabId] = useState(normalizedInitialTab);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const rootEl = containerRef.current;
-    if (!rootEl) return;
+    if (!rootEl) return undefined;
     i18n.setLang(lang, false);
     setLegacyAnalyticsContext(latestCtxRef.current);
-    window.Chart = Chart;
 
     try {
       renderAnalytics(rootEl);
@@ -1079,9 +1086,23 @@ export default function LegacyAnalyticsWrapper({ reports, reportsLoading = false
     const tabBtns = rootEl.querySelectorAll('.analytics-tab-btn');
     const onTabClick = (e) => {
       const tabId = e.currentTarget?.dataset?.tab;
-      if (tabId) setActiveTabId(tabId);
+      if (tabId) {
+        setActiveTabId(tabId);
+        if (typeof callbacksRef.current.onTabChange === 'function') {
+          callbacksRef.current.onTabChange(tabId);
+        }
+      }
     };
-    tabBtns.forEach((btn) => btn.addEventListener('click', onTabClick));
+    const onTabEnter = (e) => {
+      const tabId = e.currentTarget?.dataset?.tab;
+      if (tabId && typeof callbacksRef.current.onTabHover === 'function') {
+        callbacksRef.current.onTabHover(tabId);
+      }
+    };
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', onTabClick);
+      btn.addEventListener('mouseenter', onTabEnter);
+    });
 
     const targetTab = (initialActiveTab === 'tab-leader' || initialActiveTab === 'tab-dtclip')
       ? 'tab-weekly'
@@ -1099,7 +1120,10 @@ export default function LegacyAnalyticsWrapper({ reports, reportsLoading = false
     }
 
     return () => {
-      tabBtns.forEach((btn) => btn.removeEventListener('click', onTabClick));
+      tabBtns.forEach((btn) => {
+        btn.removeEventListener('click', onTabClick);
+        btn.removeEventListener('mouseenter', onTabEnter);
+      });
     };
   }, [lang, initialActiveTab]);
 

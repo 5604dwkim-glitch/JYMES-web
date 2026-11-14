@@ -1,19 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { isFluidPage } from '../constants/layoutPages';
 import { EQUIPMENT_CATEGORIES, getCategoryMeta } from '../constants/equipmentCategories';
+import { prefetchAnalyticsData } from '../services/firestore';
+
+function LiveClock({ lang }) {
+  const [time, setTime] = useState(() => new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedClock = lang === 'ko'
+    ? time.toLocaleTimeString('ko-KR', { hour12: false })
+    : `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+
+  return <span className="live-clock">{formattedClock}</span>;
+}
 
 export default function Layout() {
   const { userRole, logout } = useAuth();
   const { t, td, lang, setLang } = useI18n();
   const navigate = useNavigate();
-  const [time, setTime] = useState(new Date());
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const location = useLocation();
   const [isReportMenuOpen, setIsReportMenuOpen] = useState(true);
   const [isEquipmentMenuOpen, setIsEquipmentMenuOpen] = useState(false);
+  const analyticsPrefetchedAtRef = useRef(0);
+
+  const handlePrefetchAnalytics = useCallback(() => {
+    const now = Date.now();
+    if (now - analyticsPrefetchedAtRef.current < 60000) return;
+    analyticsPrefetchedAtRef.current = now;
+    import('./Analytics').catch(() => {});
+    prefetchAnalyticsData();
+  }, []);
 
   useEffect(() => {
     if (isMobilePreview) {
@@ -24,11 +48,6 @@ export default function Layout() {
     // Cleanup on unmount
     return () => document.body.classList.remove('mobile-preview-mode');
   }, [isMobilePreview]);
-
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
 
   // 라우트 이동 시 양식 작성 화면의 하단 고정 버튼 바 3종을 일괄 숨김
   // (신규작성/이어작성 → 다른 메뉴로 이동해도 버튼이 남는 문제 근본 해결)
@@ -69,9 +88,6 @@ export default function Layout() {
   };
 
   const { title, sub } = getPageTitle();
-  const formattedClock = lang === 'ko'
-    ? time.toLocaleTimeString('ko-KR', { hour12: false })
-    : `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
 
   return (
     <div id="app">
@@ -88,9 +104,7 @@ export default function Layout() {
             <span className="user-role-badge">
               {userRole?.role === 'admin' ? t('badge_admin') : `${t('badge_worker')} ${userRole?.workerName ? td(userRole.workerName) : ''}`}
             </span>
-            <span className="live-clock">
-              {formattedClock}
-            </span>
+            <LiveClock lang={lang} />
           </div>
           <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
             <button 
@@ -123,7 +137,12 @@ export default function Layout() {
           {userRole?.role !== 'worker' && (
             <>
               {/* 2. 공정 및 불량 분석 */}
-              <NavLink to="/analytics" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+              <NavLink
+                to="/analytics"
+                className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                onMouseEnter={handlePrefetchAnalytics}
+                onFocus={handlePrefetchAnalytics}
+              >
                 <span>📈</span>
                 <span>{t('nav_analytics')}</span>
               </NavLink>

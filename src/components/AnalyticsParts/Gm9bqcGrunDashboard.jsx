@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, Suspense, lazy } from 'react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase';
-import LegacyDetailModal from '../DynamicForms/LegacyDetailModal';
 import {
   resolveGm9bqcProcessCode,
   buildGm9bqcGrunDashboardModel
 } from '../../services/gm9bqcGrunEngine';
-import { exportGm9bqcGrunToExcel } from '../../utils/gm9bqcGrunExcelExport';
+
+const LegacyDetailModal = lazy(() => import('../DynamicForms/LegacyDetailModal'));
 
 function formatTodayYmd() {
   return new Date().toLocaleDateString('sv-SE');
@@ -251,6 +251,12 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
       (err) => {
         console.error('9BQC G/RUN 실시간 구독 오류 (기존 캐시 폴백):', err);
         setLiveStatus('fallback');
+        import('../../services/firestore')
+          .then(({ fetchReports }) => fetchReports({ startDate: effectiveStart, endDate: effectiveEnd }))
+          .then((docs) => {
+            if (Array.isArray(docs)) setLiveReports(docs);
+          })
+          .catch(() => {});
       }
     );
 
@@ -325,6 +331,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
     if (exporting) return;
     try {
       setExporting(true);
+      const { exportGm9bqcGrunToExcel } = await import('../../utils/gm9bqcGrunExcelExport');
       await exportGm9bqcGrunToExcel({
         model,
         periodLabel,
@@ -1760,9 +1767,11 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
         </div>
       )}
 
-      {/* 원본 작업일보 상세 모달 연동 */}
+      {/* 원본 작업일보 상세 모달 연동 (원본 일보 열기 클릭 시에만 지연 로드) */}
       {detailReport && (
-        <LegacyDetailModal report={detailReport} onClose={() => setDetailReport(null)} />
+        <Suspense fallback={null}>
+          <LegacyDetailModal report={detailReport} onClose={() => setDetailReport(null)} />
+        </Suspense>
       )}
     </div>
   );

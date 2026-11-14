@@ -178,7 +178,11 @@ export function invalidateReportsCache() {
   myRecentReportsCache.clear();
   downtimeReportsCache = null; // 일보가 저장/수정/삭제되면 비가동 일보 캐시도 함께 무효화
   fmbReportsCache = null; // FMB보관실 월간 온·습도 대시보드 캐시도 함께 무효화
+  stellantisReportsCache = null; // 주간 스텔란티스 실적 전용 캐시 무효화
   dailyStatsAllCache = null; // 일별 집계 캐시도 함께 무효화
+  dailyStatsRecentCache = null;
+  removeSlimCache('daily_stats');
+  removeSlimCache('daily_stats_recent');
 }
 
 // 비가동 일보 캐시 (대시보드 "연계 현황"용, 10분) — 대시보드 재방문 때마다 다시 읽지 않도록 한다
@@ -191,9 +195,17 @@ let fmbReportsCache = null;
 let fmbReportsCacheAt = 0;
 const FMB_REPORTS_CACHE_TTL_MS = 10 * 60 * 1000;
 
-// 일별 통계(daily_stats) 전체 캐시 (메인 대시보드 ↔ 공정 및 불량 분석 간 중복 읽기 방지, 10분)
+// 주간 스텔란티스 실적(반장 작업일보 + DT 클립머신) 전용 경량 캐시 (10분)
+let stellantisReportsCache = null;
+let stellantisReportsCacheAt = 0;
+const STELLANTIS_REPORTS_CACHE_TTL_MS = 10 * 60 * 1000;
+
+// 일별 통계(daily_stats) 전체/최근 캐시 (메인 대시보드 ↔ 공정 및 불량 분석 간 중복 읽기 방지, 10분)
 let dailyStatsAllCache = null;
 let dailyStatsAllCacheAt = 0;
+let dailyStatsRecentCache = null;
+let dailyStatsRecentCacheAt = 0;
+let dailyStatsRecentSince = '';
 const DAILY_STATS_CACHE_TTL_MS = 10 * 60 * 1000;
 
 // ─────────────────────────────────────────────
@@ -350,14 +362,27 @@ export async function fetchDowntimeReports(sinceDate = '', forceRefresh = false)
   try {
     const expired = Date.now() - downtimeReportsCacheAt > DOWNTIME_REPORTS_CACHE_TTL_MS;
     if (forceRefresh || !downtimeReportsCache || expired) {
-      const q = query(collection(db, REPORTS_COLLECTION), where('downtimeMinutes', '>', 0));
-      const snap = await getDocs(q);
-      downtimeReportsCache = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
-      downtimeReportsCacheAt = Date.now();
+      if (!forceRefresh && slimInflight.has('downtime_reports')) {
+        await slimInflight.get('downtime_reports');
+      } else {
+        const task = (async () => {
+          const q = query(collection(db, REPORTS_COLLECTION), where('downtimeMinutes', '>', 0));
+          const snap = await getDocs(q);
+          downtimeReportsCache = snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
+          downtimeReportsCacheAt = Date.now();
+          return downtimeReportsCache;
+        })();
+        slimInflight.set('downtime_reports', task);
+        try {
+          await task;
+        } finally {
+          slimInflight.delete('downtime_reports');
+        }
+      }
     }
-    return downtimeReportsCache.filter((r) => !sinceDate || (r.date || '') >= sinceDate);
+    return (downtimeReportsCache || []).filter((r) => !sinceDate || (r.date || '') >= sinceDate);
   } catch (error) {
     console.error('Error fetching downtime reports:', error);
     return [];
@@ -372,24 +397,99 @@ export async function fetchFmbReports(forceRefresh = false) {
   try {
     const expired = Date.now() - fmbReportsCacheAt > FMB_REPORTS_CACHE_TTL_MS;
     if (forceRefresh || !fmbReportsCache || expired) {
-      const q = query(collection(db, REPORTS_COLLECTION), where('processName', '==', 'FMB보관실'));
-      const snap = await getDocs(q);
-      fmbReportsCache = snap.docs
-        .map((d) => ({
-          id: d.id,
-          ...d.data(),
-          carModel: '공통',
-          itemName: '공통',
-          processName: 'FMB보관실',
-          isFmbForm: true
-        }))
-        .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
-      fmbReportsCacheAt = Date.now();
+      if (!forceRefresh && slimInflight.has('fmb_reports')) {
+        return await slimInflight.get('fmb_reports');
+      }
+      const task = (async () => {
+        const q = query(collection(db, REPORTS_COLLECTION), where('processName', '==', 'FMB보관실'));
+        const snap = await getDocs(q);
+        fmbReportsCache = snap.docs
+          .map((d) => ({
+            id: d.id,
+            ...d.data(),
+            carModel: '공통',
+            itemName: '공통',
+            processName: 'FMB보관실',
+            isFmbForm: true
+          }))
+          .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
+        fmbReportsCacheAt = Date.now();
+        return fmbReportsCache;
+      })();
+      slimInflight.set('fmb_reports', task);
+      try {
+        await task;
+      } finally {
+        slimInflight.delete('fmb_reports');
+      }
     }
-    return fmbReportsCache;
+    return fmbReportsCache || [];
   } catch (error) {
     console.error('Error fetching FMB storage reports:', error);
     return [];
+  }
+}
+
+/**
+ * 주간 스텔란티스 실적(반장 작업일보 + DT 클립머신 실적) 전용 경량 조회
+ * 단일 필드 인덱스만 사용하여 복합 인덱스 없이 전체 공장 일보 대신 대상 일보만 빠르게 읽는다.
+ */
+export async function fetchStellantisAnalyticsReports(forceRefresh = false) {
+  try {
+    const expired = Date.now() - stellantisReportsCacheAt > STELLANTIS_REPORTS_CACHE_TTL_MS;
+    if (!forceRefresh && stellantisReportsCache && !expired) {
+      return stellantisReportsCache;
+    }
+    if (!forceRefresh && slimInflight.has('stellantis_reports')) {
+      return await slimInflight.get('stellantis_reports');
+    }
+
+    const task = (async () => {
+      const col = collection(db, REPORTS_COLLECTION);
+      const [leaderFlagSnap, leaderProcSnap, leaderWorkerSnap, clipSnap] = await Promise.all([
+        getDocs(query(col, where('isLeaderForm', '==', true))),
+        getDocs(query(col, where('processName', '==', '반장 작업일보'))),
+        getDocs(query(col, where('workerName', '==', '장수미'))),
+        getDocs(query(col, where('processName', '==', '클립머신')))
+      ]);
+
+      const merged = new Map();
+      const collect = (snap) => {
+        snap.forEach((docSnap) => {
+          if (merged.has(docSnap.id)) return;
+          const r = { id: docSnap.id, ...docSnap.data() };
+          if (r.isLeaderForm || r.processName === '반장 작업일보') {
+            r.carModel = '공통';
+            r.itemName = '공통';
+            r.processName = '반장 작업일보';
+            r.isLeaderForm = true;
+          }
+          merged.set(docSnap.id, r);
+        });
+      };
+
+      collect(leaderFlagSnap);
+      collect(leaderProcSnap);
+      collect(leaderWorkerSnap);
+      collect(clipSnap);
+
+      const list = Array.from(merged.values()).sort(
+        (a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || '')
+      );
+      stellantisReportsCache = list;
+      stellantisReportsCacheAt = Date.now();
+      return list;
+    })();
+
+    slimInflight.set('stellantis_reports', task);
+    try {
+      return await task;
+    } finally {
+      slimInflight.delete('stellantis_reports');
+    }
+  } catch (error) {
+    console.error('Error fetching Stellantis analytics reports:', error);
+    return stellantisReportsCache || [];
   }
 }
 
@@ -399,24 +499,121 @@ export async function fetchDailyStats(startDate, forceRefresh = false) {
     if (cacheValid) {
       return startDate ? dailyStatsAllCache.filter((s) => (s.date || '') >= startDate) : dailyStatsAllCache;
     }
-    let q = collection(db, 'daily_stats');
-    if (startDate) {
-      q = query(q, where('__name__', '>=', startDate));
+    if (!forceRefresh) {
+      const localCached = readSlimCache('daily_stats');
+      if (localCached && Date.now() - localCached.timestamp < DAILY_STATS_CACHE_TTL_MS) {
+        dailyStatsAllCache = localCached.data;
+        dailyStatsAllCacheAt = localCached.timestamp;
+        return startDate ? dailyStatsAllCache.filter((s) => (s.date || '') >= startDate) : dailyStatsAllCache;
+      }
+      if (
+        startDate &&
+        dailyStatsRecentCache &&
+        dailyStatsRecentSince &&
+        dailyStatsRecentSince <= startDate &&
+        Date.now() - dailyStatsRecentCacheAt < DAILY_STATS_CACHE_TTL_MS
+      ) {
+        return dailyStatsRecentCache.filter((s) => (s.date || '') >= startDate);
+      }
     }
-    const snap = await getDocs(q);
-    const stats = [];
-    snap.forEach((d) => {
-      stats.push({ date: d.id, ...d.data() });
-    });
-    if (!startDate) {
-      dailyStatsAllCache = stats;
-      dailyStatsAllCacheAt = Date.now();
+    const inflightKey = startDate ? `daily_stats:${startDate}` : 'daily_stats';
+    if (!forceRefresh && slimInflight.has(inflightKey)) {
+      return slimInflight.get(inflightKey);
     }
-    return stats;
+    const loadTask = (async () => {
+      let q = collection(db, 'daily_stats');
+      if (startDate) {
+        q = query(q, where('__name__', '>=', startDate));
+      }
+      const snap = await getDocs(q);
+      const stats = [];
+      snap.forEach((d) => {
+        stats.push({ date: d.id, ...d.data() });
+      });
+      if (!startDate) {
+        dailyStatsAllCache = stats;
+        dailyStatsAllCacheAt = Date.now();
+        writeSlimCache('daily_stats', stats);
+      }
+      return stats;
+    })();
+    slimInflight.set(inflightKey, loadTask);
+    loadTask.finally(() => slimInflight.delete(inflightKey));
+    return await loadTask;
   } catch (e) {
     console.error('Error fetching daily stats', e);
+    const stale = readSlimCache('daily_stats');
+    if (stale) {
+      return startDate ? stale.data.filter((s) => (s.date || '') >= startDate) : stale.data;
+    }
     return [];
   }
+}
+
+/**
+ * 대시보드·공정불량분석 초기 진입용 최근 N일 daily_stats 고속 조회 (기본 90일)
+ * - 전체 기간 수백 건 대신 기본 30일 + 전월 동기 비교에 충분한 최근 구간만 우선 조회·캐싱한다.
+ * - 최근 90일 내 가동 실적이 전혀 없는 경우에만 전체 기간 조회로 자동 폴백한다.
+ */
+export async function fetchRecentDailyStats(days = 90, forceRefresh = false) {
+  const sinceDate = new Date(Date.now() - days * 86400000).toLocaleDateString('sv-SE');
+  if (!forceRefresh) {
+    if (dailyStatsAllCache && Date.now() - dailyStatsAllCacheAt < DAILY_STATS_CACHE_TTL_MS) {
+      const sliced = dailyStatsAllCache.filter((s) => (s.date || '') >= sinceDate);
+      return sliced.length > 0 ? sliced : dailyStatsAllCache;
+    }
+    const fullLocal = readSlimCache('daily_stats');
+    if (fullLocal && Date.now() - fullLocal.timestamp < DAILY_STATS_CACHE_TTL_MS) {
+      dailyStatsAllCache = fullLocal.data;
+      dailyStatsAllCacheAt = fullLocal.timestamp;
+      const sliced = fullLocal.data.filter((s) => (s.date || '') >= sinceDate);
+      return sliced.length > 0 ? sliced : fullLocal.data;
+    }
+    if (
+      dailyStatsRecentCache &&
+      dailyStatsRecentCache.length > 0 &&
+      dailyStatsRecentSince <= sinceDate &&
+      Date.now() - dailyStatsRecentCacheAt < DAILY_STATS_CACHE_TTL_MS
+    ) {
+      return dailyStatsRecentCache;
+    }
+    const recentLocal = readSlimCache('daily_stats_recent');
+    if (
+      recentLocal &&
+      recentLocal.data.length > 0 &&
+      Date.now() - recentLocal.timestamp < DAILY_STATS_CACHE_TTL_MS
+    ) {
+      dailyStatsRecentCache = recentLocal.data;
+      dailyStatsRecentCacheAt = recentLocal.timestamp;
+      dailyStatsRecentSince = recentLocal.data[0]?.date || sinceDate;
+      return recentLocal.data;
+    }
+  }
+
+  if (!forceRefresh && slimInflight.has('daily_stats_recent')) {
+    return slimInflight.get('daily_stats_recent');
+  }
+
+  const task = (async () => {
+    const stats = await fetchDailyStats(sinceDate, forceRefresh);
+    if (stats.length === 0) {
+      return fetchDailyStats(null, forceRefresh);
+    }
+    dailyStatsRecentCache = stats;
+    dailyStatsRecentCacheAt = Date.now();
+    dailyStatsRecentSince = sinceDate;
+    writeSlimCache('daily_stats_recent', stats);
+    return stats;
+  })();
+
+  slimInflight.set('daily_stats_recent', task);
+  task.finally(() => slimInflight.delete('daily_stats_recent'));
+  return task;
+}
+
+/** 사이드바 호버 시 공정·불량 분석 초기 데이터 사전 워밍 */
+export function prefetchAnalyticsData() {
+  fetchRecentDailyStats(90, false).catch(() => {});
 }
 
 export async function fetchMyRecentReports(workerName) {
@@ -626,6 +823,7 @@ async function applyStatsUpdateSingleDate(oldReport, newReport) {
       await deleteDoc(statsRef);
     }
     dailyStatsAllCache = null;
+    removeSlimCache('daily_stats');
   } catch (error) {
     console.error('Failed to recompute daily_stats, falling back to increment:', error);
     try {
@@ -646,6 +844,7 @@ async function applyStatsUpdateSingleDate(oldReport, newReport) {
       const statsRef = doc(db, 'daily_stats', targetDate);
       await setDoc(statsRef, increments, { merge: true });
       dailyStatsAllCache = null;
+      removeSlimCache('daily_stats');
     } catch (fallbackErr) {
       console.error('Failed fallback daily_stats update:', fallbackErr);
     }
@@ -1079,22 +1278,31 @@ export async function fetchEquipments() {
   }
 }
 
-// [개선③] fetchChangePoints — 캐시 + limit(200)
+// [개선③] fetchChangePoints — 캐시 + 진행중 요청 공유 + limit(200)
 export const fetchChangePoints = async (forceRefresh = false) => {
   if (!forceRefresh && changePointsCache && (Date.now() - changePointsCacheAt < CHANGE_POINTS_CACHE_TTL_MS)) {
     return changePointsCache;
   }
-  try {
-    const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'), limit(200));
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    changePointsCache = data;
-    changePointsCacheAt = Date.now();
-    return data;
-  } catch (error) {
-    console.error('Error fetching change points:', error);
-    throw error;
+  if (!forceRefresh && slimInflight.has('change_points')) {
+    return slimInflight.get('change_points');
   }
+  const task = (async () => {
+    try {
+      const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'), limit(200));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      changePointsCache = data;
+      changePointsCacheAt = Date.now();
+      return data;
+    } catch (error) {
+      console.error('Error fetching change points:', error);
+      throw error;
+    } finally {
+      slimInflight.delete('change_points');
+    }
+  })();
+  slimInflight.set('change_points', task);
+  return task;
 };
 
 export const updateChangePoint = async (id, data) => {

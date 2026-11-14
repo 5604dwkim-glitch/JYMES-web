@@ -4,7 +4,7 @@ import { useI18n } from '../contexts/I18nContext';
 import {
   fetchMyRecentReports,
   fetchChangePoints,
-  fetchDailyStats,
+  fetchRecentDailyStats,
   fetchMoldsSlim,
   fetchEquipmentsSlim,
   fetchDowntimeReports,
@@ -104,8 +104,9 @@ export default function Dashboard() {
       })
       .catch((e) => console.error(`Failed to load dashboard ${key}`, e));
 
+    const dailyStatsTask = patch('dailyStats', fetchRecentDailyStats(90, forceRefresh));
     const tasks = [
-      patch('dailyStats', fetchDailyStats(null, forceRefresh)),
+      dailyStatsTask,
       patch('equipments', fetchEquipmentsSlim({ maxAgeMs: 10 * 60 * 1000, forceRefresh })),
       patch('molds', fetchMoldsSlim({ maxAgeMs: 10 * 60 * 1000, forceRefresh })),
       patch('changePoints', fetchChangePoints(forceRefresh)),
@@ -113,12 +114,18 @@ export default function Dashboard() {
       patch('fmbReports', fetchFmbReports(forceRefresh))
     ];
     const allDone = Promise.allSettled(tasks);
-    await Promise.race([allDone, new Promise((resolve) => setTimeout(resolve, 6000))]);
+    await Promise.race([dailyStatsTask, new Promise((resolve) => setTimeout(resolve, 2500))]);
     if (!isLatest()) return;
     setLastRefreshed(new Date());
     setLoading(false);
+    // 첫 화면 표시 직후 경량화된 Analytics 청크를 유휴 시간에 미리 워밍
+    setTimeout(() => {
+      import('./Analytics').catch(() => {});
+    }, 150);
     allDone.then(() => {
-      if (isLatest()) setLastRefreshed(new Date());
+      if (isLatest()) {
+        setLastRefreshed(new Date());
+      }
     });
   }, [userRole]);
 

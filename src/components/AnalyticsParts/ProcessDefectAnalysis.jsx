@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Chart as ChartJS,
@@ -27,7 +27,6 @@ import {
   buildEquipMoldImpact,
   buildCarShareAnalysis
 } from '../../services/analyticsStatsEngine';
-import { exportAnalyticsToExcel } from '../../utils/analyticsExcelExport';
 
 ChartJS.register(
   CategoryScale,
@@ -56,7 +55,10 @@ export default function ProcessDefectAnalysis({
   equipments = [],
   molds = [],
   changePoints = [],
-  initialSubTab = 'trend'
+  initialSubTab = 'trend',
+  hasFullHistory = false,
+  onNeedFullHistory = null,
+  onSubTabDemand = null
 }) {
   const navigate = useNavigate();
 
@@ -71,9 +73,21 @@ export default function ProcessDefectAnalysis({
 
   const [startDate, setStartDate] = useState(() => dateBounds.defaultStart);
   const [endDate, setEndDate] = useState(() => dateBounds.maxDate);
+  const userTouchedDateRef = useRef(false);
+  const syncedInitialBoundsRef = useRef(dailyStats.length > 0);
   const [compareMode, setCompareMode] = useState('prevMonth'); // prevMonth | prevSpan | none
   const [groupMode, setGroupMode] = useState('daily'); // daily | monthly
   const [subTab, setSubTab] = useState(initialSubTab || 'trend'); // trend | pareto | equip | share
+
+  useEffect(() => {
+    if (!syncedInitialBoundsRef.current && dailyStats.length > 0) {
+      syncedInitialBoundsRef.current = true;
+      if (!userTouchedDateRef.current) {
+        setStartDate(dateBounds.defaultStart);
+        setEndDate(dateBounds.maxDate);
+      }
+    }
+  }, [dailyStats.length, dateBounds.defaultStart, dateBounds.maxDate]);
 
   // 다중 조건 필터 (기존 메인 대시보드에서 이관)
   const [filterMfg, setFilterMfg] = useState('ALL');
@@ -87,6 +101,12 @@ export default function ProcessDefectAnalysis({
   useEffect(() => {
     if (initialSubTab) setSubTab(initialSubTab);
   }, [initialSubTab]);
+
+  useEffect(() => {
+    if ((subTab === 'pareto' || subTab === 'equip') && typeof onSubTabDemand === 'function') {
+      onSubTabDemand(subTab);
+    }
+  }, [subTab, onSubTabDemand]);
 
   // 제조사 변경 시 하위 차종/부품 자동 보정
   const mfgOptions = useMemo(() => MANUFACTURERS.filter((m) => m.code !== '공통' && m.name !== '공통(Common)').map((m) => m.name), []);
@@ -129,7 +149,8 @@ export default function ProcessDefectAnalysis({
     setFilterProc('ALL');
   };
 
-  const applyQuickRange = (type) => {
+  const applyQuickRange = async (type) => {
+    userTouchedDateRef.current = true;
     const anchor = dateBounds.maxDate;
     if (type === '7d') {
       setStartDate(shiftDays(anchor, -6));
@@ -144,9 +165,15 @@ export default function ProcessDefectAnalysis({
       setEndDate(anchor);
       setGroupMode('daily');
     } else if (type === 'all') {
-      setStartDate(dateBounds.minDate);
       setEndDate(anchor);
       setGroupMode('monthly');
+      if (!hasFullHistory && typeof onNeedFullHistory === 'function') {
+        const fullStats = await onNeedFullHistory();
+        const allDates = (fullStats || []).map((d) => d?.date).filter(Boolean).sort();
+        setStartDate(allDates[0] || dateBounds.minDate);
+      } else {
+        setStartDate(dateBounds.minDate);
+      }
     }
   };
 
@@ -166,25 +193,78 @@ export default function ProcessDefectAnalysis({
     return tokens.length > 0 ? `${tokens.join(' · ')} 기준` : '전체 차종 · 전체 공정 기준';
   }, [filterMfg, filterCar, filterPart, filterProc]);
 
-  // ── 4대 분석 뷰 데이터 계산 ──────────────────────────────
+  // ── 4대 분석 뷰 데이터 계산 (활성 하위 탭만 지연 계산하여 초기 진입 속도 최적화) ──
+  const needTrend = subTab === 'trend' || subTab === 'pareto';
   const trendData = useMemo(
-    () => buildTrendAnalysis({ dailyStats, startDate, endDate, compareMode, groupMode, filters }),
-    [dailyStats, startDate, endDate, compareMode, groupMode, filters]
+    () => (needTrend
+      ? buildTrendAnalysis({ dailyStats, startDate, endDate, compareMode, groupMode, filters })
+      : {
+          labels: [],
+          actuals: [],
+          defects: [],
+          rates: [],
+          compRange: null,
+          compActualSeries: [],
+          effectiveMode: groupMode,
+          summary: {
+            actualSum: 0,
+            defectSum: 0,
+            attainPct: null,
+            defectRate: 0,
+            actualDeltaPct: null,
+            attainDeltaPt: null,
+            defectRateDeltaPt: null,
+            bestDay: null,
+            worstDay: null
+          },
+          defectTable: { rows: [] },
+          defectBreakdown: {}
+        }),
+    [needTrend, dailyStats, startDate, endDate, compareMode, groupMode, filters]
   );
 
+  const needPareto = subTab === 'pareto';
   const paretoData = useMemo(
-    () => buildParetoAnalysis({ dailyStats, downtimeReports, startDate, endDate, compareMode, filters }),
-    [dailyStats, downtimeReports, startDate, endDate, compareMode, filters]
+    () => (needPareto
+      ? buildParetoAnalysis({ dailyStats, downtimeReports, startDate, endDate, compareMode, filters })
+      : {
+          totalDefect: 0,
+          top3SharePct: 0,
+          focusTargets: '—',
+          paretoWithCum: [],
+          processComparison: [],
+          carComparison: [],
+          partBreakdown: [],
+          insights: [],
+          compLabel: null
+        }),
+    [needPareto, dailyStats, downtimeReports, startDate, endDate, compareMode, filters]
   );
 
+  const needEquip = subTab === 'equip';
   const equipImpact = useMemo(
-    () => buildEquipMoldImpact({ dailyStats, downtimeReports, equipments, molds, changePoints, startDate, endDate, filters }),
-    [dailyStats, downtimeReports, equipments, molds, changePoints, startDate, endDate, filters]
+    () => (needEquip
+      ? buildEquipMoldImpact({ dailyStats, downtimeReports, equipments, molds, changePoints, startDate, endDate, filters })
+      : {
+          dailyDowntime: [],
+          topAssets: [],
+          moldBrackets: [],
+          chainSummary: [],
+          bannerText: ''
+        }),
+    [needEquip, dailyStats, downtimeReports, equipments, molds, changePoints, startDate, endDate, filters]
   );
 
+  const needShare = subTab === 'share';
   const shareData = useMemo(
-    () => buildCarShareAnalysis({ dailyStats, startDate, endDate, filters }),
-    [dailyStats, startDate, endDate, filters]
+    () => (needShare
+      ? buildCarShareAnalysis({ dailyStats, startDate, endDate, filters })
+      : {
+          items: [],
+          totalActual: 0,
+          totalDefect: 0
+        }),
+    [needShare, dailyStats, startDate, endDate, filters]
   );
 
   // ── 차트 데이터셋 조립 ───────────────────────────────────
@@ -330,25 +410,37 @@ export default function ProcessDefectAnalysis({
     if (exporting) return;
     setExporting(true);
     try {
-      const rateStr = trendData.summary.actualSum > 0
-        ? ((trendData.summary.defectSum / trendData.summary.actualSum) * 100).toFixed(2)
+      const exportTrend = needTrend
+        ? trendData
+        : buildTrendAnalysis({ dailyStats, startDate, endDate, compareMode, groupMode, filters });
+      const rateStr = exportTrend.summary.actualSum > 0
+        ? ((exportTrend.summary.defectSum / exportTrend.summary.actualSum) * 100).toFixed(2)
         : '0.00';
+      const { exportAnalyticsToExcel } = await import('../../utils/analyticsExcelExport');
       await exportAnalyticsToExcel({
-        labels: trendData.labels,
-        effectiveMode: trendData.effectiveMode,
-        actuals: trendData.actuals,
-        defects: trendData.defects,
+        labels: exportTrend.labels,
+        effectiveMode: exportTrend.effectiveMode,
+        actuals: exportTrend.actuals,
+        defects: exportTrend.defects,
         datasets: [
-          trendChartData.datasets[0],
-          trendChartData.datasets[1]
+          {
+            type: 'line',
+            label: '불량률 (%)',
+            data: exportTrend.rates.map((r) => r.toFixed(2))
+          },
+          {
+            type: 'bar',
+            label: '생산수량 (EA)',
+            data: exportTrend.actuals
+          }
         ],
         totals: {
-          actual: trendData.summary.actualSum,
-          defect: trendData.summary.defectSum,
+          actual: exportTrend.summary.actualSum,
+          defect: exportTrend.summary.defectSum,
           rate: rateStr
         },
-        defectTable: trendData.defectTable,
-        defectBreakdown: trendData.defectBreakdown,
+        defectTable: exportTrend.defectTable,
+        defectBreakdown: exportTrend.defectBreakdown,
         filterMfg,
         filterCar,
         filterPart,
@@ -480,14 +572,24 @@ export default function ProcessDefectAnalysis({
           <input
             type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => {
+              const nextVal = e.target.value;
+              userTouchedDateRef.current = true;
+              setStartDate(nextVal);
+              if (!hasFullHistory && nextVal && nextVal < dateBounds.minDate && typeof onNeedFullHistory === 'function') {
+                onNeedFullHistory();
+              }
+            }}
             style={{ ...selectStyle, padding: '5px 8px' }}
           />
           <span style={{ color: '#94a3b8', fontSize: '12px' }}>~</span>
           <input
             type="date"
             value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={(e) => {
+              userTouchedDateRef.current = true;
+              setEndDate(e.target.value);
+            }}
             style={{ ...selectStyle, padding: '5px 8px' }}
           />
           <div style={{ display: 'flex', gap: '4px' }}>
@@ -587,8 +689,22 @@ export default function ProcessDefectAnalysis({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
         <div style={{ display: 'flex', gap: '4px', background: '#e2e8f0', borderRadius: '8px', padding: '3px' }}>
           <button type="button" style={subTabBtnStyle(subTab === 'trend')} onClick={() => setSubTab('trend')}>생산 추이</button>
-          <button type="button" style={subTabBtnStyle(subTab === 'pareto')} onClick={() => setSubTab('pareto')}>불량 파레토</button>
-          <button type="button" style={subTabBtnStyle(subTab === 'equip')} onClick={() => setSubTab('equip')}>설비·금형 영향</button>
+          <button
+            type="button"
+            style={subTabBtnStyle(subTab === 'pareto')}
+            onMouseEnter={() => onSubTabDemand && onSubTabDemand('pareto')}
+            onClick={() => setSubTab('pareto')}
+          >
+            불량 파레토
+          </button>
+          <button
+            type="button"
+            style={subTabBtnStyle(subTab === 'equip')}
+            onMouseEnter={() => onSubTabDemand && onSubTabDemand('equip')}
+            onClick={() => setSubTab('equip')}
+          >
+            설비·금형 영향
+          </button>
           <button type="button" style={subTabBtnStyle(subTab === 'share')} onClick={() => setSubTab('share')}>차종 비중</button>
         </div>
 
