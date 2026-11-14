@@ -13,10 +13,9 @@ function formatTodayYmd() {
 }
 
 /**
- * 시각적 바코드 스트립 (Proposal C 부자재 LOT 카드 스타일)
+ * 시각적 바코드 스트립 (Proposal C 부자재 LOT 카드 스타일 — 라이트 테마)
  */
 function BarcodePlate({ lotText, isEmpty }) {
-  // lotText 해시 기반으로 바코드 막대 두께 패턴을 결정해 일관된 외관 제공
   const bars = useMemo(() => {
     const seedStr = lotText || 'JYMES-9BQC-WAIT';
     let hash = 2166136261;
@@ -35,8 +34,8 @@ function BarcodePlate({ lotText, isEmpty }) {
   return (
     <div
       style={{
-        background: isEmpty ? 'rgba(241, 245, 249, 0.08)' : '#ffffff',
-        border: isEmpty ? '1px dashed #334155' : '1px solid #e2e8f0',
+        background: isEmpty ? '#f1f5f9' : '#ffffff',
+        border: isEmpty ? '1px dashed #cbd5e1' : '1px solid #cbd5e1',
         borderRadius: '6px',
         padding: '6px 8px 5px',
         marginTop: '6px',
@@ -51,7 +50,7 @@ function BarcodePlate({ lotText, isEmpty }) {
           justifyContent: 'center',
           gap: '1.5px',
           height: '20px',
-          opacity: isEmpty ? 0.22 : 0.92,
+          opacity: isEmpty ? 0.25 : 0.88,
           overflow: 'hidden'
         }}
       >
@@ -61,7 +60,7 @@ function BarcodePlate({ lotText, isEmpty }) {
             style={{
               display: 'inline-block',
               width: `${w * 1.5}px`,
-              background: isEmpty ? '#94a3b8' : '#0f172a',
+              background: isEmpty ? '#64748b' : '#0f172a',
               borderRadius: '0.5px'
             }}
           />
@@ -99,13 +98,13 @@ function RadialRing({ percent = 0, label = '' }) {
   return (
     <div style={{ position: 'relative', width: '54px', height: '54px', flexShrink: 0 }}>
       <svg width="54" height="54" viewBox="0 0 54 54">
-        <circle cx="27" cy="27" r={r} fill="none" stroke="#1e293b" strokeWidth="5.5" />
+        <circle cx="27" cy="27" r={r} fill="none" stroke="#e2e8f0" strokeWidth="5.5" />
         <circle
           cx="27"
           cy="27"
           r={r}
           fill="none"
-          stroke="#6366f1"
+          stroke="#4f46e5"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeDasharray={c}
@@ -122,7 +121,7 @@ function RadialRing({ percent = 0, label = '' }) {
           justifyContent: 'center',
           fontSize: '11px',
           fontWeight: 800,
-          color: '#e2e8f0'
+          color: '#1e293b'
         }}
       >
         {label}
@@ -143,22 +142,22 @@ function SemiGauge({ percent = 100 }) {
       <path
         d="M 8 34 A 24 24 0 0 1 56 34"
         fill="none"
-        stroke="#1e293b"
+        stroke="#e2e8f0"
         strokeWidth="6"
         strokeLinecap="round"
       />
       <path
         d="M 8 34 A 24 24 0 0 1 56 34"
         fill="none"
-        stroke="#10b981"
+        stroke="#059669"
         strokeWidth="6"
         strokeLinecap="round"
         strokeDasharray="75.4"
         strokeDashoffset={75.4 - (clamped / 100) * 75.4}
       />
       <g transform={`translate(32, 34) rotate(${angleDeg})`}>
-        <line x1="0" y1="0" x2="0" y2="-18" stroke="#ecfdf5" strokeWidth="2.2" strokeLinecap="round" />
-        <circle cx="0" cy="0" r="3" fill="#10b981" />
+        <line x1="0" y1="0" x2="0" y2="-18" stroke="#0f172a" strokeWidth="2.2" strokeLinecap="round" />
+        <circle cx="0" cy="0" r="3" fill="#059669" />
       </g>
     </svg>
   );
@@ -351,12 +350,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
       className="gm-9bqc-grun-board"
       data-analytics-board="9bqc-grun"
       style={{
-        background: 'linear-gradient(180deg, #0b1120 0%, #0f172a 100%)',
-        color: '#f1f5f9',
-        borderRadius: '14px',
-        padding: '16px',
-        border: '1px solid #1e293b',
-        boxShadow: '0 12px 32px rgba(15, 23, 42, 0.35)',
+        background: 'transparent',
+        color: '#0f172a',
         fontFamily: "'Pretendard', 'Noto Sans KR', sans-serif"
       }}
     >
@@ -389,18 +384,15 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           gap: 9px;
         }
         [data-analytics-board="9bqc-grun"] .grun-proc-row:hover {
-          background: rgba(59, 130, 246, 0.12) !important;
+          background: #eff6ff !important;
         }
         [data-analytics-board="9bqc-grun"] .grun-subcard:hover {
-          border-color: #6366f1 !important;
+          border-color: #4f46e5 !important;
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
           transform: translateY(-1px);
         }
         [data-analytics-board="9bqc-grun"] .grun-lot-tr:hover {
-          background: rgba(99, 102, 241, 0.12) !important;
-        }
-        [data-analytics-board="9bqc-grun"] input[type="date"]::-webkit-calendar-picker-indicator {
-          filter: invert(0.85);
-          cursor: pointer;
+          background: #f1f5f9 !important;
         }
         @media (max-width: 1200px) {
           [data-analytics-board="9bqc-grun"] .grun-split-grid {
@@ -417,7 +409,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
         }
       `}</style>
 
-      {/* ── 상단 관제 헤더 바 ── */}
+      {/* ── 상단 관제 헤더 바 (기존 공정 및 불량 분석 조건 바 스타일과 통일) ── */}
       <div
         style={{
           display: 'flex',
@@ -425,16 +417,16 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '10px',
-          background: '#131c2e',
-          border: '1px solid #24324b',
+          background: '#f8fafc',
+          border: '1px solid #e2e8f0',
           borderRadius: '10px',
-          padding: '11px 16px',
+          padding: '12px 16px',
           marginBottom: '14px'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <div style={{ fontSize: '18px', fontWeight: 900, letterSpacing: '-0.3px', color: '#f8fafc' }}>
-            GM 9BQC - G/RUN 실시간 종합 관제판
+          <div style={{ fontSize: '17px', fontWeight: 900, letterSpacing: '-0.3px', color: '#0f172a' }}>
+            🏭 GM 9BQC - G/RUN 실시간 종합 관제판
           </div>
           <span
             style={{
@@ -445,15 +437,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               borderRadius: '999px',
               fontSize: '11.5px',
               fontWeight: 700,
-              background:
-                liveStatus === 'live'
-                  ? 'rgba(16, 185, 129, 0.16)'
-                  : 'rgba(245, 158, 11, 0.16)',
-              color: liveStatus === 'live' ? '#34d399' : '#fbbf24',
-              border:
-                liveStatus === 'live'
-                  ? '1px solid rgba(16, 185, 129, 0.4)'
-                  : '1px solid rgba(245, 158, 11, 0.4)'
+              background: liveStatus === 'live' ? '#ecfdf5' : '#fffbeb',
+              color: liveStatus === 'live' ? '#047857' : '#b45309',
+              border: liveStatus === 'live' ? '1px solid #a7f3d0' : '1px solid #fde68a'
             }}
           >
             <span
@@ -474,11 +460,12 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           <span
             style={{
               fontSize: '11.5px',
-              color: '#94a3b8',
-              background: '#1e293b',
+              color: '#475569',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               padding: '3px 9px',
               borderRadius: '6px',
-              fontWeight: 600
+              fontWeight: 700
             }}
           >
             가동 {model.activeProcessCount}/12 공정 · 일보 {model.totalReports}건
@@ -490,8 +477,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           <div
             style={{
               display: 'inline-flex',
-              background: '#0b1120',
-              border: '1px solid #293548',
+              background: '#e2e8f0',
               borderRadius: '7px',
               padding: '2px'
             }}
@@ -507,12 +493,12 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 style={{
                   border: 'none',
                   borderRadius: '5px',
-                  padding: '4px 9px',
+                  padding: '4px 10px',
                   fontSize: '11.5px',
                   fontWeight: 700,
                   cursor: 'pointer',
                   background: viewMode === m.id ? '#4f46e5' : 'transparent',
-                  color: viewMode === m.id ? '#ffffff' : '#94a3b8'
+                  color: viewMode === m.id ? '#ffffff' : '#475569'
                 }}
               >
                 {m.label}
@@ -531,9 +517,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   setSelectedDate(e.target.value);
                 }}
                 style={{
-                  background: '#1e293b',
-                  color: '#f8fafc',
-                  border: '1px solid #334155',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  border: '1px solid #cbd5e1',
                   borderRadius: '7px',
                   padding: '5px 9px',
                   fontSize: '12px',
@@ -549,9 +535,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     setSelectedDate(today);
                   }}
                   style={{
-                    background: '#1e293b',
-                    color: '#cbd5e1',
-                    border: '1px solid #334155',
+                    background: '#ffffff',
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
                     borderRadius: '6px',
                     padding: '5px 8px',
                     fontSize: '11px',
@@ -571,9 +557,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     setSelectedDate(latestActiveGrunDate);
                   }}
                   style={{
-                    background: 'rgba(99, 102, 241, 0.18)',
-                    color: '#a5b4fc',
-                    border: '1px solid rgba(99, 102, 241, 0.4)',
+                    background: '#eef2ff',
+                    color: '#4338ca',
+                    border: '1px solid #c7d2fe',
                     borderRadius: '6px',
                     padding: '5px 8px',
                     fontSize: '11px',
@@ -598,9 +584,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   setRangeStart(e.target.value);
                 }}
                 style={{
-                  background: '#1e293b',
-                  color: '#f8fafc',
-                  border: '1px solid #334155',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  border: '1px solid #cbd5e1',
                   borderRadius: '7px',
                   padding: '5px 8px',
                   fontSize: '12px',
@@ -618,9 +604,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   setRangeEnd(e.target.value);
                 }}
                 style={{
-                  background: '#1e293b',
-                  color: '#f8fafc',
-                  border: '1px solid #334155',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  border: '1px solid #cbd5e1',
                   borderRadius: '7px',
                   padding: '5px 8px',
                   fontSize: '12px',
@@ -632,14 +618,14 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ fontSize: '11.5px', color: '#94a3b8', fontWeight: 700 }}>시프트</span>
+            <span style={{ fontSize: '11.5px', color: '#475569', fontWeight: 700 }}>시프트</span>
             <select
               value={shiftFilter}
               onChange={(e) => setShiftFilter(e.target.value)}
               style={{
-                background: '#1e293b',
-                color: '#f8fafc',
-                border: '1px solid #334155',
+                background: '#ffffff',
+                color: '#0f172a',
+                border: '1px solid #cbd5e1',
                 borderRadius: '7px',
                 padding: '5px 10px',
                 fontSize: '12px',
@@ -662,9 +648,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               display: 'inline-flex',
               alignItems: 'center',
               gap: '5px',
-              background: '#1e293b',
-              color: '#f8fafc',
-              border: '1px solid #3b4b66',
+              background: '#059669',
+              color: '#ffffff',
+              border: '1px solid #047857',
               borderRadius: '7px',
               padding: '5px 12px',
               fontSize: '12px',
@@ -678,15 +664,16 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
         </div>
       </div>
 
-      {/* ── 메인 좌·우 50:50 분할 관제 보드 ── */}
+      {/* ── 메인 좌·우 50:50 분할 관제 보드 (밝은 카드 테마) ── */}
       <div className="grun-split-grid">
         {/* ==================== LEFT PANEL: 공정별 생산실적 및 품질 현황 ==================== */}
         <div
           style={{
-            background: '#131c2e',
-            border: '1px solid #24324b',
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
             borderRadius: '11px',
             padding: '14px',
+            boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between'
@@ -701,10 +688,10 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 marginBottom: '11px'
               }}
             >
-              <div style={{ fontSize: '15px', fontWeight: 800, color: '#f8fafc' }}>
-                공정별 생산실적 및 품질 현황
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                📊 공정별 생산실적 및 품질 현황
               </div>
-              <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
                 공정 클릭 시 작업일보 상세 확인
               </span>
             </div>
@@ -714,8 +701,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               {/* KPI 1: 총 생산 실적 */}
               <div
                 style={{
-                  background: '#182338',
-                  border: '1px solid #293956',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '9px',
                   padding: '10px 12px',
                   display: 'flex',
@@ -725,20 +712,20 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '11.5px', color: '#94a3b8', fontWeight: 700 }}>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700 }}>
                     총 생산 실적
                   </div>
                   <div
                     style={{
                       fontSize: '21px',
                       fontWeight: 900,
-                      color: '#f8fafc',
+                      color: '#0f172a',
                       marginTop: '3px',
                       lineHeight: 1.15
                     }}
                   >
                     {model.totalActual.toLocaleString()}{' '}
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8' }}>EA</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>EA</span>
                   </div>
                   <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>
                     계획 {model.totalPlan.toLocaleString()} EA
@@ -750,8 +737,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               {/* KPI 2: 종합 양품률 */}
               <div
                 style={{
-                  background: '#182338',
-                  border: '1px solid #293956',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '9px',
                   padding: '10px 12px',
                   display: 'flex',
@@ -761,21 +748,21 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '11.5px', color: '#94a3b8', fontWeight: 700 }}>
+                  <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700 }}>
                     종합 양품률
                   </div>
                   <div
                     style={{
                       fontSize: '21px',
                       fontWeight: 900,
-                      color: '#34d399',
+                      color: '#059669',
                       marginTop: '3px',
                       lineHeight: 1.15
                     }}
                   >
                     {model.yieldRate.toFixed(2)}%
                   </div>
-                  <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '3px' }}>
+                  <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>
                     불량 {model.totalDefect.toLocaleString()} EA ({model.defectRateTotal.toFixed(2)}%)
                   </div>
                 </div>
@@ -785,8 +772,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               {/* KPI 3: 최다 불량 공정 */}
               <div
                 style={{
-                  background: '#182338',
-                  border: '1px solid #293956',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '9px',
                   padding: '10px 12px',
                   display: 'flex',
@@ -794,7 +781,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   justifyContent: 'center'
                 }}
               >
-                <div style={{ fontSize: '11.5px', color: '#94a3b8', fontWeight: 700 }}>
+                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700 }}>
                   최다 불량 공정
                 </div>
                 {model.worstProcess ? (
@@ -803,7 +790,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                       style={{
                         fontSize: '14px',
                         fontWeight: 800,
-                        color: '#fda4af',
+                        color: '#be123c',
                         marginTop: '4px',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
@@ -812,9 +799,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                       title={`#${model.worstProcess.code} ${model.worstProcess.processName}`}
                     >
                       #{model.worstProcess.code} {model.worstProcess.shortName}{' '}
-                      <span style={{ color: '#fb7185' }}>({model.worstProcess.defect}건)</span>
+                      <span style={{ color: '#e11d48' }}>({model.worstProcess.defect}건)</span>
                     </div>
-                    <div style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '3px' }}>
+                    <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>
                       {model.worstProcess.topDefect
                         ? `주요유형: ${model.worstProcess.topDefect.name} (${model.worstProcess.topDefect.count}건)`
                         : `불량률 ${model.worstProcess.defectRate.toFixed(2)}%`}
@@ -826,7 +813,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                       style={{
                         fontSize: '14px',
                         fontWeight: 800,
-                        color: '#34d399',
+                        color: '#059669',
                         marginTop: '4px'
                       }}
                     >
@@ -843,8 +830,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
             {/* 12개 공정 LH vs RH 양방향 비교 바 차트 */}
             <div
               style={{
-                background: '#0f172a',
-                border: '1px solid #1e293b',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
                 borderRadius: '9px',
                 padding: '10px 12px'
               }}
@@ -857,24 +844,24 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   alignItems: 'center',
                   paddingBottom: '6px',
                   marginBottom: '4px',
-                  borderBottom: '1px solid #1e293b',
+                  borderBottom: '1px solid #e2e8f0',
                   fontSize: '11.5px',
-                  fontWeight: 700,
-                  color: '#94a3b8'
+                  fontWeight: 800,
+                  color: '#475569'
                 }}
               >
                 <div>공정 (#5001~#5014)</div>
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#60a5fa' }}>
-                    <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: '#3b82f6' }} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#1d4ed8' }}>
+                    <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: '#2563eb' }} />
                     LH (FRT)
                   </span>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#2dd4bf' }}>
-                    <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: '#14b8a6' }} />
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#0f766e' }}>
+                    <span style={{ width: '9px', height: '9px', borderRadius: '2px', background: '#0d9488' }} />
                     RH (RR)
                   </span>
                 </div>
-                <div style={{ textAlign: 'right', color: '#fda4af' }}>불량 / 불량률</div>
+                <div style={{ textAlign: 'right', color: '#be123c' }}>불량 / 불량률</div>
               </div>
 
               {/* 12 공정 행 */}
@@ -900,7 +887,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         borderRadius: '6px',
                         cursor: 'pointer',
                         transition: 'background 0.15s ease',
-                        opacity: isIdle ? 0.6 : 1
+                        opacity: isIdle ? 0.72 : 1
                       }}
                     >
                       {/* 좌측 공정명 */}
@@ -908,13 +895,13 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         style={{
                           fontSize: '11.5px',
                           fontWeight: 700,
-                          color: isIdle ? '#64748b' : '#e2e8f0',
+                          color: isIdle ? '#64748b' : '#0f172a',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis'
                         }}
                       >
-                        <span style={{ color: '#818cf8', fontFamily: 'monospace', marginRight: '4px' }}>
+                        <span style={{ color: '#4f46e5', fontFamily: 'monospace', fontWeight: 800, marginRight: '4px' }}>
                           #{proc.code}
                         </span>
                         {proc.shortName}
@@ -929,13 +916,13 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                           alignItems: 'center'
                         }}
                       >
-                        {/* LH bar (우측 정렬로 중앙선에서 왼쪽으로 확장) */}
+                        {/* LH bar */}
                         <div
                           style={{
                             display: 'flex',
                             justifyContent: 'flex-end',
                             alignItems: 'center',
-                            background: 'rgba(30, 41, 59, 0.55)',
+                            background: '#e2e8f0',
                             borderRadius: '4px 0 0 4px',
                             height: '20px',
                             overflow: 'hidden',
@@ -947,7 +934,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                               style={{
                                 width: `${lhPct}%`,
                                 height: '100%',
-                                background: 'linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)',
+                                background: 'linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)',
                                 borderRadius: '4px 0 0 4px'
                               }}
                             />
@@ -958,8 +945,10 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                               right: '6px',
                               fontSize: '10.5px',
                               fontWeight: 800,
-                              color: proc.lh > 0 ? '#ffffff' : '#475569',
-                              textShadow: proc.lh > 0 ? '0 1px 2px rgba(0,0,0,0.65)' : 'none'
+                              color: proc.lh > 0 ? '#1e293b' : '#64748b',
+                              background: proc.lh > 0 ? 'rgba(255,255,255,0.78)' : 'transparent',
+                              padding: proc.lh > 0 ? '0 4px' : '0',
+                              borderRadius: '3px'
                             }}
                           >
                             {proc.sideLabelPair ? `${proc.sideLabelPair[0]} ` : ''}
@@ -967,13 +956,13 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                           </span>
                         </div>
 
-                        {/* RH bar (좌측 정렬로 중앙선에서 오른쪽으로 확장) */}
+                        {/* RH bar */}
                         <div
                           style={{
                             display: 'flex',
                             justifyContent: 'flex-start',
                             alignItems: 'center',
-                            background: 'rgba(30, 41, 59, 0.55)',
+                            background: '#e2e8f0',
                             borderRadius: '0 4px 4px 0',
                             height: '20px',
                             overflow: 'hidden',
@@ -985,7 +974,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                               style={{
                                 width: `${rhPct}%`,
                                 height: '100%',
-                                background: 'linear-gradient(90deg, #14b8a6 0%, #0d9488 100%)',
+                                background: 'linear-gradient(90deg, #0d9488 0%, #14b8a6 100%)',
                                 borderRadius: '0 4px 4px 0'
                               }}
                             />
@@ -996,8 +985,10 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                               left: '6px',
                               fontSize: '10.5px',
                               fontWeight: 800,
-                              color: proc.rh > 0 ? '#ffffff' : '#475569',
-                              textShadow: proc.rh > 0 ? '0 1px 2px rgba(0,0,0,0.65)' : 'none'
+                              color: proc.rh > 0 ? '#1e293b' : '#64748b',
+                              background: proc.rh > 0 ? 'rgba(255,255,255,0.78)' : 'transparent',
+                              padding: proc.rh > 0 ? '0 4px' : '0',
+                              borderRadius: '3px'
                             }}
                           >
                             {proc.sideLabelPair ? `${proc.sideLabelPair[1]} ` : ''}
@@ -1018,13 +1009,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                             borderRadius: '999px',
                             fontSize: '10.5px',
                             fontWeight: 800,
-                            background: hasDef
-                              ? 'rgba(244, 63, 94, 0.22)'
-                              : 'rgba(51, 65, 85, 0.45)',
-                            color: hasDef ? '#fda4af' : '#94a3b8',
-                            border: hasDef
-                              ? '1px solid rgba(244, 63, 94, 0.45)'
-                              : '1px solid rgba(71, 85, 105, 0.4)'
+                            background: hasDef ? '#ffe4e6' : '#f1f5f9',
+                            color: hasDef ? '#be123c' : '#64748b',
+                            border: hasDef ? '1px solid #fecdd3' : '1px solid #cbd5e1'
                           }}
                         >
                           <span>{proc.defect}</span>
@@ -1042,8 +1029,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           <div
             style={{
               marginTop: '12px',
-              background: '#0f172a',
-              border: '1px solid #1e293b',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
               borderRadius: '9px',
               padding: '10px 14px'
             }}
@@ -1056,10 +1043,10 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 marginBottom: '8px'
               }}
             >
-              <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#e2e8f0' }}>
+              <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>
                 Top 5 불량 유형 (전 공정 합산)
               </span>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
                 총 불량 {model.totalDefect.toLocaleString()} EA
               </span>
             </div>
@@ -1077,7 +1064,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               >
                 {model.top5Defects.map((d, idx) => {
                   const barH = Math.max(10, Math.round((d.count / maxParetoCount) * 56));
-                  const barColors = ['#3b82f6', '#38bdf8', '#2dd4bf', '#60a5fa', '#818cf8'];
+                  const barColors = ['#2563eb', '#0284c7', '#0d9488', '#4f46e5', '#6366f1'];
                   return (
                     <div
                       key={d.name}
@@ -1093,7 +1080,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         style={{
                           fontSize: '11px',
                           fontWeight: 800,
-                          color: '#f8fafc',
+                          color: '#0f172a',
                           marginBottom: '3px'
                         }}
                       >
@@ -1113,7 +1100,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                           marginTop: '5px',
                           fontSize: '10.5px',
                           fontWeight: 700,
-                          color: '#cbd5e1',
+                          color: '#334155',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -1150,10 +1137,11 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           {/* 우측 상단: 6대 부자재 LOT 실시간 벤토 카드 그리드 */}
           <div
             style={{
-              background: '#131c2e',
-              border: '1px solid #24324b',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '11px',
-              padding: '14px'
+              padding: '14px',
+              boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)'
             }}
           >
             <div
@@ -1164,10 +1152,10 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 marginBottom: '10px'
               }}
             >
-              <div style={{ fontSize: '15px', fontWeight: 800, color: '#f8fafc' }}>
-                실시간 투입 부자재 &amp; 원재료 LOT 보드
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                🧪 실시간 투입 부자재 &amp; 원재료 LOT 보드
               </div>
-              <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
                 카드 클릭 시 공정별 투입 이력 조회
               </span>
             </div>
@@ -1181,8 +1169,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     className="grun-subcard"
                     onClick={() => setInspectorModal({ type: 'sublot', data: card })}
                     style={{
-                      background: '#182338',
-                      border: '1px solid #2a3a57',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
                       borderRadius: '9px',
                       padding: '9px 10px',
                       cursor: 'pointer',
@@ -1197,14 +1185,14 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         gap: '4px'
                       }}
                     >
-                      <span style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
                         {card.title}
                       </span>
                       <span
                         style={{
                           fontSize: '10px',
                           fontWeight: 700,
-                          color: '#93c5fd',
+                          color: '#4f46e5',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis'
@@ -1228,7 +1216,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                       <span
                         style={{
                           fontSize: '10px',
-                          color: '#94a3b8',
+                          color: '#64748b',
+                          fontWeight: 600,
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis'
@@ -1254,13 +1243,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                               borderRadius: '999px',
                               fontSize: '9.5px',
                               fontWeight: 800,
-                              background: st.filled
-                                ? 'rgba(16, 185, 129, 0.22)'
-                                : 'rgba(100, 116, 139, 0.22)',
-                              color: st.filled ? '#34d399' : '#64748b',
-                              border: st.filled
-                                ? '1px solid rgba(16, 185, 129, 0.5)'
-                                : '1px solid rgba(100, 116, 139, 0.35)'
+                              background: st.filled ? '#d1fae5' : '#e2e8f0',
+                              color: st.filled ? '#047857' : '#64748b',
+                              border: st.filled ? '1px solid #6ee7b7' : '1px solid #cbd5e1'
                             }}
                           >
                             {st.label}
@@ -1277,10 +1262,11 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           {/* 우측 하단: 공정별 압출소재 LOT 실시간 현황 매트릭스 */}
           <div
             style={{
-              background: '#131c2e',
-              border: '1px solid #24324b',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '11px',
               padding: '14px',
+              boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
               flex: 1,
               display: 'flex',
               flexDirection: 'column'
@@ -1296,8 +1282,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 marginBottom: '10px'
               }}
             >
-              <div style={{ fontSize: '15px', fontWeight: 800, color: '#f8fafc' }}>
-                공정별 압출소재 LOT 실시간 현황
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                🧵 공정별 압출소재 LOT 실시간 현황
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
@@ -1308,10 +1294,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     onClick={() => setLotStageGroupFilter(grp)}
                     style={{
                       border: '1px solid',
-                      borderColor: lotStageGroupFilter === grp ? '#6366f1' : '#293548',
-                      background:
-                        lotStageGroupFilter === grp ? 'rgba(99, 102, 241, 0.25)' : '#0f172a',
-                      color: lotStageGroupFilter === grp ? '#c7d2fe' : '#94a3b8',
+                      borderColor: lotStageGroupFilter === grp ? '#4f46e5' : '#cbd5e1',
+                      background: lotStageGroupFilter === grp ? '#4f46e5' : '#ffffff',
+                      color: lotStageGroupFilter === grp ? '#ffffff' : '#475569',
                       borderRadius: '6px',
                       padding: '3px 8px',
                       fontSize: '11px',
@@ -1329,9 +1314,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   onChange={(e) => setLotSearch(e.target.value)}
                   placeholder="🔍 LOT / 공정 검색"
                   style={{
-                    background: '#0f172a',
-                    color: '#f8fafc',
-                    border: '1px solid #293548',
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    border: '1px solid #cbd5e1',
                     borderRadius: '6px',
                     padding: '4px 8px',
                     fontSize: '11px',
@@ -1343,8 +1328,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
 
             <div
               style={{
-                background: '#0f172a',
-                border: '1px solid #1e293b',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
                 borderRadius: '9px',
                 overflowX: 'auto'
               }}
@@ -1368,14 +1353,14 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   <col style={{ width: '7.5%' }} />
                 </colgroup>
                 <thead>
-                  <tr style={{ background: '#182338', color: '#94a3b8', borderBottom: '1px solid #24324b' }}>
-                    <th style={{ padding: '7px 4px', fontWeight: 700 }}>구분</th>
-                    <th style={{ padding: '7px 4px', fontWeight: 700, textAlign: 'left' }}>공정명</th>
-                    <th style={{ padding: '7px 4px', fontWeight: 700 }}>품목군</th>
-                    <th style={{ padding: '7px 4px', fontWeight: 700 }}>초물 LOT</th>
-                    <th style={{ padding: '7px 4px', fontWeight: 700 }}>중물 LOT</th>
-                    <th style={{ padding: '7px 4px', fontWeight: 700 }}>종물 LOT</th>
-                    <th style={{ padding: '7px 4px', fontWeight: 700 }}>상태</th>
+                  <tr style={{ background: '#f8fafc', color: '#475569', borderBottom: '1px solid #e2e8f0' }}>
+                    <th style={{ padding: '7px 4px', fontWeight: 800 }}>구분</th>
+                    <th style={{ padding: '7px 4px', fontWeight: 800, textAlign: 'left' }}>공정명</th>
+                    <th style={{ padding: '7px 4px', fontWeight: 800 }}>품목군</th>
+                    <th style={{ padding: '7px 4px', fontWeight: 800 }}>초물 LOT</th>
+                    <th style={{ padding: '7px 4px', fontWeight: 800 }}>중물 LOT</th>
+                    <th style={{ padding: '7px 4px', fontWeight: 800 }}>종물 LOT</th>
+                    <th style={{ padding: '7px 4px', fontWeight: 800 }}>상태</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1384,20 +1369,20 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     const badgeStyle =
                       st === 'complete'
                         ? {
-                            bg: 'rgba(16, 185, 129, 0.2)',
-                            fg: '#34d399',
-                            bd: 'rgba(16, 185, 129, 0.45)'
+                            bg: '#d1fae5',
+                            fg: '#047857',
+                            bd: '#6ee7b7'
                           }
                         : st === 'partial'
                           ? {
-                              bg: 'rgba(245, 158, 11, 0.2)',
-                              fg: '#fbbf24',
-                              bd: 'rgba(245, 158, 11, 0.45)'
+                              bg: '#fef3c7',
+                              fg: '#b45309',
+                              bd: '#fcd34d'
                             }
                           : {
-                              bg: 'rgba(100, 116, 139, 0.18)',
+                              bg: '#f1f5f9',
                               fg: '#64748b',
-                              bd: 'rgba(100, 116, 139, 0.3)'
+                              bd: '#cbd5e1'
                             };
 
                     return (
@@ -1406,12 +1391,12 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         className="grun-lot-tr"
                         onClick={() => setInspectorModal({ type: 'process', data: row })}
                         style={{
-                          borderBottom: '1px solid #192338',
+                          borderBottom: '1px solid #f1f5f9',
                           cursor: 'pointer',
                           transition: 'background 0.12s ease'
                         }}
                       >
-                        <td style={{ padding: '6px 4px', color: '#94a3b8', fontWeight: 700, fontSize: '10.5px' }}>
+                        <td style={{ padding: '6px 4px', color: '#64748b', fontWeight: 700, fontSize: '10.5px' }}>
                           {row.stageGroup}
                         </td>
                         <td
@@ -1419,14 +1404,14 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                             padding: '6px 4px',
                             textAlign: 'left',
                             fontWeight: 700,
-                            color: '#e2e8f0',
+                            color: '#0f172a',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
                           }}
                           title={`#${row.code} ${row.processName}`}
                         >
-                          <span style={{ color: '#818cf8', fontFamily: 'monospace', marginRight: '3px' }}>
+                          <span style={{ color: '#4f46e5', fontFamily: 'monospace', fontWeight: 800, marginRight: '3px' }}>
                             #{row.code}
                           </span>
                           {row.shortName}
@@ -1434,8 +1419,9 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         <td
                           style={{
                             padding: '6px 4px',
-                            color: '#cbd5e1',
+                            color: '#475569',
                             fontSize: '10px',
+                            fontWeight: 600,
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
@@ -1454,7 +1440,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                                 fontFamily: 'monospace',
                                 fontSize: '10px',
                                 fontWeight: val ? 700 : 400,
-                                color: val ? '#e2e8f0' : '#475569',
+                                color: val ? '#0f172a' : '#94a3b8',
                                 whiteSpace: 'nowrap',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis'
@@ -1491,14 +1477,14 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
         </div>
       </div>
 
-      {/* ── 공정 / 부자재 상세 드릴다운 팝업 (클릭 시 세부 LOT 및 원본 작업일보 연결) ── */}
+      {/* ── 공정 / 부자재 상세 드릴다운 팝업 (밝은 모달 테마) ── */}
       {inspectorModal && (
         <div
           onClick={() => setInspectorModal(null)}
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(2, 6, 23, 0.72)',
+            background: 'rgba(15, 23, 42, 0.45)',
             zIndex: 2500,
             display: 'flex',
             alignItems: 'center',
@@ -1509,16 +1495,16 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: '#0f172a',
-              color: '#f1f5f9',
-              border: '1px solid #334155',
+              background: '#ffffff',
+              color: '#0f172a',
+              border: '1px solid #cbd5e1',
               borderRadius: '12px',
               width: '100%',
               maxWidth: '680px',
               maxHeight: '84vh',
               display: 'flex',
               flexDirection: 'column',
-              boxShadow: '0 20px 50px rgba(0,0,0,0.6)'
+              boxShadow: '0 20px 50px rgba(15, 23, 42, 0.22)'
             }}
           >
             <div
@@ -1527,10 +1513,12 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '14px 18px',
-                borderBottom: '1px solid #1e293b'
+                background: '#f8fafc',
+                borderBottom: '1px solid #e2e8f0',
+                borderRadius: '12px 12px 0 0'
               }}
             >
-              <div style={{ fontSize: '15px', fontWeight: 800 }}>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
                 {inspectorModal.type === 'process'
                   ? `🏭 #${inspectorModal.data.code} ${inspectorModal.data.processName} — 상세 현황 (${periodLabel})`
                   : `🧪 부자재 [${inspectorModal.data.title}] 실시간 LOT 투입 내역 (${periodLabel})`}
@@ -1541,9 +1529,10 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 style={{
                   background: 'transparent',
                   border: 'none',
-                  color: '#94a3b8',
-                  fontSize: '20px',
-                  cursor: 'pointer'
+                  color: '#64748b',
+                  fontSize: '22px',
+                  cursor: 'pointer',
+                  lineHeight: 1
                 }}
               >
                 &times;
@@ -1562,33 +1551,33 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     }}
                   >
                     {[
-                      { label: '총 실적', val: `${inspectorModal.data.actual.toLocaleString()} EA`, color: '#f8fafc' },
+                      { label: '총 실적', val: `${inspectorModal.data.actual.toLocaleString()} EA`, color: '#0f172a' },
                       {
                         label: inspectorModal.data.sideLabelPair ? 'FRT / RR' : 'LH / RH',
                         val: `${inspectorModal.data.lh.toLocaleString()} / ${inspectorModal.data.rh.toLocaleString()}`,
-                        color: '#60a5fa'
+                        color: '#2563eb'
                       },
                       {
                         label: '불량 (불량률)',
                         val: `${inspectorModal.data.defect} EA (${inspectorModal.data.defectRate.toFixed(2)}%)`,
-                        color: inspectorModal.data.defect > 0 ? '#fda4af' : '#34d399'
+                        color: inspectorModal.data.defect > 0 ? '#e11d48' : '#059669'
                       },
                       {
                         label: '비가동 시간',
                         val: `${inspectorModal.data.downtimeMin} 분`,
-                        color: '#cbd5e1'
+                        color: '#334155'
                       }
                     ].map((box) => (
                       <div
                         key={box.label}
                         style={{
-                          background: '#182338',
-                          border: '1px solid #293956',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
                           borderRadius: '8px',
                           padding: '8px 10px'
                         }}
                       >
-                        <div style={{ fontSize: '10.5px', color: '#94a3b8' }}>{box.label}</div>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 700 }}>{box.label}</div>
                         <div style={{ fontSize: '13.5px', fontWeight: 800, color: box.color, marginTop: '3px' }}>
                           {box.val}
                         </div>
@@ -1596,7 +1585,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     ))}
                   </div>
 
-                  <div style={{ fontSize: '12.5px', fontWeight: 800, marginBottom: '6px', color: '#cbd5e1' }}>
+                  <div style={{ fontSize: '12.5px', fontWeight: 800, marginBottom: '6px', color: '#334155' }}>
                     ▪ 투입 압출소재 LOT 세부 목록 ({inspectorModal.data.lotSummary.details.length}건)
                   </div>
                   {inspectorModal.data.lotSummary.details.length > 0 ? (
@@ -1606,30 +1595,30 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         borderCollapse: 'collapse',
                         fontSize: '11.5px',
                         marginBottom: '16px',
-                        border: '1px solid #24324b'
+                        border: '1px solid #e2e8f0'
                       }}
                     >
                       <thead>
-                        <tr style={{ background: '#182338', color: '#94a3b8' }}>
-                          <th style={{ padding: '6px', border: '1px solid #24324b' }}>구분</th>
-                          <th style={{ padding: '6px', border: '1px solid #24324b' }}>시기</th>
-                          <th style={{ padding: '6px', border: '1px solid #24324b' }}>투입 LOT 번호</th>
-                          <th style={{ padding: '6px', border: '1px solid #24324b' }}>작업자 / 일자</th>
+                        <tr style={{ background: '#f8fafc', color: '#475569' }}>
+                          <th style={{ padding: '6px', border: '1px solid #e2e8f0' }}>구분</th>
+                          <th style={{ padding: '6px', border: '1px solid #e2e8f0' }}>시기</th>
+                          <th style={{ padding: '6px', border: '1px solid #e2e8f0' }}>투입 LOT 번호</th>
+                          <th style={{ padding: '6px', border: '1px solid #e2e8f0' }}>작업자 / 일자</th>
                         </tr>
                       </thead>
                       <tbody>
                         {inspectorModal.data.lotSummary.details.map((d, idx) => (
                           <tr key={`${d.reportId}-${idx}`}>
-                            <td style={{ padding: '6px', border: '1px solid #24324b', textAlign: 'center', fontWeight: 700 }}>
+                            <td style={{ padding: '6px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700 }}>
                               {d.partLabel}
                             </td>
-                            <td style={{ padding: '6px', border: '1px solid #24324b', textAlign: 'center', color: '#93c5fd' }}>
+                            <td style={{ padding: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#2563eb', fontWeight: 700 }}>
                               {d.stage}
                             </td>
                             <td
                               style={{
                                 padding: '6px',
-                                border: '1px solid #24324b',
+                                border: '1px solid #e2e8f0',
                                 textAlign: 'center',
                                 fontFamily: 'monospace',
                                 fontWeight: 700
@@ -1637,7 +1626,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                             >
                               {d.value}
                             </td>
-                            <td style={{ padding: '6px', border: '1px solid #24324b', textAlign: 'center', color: '#94a3b8' }}>
+                            <td style={{ padding: '6px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#64748b' }}>
                               {d.workerName || '-'} ({d.date})
                             </td>
                           </tr>
@@ -1650,7 +1639,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     </div>
                   )}
 
-                  <div style={{ fontSize: '12.5px', fontWeight: 800, marginBottom: '6px', color: '#cbd5e1' }}>
+                  <div style={{ fontSize: '12.5px', fontWeight: 800, marginBottom: '6px', color: '#334155' }}>
                     ▪ 연결된 작업일보 ({inspectorModal.data.reports.length}건)
                   </div>
                   {inspectorModal.data.reports.length > 0 ? (
@@ -1662,15 +1651,15 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            background: '#182338',
-                            border: '1px solid #293956',
+                            background: '#f8fafc',
+                            border: '1px solid #e2e8f0',
                             borderRadius: '8px',
                             padding: '8px 12px'
                           }}
                         >
-                          <div style={{ fontSize: '12px' }}>
+                          <div style={{ fontSize: '12px', color: '#0f172a' }}>
                             <strong>{rep.date}</strong> · 👷 {rep.workerName || '-'}{' '}
-                            <span style={{ color: '#94a3b8' }}>
+                            <span style={{ color: '#64748b' }}>
                               ({rep.workHours || '-'} | 실적 {Number(rep.actualQty || 0).toLocaleString()} EA / 불량{' '}
                               {Number(rep.defectQty || 0)} EA)
                             </span>
@@ -1702,8 +1691,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 </>
               ) : (
                 <>
-                  <div style={{ marginBottom: '12px', fontSize: '12px', color: '#94a3b8' }}>
-                    적용 공정: <strong style={{ color: '#e2e8f0' }}>{inspectorModal.data.processBadge}</strong> ·{' '}
+                  <div style={{ marginBottom: '12px', fontSize: '12px', color: '#64748b' }}>
+                    적용 공정: <strong style={{ color: '#0f172a' }}>{inspectorModal.data.processBadge}</strong> ·{' '}
                     {inspectorModal.data.specLabel}
                   </div>
                   {inspectorModal.data.records.length > 0 ? (
@@ -1712,8 +1701,8 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         <div
                           key={`${rec.report?.id || i}-${i}`}
                           style={{
-                            background: '#182338',
-                            border: '1px solid #293956',
+                            background: '#f8fafc',
+                            border: '1px solid #e2e8f0',
                             borderRadius: '8px',
                             padding: '10px 12px',
                             display: 'flex',
@@ -1724,17 +1713,17 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                           }}
                         >
                           <div>
-                            <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#f8fafc' }}>
+                            <div style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>
                               #{rec.formCode} {rec.processName}{' '}
-                              <span style={{ color: '#93c5fd', fontWeight: 600 }}>
+                              <span style={{ color: '#4f46e5', fontWeight: 700 }}>
                                 {rec.extra ? `(${rec.extra})` : ''}
                               </span>
                             </div>
-                            <div style={{ fontSize: '11.5px', color: '#cbd5e1', marginTop: '4px', fontFamily: 'monospace' }}>
+                            <div style={{ fontSize: '11.5px', color: '#334155', marginTop: '4px', fontFamily: 'monospace' }}>
                               초: <strong>{rec.초 || '-'}</strong> | 중: <strong>{rec.중 || '-'}</strong> | 종:{' '}
                               <strong>{rec.종 || '-'}</strong>
                             </div>
-                            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
+                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
                               {rec.date} · 👷 {rec.workerName} ({rec.workHours || '-'})
                             </div>
                           </div>
