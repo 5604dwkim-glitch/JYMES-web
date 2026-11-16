@@ -10,7 +10,8 @@ import {
   fetchDowntimeReports,
   fetchFmbReports,
   invalidateMoldsCache,
-  invalidateEquipmentsCache
+  invalidateEquipmentsCache,
+  subscribeDailyStatsDate
 } from '../services/firestore';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -71,6 +72,58 @@ export default function Dashboard() {
   const [lastRefreshed, setLastRefreshed] = useState(null);
   const loadSeqRef = useRef(0);
   const hasLoadedRef = useRef(false);
+
+  // 🔄 자동 갱신 ON/OFF 상태 (기본값 ON, localStorage 보관)
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(() => {
+    try {
+      return localStorage.getItem('jymes_dashboard_auto_refresh') !== 'false';
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleAutoRefresh = useCallback(() => {
+    setAutoRefreshEnabled((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('jymes_dashboard_auto_refresh', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
+  // 📡 실시간 스마트 이벤트 감지 리스너 (daily_stats/{today}):
+  // 작업자가 일보를 등록·수정·삭제할 때 applyStatsUpdate가 daily_stats/{today} 문서를 갱신하므로,
+  // 3분마다 전체 컬렉션을 폴링할 필요 없이 당일 문서 1건의 변경만 실시간 즉시 화면에 반영 (읽기 비용 99.9% 절감).
+  // 갱신 OFF 스위치를 끄면 즉시 unsubscribe되어 Firestore 읽기가 완전 0이 됨.
+  useEffect(() => {
+    if (userRole?.role !== 'admin' || !autoRefreshEnabled) return undefined;
+
+    const todayStr = new Date().toLocaleDateString('sv-SE');
+    const unsubscribe = subscribeDailyStatsDate(todayStr, (updatedDoc) => {
+      setDashboardData((prev) => {
+        const list = Array.isArray(prev.dailyStats) ? prev.dailyStats : [];
+        const idx = list.findIndex((s) => s.date === updatedDoc.date);
+        let nextList;
+        if (idx >= 0) {
+          nextList = [...list];
+          nextList[idx] = { ...nextList[idx], ...updatedDoc };
+        } else {
+          nextList = [updatedDoc, ...list];
+        }
+        return { ...prev, dailyStats: nextList };
+      });
+      setLastRefreshed(new Date());
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  }, [userRole?.role, autoRefreshEnabled]);
 
   const loadData = useCallback(async (forceRefresh = false) => {
     const seq = ++loadSeqRef.current;
@@ -172,6 +225,8 @@ export default function Dashboard() {
       lastRefreshed={lastRefreshed}
       isRefreshing={isRefreshing}
       expandChain={Boolean(location.state?.expandChain)}
+      autoRefreshEnabled={autoRefreshEnabled}
+      onToggleAutoRefresh={toggleAutoRefresh}
     />
   );
 }
@@ -273,8 +328,100 @@ function CircleGauge({ pct, size = 62, color = '#3b82f6', trackColor = '#e2e8f0'
   );
 }
 
+// ── 자동 갱신 ON / OFF 슬라이더 스위치 컴포넌트 ───────────
+function AutoRefreshSwitch({ enabled, onToggle, isMonitorFullscreen }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onToggle}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onToggle?.();
+        }
+      }}
+      title={
+        enabled
+          ? '자동 갱신 ON (실시간 스마트 감지 활성화됨 - 클릭 시 갱신 OFF 전환)'
+          : '자동 갱신 OFF (실시간 감지 정지됨 - 클릭 시 갱신 ON 전환)'
+      }
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: isMonitorFullscreen ? '6px' : '8px',
+        padding: isMonitorFullscreen ? '4px 10px' : '7px 13px',
+        borderRadius: '8px',
+        background: enabled ? '#f0fdf4' : '#f8fafc',
+        border: `1.5px solid ${enabled ? '#86efac' : '#cbd5e1'}`,
+        cursor: 'pointer',
+        userSelect: 'none',
+        transition: 'all 0.15s ease'
+      }}
+    >
+      <span
+        style={{
+          fontSize: isMonitorFullscreen ? '11.5px' : '12.5px',
+          fontWeight: 700,
+          color: enabled ? '#166534' : '#64748b'
+        }}
+      >
+        자동 갱신
+      </span>
+      {/* 슬라이더 스위치 */}
+      <div
+        style={{
+          width: isMonitorFullscreen ? '30px' : '34px',
+          height: isMonitorFullscreen ? '17px' : '19px',
+          borderRadius: '999px',
+          background: enabled ? '#10b981' : '#cbd5e1',
+          position: 'relative',
+          transition: 'background-color 0.2s ease',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '2px',
+          boxSizing: 'border-box'
+        }}
+      >
+        <div
+          style={{
+            width: isMonitorFullscreen ? '13px' : '15px',
+            height: isMonitorFullscreen ? '13px' : '15px',
+            borderRadius: '50%',
+            background: '#ffffff',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
+            transform: enabled
+              ? `translateX(${isMonitorFullscreen ? '13px' : '15px'})`
+              : 'translateX(0)',
+            transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        />
+      </div>
+      <span
+        style={{
+          fontSize: isMonitorFullscreen ? '11px' : '12px',
+          fontWeight: 800,
+          color: enabled ? '#059669' : '#94a3b8',
+          minWidth: '24px'
+        }}
+      >
+        {enabled ? 'ON' : 'OFF'}
+      </span>
+    </div>
+  );
+}
+
 // ── AdminDashboard ("지금 상태 확인과 조치" 중심) ───────────
-function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing, expandChain }) {
+function AdminDashboard({
+  data,
+  navigate,
+  onRefresh,
+  lastRefreshed,
+  isRefreshing,
+  expandChain,
+  autoRefreshEnabled = true,
+  onToggleAutoRefresh
+}) {
   const [isMonitorFullscreen, setIsMonitorFullscreen] = useState(false);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(() => Boolean(document.fullscreenElement));
   const [liveClock, setLiveClock] = useState(() => new Date().toLocaleTimeString('ko-KR', { hour12: false }));
@@ -330,10 +477,15 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
       setLiveClock(new Date().toLocaleTimeString('ko-KR', { hour12: false }));
     }, 1000);
 
-    // 모니터 전체화면 상시 표시용 3분 주기 자동 갱신
-    const autoRefreshTimer = setInterval(() => {
-      onRefreshRef.current?.();
-    }, 3 * 60 * 1000);
+    // 모니터 전체화면 상시 표시 시: 실시간 리스너가 daily_stats 변경을 즉시 감지하므로,
+    // 전체 컬렉션 갱신은 30분 보조 주기로 대폭 완화하여 Firestore 과다 읽기를 방지합니다.
+    // 사용자가 갱신 OFF로 설정했을 때는 타이머를 동작시키지 않습니다.
+    let autoRefreshTimer = null;
+    if (autoRefreshEnabled) {
+      autoRefreshTimer = setInterval(() => {
+        onRefreshRef.current?.();
+      }, 30 * 60 * 1000);
+    }
 
     let wakeLockSentinel = null;
     if (typeof navigator !== 'undefined' && navigator.wakeLock?.request) {
@@ -371,14 +523,14 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
     return () => {
       document.body.style.overflow = prevOverflow;
       clearInterval(clockTimer);
-      clearInterval(autoRefreshTimer);
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
       document.removeEventListener('fullscreenchange', onFsChange);
       window.removeEventListener('keydown', onKeyDown);
       if (wakeLockSentinel && typeof wakeLockSentinel.release === 'function') {
         wakeLockSentinel.release().catch(() => {});
       }
     };
-  }, [isMonitorFullscreen]);
+  }, [isMonitorFullscreen, autoRefreshEnabled]);
 
   useEffect(() => {
     return () => {
@@ -659,14 +811,14 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
                   gap: '6px',
                   padding: '2px 9px',
                   borderRadius: '999px',
-                  background: '#ecfdf5',
-                  border: '1px solid #6ee7b7',
-                  color: '#047857',
+                  background: autoRefreshEnabled ? '#ecfdf5' : '#f8fafc',
+                  border: `1px solid ${autoRefreshEnabled ? '#6ee7b7' : '#cbd5e1'}`,
+                  color: autoRefreshEnabled ? '#047857' : '#64748b',
                   fontSize: '11px',
                   fontWeight: 800
                 }}
               >
-                <span>🟢 상시 모니터링 (자동갱신)</span>
+                <span>{autoRefreshEnabled ? '🟢 상시 모니터링 (실시간 감지)' : '⚪ 갱신 정지 (수동 모드)'}</span>
                 <span translate="no" style={{ fontFamily: 'monospace', fontWeight: 900 }}>{liveClock}</span>
               </span>
             )}
@@ -674,6 +826,12 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <AutoRefreshSwitch
+            enabled={autoRefreshEnabled}
+            onToggle={onToggleAutoRefresh}
+            isMonitorFullscreen={isMonitorFullscreen}
+          />
+
           <button
             type="button"
             onClick={onRefresh}

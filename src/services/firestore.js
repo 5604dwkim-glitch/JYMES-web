@@ -1442,3 +1442,49 @@ export function subscribeFmbInventory(onUpdate) {
     return () => {};
   }
 }
+
+/**
+ * 오늘(또는 지정 날짜)의 daily_stats 문서 1건을 실시간 감시 (대시보드 실시간 갱신용)
+ * - 불필요한 전체 폴링(90일치 + 각종 컬렉션)을 대체하여 읽기 비용을 극적으로 절감(문서 1개 변경 시 1 read만 발생)
+ * - 일보 등록/수정/삭제 시 applyStatsUpdate가 daily_stats/{date}를 갱신하므로 즉각 반영됨
+ */
+export function subscribeDailyStatsDate(dateStr, onUpdate) {
+  if (!dateStr) return () => {};
+  try {
+    const ref = doc(db, 'daily_stats', dateStr);
+    return onSnapshot(
+      ref,
+      (snap) => {
+        if (snap.exists()) {
+          const docData = snap.data() || {};
+          const item = { id: snap.id, date: snap.id, ...docData };
+          // 인메모리 캐시에도 단일 날짜 반영하여 다른 화면(분석 등) 이동 시 최신화 유지
+          if (dailyStatsAllCache && Array.isArray(dailyStatsAllCache)) {
+            const idx = dailyStatsAllCache.findIndex((s) => s.date === item.date);
+            if (idx >= 0) {
+              dailyStatsAllCache[idx] = { ...dailyStatsAllCache[idx], ...item };
+            } else {
+              dailyStatsAllCache = [item, ...dailyStatsAllCache];
+            }
+          }
+          if (dailyStatsRecentCache && Array.isArray(dailyStatsRecentCache)) {
+            const idx = dailyStatsRecentCache.findIndex((s) => s.date === item.date);
+            if (idx >= 0) {
+              dailyStatsRecentCache[idx] = { ...dailyStatsRecentCache[idx], ...item };
+            } else {
+              dailyStatsRecentCache = [item, ...dailyStatsRecentCache];
+            }
+          }
+          onUpdate(item);
+        }
+      },
+      (err) => {
+        console.warn('daily_stats date listener warning:', err);
+      }
+    );
+  } catch (err) {
+    console.warn('subscribeDailyStatsDate failed:', err);
+    return () => {};
+  }
+}
+

@@ -3,11 +3,11 @@ import { useAuth } from '../../contexts/AuthContext';
 import MoldHistoryCardModal from './MoldHistoryCardModal';
 import MoldRepairRequestModal from './MoldRepairRequestModal';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { CAR_MODELS, CAR_MODEL_PARTS } from '../../constants/masterData';
 import { getCurrentFormCode } from '../../constants/formCodes';
-import { invalidateMoldsCache } from '../../services/firestore';
+import { fetchMoldsSlim, invalidateMoldsCache } from '../../services/firestore';
 import { syncMoldRepairToChangePoint } from '../../services/changePointAutoSync';
 
 const MOLD_TYPE_MAP = {
@@ -110,12 +110,10 @@ export default function MoldManagement() {
     routeNavigate(routeLocation.pathname, { replace: true, state: null });
   }, [routeLocation, routeNavigate, molds]);
 
-  const fetchMolds = async () => {
+  const fetchMolds = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const q = query(collection(db, 'molds'), orderBy('code'));
-      const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = await fetchMoldsSlim({ force: forceRefresh });
       setMolds(data);
     } catch (err) {
       console.error(err);
@@ -133,8 +131,9 @@ export default function MoldManagement() {
         const { id, ...dataToSave } = formData;
         await addDoc(collection(db, 'molds'), { ...dataToSave, currentStrokes: Number(dataToSave.currentStrokes), maxStrokes: Number(dataToSave.maxStrokes) });
       }
+      invalidateMoldsCache();
       setShowModal(false);
-      fetchMolds();
+      fetchMolds(true);
     } catch (err) {
       alert('저장 중 오류가 발생했습니다.');
     }
@@ -178,7 +177,9 @@ export default function MoldManagement() {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
         await deleteDoc(doc(db, 'molds', id));
-        fetchMolds();
+        deleteDoc(doc(db, 'mold_photos', id)).catch(() => {});
+        invalidateMoldsCache();
+        fetchMolds(true);
       } catch (err) {
         alert('삭제 중 오류가 발생했습니다.');
       }

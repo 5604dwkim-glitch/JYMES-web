@@ -239,6 +239,7 @@ export default function EquipmentManagement() {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
         await deleteDoc(doc(db, 'equipments', id));
+        deleteDoc(doc(db, 'equipment_photos', id)).catch(() => {});
         invalidateEquipmentsCache();
         fetchEquipments();
       } catch {
