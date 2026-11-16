@@ -82,7 +82,8 @@ export default function DowntimeChainCard({
   molds,
   changePoints,
   navigate,
-  initialExpanded = false
+  initialExpanded = false,
+  compact = false
 }) {
   const [expanded, setExpanded] = useState(initialExpanded);
   const [filter, setFilter] = useState('all'); // all | progress | done | unregistered
@@ -92,6 +93,10 @@ export default function DowntimeChainCard({
   useEffect(() => {
     if (initialExpanded) setExpanded(true);
   }, [initialExpanded]);
+
+  useEffect(() => {
+    if (compact) setExpanded(false);
+  }, [compact]);
 
   const allChains = useMemo(() => {
     const sinceDate = new Date(Date.now() - LOOKBACK_DAYS * 86400000).toLocaleDateString('sv-SE');
@@ -140,22 +145,22 @@ export default function DowntimeChainCard({
   const visible = useMemo(() => {
     const order = { progress: 0, done: 1, unregistered: 2 };
     if (!expanded) {
-      // 메인 대시보드 기본 요약 모드: 진행중 건을 먼저 최대 4건 노출 (진행중이 0건이면 최근 완료 3건 표시)
+      // 메인 대시보드 기본 요약 모드: 진행중 건을 먼저 최대 4건 노출 (모니터 전체화면에서는 3건, 진행중이 0건이면 최근 완료 표시)
       const inProgress = allChains
         .filter((c) => c.overall === 'progress')
         .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-      if (inProgress.length > 0) return inProgress.slice(0, 4);
+      if (inProgress.length > 0) return inProgress.slice(0, compact ? 3 : 4);
       return allChains
         .filter((c) => c.overall === 'done')
         .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-        .slice(0, 3);
+        .slice(0, compact ? 2 : 3);
     }
 
     const list = chains
       .filter((c) => filter === 'all' || c.overall === filter)
       .sort((a, b) => order[a.overall] - order[b.overall] || (b.date || '').localeCompare(a.date || ''));
     return list.slice(0, 30);
-  }, [allChains, chains, expanded, filter]);
+  }, [allChains, chains, expanded, filter, compact]);
 
   const goRepair = (chain) => {
     if (!chain.repair) return;
@@ -277,20 +282,20 @@ export default function DowntimeChainCard({
         </div>
       )}
 
-      <div style={{ padding: '12px 16px', flex: 1 }}>
+      <div style={{ padding: compact ? '2px 0 0 0' : '12px 16px', flex: 1, minHeight: 0, overflowY: expanded ? 'auto' : 'hidden' }}>
         {!expanded && summaryCounts.progress === 0 && summaryCounts.total > 0 && (
-          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', fontSize: '12px', fontWeight: 700, padding: '7px 12px', borderRadius: '8px', marginBottom: '8px' }}>
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', fontSize: compact ? '11px' : '12px', fontWeight: 700, padding: compact ? '3px 8px' : '7px 12px', borderRadius: '8px', marginBottom: compact ? '4px' : '8px' }}>
             ✅ 현재 미완료(진행중) 조치 건이 없습니다 — 최근 완료 내역을 표시합니다.
           </div>
         )}
 
         {visible.length === 0 ? (
-          <div style={{ textAlign: 'center', color: '#94a3b8', padding: '24px 0', fontSize: '13px' }}>
+          <div style={{ textAlign: 'center', color: '#94a3b8', padding: compact ? '14px 0' : '24px 0', fontSize: '13px' }}>
             {chains.length === 0 ? `최근 ${LOOKBACK_DAYS}일간 연계된 비가동·수리 의뢰 내역이 없습니다.` : '해당 조건의 내역이 없습니다.'}
           </div>
         ) : (
           <>
-            <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr 16px 1fr 16px 1fr', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#64748b', padding: '0 0 6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '64px 1fr 16px 1fr 16px 1fr', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#64748b', padding: compact ? '0 0 3px' : '0 0 6px' }}>
               <span>상태</span><span>① 발생 (비가동 / 수리 의뢰)</span><span /><span>② 수리 진행</span><span /><span>③ 변동점</span>
             </div>
             {visible.map((c, idx) => {

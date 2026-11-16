@@ -50,7 +50,7 @@ const STATUS_PRIORITY = {
   '임시저장': 0
 };
 
-export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
+export default function FmbEnvMonthlyCard({ fmbReports = [], navigate, compact = false }) {
   const currentYm = useMemo(() => new Date().toLocaleDateString('sv-SE').slice(0, 7), []);
   const todayFull = useMemo(() => new Date().toLocaleDateString('sv-SE'), []);
 
@@ -437,7 +437,14 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
   }), [monthly.days]);
 
   return (
-    <div className="card" style={{ margin: '16px 0 0 0' }} data-dashboard-card="fmb-env-monthly">
+    <div
+      className="card"
+      style={{
+        margin: compact ? 0 : '16px 0 0 0',
+        ...(compact ? { height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' } : {})
+      }}
+      data-dashboard-card="fmb-env-monthly"
+    >
       <style>{`
         [data-dashboard-card="fmb-env-monthly"] .fmb-month-nav-btn {
           border: 1px solid #cbd5e1;
@@ -628,24 +635,26 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
       </div>
 
       {/* ── 본문: 좌측 고무 종류별 재고 현황 + 우측 월간 온·습도 추이 그래프/기록표 ── */}
-      <div style={{ padding: '12px 16px 16px 16px' }}>
-        <div className="fmb-card-main-split">
+      <div style={{ padding: compact ? '2px 0 0 0' : '12px 16px 16px 16px', ...(compact ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' } : {}) }}>
+        <div className="fmb-card-main-split" style={compact ? { flex: 1, minHeight: 0, height: '100%', gridTemplateColumns: '216px minmax(0, 1fr)', gap: '10px' } : undefined}>
           {/* 좌측면: 고무 종류별 실시간 재고 현황 */}
           <div
             style={{
               background: '#f8fafc',
               border: '1px solid #cbd5e1',
               borderRadius: '10px',
-              padding: '12px',
+              padding: compact ? '6px 9px' : '12px',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              gap: '10px'
+              gap: compact ? '4px' : '10px',
+              minHeight: 0,
+              overflow: 'hidden'
             }}
           >
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>고무 종류별 재고 현황</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '6px', marginBottom: compact ? '4px' : '8px' }}>
+                <span style={{ fontSize: compact ? '11.5px' : '12.5px', fontWeight: 800, color: '#0f172a' }}>고무 종류별 재고 현황</span>
                 <span
                   style={{
                     fontSize: '11px',
@@ -662,7 +671,7 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
                 </span>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: compact ? '4px' : '7px' }}>
                 {stockSummary.grades.map((g) => {
                   const active = g.kg > 0 || g.lotCount > 0;
                   const ratio = stockSummary.totalKg > 0 ? Math.min(100, Math.round((g.kg / stockSummary.totalKg) * 100)) : 0;
@@ -673,19 +682,19 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
                         background: '#ffffff',
                         border: `1px solid ${active ? '#86efac' : '#e2e8f0'}`,
                         borderRadius: '8px',
-                        padding: '8px 10px'
+                        padding: compact ? '4px 8px' : '8px 10px'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3px' }}>
-                        <strong translate="no" style={{ fontSize: '12px', color: '#0f172a' }}>{g.code}</strong>
-                        <strong translate="no" style={{ fontSize: '13.5px', color: active ? '#047857' : '#94a3b8' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: compact ? '2px' : '3px' }}>
+                        <strong translate="no" style={{ fontSize: compact ? '11px' : '12px', color: '#0f172a' }}>{g.code}</strong>
+                        <strong translate="no" style={{ fontSize: compact ? '12px' : '13.5px', color: active ? '#047857' : '#94a3b8' }}>
                           {`${formatKg(g.kg)} kg`}
                         </strong>
                       </div>
-                      <div style={{ height: '5px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden', marginBottom: '4px' }}>
+                      <div style={{ height: compact ? '4px' : '5px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden', marginBottom: compact ? '2px' : '4px' }}>
                         <div style={{ height: '100%', width: `${active ? Math.max(ratio, 8) : 0}%`, background: '#10b981', borderRadius: '999px' }} />
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: compact ? '10px' : '10.5px', color: '#64748b', fontWeight: 600 }}>
                         <span>{`${g.lotCount}건`}</span>
                         {g.earliestExpiry ? (
                           <span><span>선입</span> <strong translate="no" style={{ color: '#dc2626' }}>{g.earliestExpiry}</strong></span>
@@ -699,8 +708,8 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
               </div>
             </div>
 
-            <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: '8px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 700 }}>
+            <div style={{ borderTop: '1px dashed #cbd5e1', paddingTop: compact ? '4px' : '8px', display: 'flex', flexDirection: 'column', gap: compact ? '3px' : '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: compact ? '10.5px' : '11px', fontWeight: 700 }}>
                 <span style={{ color: '#047857' }}><span>당월 입고</span> <strong translate="no">{`+${formatKg(ioCheckSummary.inTotalKg)}kg`}</strong></span>
                 <span style={{ color: '#be123c' }}><span>당월 출고</span> <strong translate="no">{`-${formatKg(ioCheckSummary.outTotalKg)}kg`}</strong></span>
               </div>
@@ -712,8 +721,8 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
                   background: '#eff6ff',
                   border: '1px solid #bfdbfe',
                   borderRadius: '6px',
-                  padding: '5px 8px',
-                  fontSize: '11.5px',
+                  padding: compact ? '3px 6px' : '5px 8px',
+                  fontSize: compact ? '11px' : '11.5px',
                   fontWeight: 800,
                   color: '#1d4ed8',
                   cursor: 'pointer'
@@ -725,22 +734,23 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
           </div>
 
           {/* 우측면: 월간 온·습도 추이 그래프 및 일자별 기록표 */}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ minWidth: 0, ...(compact ? { minHeight: 0, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' } : {}) }}>
         {!monthly.hasChartValues && (
           <div
             style={{
               background: '#f8fafc',
               border: '1px dashed #cbd5e1',
               borderRadius: '8px',
-              padding: '10px 14px',
-              marginBottom: '10px',
+              padding: compact ? '3px 10px' : '10px 14px',
+              marginBottom: compact ? '3px' : '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '10px',
               flexWrap: 'wrap',
-              fontSize: '12px',
-              color: '#64748b'
+              fontSize: compact ? '11px' : '12px',
+              color: '#64748b',
+              flexShrink: 0
             }}
           >
             <span>
@@ -759,10 +769,10 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
           </div>
         )}
 
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ minWidth: '980px', width: '100%' }}>
+        <div style={{ overflowX: 'auto', ...(compact ? { overflowY: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } : {}) }}>
+          <div style={{ minWidth: compact ? '0' : '980px', width: '100%', ...(compact ? { flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' } : {}) }}>
             {/* 1) 월간 온·습도 복합 추이 그래프 (좌 72px / 우 56px 고정) */}
-            <div style={{ height: '220px', width: '100%', marginBottom: '4px' }}>
+            <div style={{ height: compact ? '100%' : '220px', flex: compact ? 1 : undefined, minHeight: compact ? '55px' : undefined, position: 'relative', width: '100%', marginBottom: compact ? '2px' : '4px' }}>
               <Bar
                 data={chartData}
                 plugins={valueLabelsPlugin}
@@ -771,7 +781,7 @@ export default function FmbEnvMonthlyCard({ fmbReports = [], navigate }) {
             </div>
 
             {/* 2) 한 달(1일~말일) 일자별 온·습도 기록표 (좌 72px / 우 56px 동일 폭 고정) */}
-            <table className="fmb-env-table">
+            <table className="fmb-env-table" style={compact ? { flexShrink: 0 } : undefined}>
               <colgroup>
                 <col style={{ width: `${LEFT_AXIS_WIDTH}px` }} />
                 {monthly.days.map((d) => (

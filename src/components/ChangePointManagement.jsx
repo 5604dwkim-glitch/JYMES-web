@@ -870,6 +870,7 @@ export default function ChangePointManagement() {
                       <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
                         <input 
                           type={c.type || 'text'}
+                          max={c.type === 'date' ? '9999-12-31' : undefined}
                           value={formData[c.key] || ''}
                           onChange={(e) => setFormData({...formData, [c.key]: e.target.value})}
                           style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
@@ -1010,6 +1011,7 @@ export default function ChangePointManagement() {
                             <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
                               <input 
                                 type={c.type || 'text'}
+                          max={c.type === 'date' ? '9999-12-31' : undefined}
                                 value={row[c.key] || ''}
                                 onChange={(e) => handleInputChange(e, true, c.key)}
                                 style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}

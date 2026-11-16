@@ -111,7 +111,7 @@ export default function QPointFormModal({ isOpen, onClose, onSave, initialData, 
         <div style={{ padding: '20px' }}>
           
           <div style={rowStyle}>
-            <div style={colStyle}><label style={labelStyle}>작성일자</label><input type="date" name="reportDate" value={formData.reportDate} onChange={handleChange} style={inputStyle} /></div>
+            <div style={colStyle}><label style={labelStyle}>작성일자</label><input type="date" max="9999-12-31" name="reportDate" value={formData.reportDate} onChange={handleChange} style={inputStyle} /></div>
             <div style={colStyle}><label style={labelStyle}>작성자</label><input type="text" name="author" value={formData.author} onChange={handleChange} style={inputStyle} /></div>
             <div style={colStyle}><label style={labelStyle}>협력사명</label><input type="text" name="partnerName" value={formData.partnerName} onChange={handleChange} style={inputStyle} /></div>
           </div>
@@ -154,8 +154,8 @@ export default function QPointFormModal({ isOpen, onClose, onSave, initialData, 
           </div>
 
           <div style={rowStyle}>
-            <div style={colStyle}><label style={labelStyle}>변경 일시</label><input type="date" name="changeDate" value={formData.changeDate} onChange={handleChange} style={inputStyle} /></div>
-            <div style={colStyle}><label style={labelStyle}>적용 예정일</label><input type="date" name="applyDate" value={formData.applyDate} onChange={handleChange} style={inputStyle} /></div>
+            <div style={colStyle}><label style={labelStyle}>변경 일시</label><input type="date" max="9999-12-31" name="changeDate" value={formData.changeDate} onChange={handleChange} style={inputStyle} /></div>
+            <div style={colStyle}><label style={labelStyle}>적용 예정일</label><input type="date" max="9999-12-31" name="applyDate" value={formData.applyDate} onChange={handleChange} style={inputStyle} /></div>
             <div style={colStyle}><label style={labelStyle}>변경품 식별표시 방법</label><input type="text" name="identifyMethod" value={formData.identifyMethod} onChange={handleChange} style={inputStyle} /></div>
           </div>
 

@@ -66,9 +66,11 @@ export default function Dashboard() {
     fmbReports: []
   });
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [reportsLoading, setReportsLoading] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState(null);
   const loadSeqRef = useRef(0);
+  const hasLoadedRef = useRef(false);
 
   const loadData = useCallback(async (forceRefresh = false) => {
     const seq = ++loadSeqRef.current;
@@ -89,7 +91,11 @@ export default function Dashboard() {
       return;
     }
 
-    setLoading(true);
+    if (!hasLoadedRef.current) {
+      setLoading(true);
+    } else {
+      setIsRefreshing(true);
+    }
     if (forceRefresh) {
       invalidateMoldsCache();
       invalidateEquipmentsCache();
@@ -116,6 +122,7 @@ export default function Dashboard() {
     const allDone = Promise.allSettled(tasks);
     await Promise.race([dailyStatsTask, new Promise((resolve) => setTimeout(resolve, 2500))]);
     if (!isLatest()) return;
+    hasLoadedRef.current = true;
     setLastRefreshed(new Date());
     setLoading(false);
     // 첫 화면 표시 직후 경량화된 Analytics 청크를 유휴 시간에 미리 워밍
@@ -125,6 +132,7 @@ export default function Dashboard() {
     allDone.then(() => {
       if (isLatest()) {
         setLastRefreshed(new Date());
+        setIsRefreshing(false);
       }
     });
   }, [userRole]);
@@ -162,7 +170,7 @@ export default function Dashboard() {
       navigate={navigate}
       onRefresh={() => loadData(true)}
       lastRefreshed={lastRefreshed}
-      isRefreshing={loading}
+      isRefreshing={isRefreshing}
       expandChain={Boolean(location.state?.expandChain)}
     />
   );
@@ -267,6 +275,119 @@ function CircleGauge({ pct, size = 62, color = '#3b82f6', trackColor = '#e2e8f0'
 
 // ── AdminDashboard ("지금 상태 확인과 조치" 중심) ───────────
 function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing, expandChain }) {
+  const [isMonitorFullscreen, setIsMonitorFullscreen] = useState(false);
+  const [isNativeFullscreen, setIsNativeFullscreen] = useState(() => Boolean(document.fullscreenElement));
+  const [liveClock, setLiveClock] = useState(() => new Date().toLocaleTimeString('ko-KR', { hour12: false }));
+  const hadNativeFsRef = useRef(false);
+  const onRefreshRef = useRef(onRefresh);
+  onRefreshRef.current = onRefresh;
+
+  const enterMonitorFullscreen = useCallback(async () => {
+    setIsMonitorFullscreen(true);
+    try {
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+        hadNativeFsRef.current = true;
+      }
+    } catch {
+      // 브라우저 권한 제한 시에도 100vw x 100vh 모니터 전체화면 레이아웃 유지
+    }
+  }, []);
+
+  const exitMonitorFullscreen = useCallback(async () => {
+    hadNativeFsRef.current = false;
+    setIsMonitorFullscreen(false);
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleToggleNativeFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen?.();
+        hadNativeFsRef.current = true;
+      } else {
+        hadNativeFsRef.current = false;
+        await document.exitFullscreen?.();
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMonitorFullscreen) return undefined;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const clockTimer = setInterval(() => {
+      setLiveClock(new Date().toLocaleTimeString('ko-KR', { hour12: false }));
+    }, 1000);
+
+    // 모니터 전체화면 상시 표시용 3분 주기 자동 갱신
+    const autoRefreshTimer = setInterval(() => {
+      onRefreshRef.current?.();
+    }, 3 * 60 * 1000);
+
+    let wakeLockSentinel = null;
+    if (typeof navigator !== 'undefined' && navigator.wakeLock?.request) {
+      navigator.wakeLock.request('screen').then((s) => {
+        wakeLockSentinel = s;
+      }).catch(() => {});
+    }
+
+    const onFsChange = () => {
+      const active = Boolean(document.fullscreenElement);
+      setIsNativeFullscreen(active);
+      if (active) {
+        hadNativeFsRef.current = true;
+      } else if (hadNativeFsRef.current) {
+        hadNativeFsRef.current = false;
+        const hasSubModal = Boolean(document.querySelector('[data-fmb-status-board="1"], .modal-overlay'));
+        if (!hasSubModal) {
+          setIsMonitorFullscreen(false);
+        }
+      }
+    };
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape' && !document.fullscreenElement) {
+        const hasSubModal = Boolean(document.querySelector('[data-fmb-status-board="1"], .modal-overlay'));
+        if (!hasSubModal) {
+          setIsMonitorFullscreen(false);
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', onFsChange);
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      clearInterval(clockTimer);
+      clearInterval(autoRefreshTimer);
+      document.removeEventListener('fullscreenchange', onFsChange);
+      window.removeEventListener('keydown', onKeyDown);
+      if (wakeLockSentinel && typeof wakeLockSentinel.release === 'function') {
+        wakeLockSentinel.release().catch(() => {});
+      }
+    };
+  }, [isMonitorFullscreen]);
+
+  useEffect(() => {
+    return () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.().catch(() => {});
+      }
+    };
+  }, []);
+
   const kpi = useMemo(() => buildDashboardKpiSummary(data.dailyStats || []), [data.dailyStats]);
   const miniTrend = useMemo(() => buildLast7DaysMiniTrend(data.dailyStats || []), [data.dailyStats]);
   const top5Defects = useMemo(() => buildThisWeekTop5Defects(data.dailyStats || []), [data.dailyStats]);
@@ -403,10 +524,16 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
     whiteSpace: 'nowrap'
   };
 
-  const displayMolds = moldCardInfo.urgent.length > 0 ? moldCardInfo.urgent.slice(0, 6) : moldCardInfo.topFallback;
+  const displayMolds = moldCardInfo.urgent.length > 0
+    ? moldCardInfo.urgent.slice(0, isMonitorFullscreen ? 4 : 6)
+    : moldCardInfo.topFallback.slice(0, isMonitorFullscreen ? 4 : 5);
 
   return (
-    <div data-dashboard-admin="1" style={{ padding: '20px 24px', maxWidth: '1600px', margin: '0 auto' }}>
+    <div
+      data-dashboard-admin="1"
+      data-monitor-fullscreen={isMonitorFullscreen ? '1' : undefined}
+      style={{ padding: '20px 24px', maxWidth: '1600px', margin: '0 auto' }}
+    >
       <style>{`
         [data-dashboard-admin="1"] .dash-kpi-grid {
           display: grid;
@@ -421,66 +548,239 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
           margin-bottom: 16px;
           align-items: stretch;
         }
+        [data-dashboard-admin="1"] .dash-monitor-body {
+          display: contents;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          max-width: none !important;
+          margin: 0 !important;
+          padding: 8px 14px !important;
+          background: #f1f5f9;
+          z-index: 900;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          overflow: hidden !important;
+          box-sizing: border-box;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] .dash-kpi-grid {
+          gap: 8px;
+          margin-bottom: 0 !important;
+          flex-shrink: 0;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] .dash-monitor-body {
+          flex: 1;
+          min-height: 0;
+          display: grid;
+          grid-template-rows: minmax(0, 1fr) minmax(0, 0.92fr) minmax(0, 1.38fr);
+          gap: 6px;
+          overflow: hidden;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] .dash-two-col {
+          gap: 8px;
+          margin-bottom: 0 !important;
+          min-height: 0;
+          height: 100%;
+          overflow: hidden;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] .card {
+          padding: 7px 12px !important;
+          margin-bottom: 0 !important;
+          min-height: 0;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] .card-header {
+          margin-bottom: 4px !important;
+          gap: 6px !important;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] .card-header .card-title {
+          font-size: 13.5px !important;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] .card-header .card-title + div {
+          display: none !important;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] [data-chain-stage="1"] {
+          padding: 4px 8px !important;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] [data-chain-row] {
+          padding: 3px 0 !important;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] [data-dashboard-card="fmb-env-monthly"] .fmb-env-table th,
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] [data-dashboard-card="fmb-env-monthly"] .fmb-env-table td {
+          padding: 2px 1px !important;
+          font-size: 10.5px !important;
+          line-height: 1.15 !important;
+        }
+        [data-dashboard-admin="1"][data-monitor-fullscreen="1"] [data-dashboard-card="fmb-env-monthly"] .fmb-summary-pill {
+          padding: 3px 8px !important;
+          font-size: 11px !important;
+        }
         @media (max-width: 1180px) {
-          [data-dashboard-admin="1"] .dash-kpi-grid {
+          [data-dashboard-admin="1"]:not([data-monitor-fullscreen="1"]) .dash-kpi-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
-          [data-dashboard-admin="1"] .dash-two-col {
+          [data-dashboard-admin="1"]:not([data-monitor-fullscreen="1"]) .dash-two-col {
             grid-template-columns: 1fr;
           }
         }
         @media (max-width: 640px) {
-          [data-dashboard-admin="1"] .dash-kpi-grid {
+          [data-dashboard-admin="1"]:not([data-monitor-fullscreen="1"]) .dash-kpi-grid {
             grid-template-columns: 1fr;
           }
         }
       `}</style>
 
       {/* ── 헤더 ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: 0 }}>생산 통합 모니터링 대시보드</h1>
-          <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
-            기준일: {kpi.targetDateLabel} &nbsp;|&nbsp; 마지막 갱신: {lastRefStr}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: isMonitorFullscreen ? 0 : '16px',
+          flexWrap: 'wrap',
+          gap: '10px',
+          flexShrink: 0
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
+          <h1 style={{ fontSize: isMonitorFullscreen ? '18px' : '22px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+            생산 통합 모니터링 대시보드
+          </h1>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: isMonitorFullscreen ? 0 : '4px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span>기준일: {kpi.targetDateLabel} &nbsp;|&nbsp; 마지막 갱신: {lastRefStr}</span>
+            {isMonitorFullscreen && (
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '2px 9px',
+                  borderRadius: '999px',
+                  background: '#ecfdf5',
+                  border: '1px solid #6ee7b7',
+                  color: '#047857',
+                  fontSize: '11px',
+                  fontWeight: 800
+                }}
+              >
+                <span>🟢 상시 모니터링 (자동갱신)</span>
+                <span translate="no" style={{ fontFamily: 'monospace', fontWeight: 900 }}>{liveClock}</span>
+              </span>
+            )}
           </div>
         </div>
-        <button
-          type="button"
-          onClick={onRefresh}
-          disabled={isRefreshing}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '9px 18px',
-            borderRadius: '8px',
-            border: '1.5px solid #3b82f6',
-            background: isRefreshing ? '#eff6ff' : '#ffffff',
-            color: '#3b82f6',
-            fontWeight: 700,
-            fontSize: '13px',
-            cursor: isRefreshing ? 'default' : 'pointer'
-          }}
-        >
-          <span style={{ display: 'inline-block', animation: isRefreshing ? 'spin 0.8s linear infinite' : 'none' }}>🔄</span>
-          {isRefreshing ? '갱신 중...' : '수동 새로고침'}
-        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '7px',
+              padding: isMonitorFullscreen ? '6px 13px' : '9px 18px',
+              borderRadius: '8px',
+              border: '1.5px solid #3b82f6',
+              background: isRefreshing ? '#eff6ff' : '#ffffff',
+              color: '#3b82f6',
+              fontWeight: 700,
+              fontSize: isMonitorFullscreen ? '12px' : '13px',
+              cursor: isRefreshing ? 'default' : 'pointer'
+            }}
+          >
+            <span style={{ display: 'inline-block', animation: isRefreshing ? 'spin 0.8s linear infinite' : 'none' }}>🔄</span>
+            {isRefreshing ? '갱신 중...' : '수동 새로고침'}
+          </button>
+
+          {!isMonitorFullscreen ? (
+            <button
+              type="button"
+              onClick={enterMonitorFullscreen}
+              title="스크롤 없이 한 화면에 꽉 차는 상시 모니터링 전체화면으로 전환합니다"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '7px',
+                padding: '9px 18px',
+                borderRadius: '8px',
+                border: '1.5px solid #0f172a',
+                background: '#0f172a',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '13px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(15, 23, 42, 0.16)'
+              }}
+            >
+              <span>🖥️</span>
+              <span>모니터 전체화면 보기</span>
+            </button>
+          ) : (
+            <>
+              {!isNativeFullscreen && (
+                <button
+                  type="button"
+                  onClick={handleToggleNativeFullscreen}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#334155',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <span>⛶ 브라우저 전체창</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={exitMonitorFullscreen}
+                title="모니터 전체화면 종료 (ESC)"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '6px 13px',
+                  borderRadius: '8px',
+                  border: '1.5px solid #dc2626',
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  fontWeight: 800,
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                <span>✕ 모니터 전체화면 종료 (ESC)</span>
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* ── Row 1: KPI 카드 4개 (전일/전주 비교 지표 포함) ── */}
       <div className="dash-kpi-grid">
         {/* 1) 목표 생산량 */}
         <div className="card" style={{ margin: 0, padding: '16px 18px', borderLeft: '4px solid #3b82f6' }}>
-          <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700, marginBottom: '8px' }}>🎯 금일 목표 생산량</div>
-          <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a' }}>
+          <div style={{ fontSize: isMonitorFullscreen ? '11px' : '12px', color: '#64748b', fontWeight: 700, marginBottom: isMonitorFullscreen ? '2px' : '8px' }}>🎯 금일 목표 생산량</div>
+          <div style={{ fontSize: isMonitorFullscreen ? '20px' : '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1.15 }}>
             {kpi.totalTarget.toLocaleString()} <span style={{ fontSize: '12px', fontWeight: 400 }}>EA</span>
           </div>
-          <div style={{ marginTop: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>
+          <div style={{ marginTop: isMonitorFullscreen ? '4px' : '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginBottom: isMonitorFullscreen ? '2px' : '4px' }}>
               <span>실적 {kpi.totalActual.toLocaleString()}</span>
               <span>{kpi.attainPct}%</span>
             </div>
-            <div style={{ height: '5px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+            <div style={{ height: isMonitorFullscreen ? '4px' : '5px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
               <div
                 style={{
                   height: '100%',
@@ -495,14 +795,14 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
         </div>
 
         {/* 2) 실제 생산량 + 전일 대비 */}
-        <div className="card" style={{ margin: 0, padding: '16px 18px', borderLeft: '4px solid #10b981', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div className="card" style={{ margin: 0, padding: '16px 18px', borderLeft: '4px solid #10b981', display: 'flex', alignItems: 'center', gap: isMonitorFullscreen ? '10px' : '14px' }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700, marginBottom: '8px' }}>✅ 금일 실제 생산량</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ fontSize: isMonitorFullscreen ? '11px' : '12px', color: '#64748b', fontWeight: 700, marginBottom: isMonitorFullscreen ? '2px' : '8px' }}>✅ 금일 실제 생산량</div>
+            <div style={{ fontSize: isMonitorFullscreen ? '20px' : '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1.15 }}>
               {kpi.totalActual.toLocaleString()} <span style={{ fontSize: '12px', fontWeight: 400 }}>EA</span>
             </div>
             {kpi.prevDayLabel && kpi.prevActual !== null && (
-              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '6px' }}>
+              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: isMonitorFullscreen ? '2px' : '6px' }}>
                 {kpi.prevDayLabel} {kpi.prevActual.toLocaleString()} 대비{' '}
                 <span style={{ fontWeight: 700, color: kpi.actualDelta >= 0 ? '#15803d' : '#b91c1c' }}>
                   {kpi.actualDelta >= 0 ? `▲ ${kpi.actualDelta.toLocaleString()}` : `▼ ${Math.abs(kpi.actualDelta).toLocaleString()}`}
@@ -510,22 +810,24 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
               </div>
             )}
           </div>
-          <CircleGauge pct={kpi.attainPct} size={62} color={kpi.attainPct >= 100 ? '#10b981' : kpi.attainPct >= 80 ? '#3b82f6' : '#f59e0b'}>
+          <CircleGauge pct={kpi.attainPct} size={isMonitorFullscreen ? 44 : 62} color={kpi.attainPct >= 100 ? '#10b981' : kpi.attainPct >= 80 ? '#3b82f6' : '#f59e0b'}>
             {kpi.attainPct}%
           </CircleGauge>
         </div>
 
         {/* 3) 달성률 + 주간 평균/전주 대비 */}
         <div className="card" style={{ margin: 0, padding: '16px 18px', borderLeft: '4px solid #8b5cf6' }}>
-          <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700, marginBottom: '8px' }}>📈 금일 달성률</div>
-          <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a' }}>
-            {kpi.attainPct} <span style={{ fontSize: '12px', fontWeight: 400 }}>%</span>
-          </div>
-          <div style={{ fontSize: '11px', color: kpi.attainPct >= 100 ? '#15803d' : kpi.attainPct >= 80 ? '#3b82f6' : '#d97706', fontWeight: 700, marginTop: '4px' }}>
-            {kpi.attainPct >= 100 ? '✅ 목표 달성' : kpi.attainPct >= 80 ? '⚡ 순조 진행' : '⚠️ 목표 미달'}
+          <div style={{ fontSize: isMonitorFullscreen ? '11px' : '12px', color: '#64748b', fontWeight: 700, marginBottom: isMonitorFullscreen ? '2px' : '8px' }}>📈 금일 달성률</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+            <div style={{ fontSize: isMonitorFullscreen ? '20px' : '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1.15 }}>
+              {kpi.attainPct} <span style={{ fontSize: '12px', fontWeight: 400 }}>%</span>
+            </div>
+            <div style={{ fontSize: '11px', color: kpi.attainPct >= 100 ? '#15803d' : kpi.attainPct >= 80 ? '#3b82f6' : '#d97706', fontWeight: 700 }}>
+              {kpi.attainPct >= 100 ? '✅ 목표 달성' : kpi.attainPct >= 80 ? '⚡ 순조 진행' : '⚠️ 목표 미달'}
+            </div>
           </div>
           {kpi.weekAvgAttain !== null && (
-            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '4px' }}>
+            <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: isMonitorFullscreen ? '3px' : '4px' }}>
               최근 7일 평균 {kpi.weekAvgAttain}%
               {kpi.weekAttainDelta !== null && (
                 <>
@@ -541,16 +843,16 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
 
         {/* 4) 불량률 + 전일 대비 */}
         <div className="card" style={{ margin: 0, padding: '16px 18px', borderLeft: `4px solid ${defectBadge[1]}`, background: defectBadge[2] }}>
-          <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 700, marginBottom: '8px' }}>⚠️ 금일 불량률</div>
+          <div style={{ fontSize: isMonitorFullscreen ? '11px' : '12px', color: '#64748b', fontWeight: 700, marginBottom: isMonitorFullscreen ? '2px' : '8px' }}>⚠️ 금일 불량률</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ fontSize: isMonitorFullscreen ? '20px' : '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1.15 }}>
               {kpi.defectRate} <span style={{ fontSize: '12px', fontWeight: 400 }}>%</span>
             </div>
             <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: '#ffffff', color: defectBadge[1] }}>
               {defectBadge[0]} {defectStatus === 'danger' ? '위험' : defectStatus === 'warn' ? '주의' : '양호'}
             </span>
           </div>
-          <div style={{ fontSize: '11px', color: '#64748b', marginTop: '6px' }}>
+          <div style={{ fontSize: '11px', color: '#64748b', marginTop: isMonitorFullscreen ? '3px' : '6px' }}>
             불량 {kpi.totalDefect.toLocaleString()}개 / 일보 {kpi.totalReports}건
             {kpi.prevDayLabel && kpi.defectRateDelta !== null && (
               <>
@@ -564,241 +866,245 @@ function AdminDashboard({ data, navigate, onRefresh, lastRefreshed, isRefreshing
         </div>
       </div>
 
-      {/* ── Row 2: 조치 필요 연계 현황 (2fr) + 금형 점검 임박 (1fr) ── */}
-      <div className="dash-two-col">
-        <DowntimeChainCard
-          reports={data.downtimeReports || []}
-          equipments={data.equipments || []}
-          molds={data.molds || []}
-          changePoints={data.changePoints || []}
-          navigate={navigate}
-          initialExpanded={expandChain}
-        />
+      <div className="dash-monitor-body">
+        {/* ── Row 2: 조치 필요 연계 현황 (2fr) + 금형 점검 임박 (1fr) ── */}
+        <div className="dash-two-col">
+          <DowntimeChainCard
+            reports={data.downtimeReports || []}
+            equipments={data.equipments || []}
+            molds={data.molds || []}
+            changePoints={data.changePoints || []}
+            navigate={navigate}
+            initialExpanded={expandChain}
+            compact={isMonitorFullscreen}
+          />
 
-        <div className="card" style={{ margin: 0, display: 'flex', flexDirection: 'column' }} data-dashboard-card="mold-urgent">
-          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-            <div>
-              <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>⚙️ 금형 점검 임박 (누적타수 70% 이상)</h3>
-              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
-                {moldCardInfo.urgent.length > 0
-                  ? `점검 임박 ${moldCardInfo.urgent.length}개 · 나머지 ${moldCardInfo.normalCount}개 금형은 정상 범위`
-                  : `전체 ${moldCardInfo.totalCount}개 금형 정상 범위 (70% 미만)`}
+          <div className="card" style={{ margin: 0, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }} data-dashboard-card="mold-urgent">
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+              <div>
+                <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>⚙️ 금형 점검 임박 (누적타수 70% 이상)</h3>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
+                  {moldCardInfo.urgent.length > 0
+                    ? `점검 임박 ${moldCardInfo.urgent.length}개 · 나머지 ${moldCardInfo.normalCount}개 금형은 정상 범위`
+                    : `전체 ${moldCardInfo.totalCount}개 금형 정상 범위 (70% 미만)`}
+                </div>
               </div>
+              <button type="button" style={linkBtnStyle} onClick={() => navigate('/mold')}>
+                더보기 →
+              </button>
             </div>
-            <button type="button" style={linkBtnStyle} onClick={() => navigate('/mold')}>
-              더보기 →
-            </button>
-          </div>
 
-          <div style={{ padding: '12px 16px', flex: 1 }}>
-            {moldCardInfo.urgent.length === 0 && moldCardInfo.totalCount > 0 && (
-              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', fontSize: '11px', fontWeight: 700, padding: '6px 10px', borderRadius: '8px', marginBottom: '8px' }}>
-                ✅ 점검 임박(70% 이상) 금형 없음 — 현재 누적타수 상위 금형
-              </div>
-            )}
+            <div style={{ padding: isMonitorFullscreen ? '2px 0 0 0' : '12px 16px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: isMonitorFullscreen ? 'space-evenly' : 'flex-start', overflow: 'hidden' }}>
+              {moldCardInfo.urgent.length === 0 && moldCardInfo.totalCount > 0 && (
+                <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', fontSize: isMonitorFullscreen ? '10.5px' : '11px', fontWeight: 700, padding: isMonitorFullscreen ? '3px 8px' : '6px 10px', borderRadius: '8px', marginBottom: isMonitorFullscreen ? '3px' : '8px', flexShrink: 0 }}>
+                  ✅ 점검 임박(70% 이상) 금형 없음 — 현재 누적타수 상위 금형
+                </div>
+              )}
 
-            {displayMolds.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#94a3b8', padding: '20px 0', fontSize: '13px' }}>등록된 금형이 없습니다.</div>
-            ) : (
-              displayMolds.map((m, i) => {
-                const pctDisp = Math.round(m.pct);
-                const [barColor, levelLabel, levelColor, chipBg] = m.pct >= 90
-                  ? ['#ef4444', '위험', '#b91c1c', '#fef2f2']
-                  : m.pct >= 70
-                    ? ['#f59e0b', '주의', '#b45309', '#fffbeb']
-                    : ['#3b82f6', '정상', '#1d4ed8', '#eff6ff'];
-                return (
-                  <button
-                    type="button"
-                    key={m.id || i}
-                    onClick={() => navigate('/mold', { state: { openHistory: { moldId: m.id } } })}
-                    title="클릭 시 해당 금형 이력카드로 이동"
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'left',
-                      background: 'transparent',
-                      border: 'none',
-                      borderTop: i === 0 ? 'none' : '1px solid #f1f5f9',
-                      padding: '9px 0',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                      <span style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {m.name || m.code}
-                      </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                        <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: chipBg, color: levelColor }}>
-                          {levelLabel} {pctDisp}%
+              {displayMolds.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#94a3b8', padding: isMonitorFullscreen ? '12px 0' : '20px 0', fontSize: '13px' }}>등록된 금형이 없습니다.</div>
+              ) : (
+                displayMolds.map((m, i) => {
+                  const pctDisp = Math.round(m.pct);
+                  const [barColor, levelLabel, levelColor, chipBg] = m.pct >= 90
+                    ? ['#ef4444', '위험', '#b91c1c', '#fef2f2']
+                    : m.pct >= 70
+                      ? ['#f59e0b', '주의', '#b45309', '#fffbeb']
+                      : ['#3b82f6', '정상', '#1d4ed8', '#eff6ff'];
+                  return (
+                    <button
+                      type="button"
+                      key={m.id || i}
+                      onClick={() => navigate('/mold', { state: { openHistory: { moldId: m.id } } })}
+                      title="클릭 시 해당 금형 이력카드로 이동"
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        background: 'transparent',
+                        border: 'none',
+                        borderTop: i === 0 ? 'none' : '1px solid #f1f5f9',
+                        padding: isMonitorFullscreen ? '3px 0' : '9px 0',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', marginBottom: isMonitorFullscreen ? '3px' : '6px' }}>
+                        <span style={{ fontWeight: 700, fontSize: isMonitorFullscreen ? '12px' : '13px', color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {m.name || m.code}
                         </span>
-                        <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-                          {m.cur.toLocaleString()} / {m.max.toLocaleString()}
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                          <span style={{ fontSize: isMonitorFullscreen ? '10.5px' : '11px', fontWeight: 700, padding: '1px 7px', borderRadius: '12px', background: chipBg, color: levelColor }}>
+                            {levelLabel} {pctDisp}%
+                          </span>
+                          <span style={{ fontSize: isMonitorFullscreen ? '10.5px' : '11px', color: '#94a3b8' }}>
+                            {m.cur.toLocaleString()} / {m.max.toLocaleString()}
+                          </span>
                         </span>
-                      </span>
-                    </div>
-                    <div style={{ height: '7px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${Math.max(m.cur > 0 ? 2 : 0, Math.min(100, m.pct))}%`, background: barColor, borderRadius: '4px' }} />
-                    </div>
-                  </button>
-                );
-              })
-            )}
+                      </div>
+                      <div style={{ height: isMonitorFullscreen ? '5px' : '7px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${Math.max(m.cur > 0 ? 2 : 0, Math.min(100, m.pct))}%`, background: barColor, borderRadius: '4px' }} />
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Row 3: 최근 7일 생산·불량률 추이 (2fr) + 이번 주 불량 TOP 5 (1fr) ── */}
-      <div className="dash-two-col" style={{ marginBottom: 0 }}>
-        {/* 최근 7일 추이 미니 차트 */}
-        <div className="card" style={{ margin: 0 }} data-dashboard-card="mini-trend">
-          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-            <div>
-              <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>📊 최근 7일 생산 · 불량률 추이</h3>
-              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
-                필터 없이 전체 기준 · 조건을 바꿔 비교하려면 「공정 및 불량 분석」으로 이동
+        {/* ── Row 3: 최근 7일 생산·불량률 추이 (2fr) + 이번 주 불량 TOP 5 (1fr) ── */}
+        <div className="dash-two-col" style={{ marginBottom: 0 }}>
+          {/* 최근 7일 추이 미니 차트 */}
+          <div className="card" style={{ margin: 0, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }} data-dashboard-card="mini-trend">
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <div>
+                <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>📊 최근 7일 생산 · 불량률 추이</h3>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
+                  필터 없이 전체 기준 · 조건을 바꿔 비교하려면 「공정 및 불량 분석」으로 이동
+                </div>
               </div>
+              <button
+                type="button"
+                style={linkBtnStyle}
+                onClick={() => navigate('/analytics', { state: { activeTab: 'tab-charts', subTab: 'trend' } })}
+              >
+                상세 분석 보기 →
+              </button>
             </div>
-            <button
-              type="button"
-              style={linkBtnStyle}
-              onClick={() => navigate('/analytics', { state: { activeTab: 'tab-charts', subTab: 'trend' } })}
-            >
-              상세 분석 보기 →
-            </button>
-          </div>
-          <div style={{ padding: '12px 16px' }}>
-            {miniTrend.labels.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0', fontSize: '13px' }}>집계된 생산 데이터가 없습니다.</div>
-            ) : (
-              <div style={{ height: '215px' }}>
-                <Bar
-                  data={miniChartData}
-                  plugins={miniChartPlugins}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    layout: { padding: { top: 18, right: 8, left: 4, bottom: 0 } },
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                      x: {
-                        grid: { display: false },
-                        ticks: {
-                          font: { size: 11, weight: '600' },
-                          color: (ctx) => (ctx.index === miniTrend.labels.length - 1 ? '#1d4ed8' : '#64748b')
+            <div style={{ padding: isMonitorFullscreen ? '2px 0 0 0' : '12px 16px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+              {miniTrend.labels.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#94a3b8', padding: isMonitorFullscreen ? '16px 0' : '40px 0', fontSize: '13px' }}>집계된 생산 데이터가 없습니다.</div>
+              ) : (
+                <div style={{ height: isMonitorFullscreen ? '100%' : '215px', flex: isMonitorFullscreen ? 1 : undefined, minHeight: 0, position: 'relative' }}>
+                  <Bar
+                    data={miniChartData}
+                    plugins={miniChartPlugins}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      layout: { padding: { top: isMonitorFullscreen ? 14 : 18, right: 8, left: 4, bottom: 0 } },
+                      interaction: { mode: 'index', intersect: false },
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: {
+                            font: { size: isMonitorFullscreen ? 10.5 : 11, weight: '600' },
+                            color: (ctx) => (ctx.index === miniTrend.labels.length - 1 ? '#1d4ed8' : '#64748b')
+                          }
+                        },
+                        y: {
+                          type: 'linear',
+                          position: 'left',
+                          beginAtZero: true,
+                          grace: '18%',
+                          grid: { color: '#f1f5f9' },
+                          ticks: { font: { size: isMonitorFullscreen ? 10 : 11 }, color: '#94a3b8' }
+                        },
+                        y1: {
+                          type: 'linear',
+                          position: 'right',
+                          beginAtZero: true,
+                          grace: '25%',
+                          grid: { drawOnChartArea: false },
+                          ticks: { font: { size: isMonitorFullscreen ? 10 : 11 }, color: '#ef4444', callback: (v) => `${v}%` }
                         }
                       },
-                      y: {
-                        type: 'linear',
-                        position: 'left',
-                        beginAtZero: true,
-                        grace: '18%',
-                        grid: { color: '#f1f5f9' },
-                        ticks: { font: { size: 11 }, color: '#94a3b8' }
-                      },
-                      y1: {
-                        type: 'linear',
-                        position: 'right',
-                        beginAtZero: true,
-                        grace: '25%',
-                        grid: { drawOnChartArea: false },
-                        ticks: { font: { size: 11 }, color: '#ef4444', callback: (v) => `${v}%` }
+                      plugins: {
+                        legend: {
+                          position: 'top',
+                          align: 'end',
+                          labels: { boxWidth: 11, font: { size: isMonitorFullscreen ? 10.5 : 11 }, padding: isMonitorFullscreen ? 6 : 12 }
+                        },
+                        tooltip: {
+                          backgroundColor: 'rgba(15,23,42,0.92)',
+                          padding: 10
+                        }
                       }
-                    },
-                    plugins: {
-                      legend: {
-                        position: 'top',
-                        align: 'end',
-                        labels: { boxWidth: 12, font: { size: 11 }, padding: 12 }
-                      },
-                      tooltip: {
-                        backgroundColor: 'rgba(15,23,42,0.92)',
-                        padding: 10
-                      }
-                    }
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 이번 주 불량 유형 TOP 5 */}
-        <div className="card" style={{ margin: 0, display: 'flex', flexDirection: 'column' }} data-dashboard-card="week-top5-defect">
-          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-            <div>
-              <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>🔍 이번 주 불량 유형 TOP 5</h3>
-              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
-                {top5Defects.periodLabel} · 총 불량 <strong style={{ color: '#ef4444' }}>{top5Defects.total.toLocaleString()}</strong>건
-              </div>
+                    }}
+                  />
+                </div>
+              )}
             </div>
-            <button
-              type="button"
-              style={linkBtnStyle}
-              onClick={() => navigate('/analytics', { state: { activeTab: 'tab-charts', subTab: 'pareto' } })}
-            >
-              파레토 보기 →
-            </button>
           </div>
 
-          <div style={{ padding: '12px 16px', flex: 1 }}>
-            {top5Defects.list.length === 0 ? (
-              <div style={{ textAlign: 'center', color: '#94a3b8', padding: '32px 0', fontSize: '13px' }}>최근 집계된 불량 내역이 없습니다.</div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {top5Defects.list.map((d, i) => {
-                  const pctWidth = Math.round((d.qty / top5Defects.maxQty) * 100);
-                  const barColor = i === 0 ? '#ef4444' : i < 3 ? '#f97316' : '#fbbf24';
-                  return (
-                    <div
-                      key={d.name}
-                      style={{ display: 'grid', gridTemplateColumns: '22px 1fr 56px', gap: '8px', alignItems: 'center', padding: '3px 0' }}
-                    >
-                      <span
-                        style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '50%',
-                          background: '#fef2f2',
-                          color: '#ef4444',
-                          fontSize: '11px',
-                          fontWeight: 800,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      >
-                        {i + 1}
-                      </span>
-                      <div style={{ minWidth: 0 }}>
-                        <div
-                          title={d.name}
-                          style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                        >
-                          {d.name}
-                        </div>
-                        <div style={{ height: '7px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${pctWidth}%`, background: barColor, borderRadius: '4px' }} />
-                        </div>
-                      </div>
-                      <div style={{ textAlign: 'right', fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
-                        {d.qty.toLocaleString()}건
-                      </div>
-                    </div>
-                  );
-                })}
+          {/* 이번 주 불량 유형 TOP 5 */}
+          <div className="card" style={{ margin: 0, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }} data-dashboard-card="week-top5-defect">
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <div>
+                <h3 className="card-title" style={{ margin: 0, fontSize: '15px' }}>🔍 이번 주 불량 유형 TOP 5</h3>
+                <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
+                  {top5Defects.periodLabel} · 총 불량 <strong style={{ color: '#ef4444' }}>{top5Defects.total.toLocaleString()}</strong>건
+                </div>
               </div>
-            )}
+              <button
+                type="button"
+                style={linkBtnStyle}
+                onClick={() => navigate('/analytics', { state: { activeTab: 'tab-charts', subTab: 'pareto' } })}
+              >
+                파레토 보기 →
+              </button>
+            </div>
+
+            <div style={{ padding: isMonitorFullscreen ? '2px 0 0 0' : '12px 16px', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: isMonitorFullscreen ? 'space-evenly' : 'flex-start', overflow: 'hidden' }}>
+              {top5Defects.list.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#94a3b8', padding: isMonitorFullscreen ? '16px 0' : '32px 0', fontSize: '13px' }}>최근 집계된 불량 내역이 없습니다.</div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: isMonitorFullscreen ? '4px' : '10px', flex: isMonitorFullscreen ? 1 : undefined, justifyContent: isMonitorFullscreen ? 'space-evenly' : undefined }}>
+                  {top5Defects.list.map((d, i) => {
+                    const pctWidth = Math.round((d.qty / top5Defects.maxQty) * 100);
+                    const barColor = i === 0 ? '#ef4444' : i < 3 ? '#f97316' : '#fbbf24';
+                    return (
+                      <div
+                        key={d.name}
+                        style={{ display: 'grid', gridTemplateColumns: '22px 1fr 56px', gap: '8px', alignItems: 'center', padding: isMonitorFullscreen ? '1px 0' : '3px 0' }}
+                      >
+                        <span
+                          style={{
+                            width: isMonitorFullscreen ? '18px' : '20px',
+                            height: isMonitorFullscreen ? '18px' : '20px',
+                            borderRadius: '50%',
+                            background: '#fef2f2',
+                            color: '#ef4444',
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          {i + 1}
+                        </span>
+                        <div style={{ minWidth: 0 }}>
+                          <div
+                            title={d.name}
+                            style={{ fontSize: isMonitorFullscreen ? '12px' : '13px', fontWeight: 700, color: '#1e293b', marginBottom: isMonitorFullscreen ? '2px' : '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                          >
+                            {d.name}
+                          </div>
+                          <div style={{ height: isMonitorFullscreen ? '5px' : '7px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${pctWidth}%`, background: barColor, borderRadius: '4px' }} />
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right', fontSize: isMonitorFullscreen ? '12px' : '13px', fontWeight: 800, color: '#0f172a' }}>
+                          {d.qty.toLocaleString()}건
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Row 4: FMB보관실 한 달 단위 온·습도 추이 그래프 및 일자별 기록표 (최하단) ── */}
-      <FmbEnvMonthlyCard
-        fmbReports={data.fmbReports || []}
-        navigate={navigate}
-      />
+        {/* ── Row 4: FMB보관실 한 달 단위 온·습도 추이 그래프 및 일자별 기록표 (최하단) ── */}
+        <FmbEnvMonthlyCard
+          fmbReports={data.fmbReports || []}
+          navigate={navigate}
+          compact={isMonitorFullscreen}
+        />
+      </div>
     </div>
   );
 }
