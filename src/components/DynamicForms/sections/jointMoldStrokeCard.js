@@ -207,13 +207,21 @@ export function renderJointMoldStrokeCard(section5, existingData) {
     });
   };
 
+  const syncAllMoldMirrors = () => {
+    section5
+      .querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]')
+      .forEach((sel) => {
+        if (sel.id) syncMoldMirror(sel.id);
+      });
+  };
+
   section5
     .querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]')
     .forEach((origSel) => {
       if (origSel.dataset.strokeSyncBound === '1') return;
       origSel.dataset.strokeSyncBound = '1';
       origSel.addEventListener('change', () => {
-        syncMoldMirror(origSel.id);
+        syncAllMoldMirrors();
       });
     });
 
@@ -237,9 +245,7 @@ export function renderJointMoldStrokeCard(section5, existingData) {
         }
       });
 
-      ['R', 'S', 'T'].forEach((part) => {
-        syncMoldMirror(`${pfx}_mold_${part}`);
-      });
+      syncAllMoldMirrors();
     };
 
     if (lhEl.dataset.strokeSideSyncBound !== '1') {

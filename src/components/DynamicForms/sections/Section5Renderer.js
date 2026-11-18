@@ -33,24 +33,134 @@ export function renderSection5(ctx) {
     const molds = ctx.molds || [];
     const _carModel = carModelValue ? carModelValue.value : '';
     const _partName = partValueInput ? partValueInput.value : '';
-    const getMoldOptions = (moldType, selectedVal) => {
+    const moldSelectTypes = new Map();
+
+    const isMatchingPartName = (moldPartName) => {
+      if (moldPartName === _partName) return true;
+      if (_carModel === 'MV1a' && _partName === 'PTG' && moldPartName === 'SIDE TALE GATE') return true;
+      return false;
+    };
+
+    const getMoldOptions = (moldType, selectedVal, excludedValues = new Set(), excludedMoldIds = new Set()) => {
       if (!moldType) return '<option value="">금형선택</option>';
-      const filtered = molds.filter(m => m.carModel === _carModel && m.partName === _partName && (m.moldType === moldType || (m.moldType && (m.moldType.includes(moldType) || moldType.includes(m.moldType)))));
+      const filtered = molds.filter(m =>
+        m.carModel === _carModel &&
+        isMatchingPartName(m.partName) &&
+        (m.moldType === moldType || (m.moldType && (m.moldType.includes(moldType) || moldType.includes(m.moldType))))
+      );
       let options = '<option value="">금형선택</option>';
       let hasSelected = false;
+      const seenValues = new Set();
       filtered.forEach(m => {
-        const moldNo = m.moldNumber || m.code;
+        const moldNo = String(m.moldNumber || m.code || '').trim();
+        if (!moldNo) return;
+        const moldId = m.id || '';
+        if (excludedValues.has(moldNo) || (moldId && excludedMoldIds.has(moldId))) {
+          return;
+        }
+        if (seenValues.has(moldNo)) return;
+        seenValues.add(moldNo);
         if (selectedVal === moldNo) hasSelected = true;
         // data-mold-id: 호기 번호(1~7)는 금형 간 중복되므로 금형 문서 고유 ID를 함께 보관 (타수 누적·수리 연동용)
-        options += `<option value="${moldNo}" data-mold-id="${m.id || ''}" ${selectedVal === moldNo ? 'selected' : ''}>${moldNo}</option>`;
+        options += `<option value="${moldNo}" data-mold-id="${moldId}" ${selectedVal === moldNo ? 'selected' : ''}>${moldNo}</option>`;
       });
-      if (selectedVal && !hasSelected) {
+      if (selectedVal && !hasSelected && !excludedValues.has(String(selectedVal).trim())) {
         options += `<option value="${selectedVal}" selected>${selectedVal}</option>`;
       }
       return options;
     };
+
     const renderMoldSelect = (id, moldType, selVal) => {
+      moldSelectTypes.set(id, moldType || '');
       return `<select id="${id}" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;">${getMoldOptions(moldType, selVal)}</select>`;
+    };
+
+    const syncMoldSelectOptions = (deprioritizePrefix = '') => {
+      const allSelects = Array.from(
+        section5.querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]')
+      );
+      if (allSelects.length === 0) return;
+
+      const orderedForClaim = deprioritizePrefix
+        ? [
+            ...allSelects.filter(s => !s.id.startsWith(`${deprioritizePrefix}_`)),
+            ...allSelects.filter(s => s.id.startsWith(`${deprioritizePrefix}_`))
+          ]
+        : allSelects;
+
+      const claimedByType = new Map();
+      const claimedMoldIds = new Set();
+      const effectiveValById = new Map();
+
+      orderedForClaim.forEach(sel => {
+        const mType = moldSelectTypes.get(sel.id) || '';
+        const curVal = String(sel.value || '').trim();
+        if (!curVal || !mType) {
+          effectiveValById.set(sel.id, curVal);
+          return;
+        }
+        let claimedSet = claimedByType.get(mType);
+        if (!claimedSet) {
+          claimedSet = new Set();
+          claimedByType.set(mType, claimedSet);
+        }
+        const selectedOpt = sel.options[sel.selectedIndex];
+        const curMoldId = selectedOpt?.dataset?.moldId || '';
+        const isUndirectedDtType = ['R[직각]', 'S[둔각]', 'T[직선]'].includes(mType);
+
+        if (claimedSet.has(curVal) || (curMoldId && !isUndirectedDtType && claimedMoldIds.has(curMoldId))) {
+          effectiveValById.set(sel.id, '');
+          sel.value = '';
+        } else {
+          claimedSet.add(curVal);
+          if (curMoldId && !isUndirectedDtType) claimedMoldIds.add(curMoldId);
+          effectiveValById.set(sel.id, curVal);
+        }
+      });
+
+      allSelects.forEach(sel => {
+        const mType = moldSelectTypes.get(sel.id) || '';
+        const curVal = effectiveValById.get(sel.id) ?? String(sel.value || '').trim();
+        const excludedValues = new Set();
+        const excludedMoldIds = new Set();
+
+        allSelects.forEach(other => {
+          if (other === sel) return;
+          const otherType = moldSelectTypes.get(other.id) || '';
+          const otherVal = effectiveValById.get(other.id) ?? String(other.value || '').trim();
+          if (!otherVal) return;
+          if (otherType && otherType === mType) {
+            excludedValues.add(otherVal);
+          }
+          const selectedOpt = other.options[other.selectedIndex];
+          const otherMoldId = selectedOpt?.dataset?.moldId;
+          const isUndirected = ['R[직각]', 'S[둔각]', 'T[직선]'].includes(otherType) || ['R[직각]', 'S[둔각]', 'T[직선]'].includes(mType);
+          if (otherMoldId && (otherType === mType || !isUndirected)) {
+            excludedMoldIds.add(otherMoldId);
+          }
+        });
+
+        const nextHtml = getMoldOptions(mType, curVal, excludedValues, excludedMoldIds);
+        if (sel.innerHTML !== nextHtml) {
+          sel.innerHTML = nextHtml;
+        }
+        if (sel.value !== curVal) {
+          sel.value = curVal;
+        }
+      });
+    };
+
+    const bindMoldDuplicatePrevention = () => {
+      syncMoldSelectOptions();
+      section5
+        .querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]')
+        .forEach(sel => {
+          if (sel._moldDedupBound) return;
+          sel._moldDedupBound = true;
+          sel.addEventListener('change', () => {
+            syncMoldSelectOptions();
+          });
+        });
     };
 
     const d = existingData?.dimData || {};
@@ -283,6 +393,7 @@ export function renderSection5(ctx) {
         </div>
       `;
 
+      bindMoldDuplicatePrevention();
       renderJointMoldStrokeCard(section5, existingData);
 
       setTimeout(() => {
@@ -2104,22 +2215,11 @@ export function renderSection5(ctx) {
             if (thS) thS.innerText = sidePrefix + 'S[둔각]';
             if (thT) thT.innerText = sidePrefix + 'T[직선]';
   
-            const moldR = section5.querySelector(`#${pfx}_mold_R`);
-            const moldS = section5.querySelector(`#${pfx}_mold_S`);
-            const moldT = section5.querySelector(`#${pfx}_mold_T`);
-            
-            if (moldR) {
-              const curVal = moldR.value;
-              moldR.innerHTML = getMoldOptions(sidePrefix + 'R[직각]', curVal);
-            }
-            if (moldS) {
-              const curVal = moldS.value;
-              moldS.innerHTML = getMoldOptions(sidePrefix + 'S[둔각]', curVal);
-            }
-            if (moldT) {
-              const curVal = moldT.value;
-              moldT.innerHTML = getMoldOptions(sidePrefix + 'T[직선]', curVal);
-            }
+            moldSelectTypes.set(`${pfx}_mold_R`, sidePrefix + 'R[직각]');
+            moldSelectTypes.set(`${pfx}_mold_S`, sidePrefix + 'S[둔각]');
+            moldSelectTypes.set(`${pfx}_mold_T`, sidePrefix + 'T[직선]');
+
+            syncMoldSelectOptions(pfx);
           };
           lhEl.addEventListener('change', (e) => {
             if (e.target.checked && rhEl.checked) rhEl.checked = false;
@@ -2289,6 +2389,7 @@ export function renderSection5(ctx) {
         });
       }
 
+      bindMoldDuplicatePrevention();
       renderJointMoldStrokeCard(section5, existingData);
     } else if (curProc === '소재준비' || curProc.startsWith('소재준비')) {
       if (formCode === 1021 || formCode === 1041) {

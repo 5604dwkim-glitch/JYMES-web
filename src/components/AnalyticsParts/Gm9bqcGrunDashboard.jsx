@@ -105,7 +105,6 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
     }
   }, [reportsLoading, latestActiveGrunDate, reports, today]);
 
-  const [shiftFilter, setShiftFilter] = useState('ALL'); // 'ALL' | '주간' | '야간'
   const [lotSearch, setLotSearch] = useState('');
   const [exporting, setExporting] = useState(false);
 
@@ -215,10 +214,10 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
   const model = useMemo(
     () =>
       buildGm9bqcGrunDashboardModel(sourceReports, {
-        shiftFilter,
+        shiftFilter: 'ALL',
         trackingReports
       }),
-    [sourceReports, shiftFilter, trackingReports]
+    [sourceReports, trackingReports]
   );
 
   // 공정별 최대 생산량 및 최대 불량 건수 (차트 스케일용)
@@ -281,7 +280,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
       await exportGm9bqcGrunToExcel({
         model,
         periodLabel,
-        shiftLabel: shiftFilter === 'ALL' ? '전체' : shiftFilter
+        shiftLabel: '전체'
       });
     } catch (e) {
       console.error('Excel export failed:', e);
@@ -745,26 +744,6 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               />
             </div>
           )}
-
-          <select
-            value={shiftFilter}
-            onChange={(e) => setShiftFilter(e.target.value)}
-            style={{
-              background: '#ffffff',
-              color: '#0f172a',
-              border: '1px solid #cbd5e1',
-              borderRadius: '8px',
-              padding: '5px 10px',
-              fontSize: '12.5px',
-              fontWeight: 700,
-              height: '32px',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="ALL">전체 (주·야)</option>
-            <option value="주간">주간</option>
-            <option value="야간">야간</option>
-          </select>
 
           <span
             style={{
