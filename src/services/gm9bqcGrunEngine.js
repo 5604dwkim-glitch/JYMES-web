@@ -452,15 +452,17 @@ export function buildSubMaterialCards(validEntries) {
     }
   });
 
-  // 2) D/V (#5006 · #5013)
+  // 2) D/V (#5006 · #5007 · #5013)
   const dvCard = collectThreeStageCard({
     id: 'dv',
-    title: 'D/V',
-    processBadge: '#5006 · #5013',
+    title: 'D/V lot',
+    shortBadge: '#5006·5013',
+    processBadge: '#5006 · #5007 · #5013',
     specLabel: 'Division Bar / Sub LOT',
-    reports: byCode([5006, 5013]),
+    reports: byCode([5006, 5007, 5013]),
     extractor: (r) => {
-      if (Number(r.formCode) === 5006 || r.processName === '조인트-RR Fixed') {
+      const c = resolveGm9bqcProcessCode(r, { excludeDraftRejected: false }) || Number(r.formCode);
+      if (c === 5006 || r.processName === '조인트-RR Fixed') {
         const m = r.materialLots || {};
         const equip = resolveF5006Equip(r);
         return {
@@ -468,6 +470,15 @@ export function buildSubMaterialCards(validEntries) {
           중: pickStageVal(m, ['f5006_rec_DV_중물']),
           종: pickStageVal(m, ['f5006_rec_DV_종물']),
           extra: equip.label
+        };
+      }
+      if (c === 5007 || r.processName === '후가공-D/V') {
+        const m = r.materialLots || {};
+        return {
+          초: pickStageVal(m, ['f5007_DV_LH_초물', 'f5007_DV_RH_초물', 'LH_초물', 'RH_초물']),
+          중: pickStageVal(m, ['f5007_DV_LH_중물', 'f5007_DV_RH_중물', 'LH_중물', 'RH_중물']),
+          종: pickStageVal(m, ['f5007_DV_LH_종물', 'f5007_DV_RH_종물', 'LH_종물', 'RH_종물']),
+          extra: '후가공-D/V'
         };
       }
       const d = r.dimData || {};
@@ -616,9 +627,596 @@ function simplifyDefectLabel(rawName) {
 }
 
 /**
+ * LOT 입력 문자열(년·월·일·시·분·초 포함)에서 시·분·초를 제외하고 '년.월.일'만 추출한다.
+ * 예:
+ *  - '26년 11월 03일 14시 22분 10초' -> { lotKey: '26.11.03', lotYmd: '2026-11-03', lotMmDd: '11/03' }
+ *  - '2026-11-03 18:10'             -> { lotKey: '26.11.03', lotYmd: '2026-11-03', lotMmDd: '11/03' }
+ *  - '26.11.03 09:00'               -> { lotKey: '26.11.03', lotYmd: '2026-11-03', lotMmDd: '11/03' }
+ */
+export function extractLotYmdInfo(raw) {
+  const txt = cleanText(raw);
+  if (!txt) return null;
+
+  // 1) '26년 11월 03일 ...'
+  const kor = txt.match(/(\d{2,4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})\s*일/);
+  if (kor) {
+    const yy = kor[1].slice(-2);
+    const yyyy = kor[1].length === 4 ? kor[1] : `20${yy}`;
+    const mm = kor[2].padStart(2, '0');
+    const dd = kor[3].padStart(2, '0');
+    return {
+      lotKey: `${yy}.${mm}.${dd}`,
+      lotYmd: `${yyyy}-${mm}-${dd}`,
+      lotMmDd: `${mm}/${dd}`
+    };
+  }
+
+  // 2) '2026.11.03', '26.11.03', '2026-11-03', '26/11/03' (뒤에 시:분:초가 있어도 무시)
+  const sep = txt.match(/(?:^|\D)(\d{2}|\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})(?:\D|$)/);
+  if (sep) {
+    const yy = sep[1].slice(-2);
+    const yyyy = sep[1].length === 4 ? sep[1] : `20${yy}`;
+    const mmNum = Number(sep[2]);
+    const ddNum = Number(sep[3]);
+    if (mmNum >= 1 && mmNum <= 12 && ddNum >= 1 && ddNum <= 31) {
+      const mm = String(mmNum).padStart(2, '0');
+      const dd = String(ddNum).padStart(2, '0');
+      return {
+        lotKey: `${yy}.${mm}.${dd}`,
+        lotYmd: `${yyyy}-${mm}-${dd}`,
+        lotMmDd: `${mm}/${dd}`
+      };
+    }
+  }
+
+  // 3) '20261103...' 또는 '261103...' 연속 숫자형
+  const digits = txt.match(/^(\d{8}|\d{6})(?:\D|$)/);
+  if (digits) {
+    const dStr = digits[1];
+    const yyyy = dStr.length === 8 ? dStr.slice(0, 4) : `20${dStr.slice(0, 2)}`;
+    const yy = yyyy.slice(-2);
+    const mmNum = Number(dStr.slice(-4, -2));
+    const ddNum = Number(dStr.slice(-2));
+    if (mmNum >= 1 && mmNum <= 12 && ddNum >= 1 && ddNum <= 31) {
+      const mm = String(mmNum).padStart(2, '0');
+      const dd = String(ddNum).padStart(2, '0');
+      return {
+        lotKey: `${yy}.${mm}.${dd}`,
+        lotYmd: `${yyyy}-${mm}-${dd}`,
+        lotMmDd: `${mm}/${dd}`
+      };
+    }
+  }
+
+  // 4) 날짜 형식이 아닌 일반 LOT 코드일 경우 시:분 제거 후 원문 보존
+  const fallback = compactLotDisplay(txt).replace(/\s+\d{1,2}:\d{2}(?::\d{2})?$/, '').trim();
+  if (!fallback) return null;
+  return {
+    lotKey: fallback,
+    lotYmd: '',
+    lotMmDd: ''
+  };
+}
+
+export const LOT_TRACE_SLOTS = [
+  { group: 'FRT', sideSec: 'LH A' },
+  { group: 'FRT', sideSec: 'RH A' },
+  { group: 'FRT', sideSec: 'LH B' },
+  { group: 'FRT', sideSec: 'RH B' },
+  { group: 'FRT', sideSec: 'LH C' },
+  { group: 'FRT', sideSec: 'RH C' },
+  { group: 'RR', sideSec: 'LH A' },
+  { group: 'RR', sideSec: 'RH A' },
+  { group: 'RR', sideSec: 'LH B' },
+  { group: 'RR', sideSec: 'RH B' }
+];
+
+/**
+ * 단일 일보의 materialLots 키를 (group: 'FRT'|'RR', sideSec: 'LH A'~'RH C', stageKey: '절단'|'조인트'|'후가공'|'출하')로 매핑한다.
+ * (D/V 관련 키는 부자재 LOT 현황으로 이동했으므로 제외)
+ */
+function resolveLotTraceTargets(key, code, report) {
+  if (!key || typeof key !== 'string') return null;
+  if (key.startsWith('f5006_rec_') || key === 'f5006_selected_equip') return null;
+  if (key.endsWith('_chk1') || key.endsWith('_chk2')) return null;
+  if (!(key.includes('초물') || key.includes('중물') || key.includes('종물') || /_(초|중|종)$/.test(key))) {
+    return null;
+  }
+
+  const clean = key
+    .replace(new RegExp(`^f${code}_`), '')
+    .replace(/_(초물|중물|종물|초|중|종)$/, '');
+
+  // D/V (#5007) 제외 (우하단 부자재 LOT 현황에 표시)
+  if (code === 5007 || clean.startsWith('DV_')) return null;
+
+  // 1) #5002 소재준비-정치절단 (FRT A/B/C, RR A/B -> 좌·우 공용 절단 단계)
+  if (code === 5002) {
+    const m = clean.match(/^(FRT|RR)_([ABC])$/);
+    if (!m) return null;
+    const grp = m[1];
+    const sec = m[2];
+    if (grp === 'RR' && sec === 'C') return null;
+    return {
+      stageKey: '절단',
+      targets: [
+        { group: grp, sideSec: `LH ${sec}` },
+        { group: grp, sideSec: `RH ${sec}` }
+      ]
+    };
+  }
+
+  // 2) #5003 소재준비-단컷팅 (FRT_LH_A, FRT_RH_B, RR_LH_A, RR_RH_B 및 레거시 LH_FRT 등)
+  if (code === 5003) {
+    const m = clean.match(/^(FRT|RR)_(LH|RH)_([AB])$/);
+    if (m) {
+      return { stageKey: '절단', targets: [{ group: m[1], sideSec: `${m[2]} ${m[3]}` }] };
+    }
+    const leg = clean.match(/^(LH|RH)_(FRT|RR)$/);
+    if (leg) {
+      return { stageKey: '절단', targets: [{ group: leg[2], sideSec: `${leg[1]} A` }] };
+    }
+    return null;
+  }
+
+  // 3) #5004 조인트-FRT
+  if (code === 5004) {
+    const m = clean.match(/^FRT_(LH|RH)_([ABC])$/);
+    if (m) {
+      return { stageKey: '조인트', targets: [{ group: 'FRT', sideSec: `${m[1]} ${m[2]}` }] };
+    }
+    const leg = clean.match(/^(?:FRT_(LH|RH)|(LH|RH)_FRT)$/);
+    if (leg) {
+      const side = leg[1] || leg[2];
+      return { stageKey: '조인트', targets: [{ group: 'FRT', sideSec: `${side} A` }] };
+    }
+    return null;
+  }
+
+  // 4) #5005 조인트-RR R부
+  if (code === 5005) {
+    const m = clean.match(/^RR_(LH|RH)_([AB])$/);
+    if (m) {
+      return { stageKey: '조인트', targets: [{ group: 'RR', sideSec: `${m[1]} ${m[2]}` }] };
+    }
+    const leg = clean.match(/^(?:FRT_(LH|RH)|(LH|RH)_FRT)$/);
+    if (leg) {
+      const side = leg[1] || leg[2];
+      return { stageKey: '조인트', targets: [{ group: 'RR', sideSec: `${side} A` }] };
+    }
+    return null;
+  }
+
+  // 5) #5006 조인트-RR Fixed
+  if (code === 5006) {
+    const equip = resolveF5006Equip(report);
+    const mSide = clean.match(/^RR_(LH|RH)_([AB])$/);
+    if (mSide) {
+      return { stageKey: '조인트', targets: [{ group: 'RR', sideSec: `${mSide[1]} ${mSide[2]}` }] };
+    }
+    const mSec = clean.match(/^RR_([AB])$/);
+    if (mSec) {
+      return { stageKey: '조인트', targets: [{ group: 'RR', sideSec: `${equip.side} ${mSec[1]}` }] };
+    }
+    const leg = clean.match(/^FRT_(LH|RH)$/);
+    if (leg) {
+      return { stageKey: '조인트', targets: [{ group: 'RR', sideSec: `${leg[1]} A` }] };
+    }
+    return null;
+  }
+
+  // 6) #5010 후가공-RR
+  if (code === 5010) {
+    const m = clean.match(/^(?:RR|FRT)_(LH|RH)_([AB])$/);
+    if (m) {
+      return { stageKey: '후가공', targets: [{ group: 'RR', sideSec: `${m[1]} ${m[2]}` }] };
+    }
+    return null;
+  }
+
+  // 7) #5011 검사포장-FRT (출하)
+  if (code === 5011) {
+    const m = clean.match(/^FRT_(LH|RH)_([ABC])$/);
+    if (m) {
+      return { stageKey: '출하', targets: [{ group: 'FRT', sideSec: `${m[1]} ${m[2]}` }] };
+    }
+    const leg = clean.match(/^(?:FRT_(LH|RH)|(LH|RH)_FRT)$/);
+    if (leg) {
+      const side = leg[1] || leg[2];
+      return { stageKey: '출하', targets: [{ group: 'FRT', sideSec: `${side} A` }] };
+    }
+    return null;
+  }
+
+  // 8) #5012 · #5013 · #5014 검사포장-RR (출하)
+  if (code === 5012 || code === 5013 || code === 5014) {
+    const m = clean.match(/^(?:RR|FRT)_(LH|RH)_([AB])$/);
+    if (m) {
+      return { stageKey: '출하', targets: [{ group: 'RR', sideSec: `${m[1]} ${m[2]}` }] };
+    }
+    return null;
+  }
+
+  return null;
+}
+
+function formatMmDd(ymd) {
+  if (!ymd || typeof ymd !== 'string') return '';
+  const m = ymd.match(/^\d{4}-(\d{2})-(\d{2})$/);
+  if (m) return `${m[1]}/${m[2]}`;
+  return ymd;
+}
+
+/**
+ * 1-B안 좌하단 'LOT 추이도' (날짜 타임라인축 + FRT/RR LH·RH 구분 + 복수 동시 LOT 전수 표시 + 중간 공정 끊김 표현)
+ */
+export function buildLotTraceabilityTimeline(validEntries = [], trackingEntries = null) {
+  const sourcePool = Array.isArray(trackingEntries) && trackingEntries.length > 0 ? trackingEntries : validEntries;
+
+  // 선택된 기간(validEntries)에 등장한 (group|sideSec|lotKey) 집합 파악
+  const activeTrackKeys = new Set();
+  const collectFromEntries = (entries, recordIntoMap) => {
+    entries.forEach(({ code, report }) => {
+      const lots = report?.materialLots || {};
+      const reportDate = cleanText(report?.date);
+      if (!reportDate) return;
+
+      Object.entries(lots).forEach(([key, rawVal]) => {
+        if (typeof rawVal === 'boolean') return;
+        const resolved = resolveLotTraceTargets(key, code, report);
+        if (!resolved) return;
+        const lotInfo = extractLotYmdInfo(rawVal);
+        if (!lotInfo || !lotInfo.lotKey) return;
+
+        resolved.targets.forEach(({ group, sideSec }) => {
+          const trackId = `${group}|${sideSec}|${lotInfo.lotKey}`;
+          if (recordIntoMap) {
+            recordIntoMap({
+              trackId,
+              group,
+              sideSec,
+              lotKey: lotInfo.lotKey,
+              lotYmd: lotInfo.lotYmd,
+              lotMmDd: lotInfo.lotMmDd,
+              stageKey: resolved.stageKey,
+              reportDate,
+              report,
+              code
+            });
+          } else {
+            activeTrackKeys.add(trackId);
+          }
+        });
+      });
+    });
+  };
+
+  collectFromEntries(validEntries, null);
+
+  // 전체 추적 풀(최근 가동 구간 포함)에서 동일 (group, sideSec, lotKey)의 모든 공정 투입 날짜 수집
+  const tracksById = new Map();
+  collectFromEntries(sourcePool, (item) => {
+    if (activeTrackKeys.size > 0 && !activeTrackKeys.has(item.trackId)) return;
+    let tr = tracksById.get(item.trackId);
+    if (!tr) {
+      tr = {
+        trackId: item.trackId,
+        group: item.group,
+        sideSec: item.sideSec,
+        lotKey: item.lotKey,
+        lotYmd: item.lotYmd,
+        lotMmDd: item.lotMmDd,
+        stages: {
+          절단: new Map(), // reportDate -> Set<report>
+          조인트: new Map(),
+          후가공: new Map(),
+          출하: new Map()
+        },
+        allReports: new Map()
+      };
+      tracksById.set(item.trackId, tr);
+    }
+    const stageMap = tr.stages[item.stageKey];
+    if (stageMap) {
+      if (!stageMap.has(item.reportDate)) {
+        stageMap.set(item.reportDate, []);
+      }
+      stageMap.get(item.reportDate).push(item.report);
+    }
+    if (item.report?.id) {
+      tr.allReports.set(item.report.id, item.report);
+    }
+  });
+
+  // 전체 타임라인 날짜 축(dateColumns) 구성
+  const allDatesSet = new Set();
+  tracksById.forEach((tr) => {
+    if (tr.lotYmd) allDatesSet.add(tr.lotYmd);
+    ['절단', '조인트', '후가공', '출하'].forEach((st) => {
+      tr.stages[st].forEach((_, rDate) => {
+        if (rDate) allDatesSet.add(rDate);
+      });
+    });
+  });
+
+  // 데이터가 아직 없을 경우 선택된 일보 날짜들을 기본 타임라인 컬럼으로 구성
+  if (allDatesSet.size === 0) {
+    validEntries.forEach(({ report }) => {
+      if (report?.date) allDatesSet.add(report.date);
+    });
+  }
+
+  let sortedDates = [...allDatesSet].filter(Boolean).sort();
+  // 타임라인 가독성을 위해 날짜가 1~3개뿐이면 전후 날짜를 보강해 최소 5~6개 날짜 컬럼 확보
+  if (sortedDates.length > 0 && sortedDates.length < 5) {
+    const baseStr = sortedDates[0];
+    const baseDate = new Date(`${baseStr}T00:00:00`);
+    if (!Number.isNaN(baseDate.getTime())) {
+      for (let offset = 0; offset < 6; offset += 1) {
+        const d = new Date(baseDate);
+        d.setDate(baseDate.getDate() + offset);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        allDatesSet.add(`${y}-${m}-${day}`);
+      }
+      sortedDates = [...allDatesSet].sort();
+    }
+  }
+  if (sortedDates.length > 8) {
+    sortedDates = sortedDates.slice(-8);
+  }
+
+  const dateColumns = sortedDates.map((ymd) => ({
+    ymd,
+    label: formatMmDd(ymd)
+  }));
+
+  const palette = ['#4338ca', '#0d9488', '#0284c7', '#475569', '#7c3aed'];
+
+  // 10개 고정 슬롯(FRT LH A ~ RR RH B) 순서대로 행 생성 (동일 슬롯에 복수 LOT 존재 시 전부 별도 행으로 생성!)
+  const rows = [];
+  LOT_TRACE_SLOTS.forEach((slot) => {
+    const matchingTracks = [...tracksById.values()]
+      .filter((t) => t.group === slot.group && t.sideSec === slot.sideSec)
+      .sort((a, b) => a.lotKey.localeCompare(b.lotKey));
+
+    if (matchingTracks.length === 0) {
+      rows.push({
+        rowKey: `${slot.group}_${slot.sideSec}_empty`,
+        group: slot.group,
+        sideSec: slot.sideSec,
+        lotKey: '',
+        lotYmd: '',
+        isEmpty: true,
+        color: '#94a3b8',
+        cells: dateColumns.map((col) => ({ ymd: col.ymd, items: [] })),
+        stageSummary: { 절단: [], 조인트: [], 후가공: [], 출하: [] },
+        missingStages: [],
+        reports: []
+      });
+      return;
+    }
+
+    matchingTracks.forEach((tr, idx) => {
+      const color = palette[idx % palette.length];
+      const expectedStages = tr.group === 'FRT' ? ['절단', '조인트', '출하'] : ['절단', '조인트', '후가공', '출하'];
+      const stageDates = {
+        절단: [...tr.stages.절단.keys()].sort(),
+        조인트: [...tr.stages.조인트.keys()].sort(),
+        후가공: [...tr.stages.후가공.keys()].sort(),
+        출하: [...tr.stages.출하.keys()].sort()
+      };
+
+      // 관측된 공정 중 가장 마지막 공정 이전에 누락된 중간 공정 판별
+      let lastObservedStageIdx = -1;
+      expectedStages.forEach((st, sIdx) => {
+        if (stageDates[st].length > 0) lastObservedStageIdx = sIdx;
+      });
+
+      const missingStages = [];
+      const missingBetweenPairs = []; // { afterStage, beforeStage, missingStage, prevDate, nextDate }
+      if (lastObservedStageIdx > 0) {
+        let lastKnownStage = null;
+        let lastKnownDate = tr.lotYmd || '';
+        for (let sIdx = 0; sIdx <= lastObservedStageIdx; sIdx += 1) {
+          const st = expectedStages[sIdx];
+          if (stageDates[st].length > 0) {
+            const firstDate = stageDates[st][0];
+            if (missingStages.length > 0 && lastKnownDate) {
+              const latestMiss = missingStages[missingStages.length - 1];
+              if (!latestMiss.placed) {
+                missingBetweenPairs.push({
+                  missingStage: latestMiss.stage,
+                  prevDate: lastKnownDate,
+                  nextDate: firstDate
+                });
+                latestMiss.placed = true;
+              }
+            }
+            lastKnownStage = st;
+            lastKnownDate = stageDates[st][stageDates[st].length - 1];
+          } else {
+            missingStages.push({
+              stage: st,
+              afterStage: lastKnownStage,
+              prevDate: lastKnownDate,
+              placed: false
+            });
+          }
+        }
+      }
+
+      // 날짜 컬럼별 배지 아이템 배치
+      const cellMap = new Map(dateColumns.map((c) => [c.ymd, []]));
+      let lotBadgePlaced = false;
+      if (tr.lotYmd && cellMap.has(tr.lotYmd)) {
+        cellMap.get(tr.lotYmd).push({
+          type: 'lot',
+          label: `소재 ${tr.lotKey}`,
+          lotKey: tr.lotKey,
+          ymd: tr.lotYmd
+        });
+        lotBadgePlaced = true;
+      }
+
+      ['절단', '조인트', '후가공', '출하'].forEach((st) => {
+        stageDates[st].forEach((rDate) => {
+          const targetColYmd = cellMap.has(rDate) ? rDate : (dateColumns[0]?.ymd || '');
+          if (targetColYmd && cellMap.has(targetColYmd)) {
+            cellMap.get(targetColYmd).push({
+              type: 'stage',
+              stage: st,
+              label: `${st} ${formatMmDd(rDate)}`,
+              ymd: rDate
+            });
+          }
+        });
+      });
+
+      // 소재 시작일이 표시된 날짜 컬럼 범위 이전일 경우 첫 번째 활성 컬럼 앞에 소재 LOT 배지 삽입
+      if (!lotBadgePlaced && dateColumns.length > 0) {
+        let firstActiveCol = dateColumns[0].ymd;
+        for (const col of dateColumns) {
+          if ((cellMap.get(col.ymd) || []).length > 0) {
+            firstActiveCol = col.ymd;
+            break;
+          }
+        }
+        cellMap.get(firstActiveCol).unshift({
+          type: 'lot',
+          label: `소재 ${tr.lotKey}`,
+          lotKey: tr.lotKey,
+          ymd: tr.lotYmd
+        });
+      }
+
+      // 중간 누락 공정(✕ 끊김) 배지를 이전 날짜와 다음 날짜 사이의 빈 날짜 컬럼(없으면 다음 공정 컬럼 앞)에 배치
+      missingBetweenPairs.forEach((gap) => {
+        const emptyBetweenCol = dateColumns.find(
+          (c) =>
+            c.ymd > gap.prevDate &&
+            c.ymd < gap.nextDate &&
+            (cellMap.get(c.ymd) || []).length === 0
+        );
+        if (emptyBetweenCol) {
+          cellMap.get(emptyBetweenCol.ymd).push({
+            type: 'missing',
+            stage: gap.missingStage,
+            label: '✕ 끊김',
+            detail: `${gap.missingStage} LOT 미확인`
+          });
+        } else if (gap.nextDate && cellMap.has(gap.nextDate)) {
+          cellMap.get(gap.nextDate).unshift({
+            type: 'missing',
+            stage: gap.missingStage,
+            label: '✕ 끊김',
+            detail: `${gap.missingStage} LOT 미확인`
+          });
+        }
+      });
+
+      rows.push({
+        rowKey: tr.trackId,
+        group: tr.group,
+        sideSec: tr.sideSec,
+        lotKey: tr.lotKey,
+        lotYmd: tr.lotYmd,
+        isEmpty: false,
+        color,
+        cells: dateColumns.map((col) => ({
+          ymd: col.ymd,
+          items: cellMap.get(col.ymd) || []
+        })),
+        stageSummary: stageDates,
+        missingStages: missingStages.map((m) => m.stage),
+        reports: [...tr.allReports.values()]
+      });
+    });
+  });
+
+  return {
+    dateColumns,
+    rows
+  };
+}
+
+/**
+ * 우하단 '부자재 LOT 현황' 5종 카드 구성 (패드 lot [5T/7T], 브라켓 lot, 조인트 재료 lot, Glass lot, D/V lot)
+ */
+export function buildSubMaterial5Cards(subMaterialCards = []) {
+  const byId = new Map(subMaterialCards.map((c) => [c.id, c]));
+  const pad5 = byId.get('pad_5t');
+  const pad7 = byId.get('pad_7t');
+  const bracket = byId.get('bracket');
+  const joint = byId.get('joint_resin');
+  const glass = byId.get('glass');
+  const dv = byId.get('dv');
+
+  const p5Lot = pad5?.primaryLot || '';
+  const p7Lot = pad7?.primaryLot || '';
+  let padPrimaryLot = '';
+  if (p5Lot && p7Lot) {
+    padPrimaryLot = p5Lot === p7Lot ? `${p5Lot} (5T·7T)` : `${p5Lot} (5T) · ${p7Lot} (7T)`;
+  } else if (p5Lot) {
+    padPrimaryLot = `${p5Lot} (5T)`;
+  } else if (p7Lot) {
+    padPrimaryLot = `${p7Lot} (7T)`;
+  }
+
+  const padCombinedCard = {
+    id: 'pad_combined',
+    title: '패드 lot',
+    shortBadge: '5T / 7T',
+    processBadge: '#5010 · #5011 · #5013 · #5014',
+    specLabel: '패드 5T(5*5*60) · 7T(7*10*50)',
+    primaryLot: padPrimaryLot,
+    subMeta: pad5?.records?.length ? pad5.subMeta : (pad7?.subMeta || '금일 입력 대기'),
+    updatedStamp: pad5?.updatedStamp !== '-' ? pad5?.updatedStamp : (pad7?.updatedStamp || '-'),
+    stages: [
+      {
+        label: '초',
+        filled: Boolean(pad5?.stages?.[0]?.filled || pad7?.stages?.[0]?.filled),
+        value: [pad5?.stages?.[0]?.value, pad7?.stages?.[0]?.value].filter(Boolean).join(' / ')
+      },
+      {
+        label: '중',
+        filled: Boolean(pad5?.stages?.[1]?.filled || pad7?.stages?.[1]?.filled),
+        value: [pad5?.stages?.[1]?.value, pad7?.stages?.[1]?.value].filter(Boolean).join(' / ')
+      },
+      {
+        label: '종',
+        filled: Boolean(pad5?.stages?.[2]?.filled || pad7?.stages?.[2]?.filled),
+        value: [pad5?.stages?.[2]?.value, pad7?.stages?.[2]?.value].filter(Boolean).join(' / ')
+      }
+    ],
+    records: [...(pad5?.records || []), ...(pad7?.records || [])]
+  };
+
+  return [
+    padCombinedCard,
+    bracket ? { ...bracket, title: '브라켓 lot', shortBadge: '#5006' } : null,
+    joint
+      ? {
+          ...joint,
+          title: '조인트 재료 lot',
+          shortBadge: 'FRT·RR',
+          stages: [
+            { label: '초', filled: Boolean(joint.stages?.[0]?.filled), value: joint.stages?.[0]?.value || '' },
+            { label: '중', filled: Boolean(joint.stages?.[1]?.filled), value: joint.stages?.[1]?.value || '' },
+            { label: '종', filled: Boolean(joint.stages?.[2]?.filled), value: joint.stages?.[2]?.value || '' }
+          ]
+        }
+      : null,
+    glass ? { ...glass, title: 'Glass lot', shortBadge: '#5006' } : null,
+    dv ? { ...dv, title: 'D/V lot', shortBadge: '#5006·5013' } : null
+  ].filter(Boolean);
+}
+
+/**
  * 필터링된 일보 목록으로부터 Proposal C 전체 관제판 데이터를 계산한다.
  */
-export function buildGm9bqcGrunDashboardModel(reports = [], { shiftFilter = 'ALL' } = {}) {
+export function buildGm9bqcGrunDashboardModel(reports = [], { shiftFilter = 'ALL', trackingReports = null } = {}) {
   const validEntries = [];
 
   reports.forEach((r) => {
@@ -628,6 +1226,17 @@ export function buildGm9bqcGrunDashboardModel(reports = [], { shiftFilter = 'ALL
     if (shiftFilter !== 'ALL' && shift !== shiftFilter) return;
     validEntries.push({ code, shift, report: r });
   });
+
+  const trackingEntries = [];
+  if (Array.isArray(trackingReports) && trackingReports.length > 0) {
+    trackingReports.forEach((r) => {
+      const code = resolveGm9bqcProcessCode(r, { excludeDraftRejected: true });
+      if (!code) return;
+      const shift = classifyReportShift(r);
+      if (shiftFilter !== 'ALL' && shift !== shiftFilter) return;
+      trackingEntries.push({ code, shift, report: r });
+    });
+  }
 
   // 최신 일보가 먼저 오도록 정렬
   validEntries.sort((a, b) => {
@@ -691,6 +1300,7 @@ export function buildGm9bqcGrunDashboardModel(reports = [], { shiftFilter = 'ALL
 
     const totalInspected = actual + defect;
     const defectRate = totalInspected > 0 ? (defect / totalInspected) * 100 : 0;
+    const qualityRate = totalInspected > 0 ? (actual / totalInspected) * 100 : (matching.length > 0 ? 100 : 0);
 
     const topDefectEntry = Object.entries(procDefects).sort((a, b) => b[1] - a[1])[0] || null;
 
@@ -727,6 +1337,7 @@ export function buildGm9bqcGrunDashboardModel(reports = [], { shiftFilter = 'ALL
       plan,
       defect,
       defectRate,
+      qualityRate,
       downtimeMin,
       topDefect: topDefectEntry ? { name: topDefectEntry[0], count: topDefectEntry[1] } : null,
       lotSummary: {
@@ -760,6 +1371,11 @@ export function buildGm9bqcGrunDashboardModel(reports = [], { shiftFilter = 'ALL
     .slice(0, 5);
 
   const subMaterialCards = buildSubMaterialCards(validEntries);
+  const subMaterial5Cards = buildSubMaterial5Cards(subMaterialCards);
+  const lotTimeline = buildLotTraceabilityTimeline(
+    validEntries,
+    trackingEntries.length > 0 ? trackingEntries : validEntries
+  );
 
   return {
     totalReports: validEntries.length,
@@ -774,6 +1390,8 @@ export function buildGm9bqcGrunDashboardModel(reports = [], { shiftFilter = 'ALL
     worstProcess,
     processRows,
     top5Defects,
-    subMaterialCards
+    subMaterialCards,
+    subMaterial5Cards,
+    lotTimeline
   };
 }
