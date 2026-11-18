@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../constants/masterData';
 import { fetchWorkers, addWorker as firestoreAddWorker, updateWorker as firestoreUpdateWorker, deleteWorker as firestoreDeleteWorker } from '../services/firestore';
 import WorkerRegistrationModal from './MasterData/WorkerRegistrationModal';
@@ -7,6 +7,23 @@ import { printWorkerCard } from '../utils/printWorker';
 const WORKER_ID_PREFIXES = ['JY', 'HW', 'BL'];
 
 const getWorkerPrefix = (id) => String(id || '').trim().slice(0, 2).toUpperCase();
+
+const formatPhoneInput = (raw) => {
+  const str = String(raw || '');
+  if (!/^[\d-\s]*$/.test(str)) return str;
+  const digits = str.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('02')) {
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    if (digits.length <= 9) return `${digits.slice(0, 2)}-${digits.slice(2, 5)}-${digits.slice(5, 9)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+  }
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  if (digits.length <= 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+};
 
 const PREFIX_BADGE_STYLE = {
   JY: { color: '#0369a1', bg: '#e0f2fe', border: '#bae6fd' },
@@ -86,6 +103,46 @@ export default function MasterData() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWorker, setEditingWorker] = useState(null);
+  const [editingPhoneId, setEditingPhoneId] = useState(null);
+  const [editingPhoneValue, setEditingPhoneValue] = useState('');
+  const [savingPhoneId, setSavingPhoneId] = useState(null);
+  const cancelPhoneEditRef = useRef(false);
+
+  const handleStartEditPhone = (worker) => {
+    cancelPhoneEditRef.current = false;
+    setEditingPhoneId(worker.id);
+    setEditingPhoneValue(worker.phone || '');
+  };
+
+  const handleCancelEditPhone = () => {
+    cancelPhoneEditRef.current = true;
+    setEditingPhoneId(null);
+    setEditingPhoneValue('');
+  };
+
+  const handleCommitEditPhone = async (worker) => {
+    if (cancelPhoneEditRef.current) {
+      cancelPhoneEditRef.current = false;
+      return;
+    }
+    if (editingPhoneId !== worker.id) return;
+    const nextPhone = editingPhoneValue.trim();
+    const prevPhone = String(worker.phone || '').trim();
+    setEditingPhoneId(null);
+    setEditingPhoneValue('');
+    if (nextPhone === prevPhone) return;
+
+    setSavingPhoneId(worker.id);
+    try {
+      await firestoreUpdateWorker(worker.id, { phone: nextPhone });
+      setWorkers((prev) => prev.map((w) => (w.id === worker.id ? { ...w, phone: nextPhone } : w)));
+    } catch (e) {
+      console.error('Failed to update worker phone:', e);
+      alert('연락처 저장에 실패했습니다.');
+    } finally {
+      setSavingPhoneId(null);
+    }
+  };
 
   const handleAddWorker = () => {
     setEditingWorker(null);
@@ -185,7 +242,8 @@ export default function MasterData() {
       return (
         String(w.name || '').toLowerCase().includes(q) ||
         String(w.id || '').toLowerCase().includes(q) ||
-        String(w.process || '').toLowerCase().includes(q)
+        String(w.process || '').toLowerCase().includes(q) ||
+        String(w.phone || '').toLowerCase().includes(q)
       );
     });
 
@@ -401,7 +459,7 @@ export default function MasterData() {
                     <th>소속 부서</th>
                     <th>공정</th>
                     <th>상태</th>
-                    <th>연락처</th>
+                    <th title="연락처 칸을 더블클릭하면 바로 입력·저장할 수 있습니다">연락처 ✏️</th>
                     <th onClick={() => handleToggleSort('hireDate')} style={{ cursor: 'pointer', userSelect: 'none' }} title="클릭하여 입사일순 정렬 전환">
                       입사일{sortArrow('hireDate')}
                     </th>
@@ -482,7 +540,57 @@ export default function MasterData() {
                             {w.status}
                           </span>
                         </td>
-                        <td style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{w.phone}</td>
+                        <td
+                          data-worker-phone-cell={w.id}
+                          onDoubleClick={() => handleStartEditPhone(w)}
+                          title="더블클릭하여 연락처 바로 입력/수정 (Enter 또는 바깥 클릭 시 자동 저장, Esc 취소)"
+                          style={{
+                            fontSize: '12px',
+                            color: w.phone ? 'var(--text-muted)' : '#94a3b8',
+                            cursor: 'pointer',
+                            minWidth: '132px',
+                            userSelect: 'none'
+                          }}
+                        >
+                          {editingPhoneId === w.id ? (
+                            <input
+                              type="tel"
+                              data-worker-phone-input={w.id}
+                              className="form-control"
+                              value={editingPhoneValue}
+                              placeholder="010-0000-0000"
+                              autoFocus
+                              onChange={(e) => setEditingPhoneValue(formatPhoneInput(e.target.value))}
+                              onBlur={() => handleCommitEditPhone(w)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  e.currentTarget.blur();
+                                } else if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  handleCancelEditPhone();
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              onDoubleClick={(e) => e.stopPropagation()}
+                              style={{
+                                width: '124px',
+                                padding: '4px 8px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                height: '28px'
+                              }}
+                            />
+                          ) : savingPhoneId === w.id ? (
+                            <span style={{ color: '#2563eb', fontWeight: 600 }}>저장 중...</span>
+                          ) : w.phone ? (
+                            <span>{w.phone}</span>
+                          ) : (
+                            <span style={{ fontSize: '11px', color: '#94a3b8', borderBottom: '1px dashed #cbd5e1' }}>
+                              더블클릭 입력
+                            </span>
+                          )}
+                        </td>
                         <td style={{ fontSize: '12px', color: 'var(--text-main)', fontWeight: 500 }}>{w.hireDate}</td>
                         <td style={{ textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'nowrap' }}>

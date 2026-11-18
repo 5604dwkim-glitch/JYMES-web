@@ -1,6 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
+const formatPhoneInput = (raw) => {
+  const str = String(raw || '');
+  if (!/^[\d-\s]*$/.test(str)) return str;
+  const digits = str.replace(/\D/g, '');
+  if (!digits) return '';
+  if (digits.startsWith('02')) {
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+    if (digits.length <= 9) return `${digits.slice(0, 2)}-${digits.slice(2, 5)}-${digits.slice(5, 9)}`;
+    return `${digits.slice(0, 2)}-${digits.slice(2, 6)}-${digits.slice(6, 10)}`;
+  }
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  if (digits.length <= 10) return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+};
+
 export default function WorkerRegistrationModal({ onClose, onSave, existingWorker, defaultPrefix = '' }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -9,6 +26,7 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
     hireDate: new Date().toLocaleDateString('sv-SE'),
     role: '사원',
     id: defaultPrefix ? `${defaultPrefix}` : '',
+    phone: '',
     photoData: null,
     status: '근무중'
   });
@@ -24,6 +42,7 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
         hireDate: existingWorker.hireDate || existingWorker.joinDate || new Date().toLocaleDateString('sv-SE'),
         role: existingWorker.role || '사원',
         id: existingWorker.id || '',
+        phone: existingWorker.phone || '',
         photoData: existingWorker.photoData || null,
         status: existingWorker.status || '근무중'
       });
@@ -32,7 +51,11 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const nextVal = name === 'id' ? value.toUpperCase() : value;
+    const nextVal = name === 'id'
+      ? value.toUpperCase()
+      : name === 'phone'
+        ? formatPhoneInput(value)
+        : value;
     setFormData(prev => ({ ...prev, [name]: nextVal }));
   };
 
@@ -82,7 +105,12 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
       alert(`사번 앞자리(${cleanId.toUpperCase()}) 뒤에 일련번호까지 입력해주세요. (예: ${cleanId.toUpperCase()}26001)`);
       return;
     }
-    onSave({ ...formData, name: cleanName, id: cleanId });
+    onSave({
+      ...formData,
+      name: cleanName,
+      id: cleanId,
+      phone: String(formData.phone || '').trim()
+    });
   };
 
   const loginUrl = `${window.location.origin}/login?id=${encodeURIComponent((formData.id || formData.name || '').trim())}&pw=0000&_t=${Date.now()}`; // cache buster
@@ -214,6 +242,45 @@ export default function WorkerRegistrationModal({ onClose, onSave, existingWorke
             </tr>
           </tbody>
         </table>
+
+        <div
+          data-worker-modal-phone-box="1"
+          style={{
+            marginTop: '14px',
+            padding: '12px 16px',
+            backgroundColor: '#f8fafc',
+            border: '1px solid #cbd5e1',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontWeight: 800, fontSize: '14px', color: '#1e293b' }}>📞 연락처</span>
+            <span style={{ fontSize: '12px', color: '#64748b' }}>
+              (사원 명부·엑셀 관리용 — QR 작업자 실명 이력카드 인쇄물에는 표시되지 않습니다)
+            </span>
+          </div>
+          <input
+            type="tel"
+            name="phone"
+            data-worker-modal-phone-input="1"
+            className="form-control"
+            placeholder="010-0000-0000"
+            value={formData.phone}
+            onChange={handleChange}
+            style={{
+              width: '220px',
+              textAlign: 'center',
+              fontWeight: 700,
+              fontSize: '15px',
+              backgroundColor: '#ffffff'
+            }}
+          />
+        </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
           <button className="btn btn-secondary" onClick={onClose} style={{ padding: '10px 20px', fontWeight: 'bold' }}>취소</button>
