@@ -268,12 +268,16 @@ export function extractProcessQtyBreakdown(report, code) {
       break;
     }
     case 5013: {
-      lh =
+      const g1Good =
         pickNum(q, ['f5013_LH_PRI_good', 'f5013_LH_2_good', 'f5013_PRI_LH_good']) +
         pickNum(q, ['f5013_LH_TINT_good', 'f5013_LH_3_good', 'f5013_TINT_LH_good']);
-      rh =
+      const g2Good =
         pickNum(q, ['f5013_RH_PRI_good', 'f5013_RH_2_good', 'f5013_PRI_RH_good']) +
         pickNum(q, ['f5013_RH_TINT_good', 'f5013_RH_3_good', 'f5013_TINT_RH_good']);
+      const g1Side = q.f5013_group1_side || 'RR LH';
+      const g2Side = q.f5013_group2_side || 'RR RH';
+      lh = (g1Side === 'RR RH' ? 0 : g1Good) + (g2Side === 'RR LH' ? g2Good : 0);
+      rh = (g1Side === 'RR RH' ? g1Good : 0) + (g2Side === 'RR LH' ? 0 : g2Good);
       break;
     }
     case 5014: {

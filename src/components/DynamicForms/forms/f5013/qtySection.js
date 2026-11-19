@@ -17,9 +17,11 @@
  */
 
 export const F5013_MACHINE_GROUPS = [
-  { side: 'LH', id: 'f5013_RR_LH_machine_no', labelPrefix: 'RR LH' },
-  { side: 'RH', id: 'f5013_RR_RH_machine_no', labelPrefix: 'RR RH' }
+  { group: 1, sideId: 'f5013_group1_side', defaultSide: 'RR LH', id: 'f5013_RR_LH_machine_no', labelPrefix: 'RR LH' },
+  { group: 2, sideId: 'f5013_group2_side', defaultSide: 'RR RH', id: 'f5013_RR_RH_machine_no', labelPrefix: 'RR RH' }
 ];
+
+export const F5013_SIDE_OPTIONS = ['RR LH', 'RR RH'];
 
 export const F5013_QTY_COLS = [
   { key: 'LH_PRI', label: 'PRIVACY', legacyF5013ColKey: 'LH_2', legacyAltKey: 'PRI_LH', legacyKey: 'FL' },
@@ -244,11 +246,16 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
 
   const machineGroupHeaders = F5013_MACHINE_GROUPS
     .map(m => {
+      const sideVal = F5013_SIDE_OPTIONS.includes(savedValues[m.sideId]) ? savedValues[m.sideId] : m.defaultSide;
+      const sideOptions = F5013_SIDE_OPTIONS
+        .map(opt => `<option value="${opt}"${sideVal === opt ? ' selected' : ''}>${opt}</option>`)
+        .join('');
       const val = savedValues[m.id] ?? '';
-      return `<th colspan="2" scope="colgroup" style="border: ${SOLID}; padding: 5px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap; vertical-align: middle;">
-                    <span style="display: inline-flex; align-items: center; justify-content: center; gap: 1px;">
-                      <span>${m.labelPrefix} (&nbsp;</span>
-                      <input type="text" inputmode="numeric" id="${m.id}" data-form-code="5013" data-save-group="qtyTable" data-wheel-skip="1" class="form-control f5013-machine-no-input" value="${escapeAttr(val)}" aria-label="${m.labelPrefix} 호기 번호" />
+      return `<th colspan="2" scope="colgroup" style="border: ${SOLID}; padding: 4px 2px; background: #ffffff; font-weight: 700; color: #000; font-size: 11px; white-space: nowrap; vertical-align: middle;">
+                    <span class="f5013-machine-header-wrap">
+                      <select id="${m.sideId}" data-form-code="5013" data-save-group="qtyTable" data-wheel-skip="1" class="f5013-side-select" aria-label="${m.group}열 구분 선택">${sideOptions}</select>
+                      <span>(&nbsp;</span>
+                      <input type="text" inputmode="numeric" id="${m.id}" data-form-code="5013" data-save-group="qtyTable" data-wheel-skip="1" class="form-control f5013-machine-no-input" value="${escapeAttr(val)}" aria-label="${m.group}열 호기 번호" />
                       <span>&nbsp;)호기</span>
                     </span>
                   </th>`;
@@ -360,8 +367,32 @@ export function renderF5013QtySectionHTML(savedValues = {}) {
               min-width: 0;
               font-size: 11px !important;
             }
+            .f5013-qty-card[data-form-code="5013"] .f5013-machine-header-wrap {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+              max-width: 100%;
+            }
+            .f5013-qty-card[data-form-code="5013"] .f5013-side-select {
+              height: 21px;
+              padding: 0 2px;
+              border: 1px solid #cbd5e1;
+              border-radius: 4px;
+              background: #f8fafc;
+              font-size: 10.5px;
+              font-weight: 700;
+              color: #0f172a;
+              outline: none;
+              cursor: pointer;
+              box-sizing: border-box;
+            }
+            .f5013-qty-card[data-form-code="5013"] .f5013-side-select:focus {
+              border-color: #2563eb;
+              background: #eff6ff;
+            }
             .f5013-qty-card[data-form-code="5013"] .f5013-machine-no-input {
-              width: 28px;
+              width: 26px;
               height: 20px;
               border: none;
               border-bottom: 1px solid #64748b;
