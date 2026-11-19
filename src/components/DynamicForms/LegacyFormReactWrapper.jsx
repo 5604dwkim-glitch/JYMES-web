@@ -4,6 +4,8 @@ import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim } from '../../services/firestore';
+import { fetchJointMoldDefaults, fetchLatestJointMoldEntryForForm } from '../../services/jointMoldDefaults';
+import { readLocalJointMoldDefaults } from '../../utils/jointMoldDefaultsHelper';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { useI18n } from '../../contexts/I18nContext';
 import { i18n } from '../../constants/translations';
@@ -48,9 +50,11 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
           new Promise((resolve) => setTimeout(() => resolve(fallback), ms))
         ]);
         const moldsPromise = fetchMoldsSlim();
-        const [workersRaw, moldsFirst] = await Promise.all([
+        const moldDefaultsPromise = fetchJointMoldDefaults();
+        const [workersRaw, moldsFirst, jointMoldDefaults] = await Promise.all([
           withTimeout(fetchWorkersSlim(), 10000, []),
-          withTimeout(moldsPromise, 8000, null)
+          withTimeout(moldsPromise, 8000, null),
+          withTimeout(moldDefaultsPromise, 2500, readLocalJointMoldDefaults())
         ]);
 
         let workers = workersRaw;
@@ -63,6 +67,15 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
           existingData: existingData,
           workers: workers,
           molds: moldsFirst || [],
+          jointMoldDefaults: jointMoldDefaults || {},
+          loadFormJointMoldDefaults: async (keyInfo) => {
+            const entry = await fetchLatestJointMoldEntryForForm(keyInfo);
+            if (entry) {
+              const updated = await fetchJointMoldDefaults();
+              formCtx.jointMoldDefaults = updated;
+            }
+            return entry;
+          },
           equipments: [],
           processes: DEFAULT_PROCESSES,
           getItems: (code) => {
@@ -129,6 +142,11 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
             formCtx.molds = late || [];
           });
         }
+        moldDefaultsPromise.then((lateDefaults) => {
+          if (lateDefaults && typeof lateDefaults === 'object') {
+            formCtx.jointMoldDefaults = { ...(formCtx.jointMoldDefaults || {}), ...lateDefaults };
+          }
+        }).catch(() => {});
 
         setIsReady(true);
       } catch (e) {

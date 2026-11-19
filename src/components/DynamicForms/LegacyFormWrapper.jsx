@@ -482,7 +482,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
     return { container, processValue, carModelValue, currentCarCode, partValueInput, existingData,
              getCurrentFormCode, bindNumberWheelPicker, bindTimeWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, 
              get qtySection() { return container.querySelector('#qtySection'); },
-             isDtCrewClip, currentMakerName, molds: store.getMolds() };
+             isDtCrewClip, currentMakerName, molds: store.getMolds(),
+             jointMoldDefaults: _ctx.jointMoldDefaults,
+             loadFormJointMoldDefaults: _ctx.loadFormJointMoldDefaults };
   }
   function renderSection5() {
     _Sections.renderSection5(_getCtx());

@@ -16,12 +16,23 @@ import { renderF5012Section5 } from '../forms/f5012/section5.js';
 import { renderF5013Section5 } from '../forms/f5013/section5.js';
 import { renderF5014Section5 } from '../forms/f5014/section5.js';
 import { renderJointMoldStrokeCard } from './jointMoldStrokeCard.js';
+import { applyUnifiedFormColors } from './formColorTheme.js';
+import { buildJointMoldFormKey, readLocalJointMoldDefaults } from '../../../utils/jointMoldDefaultsHelper.js';
+
+const activeRenderSeqMap = new WeakMap();
+const moldUserTouchedMap = new WeakMap();
+let nextRenderSeq = 0;
 
 /**
  * Section 5 동적 렌더러 (가류온도/치수확인 등)
  * ctx: { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode, bindNumberWheelPicker }
  */
 export function renderSection5(ctx) {
+  renderSection5Core(ctx);
+  applyUnifiedFormColors(ctx?.container?.querySelector('#section5DynamicContainer'));
+}
+
+function renderSection5Core(ctx) {
   const { container, processValue, carModelValue, currentCarCode, partValueInput, existingData, getCurrentFormCode, bindNumberWheelPicker, currentMakerName } = ctx;
     const section5 = container.querySelector('#section5DynamicContainer');
     if (!section5) return;
@@ -34,6 +45,18 @@ export function renderSection5(ctx) {
     const _carModel = carModelValue ? carModelValue.value : '';
     const _partName = partValueInput ? partValueInput.value : '';
     const moldSelectTypes = new Map();
+    const jointMoldFormKey = buildJointMoldFormKey({
+      formCode: rawFormCode,
+      carModel: _carModel,
+      partName: _partName,
+      processName: curProc
+    });
+    const savedJointMoldEntry = !existingData
+      ? ((ctx.jointMoldDefaults || readLocalJointMoldDefaults())?.[jointMoldFormKey] || null)
+      : null;
+    const renderSeq = ++nextRenderSeq;
+    activeRenderSeqMap.set(section5, renderSeq);
+    moldUserTouchedMap.set(section5, false);
 
     const isMatchingPartName = (moldPartName) => {
       if (moldPartName === _partName) return true;
@@ -72,7 +95,10 @@ export function renderSection5(ctx) {
 
     const renderMoldSelect = (id, moldType, selVal) => {
       moldSelectTypes.set(id, moldType || '');
-      return `<select id="${id}" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;">${getMoldOptions(moldType, selVal)}</select>`;
+      const effectiveSelVal = (!existingData && !selVal && savedJointMoldEntry?.molds?.[id] !== undefined)
+        ? savedJointMoldEntry.molds[id]
+        : selVal;
+      return `<select id="${id}" class="form-control vulc-input-dynamic" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px; border:1px solid #ccc; background:#f9fafb; outline:none; border-radius: 4px;">${getMoldOptions(moldType, effectiveSelVal)}</select>`;
     };
 
     const syncMoldSelectOptions = (deprioritizePrefix = '') => {
@@ -150,17 +176,67 @@ export function renderSection5(ctx) {
       });
     };
 
-    const bindMoldDuplicatePrevention = () => {
-      syncMoldSelectOptions();
+    const applyMoldEntryToDom = (entry) => {
+      if (!entry || activeRenderSeqMap.get(section5) !== renderSeq || moldUserTouchedMap.get(section5)) {
+        return;
+      }
+      const checks = entry.checks || {};
+      ['vulc_lh_check', 'vulc_rh_check', 'vulc2_lh_check', 'vulc2_rh_check'].forEach((chkId) => {
+        if (typeof checks[chkId] !== 'boolean') return;
+        const chkEl = section5.querySelector(`#${chkId}`);
+        if (chkEl && chkEl.checked !== checks[chkId]) {
+          chkEl.checked = checks[chkId];
+          chkEl.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+
+      const moldsMap = entry.molds || {};
+      const updatedSelects = [];
       section5
         .querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]')
-        .forEach(sel => {
-          if (sel._moldDedupBound) return;
-          sel._moldDedupBound = true;
-          sel.addEventListener('change', () => {
-            syncMoldSelectOptions();
-          });
+        .forEach((sel) => {
+          const savedVal = moldsMap[sel.id];
+          if (!savedVal || sel.value) return;
+          const mType = moldSelectTypes.get(sel.id) || '';
+          const hasOption = Array.from(sel.options).some((o) => o.value === savedVal);
+          if (!hasOption) {
+            const optHtml = getMoldOptions(mType, savedVal);
+            sel.innerHTML = optHtml;
+          }
+          sel.value = savedVal;
+          updatedSelects.push(sel);
         });
+
+      if (updatedSelects.length > 0) {
+        syncMoldSelectOptions();
+        updatedSelects.forEach((sel) => sel.dispatchEvent(new Event('change', { bubbles: true })));
+      }
+    };
+
+    const bindMoldDuplicatePrevention = () => {
+      syncMoldSelectOptions();
+      const moldSelects = section5.querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]');
+      moldSelects.forEach(sel => {
+        if (sel._moldDedupBound) return;
+        sel._moldDedupBound = true;
+        sel.addEventListener('change', (e) => {
+          if (e && e.isTrusted) {
+            moldUserTouchedMap.set(section5, true);
+          }
+          syncMoldSelectOptions();
+        });
+      });
+
+      if (!existingData && !savedJointMoldEntry && moldSelects.length > 0 && typeof ctx.loadFormJointMoldDefaults === 'function') {
+        ctx.loadFormJointMoldDefaults({
+          formCode: rawFormCode,
+          carModel: _carModel,
+          partName: _partName,
+          processName: curProc
+        }).then((lazyEntry) => {
+          if (lazyEntry) applyMoldEntryToDom(lazyEntry);
+        }).catch(() => {});
+      }
     };
 
     const d = existingData?.dimData || {};
@@ -788,8 +864,14 @@ export function renderSection5(ctx) {
 
       // 조인트 공정: 조인트 고무 LOT 번호 입력 + 7. 설비 가류온도 & 가류시간 입력
       const jointLotVal = existingData?.jointRubberLotNo || '';
-      const v = existingData?.vulcData || {};
-      const v2 = existingData?.vulcData2 || {};
+      const v = existingData?.vulcData || (savedJointMoldEntry?.checks ? {
+        lh_check: Boolean(savedJointMoldEntry.checks.vulc_lh_check),
+        rh_check: Boolean(savedJointMoldEntry.checks.vulc_rh_check)
+      } : {});
+      const v2 = existingData?.vulcData2 || (savedJointMoldEntry?.checks ? {
+        lh_check: Boolean(savedJointMoldEntry.checks.vulc2_lh_check),
+        rh_check: Boolean(savedJointMoldEntry.checks.vulc2_rh_check)
+      } : {});
       const curCarCode = carModelValue ? carModelValue.value : currentCarCode;
       const isDtCrew = (curCarCode === 'DT CREW' || curCarCode === 'DT QUAD' || curCarCode === 'DS CREW' || curCarCode === 'DS STD');
 

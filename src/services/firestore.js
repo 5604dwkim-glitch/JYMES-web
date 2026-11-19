@@ -3,6 +3,7 @@ import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 import { buildStatsUpdate } from './statsAggregator';
 import { syncReportDowntimeToRepairAndChangePoint } from './changePointAutoSync';
+import { persistJointMoldDefaultsFromReport } from './jointMoldDefaults';
 
 const REPORTS_COLLECTION = 'reports';
 
@@ -950,6 +951,11 @@ export async function addReport(reportData) {
     await applyStatsUpdate(null, newReport);
     await processMoldStrokes(newReport);
     try {
+      await persistJointMoldDefaultsFromReport(newReport);
+    } catch (moldPrefErr) {
+      console.warn('Failed to persist joint mold defaults:', moldPrefErr);
+    }
+    try {
       await syncReportDowntimeToRepairAndChangePoint(newReport, null);
     } catch (syncErr) {
       console.error('Failed to auto-sync report downtime to repair/changePoint:', syncErr);
@@ -988,6 +994,11 @@ export async function updateReport(id, updatedFields) {
         }
       } catch (strokeErr) {
         console.error('Failed to process mold strokes on report update:', strokeErr);
+      }
+      try {
+        await persistJointMoldDefaultsFromReport(mergedReport);
+      } catch (moldPrefErr) {
+        console.warn('Failed to persist updated joint mold defaults:', moldPrefErr);
       }
       try {
         await syncReportDowntimeToRepairAndChangePoint(mergedReport, existingReport);
