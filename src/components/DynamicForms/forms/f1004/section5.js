@@ -123,7 +123,7 @@ export function renderF1004Section5HTML(dimData = {}) {
             </label>
 
             <div style="max-width: 650px; margin: 0 auto 12px auto;">
-              <img src="images/jg1_inbelt_dimension.png" alt="JG1 인벨트 치수확인 도면" style="width: 100%; height: auto; display: block; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);" />
+              <img src="images/jg1_inbelt_dimension_1004.png" alt="JG1 인벨트 치수확인 도면" style="width: 100%; height: auto; display: block; border: 1px solid #ccc; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);" />
             </div>
 
             ${tablesHtml}
