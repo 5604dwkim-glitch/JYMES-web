@@ -57,32 +57,53 @@
                 <thead>
                   <tr style="font-weight: 700; color: rgb(0, 0, 0);">
                     <th colspan="2" style="padding: 6px; width: 40%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">구 분(Division)</th>
-                    <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">FRT LH</th>
-                    <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">FRT RH</th>
+                    <th scope="col" style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">FRT LH</th>
+                    <th scope="col" style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">FRT RH</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td rowspan="2" style="border: 1px solid #000; background: #f1f5f9; font-weight: 700; padding: 4px; width: 20%; vertical-align: middle;">
+                    <td rowspan="4" style="border: 1px solid #000; background: #f1f5f9; font-weight: 700; padding: 4px; width: 22%; vertical-align: middle;">
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
-                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px; width: 20%;">
+                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 5px 4px; width: 18%;">
                       스펙(mm)
                     </td>
-                    <td colspan="2" style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
+                    <td colspan="2" style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
                       662 ± 1mm
                     </td>
                   </tr>
                   <tr>
-                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
-                      실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
+                      초물
                     </td>
-                    <td colspan="2" style="border: 1px solid #000; background: #ffffff; padding: 3px 2px;">
-                      <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
-                        <input type="text" id="dim_cut_FRT_초" data-form-code="1001" data-wheel-parsed-spec="662" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(초)">
-                        <input type="text" id="dim_cut_FRT_중" data-form-code="1001" data-wheel-parsed-spec="662" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(중)">
-                        <input type="text" id="dim_cut_FRT_종" data-form-code="1001" data-wheel-parsed-spec="662" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(종)">
-                      </div>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_FRT_LH_초" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="662" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="FRT FRT LH 정치절단길이 (초물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(초)">
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_FRT_RH_초" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="662" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="FRT FRT RH 정치절단길이 (초물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(초)">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
+                      중물
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_FRT_LH_중" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="662" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="FRT FRT LH 정치절단길이 (중물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(중)">
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_FRT_RH_중" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="662" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="FRT FRT RH 정치절단길이 (중물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(중)">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
+                      종물
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_FRT_LH_종" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="662" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="FRT FRT LH 정치절단길이 (종물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(종)">
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_FRT_RH_종" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="662" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="FRT FRT RH 정치절단길이 (종물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(종)">
                     </td>
                   </tr>
                 </tbody>
@@ -97,32 +118,53 @@
                 <thead>
                   <tr style="font-weight: 700; color: rgb(0, 0, 0);">
                     <th colspan="2" style="padding: 6px; width: 40%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">구 분(Division)</th>
-                    <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RR LH</th>
-                    <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RR RH</th>
+                    <th scope="col" style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RR LH</th>
+                    <th scope="col" style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RR RH</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td rowspan="2" style="border: 1px solid #000; background: #f1f5f9; font-weight: 700; padding: 4px; width: 20%; vertical-align: middle;">
+                    <td rowspan="4" style="border: 1px solid #000; background: #f1f5f9; font-weight: 700; padding: 4px; width: 22%; vertical-align: middle;">
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
-                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px; width: 20%;">
+                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 5px 4px; width: 18%;">
                       스펙(mm)
                     </td>
-                    <td colspan="2" style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
+                    <td colspan="2" style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
                       604 ± 1mm
                     </td>
                   </tr>
                   <tr>
-                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
-                      실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
+                      초물
                     </td>
-                    <td colspan="2" style="border: 1px solid #000; background: #ffffff; padding: 3px 2px;">
-                      <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
-                        <input type="text" id="dim_cut_RR_초" data-form-code="1001" data-wheel-parsed-spec="604" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(초)">
-                        <input type="text" id="dim_cut_RR_중" data-form-code="1001" data-wheel-parsed-spec="604" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(중)">
-                        <input type="text" id="dim_cut_RR_종" data-form-code="1001" data-wheel-parsed-spec="604" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(종)">
-                      </div>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_RR_LH_초" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="604" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="RR RR LH 정치절단길이 (초물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(초)">
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px solid #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_RR_RH_초" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="604" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="RR RR RH 정치절단길이 (초물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(초)">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
+                      중물
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_RR_LH_중" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="604" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="RR RR LH 정치절단길이 (중물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(중)">
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px dotted #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_RR_RH_중" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="604" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="RR RR RH 정치절단길이 (중물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(중)">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
+                      종물
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_RR_LH_종" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="604" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="RR RR LH 정치절단길이 (종물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(종)">
+                    </td>
+                    <td style="border-left: 1px solid #000; border-right: 1px solid #000; border-top: 1px dotted #000; border-bottom: 1px solid #000; padding: 2px; background: #ffffff;">
+                      <input type="text" id="f1001_cut_RR_RH_종" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="604" data-wheel-tolerance="1" data-wheel-unit="mm" data-wheel-title="RR RR RH 정치절단길이 (종물)" class="form-control" style="width: 100%; height: 26px; text-align: center; font-size: 11px; padding: 2px; outline: none; box-sizing: border-box; border: medium; background: rgb(255, 255, 255);" value="" placeholder="(종)">
                     </td>
                   </tr>
                 </tbody>

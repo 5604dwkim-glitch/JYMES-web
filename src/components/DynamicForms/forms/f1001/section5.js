@@ -2,18 +2,21 @@
  * 양식 고유 번호 #1001 (JG1 / 인벨트 / 소재준비)
  * "5. 치수확인 (FRT) · 6. 치수확인 (RR)" 전용 렌더러
  *
- * - 정치절단길이 (Spec Cutt,g) 전용 구성 (단컷팅 항목 제거)
- *   · FRT : 662 ± 1mm (`dim_cut_FRT_초`, `dim_cut_FRT_중`, `dim_cut_FRT_종`)
- *   · RR  : 604 ± 1mm (`dim_cut_RR_초`,  `dim_cut_RR_중`,  `dim_cut_RR_종`)
- * - 기존 Firestore 저장 키(`dimData.cut_FRT_*`, `dimData.cut_RR_*`) 하위 호환 유지 (GEMINI.md 원칙 8·9·11·12)
+ * - 정치절단길이 (Spec Cutt,g): LH / RH 분리 세로(초물·중물·종물) 입력
+ *   · FRT : 662 ± 1mm (`f1001_cut_FRT_LH_{초|중|종}`, `f1001_cut_FRT_RH_{초|중|종}`)
+ *   · RR  : 604 ± 1mm (`f1001_cut_RR_LH_{초|중|종}`,  `f1001_cut_RR_RH_{초|중|종}`)
+ * - 모든 새 입력칸 ID 는 `f1001_` 접두사 + `data-save-group="dimData"` 사용 (GEMINI.md 원칙 2·8·10)
+ * - 과거 통합 키(`dimData.cut_FRT_*`, `dimData.cut_RR_*`) 하위 호환 복원 유지 (GEMINI.md 원칙 11)
  */
 
 export const F1001_CUT_SECTIONS = [
   {
     key: 'FRT',
     title: '치수확인 (FRT)',
-    leftLabel: 'FRT LH',
-    rightLabel: 'FRT RH',
+    sides: [
+      { key: 'LH', label: 'FRT LH' },
+      { key: 'RH', label: 'FRT RH' }
+    ],
     spec: 662,
     tolerance: 1,
     specText: '662 ± 1mm',
@@ -22,8 +25,10 @@ export const F1001_CUT_SECTIONS = [
   {
     key: 'RR',
     title: '치수확인 (RR)',
-    leftLabel: 'RR LH',
-    rightLabel: 'RR RH',
+    sides: [
+      { key: 'LH', label: 'RR LH' },
+      { key: 'RH', label: 'RR RH' }
+    ],
     spec: 604,
     tolerance: 1,
     specText: '604 ± 1mm',
@@ -31,7 +36,15 @@ export const F1001_CUT_SECTIONS = [
   }
 ];
 
-export const F1001_DIM_STAGES = ['초', '중', '종'];
+export const F1001_DIM_STAGES = [
+  { key: '초', label: '초물' },
+  { key: '중', label: '중물' },
+  { key: '종', label: '종물' }
+];
+
+const SOLID = '1px solid #000';
+const DOTTED = '1px dotted #000';
+const INPUT_STYLE = 'width: 100%; height: 26px; border: none; text-align: center; font-size: 11px; padding: 2px; background: transparent; outline: none; box-sizing: border-box;';
 
 function escapeAttr(val) {
   return String(val ?? '')
@@ -42,12 +55,35 @@ function escapeAttr(val) {
 }
 
 function renderCutSectionBlockHTML(sec, dimData = {}) {
-  const inputsHtml = F1001_DIM_STAGES.map(stage => {
-    const key = `cut_${sec.key}_${stage}`;
-    const id = `dim_${key}`;
-    const val = escapeAttr(dimData[key] ?? dimData[id] ?? '');
-    return `<input type="text" id="${id}" data-form-code="1001" data-wheel-parsed-spec="${sec.spec}" data-wheel-tolerance="${sec.tolerance}" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px;" value="${val}" placeholder="(${stage})" />`;
-  }).join('\n                        ');
+  const totalBodyRows = 1 + F1001_DIM_STAGES.length;
+
+  const sideHeaders = sec.sides
+    .map(side => `<th scope="col" style="border: ${SOLID}; padding: 6px; width: 30%;">${side.label}</th>`)
+    .join('\n                    ');
+
+  const stageRows = F1001_DIM_STAGES.map((stage, idx) => {
+    const isLast = idx === F1001_DIM_STAGES.length - 1;
+    const topBorder = idx === 0 ? SOLID : DOTTED;
+    const bottomBorder = isLast ? SOLID : DOTTED;
+
+    const cells = sec.sides.map(side => {
+      const id = `f1001_cut_${sec.key}_${side.key}_${stage.key}`;
+      const legacyKey = `cut_${sec.key}_${stage.key}`;
+      const val = escapeAttr(dimData[id] ?? dimData[legacyKey] ?? '');
+      const wheelTitle = `${sec.key} ${side.label} 정치절단길이 (${stage.label})`;
+      return `<td style="border-left: ${SOLID}; border-right: ${SOLID}; border-top: ${topBorder}; border-bottom: ${bottomBorder}; padding: 2px; background: #ffffff;">
+                      <input type="text" id="${id}" data-form-code="1001" data-save-group="dimData" data-wheel-parsed-spec="${sec.spec}" data-wheel-tolerance="${sec.tolerance}" data-wheel-unit="mm" data-wheel-title="${wheelTitle}" class="form-control" style="${INPUT_STYLE}" value="${val}" placeholder="(${stage.key})" />
+                    </td>`;
+    }).join('\n                    ');
+
+    return `
+                  <tr>
+                    <td style="border-left: ${SOLID}; border-right: ${SOLID}; border-top: ${topBorder}; border-bottom: ${bottomBorder}; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
+                      ${stage.label}
+                    </td>
+                    ${cells}
+                  </tr>`;
+  }).join('');
 
   return `
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
@@ -57,33 +93,22 @@ function renderCutSectionBlockHTML(sec, dimData = {}) {
               <table data-form-code="1001" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
                 <thead>
                   <tr style="background: #e8eef5; font-weight: 700; color: #000;">
-                    <th colspan="2" style="border: 1px solid #000; padding: 6px; width: 40%;">구 분(Division)</th>
-                    <th style="border: 1px solid #000; padding: 6px; width: 30%;">${sec.leftLabel}</th>
-                    <th style="border: 1px solid #000; padding: 6px; width: 30%;">${sec.rightLabel}</th>
+                    <th colspan="2" style="border: ${SOLID}; padding: 6px; width: 40%;">구 분(Division)</th>
+                    ${sideHeaders}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td rowspan="2" style="border: 1px solid #000; background: #f1f5f9; font-weight: 700; padding: 4px; width: 20%; vertical-align: middle;">
+                    <td rowspan="${totalBodyRows}" style="border: ${SOLID}; background: #f1f5f9; font-weight: 700; padding: 4px; width: 22%; vertical-align: middle;">
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
-                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px; width: 20%;">
+                    <td style="border: ${SOLID}; background: #f8fafc; font-weight: 700; padding: 5px 4px; width: 18%;">
                       스펙(mm)
                     </td>
-                    <td colspan="2" style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
+                    <td colspan="${sec.sides.length}" style="border: ${SOLID}; background: #f8fafc; font-weight: 700; padding: 5px 4px;">
                       ${sec.specText}
                     </td>
-                  </tr>
-                  <tr>
-                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
-                      실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
-                    </td>
-                    <td colspan="2" style="border: 1px solid #000; background: #ffffff; padding: 3px 2px;">
-                      <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
-                        ${inputsHtml}
-                      </div>
-                    </td>
-                  </tr>
+                  </tr>${stageRows}
                 </tbody>
               </table>
             </div>`;
