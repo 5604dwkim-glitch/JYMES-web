@@ -168,7 +168,78 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
       </div>
 
       <!-- 2. 차종 선택 (원터치 칩 버튼 선택 방식) -->
-      <div class="card">
+      <div class="card" data-vehicle-selector-card="1" style="container: vehicle-selector / inline-size;">
+        <style>
+          [data-vehicle-selector-card="1"] #makerChipGroup {
+            display: flex;
+            flex-wrap: wrap;
+            flex-wrap: balance;
+          }
+          [data-vehicle-selector-card="1"] #makerChipGroup .touch-chip.maker-chip {
+            padding: 8px 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+          [data-vehicle-selector-card="1"] #partChipGroup .touch-chip.part-chip {
+            padding: 8px 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+          @container vehicle-selector (inline-size <= 540px) {
+            [data-vehicle-selector-card="1"] #makerChipGroup {
+              gap: 4px;
+            }
+            [data-vehicle-selector-card="1"] #makerChipGroup .touch-chip.maker-chip {
+              flex: 1 1 auto;
+              min-block-size: 36px;
+              padding: 6px 5px;
+              font-size: 11px !important;
+              font-size: clamp(9.8px, 2.9cqi, 11.5px) !important;
+              letter-spacing: -0.5px;
+            }
+            [data-vehicle-selector-card="1"] #partChipGroup {
+              gap: 4px;
+            }
+            [data-vehicle-selector-card="1"] #partChipGroup .touch-chip.part-chip {
+              min-block-size: 36px;
+              padding: 6px 8px;
+              font-size: 11.5px !important;
+              font-size: clamp(10px, 3.05cqi, 12px) !important;
+              letter-spacing: -0.4px;
+            }
+            [data-vehicle-selector-card="1"] #partChipGroup[data-chip-count="3"] .touch-chip.part-chip,
+            [data-vehicle-selector-card="1"] #partChipGroup[data-chip-count="4"] .touch-chip.part-chip {
+              flex: 1 1 auto;
+              padding: 6px 5px;
+            }
+          }
+          @container vehicle-selector (inline-size <= 350px) {
+            [data-vehicle-selector-card="1"] #makerChipGroup {
+              gap: 3px;
+            }
+            [data-vehicle-selector-card="1"] #makerChipGroup .touch-chip.maker-chip {
+              padding: 6px 3px;
+              font-size: 9.5px !important;
+              font-size: clamp(9px, 2.75cqi, 10px) !important;
+              letter-spacing: -0.6px;
+            }
+            [data-vehicle-selector-card="1"] #partChipGroup[data-chip-count="4"] {
+              gap: 3px;
+            }
+            [data-vehicle-selector-card="1"] #partChipGroup[data-chip-count="4"] .touch-chip.part-chip {
+              padding: 6px 4px;
+              font-size: 9.8px !important;
+              font-size: clamp(9.2px, 2.95cqi, 10.5px) !important;
+              letter-spacing: -0.5px;
+            }
+          }
+        </style>
         <label style="font-size: 13px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;" data-i18n="step2_vehicle">
           🚘 <span class="sec-num"></span> 차종 선택 (원터치 버튼 방식)
         </label>
@@ -180,7 +251,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
           </span>
           <div class="touch-chip-group" id="makerChipGroup">
             ${MANUFACTURERS.map(m => `
-              <div class="touch-chip maker-chip ${initialMaker.name === m.name ? 'active' : ''}" data-maker="${m.name}" style="padding: 8px 12px; font-weight: 700;">
+              <div class="touch-chip maker-chip ${initialMaker.name === m.name ? 'active' : ''}" data-maker="${m.name}">
                 ${m.name}
               </div>
             `).join('')}
@@ -527,8 +598,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       return;
     }
     partSelectSection.style.display = 'block';
+    partChipGroup.dataset.chipCount = String(parts.length);
     partChipGroup.innerHTML = parts.map((p, idx) => `
-      <div class="touch-chip part-chip ${idx === 0 ? 'active' : ''}" data-code="${p.code}" data-name="${p.name}" style="padding: 8px 14px; font-weight: 700; background: ${idx === 0 ? '' : ''}">
+      <div class="touch-chip part-chip ${idx === 0 ? 'active' : ''}" data-code="${p.code}" data-name="${p.name}">
         ${p.name}
       </div>
     `).join('');
