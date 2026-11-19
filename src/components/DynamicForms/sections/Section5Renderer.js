@@ -2,6 +2,7 @@ import * as Templates from '../FormTemplates.jsx';
 import { autoFormatDateTimeString } from './formUtils.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF1001Section5 } from '../forms/f1001/section5.js';
+import { renderF1004Section5 } from '../forms/f1004/section5.js';
 import { renderF1051Section5 } from '../forms/f1051/section5.js';
 import { renderF1052Section5 } from '../forms/f1052/section5.js';
 import { renderF1054Section5 } from '../forms/f1054/section5.js';
@@ -245,6 +246,11 @@ function renderSection5Core(ctx) {
     // 양식별 전용 모듈 위임 (GEMINI.md 원칙 8)
     if (formCode === 1001 && curProc) {
       renderF1001Section5(section5, ctx);
+      return;
+    }
+
+    if (formCode === 1004 && curProc) {
+      renderF1004Section5(section5, ctx);
       return;
     }
 
@@ -3853,7 +3859,7 @@ ${renderDtRow4('종')}
           </div>
         `;
 
-        if (formCode === 1004 || formCode === 1034) {
+        if (formCode === 1034) {
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 8px; display: block;">
