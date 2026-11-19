@@ -47,135 +47,42 @@
         </div></div>
 <!-- [section5] -->
 <div id="section5DynamicContainer">
-          <div class="card" style="padding: 16px; margin-bottom: 16px;">
+          <div class="card f1001-dim-card" data-form-code="1001" style="padding: 16px; margin-bottom: 16px;">
+
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
               📐 <span class="sec-num"></span> 치수확인 (FRT)
             </label>
             <div style="overflow-x: auto; margin-bottom: 24px;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+              <table data-form-code="1001" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
                 <thead>
                   <tr style="font-weight: 700; color: rgb(0, 0, 0);">
-                    <th colspan="3" style="padding: 6px; width: 40%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">구 분(Division)</th>
+                    <th colspan="2" style="padding: 6px; width: 40%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">구 분(Division)</th>
                     <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">FRT LH</th>
                     <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">FRT RH</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- 1. 정치절단길이 -->
                   <tr>
-                    <td rowspan="2" style="background: rgb(241, 245, 249); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
+                    <td rowspan="2" style="border: 1px solid #000; background: #f1f5f9; font-weight: 700; padding: 4px; width: 20%; vertical-align: middle;">
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
-                    <td colspan="2" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
+                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px; width: 20%;">
                       스펙(mm)
                     </td>
-                    <td colspan="2" style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">
-                      745 ± 1mm
+                    <td colspan="2" style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
+                      662 ± 1mm
                     </td>
                   </tr>
                   <tr>
-                    <td colspan="2" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
+                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
                       실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
                     </td>
-                    <td colspan="2" style="padding: 3px 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
+                    <td colspan="2" style="border: 1px solid #000; background: #ffffff; padding: 3px 2px;">
                       <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
-                        <input type="text" id="dim_cut_FRT_초" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="745" value="" placeholder="(초)">
-                        <input type="text" id="dim_cut_FRT_중" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="745" value="" placeholder="(중)">
-                        <input type="text" id="dim_cut_FRT_종" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="745" value="" placeholder="(종)">
+                        <input type="text" id="dim_cut_FRT_초" data-form-code="1001" data-wheel-parsed-spec="662" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(초)">
+                        <input type="text" id="dim_cut_FRT_중" data-form-code="1001" data-wheel-parsed-spec="662" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(중)">
+                        <input type="text" id="dim_cut_FRT_종" data-form-code="1001" data-wheel-parsed-spec="662" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(종)">
                       </div>
-                    </td>
-                  </tr>
-
-                  <!-- 2. 단컷팅 (Step cutt,g) - 전방 & 후방 -->
-                  <tr>
-                    <td rowspan="8" style="background: rgb(241, 245, 249); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      단컷팅<br>(Step cutt,g)
-                    </td>
-                    <td rowspan="4" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      전방
-                    </td>
-                    <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
-                      스펙(mm)
-                    </td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">36</td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">36</td>
-                  </tr>
-                  <tr>
-                    <td rowspan="3" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      실측(Act)
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                        <input type="text" id="dim_step_f_초_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(초)">
-                      </div>
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(초)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                        <input type="text" id="dim_step_f_중_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(중)">
-                      </div>
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(중)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                        <input type="text" id="dim_step_f_종_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(종)">
-                      </div>
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(종)">
-                    </td>
-                  </tr>
-
-                  <!-- 후방 -->
-                  <tr>
-                    <td rowspan="4" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      후방
-                    </td>
-                    <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
-                      스펙(mm)
-                    </td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">28</td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">28</td>
-                  </tr>
-                  <tr>
-                    <td rowspan="3" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      실측(Act)
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                        <input type="text" id="dim_step_r_초_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="28" value="" placeholder="(초)">
-                      </div>
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_초_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="28" value="" placeholder="(초)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                        <input type="text" id="dim_step_r_중_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="28" value="" placeholder="(중)">
-                      </div>
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_중_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="28" value="" placeholder="(중)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-                        <input type="text" id="dim_step_r_종_FL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="28" value="" placeholder="(종)">
-                      </div>
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_종_FR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="28" value="" placeholder="(종)">
                     </td>
                   </tr>
                 </tbody>
@@ -185,119 +92,37 @@
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
               📐 <span class="sec-num"></span> 치수확인 (RR)
             </label>
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <div style="overflow-x: auto; margin-bottom: 0;">
+              <table data-form-code="1001" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
                 <thead>
                   <tr style="font-weight: 700; color: rgb(0, 0, 0);">
-                    <th colspan="3" style="padding: 6px; width: 40%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">구 분(Division)</th>
+                    <th colspan="2" style="padding: 6px; width: 40%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">구 분(Division)</th>
                     <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RR LH</th>
                     <th style="padding: 6px; width: 30%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RR RH</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- 1. 정치절단길이 -->
                   <tr>
-                    <td rowspan="2" style="background: rgb(241, 245, 249); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
+                    <td rowspan="2" style="border: 1px solid #000; background: #f1f5f9; font-weight: 700; padding: 4px; width: 20%; vertical-align: middle;">
                       정치절단길이<br>(Spec Cutt,g )
                     </td>
-                    <td colspan="2" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
+                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px; width: 20%;">
                       스펙(mm)
                     </td>
-                    <td colspan="2" style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">
-                      687 ± 1mm
+                    <td colspan="2" style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
+                      604 ± 1mm
                     </td>
                   </tr>
                   <tr>
-                    <td colspan="2" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
+                    <td style="border: 1px solid #000; background: #f8fafc; font-weight: 700; padding: 4px;">
                       실측(Act) <span style="font-size: 9px; font-weight: normal;">(초/중/종)</span>
                     </td>
-                    <td colspan="2" style="padding: 3px 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
+                    <td colspan="2" style="border: 1px solid #000; background: #ffffff; padding: 3px 2px;">
                       <div style="display: flex; align-items: center; justify-content: space-around; gap: 2px;">
-                        <input type="text" id="dim_cut_RR_초" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="687" value="" placeholder="(초)">
-                        <input type="text" id="dim_cut_RR_중" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="687" value="" placeholder="(중)">
-                        <input type="text" id="dim_cut_RR_종" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="687" value="" placeholder="(종)">
+                        <input type="text" id="dim_cut_RR_초" data-form-code="1001" data-wheel-parsed-spec="604" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(초)">
+                        <input type="text" id="dim_cut_RR_중" data-form-code="1001" data-wheel-parsed-spec="604" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(중)">
+                        <input type="text" id="dim_cut_RR_종" data-form-code="1001" data-wheel-parsed-spec="604" data-wheel-tolerance="1" class="form-control" style="width: 32%; height: 26px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" value="" placeholder="(종)">
                       </div>
-                    </td>
-                  </tr>
-
-                  <!-- 2. 단컷팅 (Step cutt,g) - 전방 & 후방 -->
-                  <tr>
-                    <td rowspan="8" style="background: rgb(241, 245, 249); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      단컷팅<br>(Step cutt,g)
-                    </td>
-                    <td rowspan="4" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      전방
-                    </td>
-                    <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
-                      스펙(mm)
-                    </td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">36</td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">36</td>
-                  </tr>
-                  <tr>
-                    <td rowspan="3" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      실측(Act)
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(초)">
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(초)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(중)">
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(중)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(종)">
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_f_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="36" value="" placeholder="(종)">
-                    </td>
-                  </tr>
-
-                  <!-- 후방 -->
-                  <tr>
-                    <td rowspan="4" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      후방
-                    </td>
-                    <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0);">
-                      스펙(mm)
-                    </td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">29</td>
-                    <td style="font-weight: 700; padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(248, 250, 252);">29</td>
-                  </tr>
-                  <tr>
-                    <td rowspan="3" style="background: rgb(248, 250, 252); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
-                      실측(Act)
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_초_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="29" value="" placeholder="(초)">
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_초_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="29" value="" placeholder="(초)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_중_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="29" value="" placeholder="(중)">
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_중_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="29" value="" placeholder="(중)">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_종_RL" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="29" value="" placeholder="(종)">
-                    </td>
-                    <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                      <input type="text" id="dim_step_r_종_RR" class="form-control" style="width: 100%; height: 24px; padding: 2px; text-align: center; font-size: 11px; background: rgb(255, 255, 255);" data-wheel-parsed-spec="29" value="" placeholder="(종)">
                     </td>
                   </tr>
                 </tbody>
