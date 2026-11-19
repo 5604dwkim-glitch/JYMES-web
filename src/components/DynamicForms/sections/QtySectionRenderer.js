@@ -1,5 +1,6 @@
 import * as Templates from '../FormTemplates.jsx';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
+import { applyUnifiedFormColors } from './formColorTheme.js';
 import { renderF1051QtySection } from '../forms/f1051/qtySection';
 import { renderF1052QtySection } from '../forms/f1052/qtySection';
 import { renderF1054QtySection } from '../forms/f1054/qtySection';
@@ -1162,5 +1163,6 @@ export function renderQtySection(ctx) {
     }
 
     updateDowntimeSection();
+    applyUnifiedFormColors(qtySection);
     i18n.applyTranslations(qtySection);
 }

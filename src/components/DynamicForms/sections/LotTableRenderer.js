@@ -1,4 +1,5 @@
 import { autoFormatDateTimeString } from './formUtils.js';
+import { applyUnifiedFormColors } from './formColorTheme.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF1051LotTable } from '../forms/f1051/lotTable.js';
 import { renderF1052LotTable } from '../forms/f1052/lotTable.js';
@@ -1312,5 +1313,6 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       });
     });
 
+    applyUnifiedFormColors(lotContainer);
     i18n.applyTranslations(lotContainer);
 }

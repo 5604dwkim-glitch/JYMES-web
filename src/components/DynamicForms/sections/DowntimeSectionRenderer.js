@@ -1,5 +1,6 @@
 import { DOWNTIME_REASONS } from '../../../constants/masterData.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
+import { applyUnifiedFormColors } from './formColorTheme.js';
 import { applyF1051DowntimeSection } from '../forms/f1051/downtimeSection.js';
 import { applyF1052DowntimeSection } from '../forms/f1052/downtimeSection.js';
 import { applyF5001DowntimeSection, restoreDefaultDowntimeReasonsIfNeeded } from '../forms/f5001/downtimeSection.js';
@@ -20,6 +21,12 @@ import { applyF5014DowntimeSection } from '../forms/f5014/downtimeSection.js';
  * ctx: { container, processValue, existingData, getCurrentFormCode }
  */
 export function updateDowntimeSection(ctx) {
+  updateDowntimeSectionCore(ctx);
+  const downtimeCard = ctx?.container?.querySelector('#downtimeCard');
+  if (downtimeCard) applyUnifiedFormColors(downtimeCard);
+}
+
+function updateDowntimeSectionCore(ctx) {
   const { container, processValue, existingData, getCurrentFormCode, carModelValue, currentCarCode } = ctx;
     const curProc = processValue ? processValue.value : '';
     const downtimeCard = container.querySelector('#downtimeCard');

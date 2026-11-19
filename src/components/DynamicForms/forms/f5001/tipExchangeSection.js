@@ -7,6 +7,8 @@
  * - 모든 입력칸/선택칸 ID·저장 키는 `f5001_tip_` 접두사 + `data-save-group="qtyTable"` 사용 (GEMINI.md 원칙 1·2·8·10·12·13)
  */
 
+import { applyUnifiedFormColors } from '../../sections/formColorTheme.js';
+
 export const F5001_TIP_REASONS = ['막힘', '마모'];
 
 export const F5001_TIP_ITEMS = [
@@ -229,7 +231,10 @@ export function bindF5001TipExchangeEvents(qtySection, ctx = {}) {
       const countInput = card.querySelector('#f5001_tip_row_count');
       if (countInput) countInput.value = String(nextIdx);
       const lastRow = tbody.lastElementChild;
-      if (lastRow) bindTimeInputsInScope(lastRow);
+      if (lastRow) {
+        bindTimeInputsInScope(lastRow);
+        applyUnifiedFormColors(tbody.closest('table'));
+      }
     });
   }
 

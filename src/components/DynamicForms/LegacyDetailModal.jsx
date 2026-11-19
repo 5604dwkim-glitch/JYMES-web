@@ -109,7 +109,7 @@ export function printIsolatedReport(element, title = '공정작업일보') {
           line-height: 1.2 !important;
         }
         th {
-          background-color: #f1f5f9 !important;
+          background-color: #e8eef5;
           font-weight: 700 !important;
         }
         img {
