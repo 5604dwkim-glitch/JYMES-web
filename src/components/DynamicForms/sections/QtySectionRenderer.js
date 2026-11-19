@@ -4,6 +4,7 @@ import { applyUnifiedFormColors } from './formColorTheme.js';
 import { renderF1051QtySection } from '../forms/f1051/qtySection';
 import { renderF1052QtySection } from '../forms/f1052/qtySection';
 import { renderF1054QtySection } from '../forms/f1054/qtySection';
+import { renderF4003QtySection } from '../forms/f4003/qtySection';
 import { renderF5001QtySection } from '../forms/f5001/qtySection';
 import { renderF5002QtySection } from '../forms/f5002/qtySection';
 import { renderF5003QtySection } from '../forms/f5003/qtySection';
@@ -1088,9 +1089,7 @@ export function renderQtySection(ctx) {
         calcJg1QtySummary();
         break;
       case 4003:
-        qtySection.innerHTML = Templates.getForm4003QtyHTML(existingData, container);
-        qtySection.addEventListener('input', calcJg1QtySummary);
-        calcJg1QtySummary();
+        renderF4003QtySection(qtySection, ctx);
         break;
       case 4004:
         qtySection.innerHTML = Templates.getForm4004QtyHTML(existingData, container);

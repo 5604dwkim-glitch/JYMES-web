@@ -251,6 +251,20 @@ export function extractDefectBreakdown(r) {
       addDefect('[검사/후가공] 기타',     r.qtyTable[`etc_other_${c}`]);
     });
 
+    // #4003 (기아 OV1K PTG 후가공) — 조인트 불량(7종) / 후가공 불량(3종)
+    ['FL', 'FR'].forEach(col => {
+      addDefect('[후가공/조인트] 떨어짐', r.qtyTable[`f4003_def_joint_drop_${col}`]);
+      addDefect('[후가공/조인트] 양부족', r.qtyTable[`f4003_def_joint_lack_${col}`]);
+      addDefect('[후가공/조인트] 단차', r.qtyTable[`f4003_def_joint_step_${col}`]);
+      addDefect('[후가공/조인트] 기포', r.qtyTable[`f4003_def_joint_bubble_${col}`]);
+      addDefect('[후가공/조인트] 씹힘', r.qtyTable[`f4003_def_joint_chew_${col}`]);
+      addDefect('[후가공/조인트] 찌꺼기', r.qtyTable[`f4003_def_joint_scrap_${col}`]);
+      addDefect('[후가공/조인트] 기타', r.qtyTable[`f4003_def_joint_etc_${col}`]);
+      addDefect('[후가공] 사상불량', r.qtyTable[`f4003_def_post_trim_${col}`]);
+      addDefect('[후가공] 오염', r.qtyTable[`f4003_def_post_poll_${col}`]);
+      addDefect('[후가공] 기타', r.qtyTable[`f4003_def_post_etc_${col}`]);
+    });
+
     // #1051 (JG1 FRUNK 소재준비 — 타공 단면 / 무타공 단면)
     ['perf', 'nonperf'].forEach(col => {
       addDefect('[검사/압출] 스코치',     r.qtyTable[`f1051_def_ext_scorch_${col}`]);
