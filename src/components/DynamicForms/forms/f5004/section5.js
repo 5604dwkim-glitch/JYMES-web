@@ -157,7 +157,7 @@ function renderInjectionTempCardHTML(savedValues = {}) {
           const val = escapeAttr(savedValues[id]);
           const wheelTitle = `사출온도 ${mode.titleLabel} ${angle.label} ${inj.label} - ${zone.titleLabel}`;
           return `<td style="${cellTdStyle}">
-                    <input type="text" id="${id}" data-form-code="5004" data-save-group="dimData" data-f5004-temp="1" data-wheel-parsed-spec="200" data-wheel-unit="℃" data-wheel-range="80" data-wheel-title="${wheelTitle}" class="form-control" style="${TEMP_INPUT_STYLE}" value="${val}" />
+                    <input type="text" id="${id}" data-form-code="5004" data-save-group="dimData" data-f5004-temp="1" data-wheel-parsed-spec="250" data-wheel-preset-step="10" data-wheel-unit="℃" data-wheel-range="80" data-wheel-title="${wheelTitle}" class="form-control" style="${TEMP_INPUT_STYLE}" value="${val}" />
                   </td>`;
         }).join('\n                  ');
 
@@ -303,7 +303,7 @@ export function renderF5004Section5(section5, ctx = {}) {
 
   if (ctx.bindNumberWheelPicker) {
     section5.querySelectorAll('input[data-form-code="5004"][data-f5004-temp="1"]').forEach(input => {
-      const spec = parseFloat(input.dataset.wheelParsedSpec) || 200;
+      const spec = parseFloat(input.dataset.wheelParsedSpec) || 250;
       const range = parseFloat(input.dataset.wheelRange) || 80;
       const unit = input.dataset.wheelUnit ?? '℃';
       const title = input.dataset.wheelTitle || '사출온도';

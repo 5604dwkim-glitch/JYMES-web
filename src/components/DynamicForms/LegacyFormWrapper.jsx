@@ -2262,15 +2262,17 @@ function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCe
     const rawVal = parseFloat(inputElem.value);
     const initialVal = !isNaN(rawVal) ? rawVal : defaultCenter;
     const resolvedTitle = inputElem.dataset?.wheelTitle || titleText;
+    const rawPresetStep = parseFloat(inputElem.dataset?.wheelPresetStep);
+    const presetStep = !isNaN(rawPresetStep) && rawPresetStep > 0 ? rawPresetStep : 5;
     openNumberWheelPicker(initialVal, resolvedTitle, defaultCenter, range, unit, tolerance, (selectedVal) => {
       inputElem.value = selectedVal;
       inputElem.dispatchEvent(new Event('input', { bubbles: true }));
       inputElem.dispatchEvent(new Event('change', { bubbles: true }));
-    });
+    }, presetStep);
   };
 }
 
-function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defaultCenter = 100, range = 30, unit = '', tolerance = null, callback) {
+function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defaultCenter = 100, range = 30, unit = '', tolerance = null, callback, presetStep = 5) {
   let modal = document.getElementById('wheelNumberPickerModal');
   if (modal) modal.remove();
 
@@ -2294,12 +2296,13 @@ function openNumberWheelPicker(initialValue = 100, title = '수치 선택', defa
     display: flex; align-items: center; justify-content: center; padding: 16px;
   `;
 
+  const step = !isNaN(parseFloat(presetStep)) && parseFloat(presetStep) > 0 ? parseFloat(presetStep) : 5;
   const presets = [
-    defaultCenter - 10,
-    defaultCenter - 5,
+    defaultCenter - step * 2,
+    defaultCenter - step,
     defaultCenter,
-    defaultCenter + 5,
-    defaultCenter + 10
+    defaultCenter + step,
+    defaultCenter + step * 2
   ].filter(p => p >= minVal && p <= maxVal);
 
   modal.innerHTML = `
