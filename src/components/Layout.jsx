@@ -119,7 +119,7 @@ export default function Layout() {
 
   return (
     <div id="app">
-      <aside className="sidebar sidebar-clean" id="sidebar">
+      <aside className="sidebar sidebar-dark" id="sidebar">
         <div className="sidebar-header">
           <span className="sidebar-brand-mark" aria-hidden="true">JY</span>
           <div className="sidebar-title">
