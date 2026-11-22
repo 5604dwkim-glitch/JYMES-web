@@ -60,6 +60,7 @@ const MoldManagement = lazyWithReload(() => import('./components/MoldManagement/
 const TpmCheckFlow = lazyWithReload(() => import('./components/TpmCheckFlow'));
 const ChangePointManagement = lazyWithReload(() => import('./components/ChangePointManagement'));
 const IncomingInspection = lazyWithReload(() => import('./components/IncomingInspection'));
+const IlluminanceMeasurement = lazyWithReload(() => import('./components/EquipmentManagement/IlluminanceMeasurement'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -130,6 +131,11 @@ export default function App() {
           <Route path="equipment" element={
             <Suspense fallback={<PageLoader />}>
               <EquipmentManagement />
+            </Suspense>
+          } />
+          <Route path="equipment/illuminance" element={
+            <Suspense fallback={<PageLoader />}>
+              <IlluminanceMeasurement />
             </Suspense>
           } />
           <Route path="equipment/:category" element={

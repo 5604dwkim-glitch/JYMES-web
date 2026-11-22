@@ -8,6 +8,16 @@
 
 export const PHRASE_TUPLES = [
   // ── Sidebar, Header & Navigation ──
+  ['조도 측정', 'Illuminance Check', 'การวัดความสว่าง', 'Đo độ rọi'],
+  ['조도 측정 기록 리스트', 'Illuminance Measurement Records', 'รายการบันทึกการวัดความสว่าง', 'Danh sách ghi nhận đo độ rọi'],
+  ['작업장 조도(lux) 측정 기록 관리 및 기준 적합 여부 판정', 'Workplace illuminance (lux) records and pass/fail judgement', 'บันทึกความสว่างพื้นที่ทำงาน (lux) และการตัดสินผ่าน/ไม่ผ่าน', 'Quản lý ghi nhận độ rọi (lux) nơi làm việc và đánh giá đạt/không đạt'],
+  ['측정일', 'Measured Date', 'วันที่วัด', 'Ngày đo'],
+  ['측정장소', 'Location', 'สถานที่วัด', 'Địa điểm đo'],
+  ['기준조도(lux)', 'Standard (lux)', 'ค่ามาตรฐาน (lux)', 'Chuẩn (lux)'],
+  ['측정값(lux)', 'Measured (lux)', 'ค่าที่วัด (lux)', 'Giá trị đo (lux)'],
+  ['판정', 'Judgement', 'ผลการตัดสิน', 'Đánh giá'],
+  ['측정기', 'Instrument', 'เครื่องวัด', 'Thiết bị đo'],
+  ['측정자', 'Measurer', 'ผู้วัด', 'Người đo'],
   ['모니터링', 'Monitoring', 'การติดตามผล', 'Giám sát'],
   ['생산 · 기준정보', 'Production & Master', 'การผลิตและข้อมูลหลัก', 'Sản xuất & Danh mục'],
   ['현장 기록', 'Field Reports', 'บันทึกหน้างาน', 'Báo cáo hiện trường'],

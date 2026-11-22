@@ -19,6 +19,7 @@ import { useI18n } from '../contexts/I18nContext';
 import { isFluidPage } from '../constants/layoutPages';
 import { EQUIPMENT_CATEGORIES, getCategoryMeta } from '../constants/equipmentCategories';
 import { prefetchAnalyticsData } from '../services/firestore';
+import { ILLUMINANCE_META, ILLUMINANCE_ROUTE_PATH, ILLUMINANCE_ROUTE_SLUG } from '../constants/illuminanceMeasurement';
 import './Sidebar.css';
 
 function LiveClock() {
@@ -77,6 +78,12 @@ export default function Layout() {
   const getPageTitle = () => {
     if (location.pathname === '/equipment' || location.pathname.startsWith('/equipment/')) {
       const slug = location.pathname.split('/')[2] || 'joint';
+      if (slug === ILLUMINANCE_ROUTE_SLUG) {
+        return {
+          title: `${t('nav_equipment')} · ${td(ILLUMINANCE_META.label)}`,
+          sub: td(ILLUMINANCE_META.subtitle)
+        };
+      }
       const meta = getCategoryMeta(slug);
       return {
         title: `${t('nav_equipment')} · ${td(meta.label)}`,
@@ -224,6 +231,12 @@ export default function Layout() {
                         <span className="sidebar-nav-label">{td(cat.label)}</span>
                       </NavLink>
                     ))}
+                    <NavLink
+                      to={ILLUMINANCE_ROUTE_PATH}
+                      className={({ isActive }) => `nav-item nav-subitem ${isActive ? 'active' : ''}`}
+                    >
+                      <span className="sidebar-nav-label">{td(ILLUMINANCE_META.label)}</span>
+                    </NavLink>
                   </div>
                 )}
               </div>

@@ -264,13 +264,13 @@ export default function CalibrationInstrumentListView({
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '3px',
-          padding: '2px 4px',
+          gap: '4px',
+          padding: '4px 6px',
           borderRadius: '4px',
-          border: isFiltered || isOpen ? '1px solid #2563eb' : '1px solid transparent',
-          background: isFiltered ? '#eff6ff' : isOpen ? 'rgba(255,255,255,0.65)' : 'transparent',
-          color: isFiltered ? '#1d4ed8' : '#0f172a',
-          fontWeight: 800,
+          border: isFiltered || isOpen ? '1px solid #93c5fd' : '1px solid transparent',
+          background: isFiltered ? '#eff6ff' : isOpen ? '#f8fafc' : 'transparent',
+          color: isFiltered ? '#1d4ed8' : 'inherit',
+          fontWeight: 'bold',
           fontSize: 'inherit',
           fontFamily: 'inherit',
           cursor: 'pointer',
@@ -278,7 +278,7 @@ export default function CalibrationInstrumentListView({
         }}
       >
         <span>{label}</span>
-        <span style={{ fontSize: '9.5px', color: isFiltered ? '#2563eb' : '#475569' }}>
+        <span style={{ fontSize: '10px', color: isFiltered ? '#2563eb' : '#64748b' }}>
           {isFiltered ? `▼(${selectedVals.length})` : '▾'}
         </span>
       </button>
@@ -288,31 +288,45 @@ export default function CalibrationInstrumentListView({
   return (
     <div data-cal-instrument-list="1">
       <style>{`
+        /* 조인트 설비 리스트와 동일한 표 스타일: 세로선·회색 헤더 배경 없이 가로 구분선만 사용 */
+        [data-cal-instrument-list="1"] .cal-sheet-table {
+          border-collapse: collapse;
+        }
         [data-cal-instrument-list="1"] .cal-sheet-table th,
         [data-cal-instrument-list="1"] .cal-sheet-table td {
-          border: 1px solid #cbd5e1;
+          border: none;
           text-align: center;
           vertical-align: middle;
-        }
-        [data-cal-instrument-list="1"] .cal-sheet-table thead tr:first-child th {
-          background: #f1f5f9;
-        }
-        [data-cal-instrument-list="1"] .cal-sheet-table thead tr:nth-child(2) th {
-          background: #f8fafc;
-        }
-        [data-cal-instrument-list="1"] .cal-sheet-table th {
-          color: #1e293b;
-          font-weight: 700;
-          font-size: 12px;
-          padding: 7px 8px;
+          padding-left: 12px;
+          padding-right: 12px;
           white-space: nowrap;
+        }
+        [data-cal-instrument-list="1"] .cal-sheet-table thead th {
+          background: transparent;
+          color: inherit;
+          font-weight: bold;
+          font-size: inherit;
+          padding-top: 4px;
+          padding-bottom: 6px;
+        }
+        [data-cal-instrument-list="1"] .cal-sheet-table thead tr:last-child th {
+          border-bottom: 1px solid #cbd5e1;
+        }
+        [data-cal-instrument-list="1"] .cal-sheet-table thead th[data-cal-group="1"] {
+          color: #475569;
+          font-size: 12px;
+          border-bottom: 1px solid #e2e8f0;
+          padding-bottom: 2px;
+        }
+        [data-cal-instrument-list="1"] .cal-sheet-table thead th[data-cal-rowspan="2"] {
+          border-bottom: 1px solid #cbd5e1;
         }
         [data-cal-instrument-list="1"] .cal-sheet-table td {
-          background: #ffffff;
+          background: transparent;
           color: #0f172a;
-          font-size: 12.5px;
-          padding: 8px 8px;
-          white-space: nowrap;
+          padding-top: 10px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #cbd5e1;
         }
         [data-cal-instrument-list="1"] .cal-sheet-table tbody tr:hover td {
           background: #f8fafc;
@@ -324,7 +338,7 @@ export default function CalibrationInstrumentListView({
           background: #fee2e2;
         }
         [data-cal-instrument-list="1"] button[data-eq-filter-btn]:hover {
-          background: #e2e8f0 !important;
+          background: #f1f5f9 !important;
         }
         [data-cal-instrument-list="1"] button[data-eq-filter-btn][data-active="1"]:hover {
           background: #dbeafe !important;
@@ -493,21 +507,21 @@ export default function CalibrationInstrumentListView({
         >
           <thead>
             <tr>
-              <th rowSpan={2} style={{ width: '48px' }}>
+              <th rowSpan={2} data-cal-rowspan="2" style={{ width: '52px' }}>
                 {isEquip ? '순번' : 'NO'}
               </th>
-              {isEquip && <th rowSpan={2}>{renderFilterHeaderButton('location', '위치')}</th>}
-              <th rowSpan={2}>{renderFilterHeaderButton('code', '관리번호')}</th>
-              <th rowSpan={2}>{renderFilterHeaderButton('name', isEquip ? '설비명' : '계측기명')}</th>
-              <th rowSpan={2}>{renderFilterHeaderButton('serialNo', '기기번호')}</th>
-              <th colSpan={2} style={{ letterSpacing: '0.25em' }}>
-                규 격
+              {isEquip && <th rowSpan={2} data-cal-rowspan="2">{renderFilterHeaderButton('location', '위치')}</th>}
+              <th rowSpan={2} data-cal-rowspan="2">{renderFilterHeaderButton('code', '관리번호')}</th>
+              <th rowSpan={2} data-cal-rowspan="2">{renderFilterHeaderButton('name', isEquip ? '설비명' : '계측기명')}</th>
+              <th rowSpan={2} data-cal-rowspan="2">{renderFilterHeaderButton('serialNo', '기기번호')}</th>
+              <th colSpan={2} data-cal-group="1">
+                규격
               </th>
-              <th colSpan={3}>검교정</th>
-              <th colSpan={2}>구매관련</th>
-              <th colSpan={2}>관리현황</th>
-              <th rowSpan={2}>{renderFilterHeaderButton('calibrationAgency', '교정 주관')}</th>
-              <th rowSpan={2} style={{ width: '150px' }}>
+              <th colSpan={3} data-cal-group="1">검교정</th>
+              <th colSpan={2} data-cal-group="1">구매관련</th>
+              <th colSpan={2} data-cal-group="1">관리현황</th>
+              <th rowSpan={2} data-cal-rowspan="2">{renderFilterHeaderButton('calibrationAgency', '교정 주관')}</th>
+              <th rowSpan={2} data-cal-rowspan="2" style={{ width: '150px' }}>
                 관리
               </th>
             </tr>
@@ -567,8 +581,8 @@ export default function CalibrationInstrumentListView({
                           color: '#1d4ed8',
                           border: '1px solid #bfdbfe',
                           borderRadius: '4px',
-                          padding: '3px 7px',
-                          fontSize: '11.5px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
                           cursor: 'pointer'
                         }}
                         onClick={() => onOpenEdit(eq)}
@@ -583,8 +597,8 @@ export default function CalibrationInstrumentListView({
                           color: '#1e293b',
                           border: 'none',
                           borderRadius: '4px',
-                          padding: '3px 7px',
-                          fontSize: '11.5px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
                           cursor: 'pointer'
                         }}
                         onClick={() => onOpenHistory(eq)}
@@ -599,8 +613,8 @@ export default function CalibrationInstrumentListView({
                           color: '#991b1b',
                           border: '1px solid #fecaca',
                           borderRadius: '4px',
-                          padding: '3px 7px',
-                          fontSize: '11.5px',
+                          padding: '4px 8px',
+                          fontSize: '12px',
                           cursor: 'pointer'
                         }}
                         onClick={() => onDelete(eq.id)}
