@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { printEquipmentSetCard } from '../../utils/printEquipmentSet';
+import { printEquipmentLabels } from '../../utils/printEquipmentLabels';
 import {
   getEquipmentCategory,
   getEquipmentSetCategory,
@@ -262,10 +263,9 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
     }
   };
 
-  const handlePrintSetQr = (set) => {
-    let resolvedEquips = [];
+  const resolveSetEquipments = (set) => {
     if (Array.isArray(set?.equipments) && set.equipments.length > 0) {
-      resolvedEquips = set.equipments.map((item) => {
+      return set.equipments.map((item) => {
         const codeKey = item?.code ? String(item.code).trim() : '';
         const live =
           (item?.id && equipmentById.get(item.id)) ||
@@ -281,13 +281,21 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
           location: live?.location || item?.location || ''
         };
       });
-    } else if (Array.isArray(set?.equipmentIds) && set.equipmentIds.length > 0) {
-      resolvedEquips = set.equipmentIds
+    }
+    if (Array.isArray(set?.equipmentIds) && set.equipmentIds.length > 0) {
+      return set.equipmentIds
         .map((id) => equipmentById.get(id))
         .filter(Boolean);
     }
+    return [];
+  };
 
-    printEquipmentSetCard(set, resolvedEquips);
+  const handlePrintSetQr = (set) => {
+    printEquipmentSetCard(set, resolveSetEquipments(set));
+  };
+
+  const handlePrintSetLabels = (set) => {
+    printEquipmentLabels(set, resolveSetEquipments(set));
   };
 
   if (loading) return <p>로딩 중...</p>;
@@ -428,7 +436,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
             <thead>
               <tr style={{ borderBottom: '1px solid #cbd5e1' }}>
                 <th
-                  style={{ width: '24%', cursor: 'pointer', userSelect: 'none' }}
+                  style={{ width: '22%', cursor: 'pointer', userSelect: 'none' }}
                   title="클릭하여 오름차순/내림차순 전환"
                   onClick={() => handleChangeSetSortOrder(setSortOrder === 'asc' ? 'desc' : 'asc')}
                 >
@@ -439,8 +447,8 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
                     </span>
                   </span>
                 </th>
-                <th style={{ width: '46%' }}>포함된 설비</th>
-                <th style={{ width: '30%' }}>관리</th>
+                <th style={{ width: '39%' }}>포함된 설비</th>
+                <th style={{ width: '39%' }}>관리</th>
               </tr>
             </thead>
             <tbody>
@@ -524,13 +532,13 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
                         )}
                       </td>
                       <td>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px' }}>
                           {set.equipments?.map(eq => {
                             const liveEq = eq?.id ? equipmentById.get(eq.id) : null;
                             const displayName = liveEq?.name || eq.name;
                             const displayCode = liveEq?.code || eq.code;
                             return (
-                              <span key={eq.id || eq.code} style={{ background: '#f1f5f9', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <span key={eq.id || eq.code} style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontSize: '12px', border: '1px solid #e2e8f0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {displayName} ({displayCode})
                               </span>
                             );
@@ -538,14 +546,14 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
                         </div>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', flexWrap: 'nowrap', gap: '4px', alignItems: 'center' }}>
                           {isEditing ? (
                             <>
                               <button
                                 type="button"
                                 className="btn btn-sm"
                                 disabled={isSaving}
-                                style={{ background: '#2563eb', color: '#ffffff', border: 'none', whiteSpace: 'nowrap' }}
+                                style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '4px 8px', whiteSpace: 'nowrap' }}
                                 onClick={() => handleSaveSetName(set)}
                               >
                                 {isSaving ? '저장 중...' : '저장'}
@@ -554,7 +562,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
                                 type="button"
                                 className="btn btn-sm"
                                 disabled={isSaving}
-                                style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', whiteSpace: 'nowrap' }}
+                                style={{ background: '#f1f5f9', color: '#475569', border: '1px solid #cbd5e1', padding: '4px 8px', whiteSpace: 'nowrap' }}
                                 onClick={cancelEditingSet}
                               >
                                 취소
@@ -564,7 +572,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
                             <button
                               type="button"
                               className="btn btn-sm"
-                              style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', whiteSpace: 'nowrap' }}
+                              style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', padding: '4px 8px', whiteSpace: 'nowrap' }}
                               onClick={() => startEditingSet(set)}
                             >
                               이름 수정
@@ -573,15 +581,25 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
                           <button 
                             type="button"
                             className="btn btn-sm" 
-                            style={{ background: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe', whiteSpace: 'nowrap' }}
+                            style={{ background: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe', padding: '4px 8px', whiteSpace: 'nowrap' }}
+                            title="설비 셋트 관리 카드 QR 라벨 출력 (104×104mm)"
                             onClick={() => handlePrintSetQr(set)}
                           >
                             QR 코드 출력
                           </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm"
+                            style={{ background: '#ccfbf1', color: '#115e59', border: '1px solid #99f6e4', padding: '4px 8px', whiteSpace: 'nowrap', fontWeight: 700 }}
+                            title="셋트 내 설비별 관리번호 + 이력카드 QR 라벨 출력 (104×65mm)"
+                            onClick={() => handlePrintSetLabels(set)}
+                          >
+                            설비 라벨 출력
+                          </button>
                           <button 
                             type="button"
                             className="btn btn-sm btn-secondary" 
-                            style={{ background: '#fee2e2', color: '#991b1b', border: 'none', whiteSpace: 'nowrap' }}
+                            style={{ background: '#fee2e2', color: '#991b1b', border: 'none', padding: '4px 8px', whiteSpace: 'nowrap' }}
                             onClick={() => handleDeleteSet(set.id)}
                           >
                             삭제

@@ -384,7 +384,7 @@ export async function exportAnalyticsToExcel({
   ws.addRow([]);
 
   // 6. 불량 유형별 일자별 발생 수량 테이블
-  const s2Title = `■ 불량 유형별 일자별 발생 수량 (총 불량 ${defectTable.grandTotal.toLocaleString()}건, 상위 ${defectTable.rows.length}개 유형)`;
+  const s2Title = `■ 불량 유형별 일자별 발생 수량 (전체 불량 ${totals.defectSum.toLocaleString()}건 · 상위 ${defectTable.rows.length}개 유형 합계 ${defectTable.grandTotal.toLocaleString()}건)`;
   const s2TitleRow = ws.addRow([s2Title]);
   s2TitleRow.getCell(1).font = subTitleFont;
 
@@ -444,7 +444,7 @@ export async function exportAnalyticsToExcel({
     row.eachCell((cell) => { cell.border = thinBorder; });
   });
 
-  const dTotalCells = ['', '합계 / 전체 불량률', ...labels.map((_, i) => defects[i] || 0), `${totals.rate}%`];
+  const dTotalCells = ['', '전체 불량 합계 / 불량률', ...labels.map((_, i) => defects[i] || 0), `${totals.rate}%`];
   const dTotalRow = ws.addRow(dTotalCells);
   dTotalRow.height = 25;
   dTotalRow.getCell(1).fill = lightSlateFill;

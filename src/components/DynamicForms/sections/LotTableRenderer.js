@@ -2,6 +2,10 @@ import { autoFormatDateTimeString } from './formUtils.js';
 import { applyUnifiedFormColors } from './formColorTheme.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { renderF1051LotTable } from '../forms/f1051/lotTable.js';
+import { renderF4021LotTable } from '../forms/f4021/lotTable.js';
+import { renderF4022LotTable } from '../forms/f4022/lotTable.js';
+import { renderF4023LotTable } from '../forms/f4023/lotTable.js';
+import { renderF4024LotTable } from '../forms/f4024/lotTable.js';
 import { renderF1052LotTable } from '../forms/f1052/lotTable.js';
 import { renderF1054LotTable } from '../forms/f1054/lotTable.js';
 import { renderF5001LotTable } from '../forms/f5001/lotTable.js';
@@ -46,7 +50,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
     const curProc = processValue ? processValue.value : '';
 
     const rawFormCode = getCurrentFormCode();
-    const formCode = (rawFormCode === 1051 || rawFormCode === 1052 || rawFormCode === 1054) ? rawFormCode : resolveFormCodeSource(rawFormCode);
+    const formCode = (rawFormCode === 1051 || rawFormCode === 1052 || rawFormCode === 1054 || rawFormCode === 4021 || rawFormCode === 4022 || rawFormCode === 4023 || rawFormCode === 4024) ? rawFormCode : resolveFormCodeSource(rawFormCode);
     const section4Card = container.querySelector('#section4Card') || lotContainer.closest('.card');
 
     // [1] 소재 LOT 영역 표시 여부 판단 (공정 미선택 또는 LOT 입력이 불필요한 고유 양식)
@@ -89,6 +93,12 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
         return;
       }
       if (section4Card) section4Card.style.display = 'block';
+    } else if (formCode === 4024) {
+      if (!curProc) {
+        if (section4Card) section4Card.style.display = 'none';
+        return;
+      }
+      if (section4Card) section4Card.style.display = 'block';
     } else if (!curProc || noLotFormCodes.includes(formCode) || (curProc.includes('검사') && !isStellantisInsp && formCode !== 3004 && formCode !== 4014 && formCode !== 4004 && formCode !== 1004 && formCode !== 1034 && formCode !== 1024 && formCode !== 1044)) {
       if (section4Card) section4Card.style.display = 'none';
       return;
@@ -102,6 +112,26 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       // #1051 (JG1 FRUNK 소재준비): 전용 템플릿으로 위임 (forms/f1051/lotTable.js)
       case 1051:
         renderF1051LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #4021 (LQ2a HOOD SIDE 소재준비): 전용 템플릿으로 위임 (forms/f4021/lotTable.js)
+      case 4021:
+        renderF4021LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #4022 (LQ2a HOOD SIDE 조인트): 전용 템플릿으로 위임 (forms/f4022/lotTable.js)
+      case 4022:
+        renderF4022LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #4023 (LQ2a HOOD SIDE 후가공): 전용 템플릿으로 위임 (forms/f4023/lotTable.js)
+      case 4023:
+        renderF4023LotTable(lotContainer, curLots, materialLots);
+        break;
+
+      // #4024 (LQ2a HOOD SIDE 검사포장): 전용 템플릿으로 위임 (forms/f4024/lotTable.js)
+      case 4024:
+        renderF4024LotTable(lotContainer, curLots, materialLots);
         break;
 
       // #1052 (JG1 FRUNK 조인트): 전용 템플릿으로 위임 (forms/f1052/lotTable.js)
@@ -820,7 +850,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
       }
 
       // ────────────────────────────────────────────────────────
-      // #1022, #1042 : JG1 / JG1S G/RUN 'E' 조인트 전용 양식
+      // #1023, #1024, #1043, #1044 : JG1 / JG1S G/RUN 'E' 후가공 · 검사포장 양식
       // ────────────────────────────────────────────────────────
       case 1023:
       case 1024:
@@ -1169,10 +1199,7 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
         `;
         break;
       }
-      // #1022, #4022, #3012 : 조인트 전용 양식
-      case 1022:
-      case 1042:
-      case 4022:
+      // #3012 : 조인트 전용 양식 (#1022·#1042 는 #5004 복제본으로 이관)
       case 3012: {
         lotContainer.innerHTML = `
           <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">

@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
+import { savePendingRedirect } from './utils/authRedirect';
 
 // Lazy loaded components for code splitting
 // Helper to handle chunk load errors (white screen) after deployment updates
@@ -54,9 +55,11 @@ const ReportList = lazyWithReload(() => import('./components/ReportList'));
 const Analytics = lazyWithReload(() => import('./components/Analytics'));
 const MasterData = lazyWithReload(() => import('./components/MasterData'));
 const EquipmentManagement = lazyWithReload(() => import('./components/EquipmentManagement/EquipmentManagement'));
+const EquipmentHistoryQrView = lazyWithReload(() => import('./components/EquipmentManagement/EquipmentHistoryQrView'));
 const MoldManagement = lazyWithReload(() => import('./components/MoldManagement/MoldManagement'));
 const TpmCheckFlow = lazyWithReload(() => import('./components/TpmCheckFlow'));
 const ChangePointManagement = lazyWithReload(() => import('./components/ChangePointManagement'));
+const IncomingInspection = lazyWithReload(() => import('./components/IncomingInspection'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -70,6 +73,11 @@ function PrivateRoute({ children }) {
   const { userRole } = useAuth();
   const location = useLocation();
   if (!userRole) {
+    if (location.pathname && location.pathname !== '/') {
+      const target = `${location.pathname}${location.search}`;
+      savePendingRedirect(target);
+      return <Navigate to={`/login?redirect=${encodeURIComponent(target)}`} replace />;
+    }
     return <Navigate to={`/login${location.search}`} replace />;
   }
   return children;
@@ -80,6 +88,13 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/equipment-history/:equipmentId" element={
+          <PrivateRoute>
+            <Suspense fallback={<PageLoader />}>
+              <EquipmentHistoryQrView />
+            </Suspense>
+          </PrivateRoute>
+        } />
         
         <Route path="/" element={
           <PrivateRoute>
@@ -130,6 +145,11 @@ export default function App() {
           <Route path="mold" element={
             <Suspense fallback={<PageLoader />}>
               <MoldManagement />
+            </Suspense>
+          } />
+          <Route path="incoming-inspection" element={
+            <Suspense fallback={<PageLoader />}>
+              <IncomingInspection />
             </Suspense>
           } />
           <Route path="tpm-check/:setId" element={

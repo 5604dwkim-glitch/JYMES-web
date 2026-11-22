@@ -1,4 +1,4 @@
-import { TPM_CIRCLED_NUMBERS, DEFAULT_TPM_GUIDE_PHOTO } from '../constants/tpmLogTemplate';
+import { TPM_CIRCLED_NUMBERS, getDefaultTpmPhotoForEquipment } from '../constants/tpmLogTemplate';
 
 const MARK_COLORS = { O: '#15803d', X: '#dc2626', '△': '#d97706' };
 
@@ -11,8 +11,8 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function resolvePhotoUrl(photo) {
-  const src = photo || DEFAULT_TPM_GUIDE_PHOTO || '';
+function resolvePhotoUrl(photo, equipment) {
+  const src = photo || getDefaultTpmPhotoForEquipment(equipment) || '';
   if (!src) return '';
   if (src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
     return src;
@@ -31,10 +31,33 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
 
   const daysInMonth = new Date(year, month, 0).getDate();
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const photoUrl = resolvePhotoUrl(photo);
+  const photoUrl = resolvePhotoUrl(photo, equipment);
 
   const eqName = escapeHtml(equipment.name || '');
+  const eqSpec = escapeHtml(equipment.spec || '');
   const eqCode = escapeHtml(equipment.code || '');
+  const totalDailyRows = (template.items || []).reduce((sum, it) => sum + (it.rows?.length || 0), 0);
+  const isDenseSheet = totalDailyRows >= 10;
+  const isTopPhotoStrip =
+    template.layoutType === 'top_photo_strip' &&
+    Array.isArray(template.topPhotos) &&
+    template.topPhotos.length > 0;
+  const hasItemCategory = (template.items || []).some((it) => Boolean(it.category));
+
+  const getCategoryRowSpan = (itemIndex) => {
+    const items = template.items || [];
+    const curCat = items[itemIndex]?.category || '';
+    if (!curCat) return 0;
+    if (itemIndex > 0 && (items[itemIndex - 1]?.category || '') === curCat) {
+      return 0;
+    }
+    let span = 0;
+    for (let i = itemIndex; i < items.length; i += 1) {
+      if ((items[i]?.category || '') !== curCat) break;
+      span += items[i]?.rows?.length || 1;
+    }
+    return span;
+  };
 
   const legendRowsHtml = (template.legend || [])
     .map((name, i) => {
@@ -77,15 +100,24 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
     .join('');
 
   const dailyItemRowsHtml = (template.items || [])
-    .map((item, itemIndex) =>
-      (item.rows || [])
+    .map((item, itemIndex) => {
+      const categoryRowSpan = hasItemCategory ? getCategoryRowSpan(itemIndex) : 0;
+      return (item.rows || [])
         .map((row, rowIndex) => {
+          const badgeLabel = item.badgeText !== undefined
+            ? escapeHtml(item.badgeText)
+            : (TPM_CIRCLED_NUMBERS[itemIndex] || itemIndex + 1);
+          const catCellHtml =
+            hasItemCategory && rowIndex === 0 && categoryRowSpan > 0
+              ? `<td rowspan="${categoryRowSpan}" class="item-cat-td">${escapeHtml(item.category || '')}</td>`
+              : '';
           const leftCells =
             rowIndex === 0
               ? `
                 <td rowspan="${item.rows.length}" class="item-num-td">
-                  ${TPM_CIRCLED_NUMBERS[itemIndex] || itemIndex + 1}
+                  ${badgeLabel}
                 </td>
+                ${catCellHtml}
                 <td rowspan="${item.rows.length}" class="item-name-td">
                   <div class="item-ko">${escapeHtml(item.name || '')}</div>
                   ${item.nameEn ? `<div class="item-en">${escapeHtml(item.nameEn)}</div>` : ''}
@@ -112,17 +144,39 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
             })
             .join('');
 
+          const trimmedCrit = String(row.criterion || '').trim();
+          const isNumberedCriterion = /^\d+\./.test(trimmedCrit) || trimmedCrit.includes('\n');
+
           return `
             <tr>
               ${leftCells}
-              <td class="crit-td">${escapeHtml(row.criterion || '')}</td>
+              <td class="crit-td ${isNumberedCriterion ? 'crit-left' : ''}">${escapeHtml(row.criterion || '')}</td>
               ${dayCells}
             </tr>
           `;
         })
-        .join('')
-    )
+        .join('');
+    })
     .join('');
+
+  const topPhotoCardsHtml = isTopPhotoStrip
+    ? (template.topPhotos || [])
+        .map((p) => {
+          const resolvedSrc = resolvePhotoUrl(p.src, equipment);
+          return `
+            <div class="top-photo-card" style="flex: ${Number(p.flex) || 1};">
+              <div class="top-photo-head">
+                <span class="top-photo-badge">${escapeHtml(p.badge || '')}</span>
+                <span>${escapeHtml(p.label || '')}</span>
+              </div>
+              <div class="top-photo-body">
+                ${resolvedSrc ? `<img src="${escapeHtml(resolvedSrc)}" alt="${escapeHtml(p.label || '')}" />` : ''}
+              </div>
+            </div>
+          `;
+        })
+        .join('')
+    : '';
 
   const renderStampRowHtml = (label, field) => {
     const cells = days
@@ -139,7 +193,7 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
 
     return `
       <tr>
-        <td colspan="3" class="stamp-label-td">${escapeHtml(label)}</td>
+        <td colspan="${hasItemCategory ? 4 : 3}" class="stamp-label-td">${escapeHtml(label)}</td>
         ${cells}
       </tr>
     `;
@@ -298,7 +352,7 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
 
           /* Band 2: 사진 / 부위명칭 / 주간 점검 기록 */
           .upper-panel {
-            height: 67mm;
+            height: ${isDenseSheet ? '58mm' : '67mm'};
             flex-shrink: 0;
             display: flex;
             border: 1px solid #000;
@@ -330,7 +384,7 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
 
           .legend-panel {
             width: 49mm;
-            padding: 6mm 2mm 1.5mm;
+            padding: ${(template.legend || []).length > 10 ? '1.5mm' : '6mm'} 2mm 1.5mm;
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -406,9 +460,11 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
           .wk-td {
             border-left: 1px solid #000;
             border-bottom: 1px solid #000;
-            font-size: 11.5px;
-            padding: 0.6mm 1.2mm;
+            font-size: 10.5px;
+            padding: 0.5mm 1.2mm;
             word-break: keep-all;
+            overflow-wrap: anywhere;
+            line-height: 1.2;
           }
 
           .wk-td.no-bottom {
@@ -422,7 +478,7 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
 
           /* Band 3: 판정 기호 안내 */
           .mark-guide-bar {
-            height: 8mm;
+            height: ${isDenseSheet ? '6.5mm' : '8mm'};
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -480,29 +536,103 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
             font-weight: 700;
           }
 
-          .item-name-td {
-            padding: 0.5mm 1mm !important;
+          .item-cat-td {
+            font-size: 11px;
+            font-weight: 800;
+            word-break: keep-all;
+            padding: 0 0.8mm !important;
+          }
+
+          .top-photo-strip-panel {
+            height: ${isDenseSheet ? '46mm' : '55mm'};
+            flex-shrink: 0;
+            border: 1px solid #000;
+            border-bottom: none;
+            padding: 1.5mm;
+            background: #f8fafc;
+            display: flex;
+            gap: 1.2mm;
+            align-items: stretch;
+          }
+
+          .top-photo-card {
+            min-width: 0;
+            border: 1px solid #64748b;
+            border-radius: 1mm;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+          }
+
+          .top-photo-head {
+            background: #fef9c3;
+            border-bottom: 1px solid #94a3b8;
+            padding: 0.6mm 0.8mm;
+            min-height: ${isDenseSheet ? '7.2mm' : '5.5mm'};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5mm;
+            font-size: ${isDenseSheet ? '8.2px' : '9.5px'};
+            line-height: 1.15;
+            font-weight: 800;
+            text-align: center;
             word-break: keep-all;
           }
 
+          .top-photo-badge {
+            color: #dc2626;
+            font-weight: 900;
+          }
+
+          .top-photo-body {
+            flex: 1;
+            min-height: 0;
+            padding: 0.8mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .top-photo-body img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+          }
+
+          .item-name-td {
+            padding: 0.5mm 1mm !important;
+            word-break: keep-all;
+            overflow-wrap: anywhere;
+          }
+
           .item-ko {
-            font-size: 11px;
+            font-size: ${isDenseSheet ? '9.8px' : '10.5px'};
             font-weight: 700;
             line-height: 1.15;
           }
 
           .item-en {
-            font-size: 9px;
+            font-size: ${isDenseSheet ? '8px' : '8.5px'};
             color: #1e293b;
-            line-height: 1.1;
-            margin-top: 0.4mm;
+            line-height: 1.08;
+            margin-top: 0.3mm;
           }
 
           .crit-td {
-            font-size: 10px;
-            padding: 0.5mm 1mm !important;
+            font-size: ${isDenseSheet ? '8.8px' : '9.5px'};
+            padding: ${isDenseSheet ? '0.3mm 1mm' : '0.5mm 1.2mm'} !important;
             word-break: keep-all;
-            line-height: 1.15;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+            line-height: ${isDenseSheet ? '1.15' : '1.22'};
+          }
+
+          .crit-td.crit-left {
+            text-align: left;
           }
 
           .daily-td {
@@ -580,90 +710,140 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
           <!-- Band 1 -->
           <div class="top-header">
             <div class="eq-meta-box">
-              <div class="eq-meta-row">설비명칭 : ${eqName}</div>
+              <div class="eq-meta-row">설비명칭 : ${eqName}${eqSpec ? ` (${eqSpec})` : ''}</div>
               <div class="eq-meta-row">설비번호 : ${eqCode}</div>
             </div>
             <div class="sheet-title-wrap">
-              <div class="sheet-title-box">${year} 年 ( ${month} )月 설비 일상 점검 일지</div>
+              <div class="sheet-title-box">${year} ${isTopPhotoStrip ? '. (' : '年 ('} ${month} ${isTopPhotoStrip ? ')月 T.P.M 일일 점검표' : ')月 설비 일상 점검 일지'}</div>
             </div>
-            <div class="company-box">㈜ 조영산업</div>
+            ${
+              isTopPhotoStrip
+                ? `
+                  <div style="width: 92mm; border-left: 1px solid #000; padding: 1mm 2mm; display: flex; flex-direction: column; justify-content: center; gap: 0.8mm; background: #f8fafc; font-size: 9.5px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-weight: 800;">
+                      <span style="background: #e2e8f0; border: 1px solid #64748b; padding: 0.2mm 1.5mm; border-radius: 0.8mm;">이상발생시 조치요령</span>
+                      <span style="font-size: 11px;">㈜ 조영산업</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1mm; font-weight: 700;">
+                      <span style="border: 1px solid #000; background: #fff; padding: 0.2mm 1.5mm;">작업자</span>
+                      <span>→</span>
+                      <span style="font-size: 8.5px;">(보수의뢰/통보)</span>
+                      <span>→</span>
+                      <span style="border: 1px solid #000; background: #fff; padding: 0.2mm 1.5mm;">직·반장</span>
+                      <span>→</span>
+                      <span style="font-size: 8.5px;">(조치보고)</span>
+                      <span>→</span>
+                      <span style="border: 1px solid #000; background: #fff; padding: 0.2mm 1.5mm;">담당</span>
+                    </div>
+                  </div>
+                `
+                : '<div class="company-box">㈜ 조영산업</div>'
+            }
           </div>
 
-          <!-- Band 2 -->
-          <div class="upper-panel">
-            <div class="photo-panel">
-              <div class="photo-frame">
-                ${photoUrl ? `<img src="${escapeHtml(photoUrl)}" alt="설비 사진" />` : ''}
-              </div>
-            </div>
+          <!-- Band 2 & Band 3 -->
+          ${
+            isTopPhotoStrip
+              ? `
+                <div class="top-photo-strip-panel">
+                  ${topPhotoCardsHtml}
+                </div>
+              `
+              : `
+                <div class="upper-panel">
+                  <div class="photo-panel">
+                    <div class="photo-frame">
+                      ${photoUrl ? `<img src="${escapeHtml(photoUrl)}" alt="설비 사진" />` : ''}
+                    </div>
+                  </div>
 
-            <div class="legend-panel">
-              <table class="legend-table">
-                <thead>
-                  <tr>
-                    <th class="legend-num">번호</th>
-                    <th>부위명칭</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${legendRowsHtml}
-                </tbody>
-              </table>
-            </div>
+                  <div class="legend-panel">
+                    <table class="legend-table">
+                      <thead>
+                        <tr>
+                          <th class="legend-num">번호</th>
+                          <th>부위명칭</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${legendRowsHtml}
+                      </tbody>
+                    </table>
+                  </div>
 
-            <div class="weekly-panel">
-              <table class="weekly-table">
-                <colgroup>
-                  <col style="width: 18mm;" />
-                  <col style="width: 28mm;" />
-                  <col />
-                  <col style="width: 16mm;" />
-                  <col style="width: 36mm;" />
-                  <col style="width: 18mm;" />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th colspan="6" class="wk-group-th">주간 점검 기록</th>
-                  </tr>
-                  <tr>
-                    <th class="wk-sub-th" style="border-left: none;">구분</th>
-                    <th class="wk-sub-th">점검부위</th>
-                    <th class="wk-sub-th">점검기준</th>
-                    <th class="wk-sub-th">결과</th>
-                    <th class="wk-sub-th">조치</th>
-                    <th class="wk-sub-th">확인</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${weeklyRowsHtml}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                  <div class="weekly-panel">
+                    <table class="weekly-table">
+                      <colgroup>
+                        <col style="width: 18mm;" />
+                        <col style="width: 28mm;" />
+                        <col />
+                        <col style="width: 16mm;" />
+                        <col style="width: 36mm;" />
+                        <col style="width: 18mm;" />
+                      </colgroup>
+                      <thead>
+                        <tr>
+                          <th colspan="6" class="wk-group-th">주간 점검 기록</th>
+                        </tr>
+                        <tr>
+                          <th class="wk-sub-th" style="border-left: none;">구분</th>
+                          <th class="wk-sub-th">점검부위</th>
+                          <th class="wk-sub-th">점검기준</th>
+                          <th class="wk-sub-th">결과</th>
+                          <th class="wk-sub-th">조치</th>
+                          <th class="wk-sub-th">확인</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${weeklyRowsHtml}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
 
-          <!-- Band 3 -->
-          <div class="mark-guide-bar">
-            <div class="mark-guide-box">O : 양호,&nbsp;&nbsp;X : 이상,&nbsp;&nbsp;△ : 수리</div>
-          </div>
+                <div class="mark-guide-bar">
+                  <div class="mark-guide-box">O : 양호,&nbsp;&nbsp;X : 이상,&nbsp;&nbsp;△ : 수리</div>
+                </div>
+              `
+          }
 
           <!-- Band 4 -->
           <div class="daily-panel">
             <table class="daily-table">
               <colgroup>
                 <col style="width: 7.5mm;" />
-                <col style="width: 31mm;" />
-                <col style="width: 35.5mm;" />
+                ${hasItemCategory ? '<col style="width: 15mm;" />' : ''}
+                <col style="width: ${hasItemCategory ? '22mm' : '26mm'};" />
+                <col style="width: ${hasItemCategory ? '58mm' : '50mm'};" />
                 ${colgroupDaysHtml}
               </colgroup>
               <thead>
-                <tr>
-                  <th colspan="2" rowspan="2">부위</th>
-                  <th rowspan="2">점검기준</th>
-                  <th colspan="31">설비 일상 점검</th>
-                </tr>
-                <tr>
-                  ${dailyHeaderDaysHtml}
-                </tr>
+                ${
+                  hasItemCategory
+                    ? `
+                      <tr>
+                        <th rowspan="2">순번</th>
+                        <th colspan="3">설비부위별 점검내용 (O : 양호, X : 이상/수리, △ : 점검/수리)</th>
+                        <th colspan="31">점검일자</th>
+                      </tr>
+                      <tr>
+                        <th>구분</th>
+                        <th>점검항목</th>
+                        <th>점검 내용</th>
+                        ${dailyHeaderDaysHtml}
+                      </tr>
+                    `
+                    : `
+                      <tr>
+                        <th colspan="2" rowspan="2">부위</th>
+                        <th rowspan="2">점검기준</th>
+                        <th colspan="31">설비 일상 점검</th>
+                      </tr>
+                      <tr>
+                        ${dailyHeaderDaysHtml}
+                      </tr>
+                    `
+                }
               </thead>
               <tbody>
                 ${dailyItemRowsHtml}
@@ -674,14 +854,20 @@ export function printTpmLogSheet({ equipment, year, month, template, log, photo 
           </div>
 
           <!-- Band 5 -->
-          <div class="bottom-flow-bar">
-            <span>이상발생시처리보고순서 :</span>
-            <span class="flow-step">작업자</span>
-            <span>→</span>
-            <span class="flow-step">관리자</span>
-            <span>→</span>
-            <span class="flow-step">대표</span>
-          </div>
+          ${
+            isTopPhotoStrip
+              ? ''
+              : `
+                <div class="bottom-flow-bar">
+                  <span>이상발생시처리보고순서 :</span>
+                  <span class="flow-step">작업자</span>
+                  <span>→</span>
+                  <span class="flow-step">관리자</span>
+                  <span>→</span>
+                  <span class="flow-step">대표</span>
+                </div>
+              `
+          }
         </div>
       </body>
     </html>

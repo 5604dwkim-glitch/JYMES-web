@@ -91,6 +91,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
       date: newHistory[index].date || repairData.requestDate || '',
       issue: repairData.requestContent,
       action: repairData.actionContent,
+      confirmed: Boolean(repairData.qualityPic || repairData.verificationResult),
       repairDetails: repairData
     };
     setFormData({ ...formData, history: newHistory });
@@ -117,19 +118,30 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
         await saveMoldPhoto(mold.id, formData.moldPhoto);
       }
 
+      const hasPhotoNow = photoDirty
+        ? Boolean(formData.moldPhoto)
+        : Boolean(formData.moldPhoto || mold.hasPhoto);
       const moldRef = doc(db, 'molds', mold.id);
       await updateDoc(moldRef, {
         receiptDate: formData.receiptDate,
         productionStartDate: formData.productionStartDate,
         manufacturer: formData.manufacturer,
         history: normalizedHistory,
+        hasPhoto: hasPhotoNow,
         ...(shouldSplitPhoto ? { moldPhoto: deleteField() } : {})
       });
       invalidateMoldsCache();
 
       try {
         await Promise.all(
-          normalizedHistory.map((row, idx) => syncMoldRepairToChangePoint(mold, row, idx))
+          normalizedHistory
+            .map((row, idx) => ({ row, idx }))
+            .filter(
+              ({ row }) =>
+                row.source !== 'report_downtime' &&
+                !String(row.autoSyncKey || '').startsWith('report_dt_')
+            )
+            .map(({ row, idx }) => syncMoldRepairToChangePoint(mold, row, idx))
         );
       } catch (syncErr) {
         console.error('Failed to auto-sync mold history rows to changePoint:', syncErr);
@@ -141,7 +153,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
       // 부모 목록 상태에는 사진(base64)을 싣지 않는다 (이후 금형 정보 저장 시 본 문서로 되돌아가는 것을 방지)
       const { moldPhoto: _photo, ...formWithoutPhoto } = nextFormData;
       const { moldPhoto: _legacyPhoto, ...moldWithoutPhoto } = mold;
-      onUpdate({ ...moldWithoutPhoto, ...formWithoutPhoto });
+      onUpdate({ ...moldWithoutPhoto, ...formWithoutPhoto, hasPhoto: hasPhotoNow });
       setIsEditing(false);
       setSelectedIndices([]);
       alert('수정 내용이 저장되었습니다.');
@@ -745,7 +757,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                         )}
                       </td>
                       <td style={{ padding: '4px', fontWeight: 'bold', color: '#2563eb' }}>
-                        {row.issue || row.repairDetails ? '승인' : ''}
+                        {row.confirmed === true || (row.confirmed === undefined && (row.issue || row.repairDetails)) ? '승인' : ''}
                       </td>
                     </tr>
                   ))}

@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { fetchWorkersSlim as fetchWorkers } from '../services/firestore';
+import { readPendingRedirect, clearPendingRedirect } from '../utils/authRedirect';
 
 export default function Login() {
   const { login } = useAuth();
   const { t, td, lang, setLang } = useI18n();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const pendingRedirect = readPendingRedirect(searchParams);
 
   const [role, setRole] = useState('worker');
   const [workerName, setWorkerName] = useState('');
@@ -26,6 +28,7 @@ export default function Login() {
       const urlParams = new URLSearchParams(window.location.search);
       const id = searchParams.get('id') || urlParams.get('id') || searchParams.get('worker') || urlParams.get('worker') || searchParams.get('name') || urlParams.get('name') || searchParams.get('code') || urlParams.get('code');
       const pw = searchParams.get('pw') || urlParams.get('pw') || '0000'; // fallback for legacy QR codes without pw
+      const redirectTarget = readPendingRedirect(searchParams);
       
       if (id) {
         setIsLoading(true);
@@ -37,7 +40,8 @@ export default function Login() {
             const expectedPin = matched.pin || '0000';
             if (pw === expectedPin || pw === '1111') {
               login('worker', matched.name);
-              setTimeout(() => navigate('/', { replace: true }), 150);
+              clearPendingRedirect();
+              setTimeout(() => navigate(redirectTarget, { replace: true }), 150);
             } else {
               setError('QR 자동로그인 실패: 비밀번호 불일치');
             }
@@ -85,7 +89,9 @@ export default function Login() {
         }
         
         login('worker', matched.name);
-        navigate('/');
+        const redirectTarget = readPendingRedirect(searchParams);
+        clearPendingRedirect();
+        navigate(redirectTarget, { replace: true });
       } catch (e) {
         setError(td('서버와 통신 중 오류가 발생했습니다.'));
         setIsLoading(false);
@@ -97,7 +103,9 @@ export default function Login() {
         return;
       }
       login('admin', '관리자');
-      navigate('/');
+      const redirectTarget = readPendingRedirect(searchParams);
+      clearPendingRedirect();
+      navigate(redirectTarget, { replace: true });
     }
   };
 
@@ -137,6 +145,16 @@ export default function Login() {
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', margin: 0 }}>
             {t('modal_subtitle')}
           </p>
+          {pendingRedirect.startsWith('/equipment-history/') && (
+            <div style={{ marginTop: '8px', padding: '7px 10px', borderRadius: '6px', background: '#eff6ff', border: '1px solid #bfdbfe', color: '#1d4ed8', fontSize: '12px', fontWeight: 700 }}>
+              📷 {td('로그인 후 설비 이력카드로 바로 이동합니다.')}
+            </div>
+          )}
+          {pendingRedirect.startsWith('/tpm-check/') && (
+            <div style={{ marginTop: '8px', padding: '7px 10px', borderRadius: '6px', background: '#ecfdf5', border: '1px solid #a7f3d0', color: '#047857', fontSize: '12px', fontWeight: 700 }}>
+              📋 {td('로그인 후 설비 TPM 일지 화면으로 바로 이동합니다.')}
+            </div>
+          )}
         </div>
 
         <div className="role-selection-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>

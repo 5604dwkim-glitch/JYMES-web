@@ -23,12 +23,23 @@ import EquipmentTpmLogModal from './EquipmentTpmLogModal';
 import EquipmentSetConfig from './EquipmentSetConfig';
 import { invalidateEquipmentsCache } from '../../services/firestore';
 import { syncEquipmentRepairToChangePoint } from '../../services/changePointAutoSync';
+import { hasEquipmentTpmLog } from '../../constants/tpmLogTemplate';
 import {
   EQUIPMENT_CATEGORIES,
   getEquipmentCategory,
+  getCalibrationGroup,
   getCategoryMeta,
   createInitialEquipmentForm
 } from '../../constants/equipmentCategories';
+import CalibrationInstrumentListView, {
+  CALIBRATION_INSTRUMENT_FILTER_COLUMNS,
+  CALIBRATION_EQUIPMENT_FILTER_COLUMNS,
+  getCalibrationInstrumentColValue,
+  getCalibrationEquipmentColValue,
+  normalizeCalIsoDate,
+  computeNextCalibrationIsoDate
+} from './CalibrationInstrumentListView';
+import CalibrationInstrumentCardModal from './CalibrationInstrumentCardModal';
 
 const FILTER_COLUMNS = [
   { key: 'location', label: '위치' },
@@ -85,17 +96,53 @@ export default function EquipmentManagement() {
   );
   const hasSetConfig =
     currentCategoryMeta.hasSetConfig !== false && Boolean(currentCategoryMeta.tabLabels?.config);
-  const effectiveTab = !hasSetConfig && activeTab === 'config' ? 'list' : activeTab;
+  const hasTpmTab =
+    currentCategoryMeta.hasTpmTab !== false && Boolean(currentCategoryMeta.tabLabels?.tpm);
+  const hasEquipCalibrationTab = Boolean(currentCategoryMeta.tabLabels?.equipCalibration);
+  const effectiveTab =
+    (!hasSetConfig && activeTab === 'config') ||
+    (!hasTpmTab && activeTab === 'tpm') ||
+    (!hasEquipCalibrationTab && activeTab === 'equipCalibration')
+      ? 'list'
+      : activeTab;
+  const isEquipCalibrationView =
+    activeCategory === 'measuring' && effectiveTab === 'equipCalibration';
+  const isCalibrationSheetView =
+    activeCategory === 'measuring' &&
+    (effectiveTab === 'list' || effectiveTab === 'equipCalibration');
+  const isListViewTab =
+    effectiveTab === 'list' || (hasEquipCalibrationTab && effectiveTab === 'equipCalibration');
+  const activeFilterColumns =
+    activeCategory === 'measuring'
+      ? isEquipCalibrationView
+        ? CALIBRATION_EQUIPMENT_FILTER_COLUMNS
+        : CALIBRATION_INSTRUMENT_FILTER_COLUMNS
+      : FILTER_COLUMNS;
+  const getActiveColValue =
+    activeCategory === 'measuring'
+      ? isEquipCalibrationView
+        ? getCalibrationEquipmentColValue
+        : getCalibrationInstrumentColValue
+      : getEquipColValue;
 
-  // 사이드바 하위 메뉴 전환 시 컬럼 필터 초기화 (셋트 구성 미지원 카테고리는 리스트 탭으로 복귀)
+  // 사이드바 하위 메뉴 또는 리스트 탭 전환 시 컬럼 필터 초기화 (미지원 탭은 리스트 탭으로 복귀)
   useEffect(() => {
     setColFilters({});
     setOpenFilterCol(null);
     setFilterSearch('');
-    if (!hasSetConfig) {
-      setActiveTab((prev) => (prev === 'config' ? 'list' : prev));
-    }
-  }, [activeCategory, hasSetConfig]);
+    setActiveTab((prev) => {
+      if (!hasSetConfig && prev === 'config') return 'list';
+      if (!hasTpmTab && prev === 'tpm') return 'list';
+      if (!hasEquipCalibrationTab && prev === 'equipCalibration') return 'list';
+      return prev;
+    });
+  }, [activeCategory, hasSetConfig, hasTpmTab, hasEquipCalibrationTab]);
+
+  useEffect(() => {
+    setColFilters({});
+    setOpenFilterCol(null);
+    setFilterSearch('');
+  }, [effectiveTab]);
 
   useEffect(() => {
     fetchEquipments();
@@ -193,22 +240,59 @@ export default function EquipmentManagement() {
     [equipments, activeCategory]
   );
 
+  // 검교정(measuring) 카테고리는 상단 탭(계측기 / 설비)에 따라 목록 분리 + 순번/관리번호 순 정렬
+  const displayedEquipments = useMemo(() => {
+    if (activeCategory !== 'measuring') return categoryEquipments;
+    const targetGroup = effectiveTab === 'equipCalibration' ? 'equipment' : 'instrument';
+    return categoryEquipments
+      .filter((eq) => getCalibrationGroup(eq) === targetGroup)
+      .slice()
+      .sort((a, b) => {
+        const orderA = a.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        const orderB = b.sortOrder ?? Number.MAX_SAFE_INTEGER;
+        if (orderA !== orderB) return orderA - orderB;
+        return String(a.code || '').localeCompare(String(b.code || ''), 'ko', { numeric: true });
+      });
+  }, [activeCategory, effectiveTab, categoryEquipments]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const targetCategory = getEquipmentCategory(formData);
     const targetMeta = getCategoryMeta(targetCategory);
+    const targetCalibrationGroup =
+      targetCategory === 'measuring' ? getCalibrationGroup(formData) : undefined;
+    const isEquipCal =
+      targetCategory === 'measuring' && targetCalibrationGroup === 'equipment';
+    const fallbackType =
+      isEquipCal
+        ? targetMeta.equipDefaultType || targetMeta.defaultType
+        : targetMeta.defaultType;
+    const serialVal = String(formData.serialNo || '').trim();
     const editablePayload = {
       category: targetCategory,
+      ...(targetCategory === 'measuring'
+        ? {
+            calibrationGroup: targetCalibrationGroup,
+            serialNo: serialVal,
+            calibrationCycle: String(formData.calibrationCycle || '').trim(),
+            calibrationDate: normalizeCalIsoDate(formData.calibrationDate) || String(formData.calibrationDate || '').trim(),
+            nextCalibrationDate:
+              normalizeCalIsoDate(formData.nextCalibrationDate) || String(formData.nextCalibrationDate || '').trim(),
+            manager: String(formData.manager || '').trim(),
+            calibrationAgency: String(formData.calibrationAgency || '').trim(),
+            ...(isEquipCal ? { storageLocation: String(formData.storageLocation || '').trim() } : {})
+          }
+        : {}),
       code: String(formData.code || '').trim(),
       name: String(formData.name || '').trim(),
-      type: formData.type || targetMeta.defaultType,
+      type: formData.type || fallbackType,
       spec: formData.spec || '',
       manufacturer: formData.manufacturer || '',
       ownership: formData.ownership || targetMeta.defaultOwnership,
-      assetNo: formData.assetNo || '',
+      assetNo: targetCategory === 'measuring' ? serialVal : formData.assetNo || '',
       location: formData.location || '',
       status: formData.status || '정상',
-      installDate: formData.installDate || ''
+      installDate: normalizeCalIsoDate(formData.installDate) || String(formData.installDate || '').trim()
     };
 
     try {
@@ -217,6 +301,7 @@ export default function EquipmentManagement() {
       } else {
         await addDoc(collection(db, 'equipments'), {
           ...editablePayload,
+          ...(targetCategory === 'measuring' ? { sortOrder: displayedEquipments.length + 1 } : {}),
           ancillaryEquipments: targetMeta.useJointDefaults
             ? createDefaultAncillaryEquipments()
             : createEmptyAncillaryEquipments(),
@@ -228,6 +313,8 @@ export default function EquipmentManagement() {
       setShowModal(false);
       if (targetCategory !== activeCategory) {
         routeNavigate(`/equipment/${targetCategory}`);
+      } else if (targetCategory === 'measuring') {
+        setActiveTab(targetCalibrationGroup === 'equipment' ? 'equipCalibration' : 'list');
       }
       fetchEquipments();
     } catch {
@@ -321,19 +408,32 @@ export default function EquipmentManagement() {
       setFormData({
         id: equip.id,
         category: getEquipmentCategory(equip),
+        calibrationGroup: getCalibrationGroup(equip),
         code: equip.code || '',
         name: equip.name || '',
+        serialNo: equip.serialNo || equip.assetNo || '',
         type: equip.type || getCategoryMeta(getEquipmentCategory(equip)).defaultType,
         location: equip.location || '',
+        storageLocation: equip.storageLocation || '',
         status: equip.status || '정상',
-        installDate: equip.installDate || '',
+        installDate: normalizeCalIsoDate(equip.installDate) || equip.installDate || '',
         spec: equip.spec || '',
         manufacturer: equip.manufacturer || '',
         ownership: equip.ownership || '자가',
-        assetNo: equip.assetNo || ''
+        assetNo: equip.assetNo || '',
+        calibrationCycle: equip.calibrationCycle || '1년',
+        calibrationDate: normalizeCalIsoDate(equip.calibrationDate) || equip.calibrationDate || '',
+        nextCalibrationDate:
+          normalizeCalIsoDate(equip.nextCalibrationDate) || equip.nextCalibrationDate || '',
+        manager: equip.manager || '',
+        calibrationAgency: equip.calibrationAgency || ''
       });
     } else {
-      setFormData(createInitialEquipmentForm(activeCategory));
+      const initialCalGroup =
+        activeCategory === 'measuring' && effectiveTab === 'equipCalibration'
+          ? 'equipment'
+          : 'instrument';
+      setFormData(createInitialEquipmentForm(activeCategory, initialCalGroup));
     }
     setShowModal(true);
   };
@@ -343,10 +443,15 @@ export default function EquipmentManagement() {
     setFormData((prev) => {
       // 신규 등록 시에는 해당 카테고리의 기본 분류/소유/제작처로 자연스럽게 전환
       if (!prev.id) {
+        const calGroup = getCalibrationGroup(prev);
+        const nextType =
+          nextCategory === 'measuring' && calGroup === 'equipment'
+            ? nextMeta.equipDefaultType || nextMeta.defaultType
+            : nextMeta.defaultType;
         return {
           ...prev,
           category: nextCategory,
-          type: nextMeta.defaultType,
+          type: nextType,
           manufacturer: prev.manufacturer ? prev.manufacturer : nextMeta.defaultManufacturer,
           ownership: nextMeta.defaultOwnership
         };
@@ -354,6 +459,21 @@ export default function EquipmentManagement() {
       return {
         ...prev,
         category: nextCategory
+      };
+    });
+  };
+
+  const handleModalCalibrationGroupChange = (nextGroup) => {
+    const measuringMeta = getCategoryMeta('measuring');
+    setFormData((prev) => {
+      const nextDefaultType =
+        nextGroup === 'equipment'
+          ? measuringMeta.equipDefaultType || measuringMeta.defaultType
+          : measuringMeta.defaultType;
+      return {
+        ...prev,
+        calibrationGroup: nextGroup,
+        type: prev.id ? prev.type : nextDefaultType
       };
     });
   };
@@ -388,32 +508,32 @@ export default function EquipmentManagement() {
   }, [openFilterCol]);
 
   const activeFilterEntries = useMemo(
-    () => FILTER_COLUMNS.filter((c) => (colFilters[c.key] || []).length > 0),
-    [colFilters]
+    () => activeFilterColumns.filter((c) => (colFilters[c.key] || []).length > 0),
+    [activeFilterColumns, colFilters]
   );
 
   const filteredEquipments = useMemo(() => {
-    if (activeFilterEntries.length === 0) return categoryEquipments;
-    return categoryEquipments.filter((eq) =>
-      activeFilterEntries.every((c) => colFilters[c.key].includes(getEquipColValue(eq, c.key)))
+    if (activeFilterEntries.length === 0) return displayedEquipments;
+    return displayedEquipments.filter((eq) =>
+      activeFilterEntries.every((c) => colFilters[c.key].includes(getActiveColValue(eq, c.key)))
     );
-  }, [categoryEquipments, colFilters, activeFilterEntries]);
+  }, [displayedEquipments, colFilters, activeFilterEntries, getActiveColValue]);
 
   const popoverData = useMemo(() => {
     if (!openFilterCol) return { baseCount: 0, options: [] };
-    const otherActive = FILTER_COLUMNS.filter(
+    const otherActive = activeFilterColumns.filter(
       (c) => c.key !== openFilterCol && (colFilters[c.key] || []).length > 0
     );
     const baseRows =
       otherActive.length === 0
-        ? categoryEquipments
-        : categoryEquipments.filter((eq) =>
-            otherActive.every((c) => colFilters[c.key].includes(getEquipColValue(eq, c.key)))
+        ? displayedEquipments
+        : displayedEquipments.filter((eq) =>
+            otherActive.every((c) => colFilters[c.key].includes(getActiveColValue(eq, c.key)))
           );
 
     const countMap = new Map();
     for (const eq of baseRows) {
-      const val = getEquipColValue(eq, openFilterCol);
+      const val = getActiveColValue(eq, openFilterCol);
       countMap.set(val, (countMap.get(val) || 0) + 1);
     }
     for (const selectedVal of colFilters[openFilterCol] || []) {
@@ -430,7 +550,7 @@ export default function EquipmentManagement() {
       });
 
     return { baseCount: baseRows.length, options: sorted };
-  }, [openFilterCol, categoryEquipments, colFilters, filterSearch]);
+  }, [openFilterCol, displayedEquipments, colFilters, filterSearch, activeFilterColumns, getActiveColValue]);
 
   const handleToggleFilterPopover = (colKey, btnEl) => {
     if (openFilterCol === colKey) {
@@ -491,9 +611,23 @@ export default function EquipmentManagement() {
   }
 
   const modalCategoryMeta = getCategoryMeta(formData.category);
-  const modalTypeOptions = modalCategoryMeta.typeOptions.includes(formData.type)
-    ? modalCategoryMeta.typeOptions
-    : [formData.type, ...modalCategoryMeta.typeOptions].filter(Boolean);
+  const isModalEquipCalibration =
+    formData.category === 'measuring' && getCalibrationGroup(formData) === 'equipment';
+  const modalBaseTypeOptions = isModalEquipCalibration
+    ? modalCategoryMeta.equipTypeOptions || modalCategoryMeta.typeOptions
+    : modalCategoryMeta.typeOptions;
+  const modalTypeOptions = modalBaseTypeOptions.includes(formData.type)
+    ? modalBaseTypeOptions
+    : [formData.type, ...modalBaseTypeOptions].filter(Boolean);
+  const modalPlaceholders = isModalEquipCalibration
+    ? modalCategoryMeta.equipPlaceholders || modalCategoryMeta.placeholders
+    : modalCategoryMeta.placeholders;
+  const activeListTitle = isEquipCalibrationView
+    ? currentCategoryMeta.equipListTitle || currentCategoryMeta.listTitle
+    : currentCategoryMeta.listTitle;
+  const activeAddBtnLabel = isEquipCalibrationView
+    ? currentCategoryMeta.equipAddBtnLabel || currentCategoryMeta.addBtnLabel
+    : currentCategoryMeta.addBtnLabel;
 
   return (
     <div className="card" style={{ height: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}>
@@ -502,85 +636,111 @@ export default function EquipmentManagement() {
           <button style={tabStyle(effectiveTab === 'list')} onClick={() => setActiveTab('list')}>
             {currentCategoryMeta.tabLabels.list}
           </button>
+          {hasEquipCalibrationTab && (
+            <button style={tabStyle(effectiveTab === 'equipCalibration')} onClick={() => setActiveTab('equipCalibration')}>
+              {currentCategoryMeta.tabLabels.equipCalibration}
+            </button>
+          )}
           {hasSetConfig && (
             <button style={tabStyle(effectiveTab === 'config')} onClick={() => setActiveTab('config')}>
               {currentCategoryMeta.tabLabels.config}
             </button>
           )}
-          <button style={tabStyle(effectiveTab === 'tpm')} onClick={() => setActiveTab('tpm')}>
-            {currentCategoryMeta.tabLabels.tpm}
-          </button>
+          {hasTpmTab && (
+            <button style={tabStyle(effectiveTab === 'tpm')} onClick={() => setActiveTab('tpm')}>
+              {currentCategoryMeta.tabLabels.tpm}
+            </button>
+          )}
         </div>
       </div>
 
       <div className="card-body" style={{ flex: 1, overflow: 'auto', padding: '20px', position: 'relative' }}>
-        {effectiveTab === 'list' && (
+        {isListViewTab && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <h3 style={{ margin: 0 }}>
-                  {currentCategoryMeta.icon} {currentCategoryMeta.listTitle}
-                </h3>
-                <span style={{ fontSize: '12px', color: '#475569', background: '#f1f5f9', padding: '3px 8px', borderRadius: '999px', fontWeight: 600 }}>
-                  {activeFilterEntries.length > 0
-                    ? `필터 결과 ${filteredEquipments.length} / ${categoryEquipments.length}대`
-                    : `전체 ${categoryEquipments.length}대`}
-                </span>
-                {activeFilterEntries.length === 0 && (
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>
-                    항목 제목(▾)을 클릭하여 조건별 필터를 선택할 수 있습니다.
-                  </span>
-                )}
-              </div>
-              <button className="btn btn-primary" onClick={() => openModal()}>
-                {currentCategoryMeta.addBtnLabel}
-              </button>
-            </div>
-
-            {activeFilterEntries.length > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '12px', padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569', marginRight: '4px' }}>적용 필터:</span>
-                {activeFilterEntries.map((col) => {
-                  const vals = colFilters[col.key] || [];
-                  const summary = vals.length === 1 ? vals[0] : `${vals[0]} 외 ${vals.length - 1}건`;
-                  return (
-                    <span
-                      key={col.key}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, background: '#dbeafe', color: '#1e40af', border: '1px solid #93c5fd' }}
-                    >
-                      {col.label}: {summary}
-                      <button
-                        type="button"
-                        onClick={() => clearColumnFilter(col.key)}
-                        style={{ background: 'none', border: 'none', color: '#1e40af', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', lineHeight: 1, padding: '0 2px' }}
-                        title={`${col.label} 필터 해제`}
-                      >
-                        &times;
-                      </button>
-                    </span>
-                  );
-                })}
-                <button
-                  type="button"
-                  onClick={() => setColFilters({})}
-                  style={{ marginLeft: '4px', padding: '3px 8px', fontSize: '12px', fontWeight: 600, background: '#fff', color: '#475569', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
-                >
-                  전체 필터 초기화
-                </button>
-              </div>
-            )}
-
             {loading ? (
               <p>로딩 중...</p>
+            ) : isCalibrationSheetView ? (
+              <CalibrationInstrumentListView
+                variant={isEquipCalibrationView ? 'equipment' : 'instrument'}
+                totalCount={displayedEquipments.length}
+                filteredEquipments={filteredEquipments}
+                colFilters={colFilters}
+                openFilterCol={openFilterCol}
+                activeFilterEntries={activeFilterEntries}
+                onToggleFilterPopover={handleToggleFilterPopover}
+                onClearColumnFilter={clearColumnFilter}
+                onClearAllFilters={() => setColFilters({})}
+                onOpenCreate={() => openModal()}
+                onOpenEdit={(eq) => openModal(eq)}
+                onOpenHistory={(eq) => {
+                  setSelectedEquipment(eq);
+                  setShowHistoryModal(true);
+                }}
+                onDelete={(id) => handleDelete(id)}
+              />
             ) : (
               <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <h3 style={{ margin: 0 }}>
+                      {currentCategoryMeta.icon} {activeListTitle}
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#475569', background: '#f1f5f9', padding: '3px 8px', borderRadius: '999px', fontWeight: 600 }}>
+                      {activeFilterEntries.length > 0
+                        ? `필터 결과 ${filteredEquipments.length} / ${displayedEquipments.length}대`
+                        : `전체 ${displayedEquipments.length}대`}
+                    </span>
+                    {activeFilterEntries.length === 0 && (
+                      <span style={{ fontSize: '12px', color: '#64748b' }}>
+                        항목 제목(▾)을 클릭하여 조건별 필터를 선택할 수 있습니다.
+                      </span>
+                    )}
+                  </div>
+                  <button className="btn btn-primary" onClick={() => openModal()}>
+                    {activeAddBtnLabel}
+                  </button>
+                </div>
+
+                {activeFilterEntries.length > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '12px', padding: '8px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#475569', marginRight: '4px' }}>적용 필터:</span>
+                    {activeFilterEntries.map((col) => {
+                      const vals = colFilters[col.key] || [];
+                      const summary = vals.length === 1 ? vals[0] : `${vals[0]} 외 ${vals.length - 1}건`;
+                      return (
+                        <span
+                          key={col.key}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 8px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, background: '#dbeafe', color: '#1e40af', border: '1px solid #93c5fd' }}
+                        >
+                          {col.label}: {summary}
+                          <button
+                            type="button"
+                            onClick={() => clearColumnFilter(col.key)}
+                            style={{ background: 'none', border: 'none', color: '#1e40af', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', lineHeight: 1, padding: '0 2px' }}
+                            title={`${col.label} 필터 해제`}
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      );
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setColFilters({})}
+                      style={{ marginLeft: '4px', padding: '3px 8px', fontSize: '12px', fontWeight: 600, background: '#fff', color: '#475569', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      전체 필터 초기화
+                    </button>
+                  </div>
+                )}
+
                 <style>{`
                   [data-equipment-list="1"] th,
                   [data-equipment-list="1"] td { padding-left: 16px; padding-right: 16px; white-space: nowrap; }
-                  [data-equipment-list="1"] th:nth-child(4),
-                  [data-equipment-list="1"] td:nth-child(4) { padding-right: 28px; }
                   [data-equipment-list="1"] th:nth-child(5),
-                  [data-equipment-list="1"] td:nth-child(5) { padding-left: 28px; }
+                  [data-equipment-list="1"] td:nth-child(5) { padding-right: 28px; }
+                  [data-equipment-list="1"] th:nth-child(6),
+                  [data-equipment-list="1"] td:nth-child(6) { padding-left: 28px; }
                   [data-equipment-list="1"] button[data-eq-filter-btn]:hover { background: #f1f5f9 !important; }
                   [data-equipment-list="1"] button[data-eq-filter-btn][data-active="1"]:hover { background: #dbeafe !important; }
                   [data-eq-filter-popover="1"] button[data-eq-opt-row]:hover { background: #f1f5f9 !important; }
@@ -588,6 +748,7 @@ export default function EquipmentManagement() {
                 <table className="table" data-equipment-list="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid #cbd5e1' }}>
+                      <th style={{ width: '52px', textAlign: 'center', paddingTop: '4px', paddingBottom: '6px' }}>순번</th>
                       {FILTER_COLUMNS.map((col) => {
                         const selectedVals = colFilters[col.key] || [];
                         const isFiltered = selectedVals.length > 0;
@@ -625,12 +786,13 @@ export default function EquipmentManagement() {
                         );
                       })}
                       <th>설비이력카드 / 관리</th>
-                      <th>{currentCategoryMeta.tabLabels.tpm}</th>
+                      {hasTpmTab && <th>{currentCategoryMeta.tabLabels.tpm}</th>}
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredEquipments.map((eq) => (
+                    {filteredEquipments.map((eq, idx) => (
                       <tr key={eq.id} style={{ borderBottom: '1px solid #cbd5e1' }}>
+                        <td style={{ textAlign: 'center', color: '#64748b', fontWeight: 600 }}>{idx + 1}</td>
                         <td>{eq.location}</td>
                         <td>{eq.code}</td>
                         <td style={{ fontWeight: 'bold' }}>{eq.name}</td>
@@ -689,29 +851,50 @@ export default function EquipmentManagement() {
                             삭제
                           </button>
                         </td>
-                        <td>
-                          <button
-                            className="btn btn-sm"
-                            style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', marginBottom: '4px' }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedEquipment(eq);
-                              setShowTpmLogModal(true);
-                            }}
-                          >
-                            TPM 일지
-                          </button>
-                        </td>
+                        {hasTpmTab && (
+                          <td>
+                            {hasEquipmentTpmLog(eq) ? (
+                              <button
+                                className="btn btn-sm"
+                                style={{ background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', marginBottom: '4px' }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedEquipment(eq);
+                                  setShowTpmLogModal(true);
+                                }}
+                              >
+                                TPM 일지
+                              </button>
+                            ) : (
+                              <span
+                                title="전용 TPM 일지 추가 작성 예정 (해당 없음)"
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  fontSize: '11.5px',
+                                  fontWeight: 600,
+                                  background: '#f1f5f9',
+                                  color: '#64748b',
+                                  border: '1px solid #e2e8f0',
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                TPM 미등록
+                              </span>
+                            )}
+                          </td>
+                        )}
                       </tr>
                     ))}
-                    {categoryEquipments.length === 0 && (
+                    {displayedEquipments.length === 0 && (
                       <tr>
-                        <td colSpan="11" style={{ textAlign: 'center', padding: '32px 20px', color: '#64748b' }}>
+                        <td colSpan={hasTpmTab ? 12 : 11} style={{ textAlign: 'center', padding: '32px 20px', color: '#64748b' }}>
                           <div style={{ fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
-                            등록된 {currentCategoryMeta.label} 항목이 없습니다.
+                            등록된 {isEquipCalibrationView ? '검교정 대상 설비' : currentCategoryMeta.label === '검교정' ? '검교정 대상 계측기' : currentCategoryMeta.label} 항목이 없습니다.
                           </div>
                           <div style={{ fontSize: '12px', marginBottom: '12px' }}>
-                            우측 상단의 <strong>{currentCategoryMeta.addBtnLabel}</strong> 버튼을 눌러 등록을 시작하세요.
+                            우측 상단의 <strong>{activeAddBtnLabel}</strong> 버튼을 눌러 등록을 시작하세요.
                           </div>
                           <button
                             type="button"
@@ -719,15 +902,15 @@ export default function EquipmentManagement() {
                             onClick={() => openModal()}
                             style={{ fontSize: '13px', padding: '6px 14px' }}
                           >
-                            {currentCategoryMeta.addBtnLabel}
+                            {activeAddBtnLabel}
                           </button>
                         </td>
                       </tr>
                     )}
-                    {categoryEquipments.length > 0 && filteredEquipments.length === 0 && (
+                    {displayedEquipments.length > 0 && filteredEquipments.length === 0 && (
                       <tr>
-                        <td colSpan="11" style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
-                          선택한 필터 조건에 일치하는 {currentCategoryMeta.label} 항목이 없습니다.{' '}
+                        <td colSpan={hasTpmTab ? 12 : 11} style={{ textAlign: 'center', padding: '24px', color: '#64748b' }}>
+                          선택한 필터 조건에 일치하는 {isEquipCalibrationView ? '검교정 설비' : currentCategoryMeta.label} 항목이 없습니다.{' '}
                           <button
                             type="button"
                             onClick={() => setColFilters({})}
@@ -740,9 +923,11 @@ export default function EquipmentManagement() {
                     )}
                   </tbody>
                 </table>
+              </>
+            )}
 
-                {openFilterCol && (() => {
-                  const colMeta = FILTER_COLUMNS.find((c) => c.key === openFilterCol);
+            {openFilterCol && (() => {
+              const colMeta = activeFilterColumns.find((c) => c.key === openFilterCol);
                   const selectedVals = colFilters[openFilterCol] || [];
                   const isAllSelected = selectedVals.length === 0;
                   return (
@@ -893,13 +1078,11 @@ export default function EquipmentManagement() {
                     </div>
                   );
                 })()}
-              </>
-            )}
           </div>
         )}
 
         {hasSetConfig && effectiveTab === 'config' && <EquipmentSetConfig category={activeCategory} />}
-        {effectiveTab === 'tpm' && (
+        {hasTpmTab && effectiveTab === 'tpm' && (
           <TpmManagement
             category={activeCategory}
             equipments={categoryEquipments}
@@ -969,19 +1152,38 @@ export default function EquipmentManagement() {
         )}
       </div>
 
-      {showHistoryModal && selectedEquipment && (
-        <EquipmentHistoryCardModal
-          equipment={selectedEquipment}
-          onClose={() => {
-            setShowHistoryModal(false);
-            setSelectedEquipment(null);
-          }}
-          onUpdate={(updatedEq) => {
-            if (updatedEq) setSelectedEquipment(updatedEq);
-            fetchEquipments();
-          }}
-        />
-      )}
+      {showHistoryModal &&
+        selectedEquipment &&
+        (getEquipmentCategory(selectedEquipment) === 'measuring' ? (
+          <CalibrationInstrumentCardModal
+            equipment={selectedEquipment}
+            onClose={() => {
+              setShowHistoryModal(false);
+              setSelectedEquipment(null);
+            }}
+            onUpdate={(updatedEq) => {
+              if (updatedEq) {
+                setSelectedEquipment(updatedEq);
+                setEquipments((prev) =>
+                  prev.map((item) => (item.id === updatedEq.id ? { ...item, ...updatedEq } : item))
+                );
+              }
+              fetchEquipments(true);
+            }}
+          />
+        ) : (
+          <EquipmentHistoryCardModal
+            equipment={selectedEquipment}
+            onClose={() => {
+              setShowHistoryModal(false);
+              setSelectedEquipment(null);
+            }}
+            onUpdate={(updatedEq) => {
+              if (updatedEq) setSelectedEquipment(updatedEq);
+              fetchEquipments();
+            }}
+          />
+        ))}
       {showTpmLogModal && selectedEquipment && (
         <EquipmentTpmLogModal
           equipment={selectedEquipment}
@@ -1012,9 +1214,13 @@ export default function EquipmentManagement() {
       )}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000, padding: '16px' }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '10px', width: '440px', maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div style={{ background: '#fff', padding: '24px', borderRadius: '10px', width: formData.category === 'measuring' ? '560px' : '440px', maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px' }}>
-              {formData.id ? `${modalCategoryMeta.label} 정보 수정` : `신규 ${modalCategoryMeta.label} 등록`}
+              {formData.category === 'measuring'
+                ? `검교정 (${isModalEquipCalibration ? '설비' : '계측기'}) ${formData.id ? '정보 수정' : '신규 등록'}`
+                : formData.id
+                  ? `${modalCategoryMeta.label} 정보 수정`
+                  : `신규 ${modalCategoryMeta.label} 등록`}
             </h3>
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '12px' }}>
@@ -1031,126 +1237,357 @@ export default function EquipmentManagement() {
                   ))}
                 </select>
               </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>관리번호 (Code)</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={modalCategoryMeta.placeholders.code}
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  required
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                  {formData.category === 'measuring' ? '계측기명 (Name)' : '설비명 (Name)'}
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={modalCategoryMeta.placeholders.name}
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>분류</label>
-                <select
-                  className="form-control"
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                >
-                  {modalTypeOptions.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>사양</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={modalCategoryMeta.placeholders.spec}
-                  value={formData.spec || ''}
-                  onChange={(e) => setFormData({ ...formData, spec: e.target.value })}
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>제작처</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={modalCategoryMeta.placeholders.manufacturer}
-                  value={formData.manufacturer || ''}
-                  onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>소유</label>
-                <select
-                  className="form-control"
-                  value={formData.ownership || ''}
-                  onChange={(e) => setFormData({ ...formData, ownership: e.target.value })}
-                >
-                  <option value="대여">대여</option>
-                  <option value="자가">자가</option>
-                </select>
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>자산 No.</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formData.assetNo || ''}
-                  onChange={(e) => setFormData({ ...formData, assetNo: e.target.value })}
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>위치</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder={modalCategoryMeta.placeholders.location}
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                />
-              </div>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>상태</label>
-                <select
-                  className="form-control"
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                >
-                  <option value="정상">정상</option>
-                  <option value="수리중">수리중</option>
-                  <option value="고장">고장</option>
-                  {formData.category === 'measuring' && <option value="검교정중">검교정중</option>}
-                  <option value="폐기">폐기</option>
-                </select>
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>도입일자</label>
-                <input
-                  type="date"
-                  max="9999-12-31"
-                  className="form-control"
-                  value={formData.installDate}
-                  onChange={(e) => setFormData({ ...formData, installDate: e.target.value })}
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
-                  취소
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  저장
-                </button>
-              </div>
+              {formData.category === 'measuring' && (
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>검교정 구분</label>
+                  <select
+                    className="form-control"
+                    value={getCalibrationGroup(formData)}
+                    onChange={(e) => handleModalCalibrationGroupChange(e.target.value)}
+                  >
+                    <option value="instrument">계측기 (검교정 리스트(계측기))</option>
+                    <option value="equipment">설비 (검교정 리스트(설비))</option>
+                  </select>
+                </div>
+              )}
+
+              {formData.category === 'measuring' ? (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>관리번호</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={modalPlaceholders.code}
+                        value={formData.code}
+                        onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                        {isModalEquipCalibration ? '설비명' : '계측기명'}
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={modalPlaceholders.name}
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>기기번호</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={modalPlaceholders.serialNo || '기기번호 또는 -'}
+                        value={formData.serialNo || ''}
+                        onChange={(e) => setFormData({ ...formData, serialNo: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>계량분야</label>
+                      <input
+                        type="text"
+                        list="measuring-type-datalist"
+                        className="form-control"
+                        placeholder="예: 온도측정, 질량/부피, 길이측정"
+                        value={formData.type || ''}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                      />
+                      <datalist id="measuring-type-datalist">
+                        {modalTypeOptions.map((opt) => (
+                          <option key={opt} value={opt} />
+                        ))}
+                      </datalist>
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>측정범위</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={modalPlaceholders.spec}
+                        value={formData.spec || ''}
+                        onChange={(e) => setFormData({ ...formData, spec: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>검교정 주기</label>
+                      <input
+                        type="text"
+                        list="measuring-cycle-datalist"
+                        className="form-control"
+                        placeholder="예: 1년, 2년"
+                        value={formData.calibrationCycle || ''}
+                        onChange={(e) => {
+                          const nextCycle = e.target.value;
+                          const autoNext = computeNextCalibrationIsoDate(formData.calibrationDate, nextCycle);
+                          setFormData({
+                            ...formData,
+                            calibrationCycle: nextCycle,
+                            ...(autoNext ? { nextCalibrationDate: autoNext } : {})
+                          });
+                        }}
+                      />
+                      <datalist id="measuring-cycle-datalist">
+                        <option value="6개월" />
+                        <option value="1년" />
+                        <option value="2년" />
+                        <option value="3년" />
+                      </datalist>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>교정 주관</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={modalPlaceholders.calibrationAgency || '예: 한국측정기술원'}
+                        value={formData.calibrationAgency || ''}
+                        onChange={(e) => setFormData({ ...formData, calibrationAgency: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>검교정일</label>
+                      <input
+                        type="date"
+                        max="9999-12-31"
+                        className="form-control"
+                        value={formData.calibrationDate || ''}
+                        onChange={(e) => {
+                          const nextCalDate = e.target.value;
+                          const autoNext = computeNextCalibrationIsoDate(nextCalDate, formData.calibrationCycle);
+                          setFormData({
+                            ...formData,
+                            calibrationDate: nextCalDate,
+                            ...(autoNext ? { nextCalibrationDate: autoNext } : {})
+                          });
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>차기교정일</label>
+                      <input
+                        type="date"
+                        max="9999-12-31"
+                        className="form-control"
+                        value={formData.nextCalibrationDate || ''}
+                        onChange={(e) => setFormData({ ...formData, nextCalibrationDate: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>제조 회사</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={modalPlaceholders.manufacturer}
+                        value={formData.manufacturer || ''}
+                        onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>구입년도</label>
+                      <input
+                        type="date"
+                        max="9999-12-31"
+                        className="form-control"
+                        value={formData.installDate || ''}
+                        onChange={(e) => setFormData({ ...formData, installDate: e.target.value })}
+                      />
+                    </div>
+                    {isModalEquipCalibration && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>위치</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder={modalPlaceholders.location}
+                          value={formData.location || ''}
+                          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>보관처</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={
+                          isModalEquipCalibration
+                            ? modalPlaceholders.storageLocation || '예: 현장'
+                            : modalPlaceholders.location
+                        }
+                        value={isModalEquipCalibration ? formData.storageLocation || '' : formData.location || ''}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            ...(isModalEquipCalibration
+                              ? { storageLocation: e.target.value }
+                              : { location: e.target.value })
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>관리자</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder={modalPlaceholders.manager || '예: 김동욱'}
+                        value={formData.manager || ''}
+                        onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
+                      />
+                    </div>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>상태</label>
+                      <select
+                        className="form-control"
+                        value={formData.status}
+                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                      >
+                        <option value="정상">정상</option>
+                        <option value="검교정중">검교정중</option>
+                        <option value="수리중">수리중</option>
+                        <option value="고장">고장</option>
+                        <option value="폐기">폐기</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                      취소
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      저장
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>관리번호 (Code)</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={modalPlaceholders.code}
+                      value={formData.code}
+                      onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                      설비명 (Name)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={modalPlaceholders.name}
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>분류</label>
+                    <select
+                      className="form-control"
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    >
+                      {modalTypeOptions.map((opt) => (
+                        <option key={opt} value={opt}>
+                          {opt}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>사양</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={modalPlaceholders.spec}
+                      value={formData.spec || ''}
+                      onChange={(e) => setFormData({ ...formData, spec: e.target.value })}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>제작처</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={modalPlaceholders.manufacturer}
+                      value={formData.manufacturer || ''}
+                      onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>소유</label>
+                    <select
+                      className="form-control"
+                      value={formData.ownership || ''}
+                      onChange={(e) => setFormData({ ...formData, ownership: e.target.value })}
+                    >
+                      <option value="대여">대여</option>
+                      <option value="자가">자가</option>
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>자산 No.</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={formData.assetNo || ''}
+                      onChange={(e) => setFormData({ ...formData, assetNo: e.target.value })}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>위치</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder={modalPlaceholders.location}
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '12px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>상태</label>
+                    <select
+                      className="form-control"
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    >
+                      <option value="정상">정상</option>
+                      <option value="수리중">수리중</option>
+                      <option value="고장">고장</option>
+                      {formData.category === 'measuring' && <option value="검교정중">검교정중</option>}
+                      <option value="폐기">폐기</option>
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: '20px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px', fontWeight: 'bold' }}>도입일자</label>
+                    <input
+                      type="date"
+                      max="9999-12-31"
+                      className="form-control"
+                      value={formData.installDate}
+                      onChange={(e) => setFormData({ ...formData, installDate: e.target.value })}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                      취소
+                    </button>
+                    <button type="submit" className="btn btn-primary">
+                      저장
+                    </button>
+                  </div>
+                </>
+              )}
             </form>
           </div>
         </div>

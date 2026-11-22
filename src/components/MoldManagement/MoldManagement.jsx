@@ -113,7 +113,11 @@ export default function MoldManagement() {
   const fetchMolds = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const data = await fetchMoldsSlim({ force: forceRefresh });
+      let data = await fetchMoldsSlim({ forceRefresh });
+      // 구버전 캐시에 hasPhoto 필드가 없는 경우 한 번 최신 목록으로 재동기화
+      if (!forceRefresh && data.length > 0 && data.every((m) => typeof m.hasPhoto !== 'boolean')) {
+        data = await fetchMoldsSlim({ forceRefresh: true });
+      }
       setMolds(data);
     } catch (err) {
       console.error(err);
@@ -126,10 +130,15 @@ export default function MoldManagement() {
     e.preventDefault();
     try {
       if (formData.id) {
-        await updateDoc(doc(db, 'molds', formData.id), { ...formData, currentStrokes: Number(formData.currentStrokes), maxStrokes: Number(formData.maxStrokes) });
+        const { id: _unusedId, ...dataToUpdate } = formData;
+        await updateDoc(doc(db, 'molds', formData.id), {
+          ...dataToUpdate,
+          currentStrokes: Number(dataToUpdate.currentStrokes),
+          maxStrokes: Number(dataToUpdate.maxStrokes)
+        });
       } else {
         const { id, ...dataToSave } = formData;
-        await addDoc(collection(db, 'molds'), { ...dataToSave, currentStrokes: Number(dataToSave.currentStrokes), maxStrokes: Number(dataToSave.maxStrokes) });
+        await addDoc(collection(db, 'molds'), { ...dataToSave, hasPhoto: false, currentStrokes: Number(dataToSave.currentStrokes), maxStrokes: Number(dataToSave.maxStrokes) });
       }
       invalidateMoldsCache();
       setShowModal(false);
@@ -234,6 +243,9 @@ export default function MoldManagement() {
         if (sortConfig.key === 'currentStrokes') {
            aVal = Number(aVal) || 0;
            bVal = Number(bVal) || 0;
+        } else if (sortConfig.key === 'hasPhoto') {
+           aVal = a.hasPhoto || a.moldPhoto ? 1 : 0;
+           bVal = b.hasPhoto || b.moldPhoto ? 1 : 0;
         } else if (sortConfig.key === 'receiptDate') {
            aVal = a.receiptDate || a.manufactureDate || '';
            bVal = b.receiptDate || b.manufactureDate || '';
@@ -293,11 +305,12 @@ export default function MoldManagement() {
                     <th onClick={() => requestSort('status')} style={{cursor:'pointer'}}>상태<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('status')}</span></th>
                     <th onClick={() => requestSort('currentStrokes')} style={{cursor:'pointer'}}>누적타수<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('currentStrokes')}</span></th>
                     <th>금형이력카드</th>
+                    <th onClick={() => requestSort('hasPhoto')} style={{cursor:'pointer', textAlign:'center', whiteSpace:'nowrap'}}>사진 첨부 유무<span style={{fontSize:'10px', color:'#94a3b8'}}>{getSortIndicator('hasPhoto')}</span></th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedMolds.map(m => {
-                    const strokePercent = Math.min(100, Math.round((m.currentStrokes / (m.maxStrokes || 1)) * 100));
+                    const hasPhoto = Boolean(m.hasPhoto || m.moldPhoto);
                     return (
                       <tr key={m.id} style={{ borderBottom: '1px solid #cbd5e1' }}>
                         <td>{m.code}</td>
@@ -315,12 +328,31 @@ export default function MoldManagement() {
                             <button className="btn btn-sm" style={{ background: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe', borderRadius: '4px', padding: '4px 8px', fontSize: '12px', marginRight: '4px', marginBottom: '4px' }} onClick={(e) => { e.stopPropagation(); setRepairMold(m); }}>수리의뢰서 작성</button>
                           <button className="btn btn-secondary btn-sm" style={{ background: '#fee2e2', color: '#991b1b', border: 'none' }} onClick={() => handleDelete(m.id)}>삭제</button>
                         </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              minWidth: '26px',
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                              fontSize: '12px',
+                              fontWeight: 800,
+                              background: hasPhoto ? '#dcfce7' : '#fee2e2',
+                              color: hasPhoto ? '#166534' : '#991b1b',
+                              border: hasPhoto ? '1px solid #86efac' : '1px solid #fecaca'
+                            }}
+                          >
+                            {hasPhoto ? 'O' : 'X'}
+                          </span>
+                        </td>
                       </tr>
                     );
                   })}
                   {molds.length === 0 && (
                     <tr>
-                      <td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>등록된 금형이 없습니다.</td>
+                      <td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>등록된 금형이 없습니다.</td>
                     </tr>
                   )}
                 </tbody>

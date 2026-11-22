@@ -5,6 +5,7 @@ import { renderF1051QtySection } from '../forms/f1051/qtySection';
 import { renderF1052QtySection } from '../forms/f1052/qtySection';
 import { renderF1054QtySection } from '../forms/f1054/qtySection';
 import { renderF4003QtySection } from '../forms/f4003/qtySection';
+import { renderF4004QtySection } from '../forms/f4004/qtySection';
 import { renderF5001QtySection } from '../forms/f5001/qtySection';
 import { renderF5002QtySection } from '../forms/f5002/qtySection';
 import { renderF5003QtySection } from '../forms/f5003/qtySection';
@@ -486,9 +487,15 @@ export function renderQtySection(ctx) {
         Number(table.querySelector(`#def_ext_scratch_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_ext_flock_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_ext_contam_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_ext_short_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_ext_cross_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_ext_etc_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_proc_len_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_proc_cut_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_proc_deform_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_proc_oth_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_etc_joint_${pos}`)?.value) || 0,
+        Number(table.querySelector(`#def_etc_other_${pos}`)?.value) || 0,
         // New defect IDs for Form 1013
         Number(table.querySelector(`#def_1013_joint_${pos}`)?.value) || 0,
         Number(table.querySelector(`#def_1013_trim_${pos}`)?.value) || 0,
@@ -1092,9 +1099,7 @@ export function renderQtySection(ctx) {
         renderF4003QtySection(qtySection, ctx);
         break;
       case 4004:
-        qtySection.innerHTML = Templates.getForm4004QtyHTML(existingData, container);
-        qtySection.addEventListener('input', calcJg1QtySummary);
-        calcJg1QtySummary();
+        renderF4004QtySection(qtySection, ctx);
         break;
       case 4012:
         qtySection.innerHTML = Templates.getForm4012QtyHTML(existingData, container);

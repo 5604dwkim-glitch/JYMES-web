@@ -654,6 +654,7 @@ export default function LegacyDetailModal({ report, onClose }) {
         // ── Render legacy form virtually to extract DOM ──
         setLegacyFormContext({
           existingData: r,
+          isReadOnlyPreview: true,
           userRoleInfo: { workerName: r.workerName, role: '작업자' },
           workers: [{ id: 'EMP001', name: r.workerName, role: '작업자' }],
           processes: DEFAULT_PROCESSES,
@@ -664,7 +665,15 @@ export default function LegacyDetailModal({ report, onClose }) {
         });
 
         const tempContainer = document.createElement('div');
-        renderReportForm(tempContainer, r.id);
+        try {
+          renderReportForm(tempContainer, r.id);
+        } finally {
+          // 가상 상세조회 렌더링 중 문서 하단 고정 버튼 바가 노출되지 않도록 즉시 숨김 처리
+          ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'].forEach((barId) => {
+            const barEl = document.getElementById(barId);
+            if (barEl) barEl.style.display = 'none';
+          });
+        }
 
         const materialLotsSection = tempContainer.querySelector('#section4Card');
         const dynamicSection = tempContainer.querySelector('#section5DynamicContainer');

@@ -642,15 +642,35 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           let hasLotCho = false, hasDimCho = false;
           let hasLotJung = false, hasDimJung = false;
           let hasLotJong = false, hasDimJong = false;
-          const hasNoDimSection = Boolean(draft && (Number(draft.formCode) === 5007 || draft.processName === '후가공-D/V'));
+          const noDimFormCodes = new Set([
+            1003, 1012, 1023, 1033, 1043,
+            2004, 2014, 2026, 2034, 2043,
+            3003, 3013,
+            4003, 4013, 4023, 4033,
+            5007, 6003
+          ]);
+          const draftProc = String(draft?.processName || '');
+          const hasNoDimSection = Boolean(
+            draft &&
+              (noDimFormCodes.has(Number(draft.formCode)) ||
+                draftProc === '후가공-D/V' ||
+                draftProc === '후가공')
+          );
 
           if (draft) {
+            const draftVulc = draft.vulcTable || draft.vulcData || {};
             hasLotCho = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('초물') && v && String(v).trim() !== '');
-            hasDimCho = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('초') && v && String(v).trim() !== '');
+            hasDimCho =
+              (draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('초') && v && String(v).trim() !== '')) ||
+              Object.entries(draftVulc).some(([k, v]) => (k.includes('_start_') || k.includes('_초_')) && v && String(v).trim() !== '');
             hasLotJung = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('중물') && v && String(v).trim() !== '');
-            hasDimJung = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('중') && v && String(v).trim() !== '');
+            hasDimJung =
+              (draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('중') && v && String(v).trim() !== '')) ||
+              Object.entries(draftVulc).some(([k, v]) => (k.includes('_harf_') || k.includes('_중_')) && v && String(v).trim() !== '');
             hasLotJong = draft.materialLots && Object.entries(draft.materialLots).some(([k, v]) => k.includes('종물') && v && String(v).trim() !== '');
-            hasDimJong = draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('종') && v && String(v).trim() !== '');
+            hasDimJong =
+              (draft.dimData && Object.entries(draft.dimData).some(([k, v]) => k.includes('종') && v && String(v).trim() !== '')) ||
+              Object.entries(draftVulc).some(([k, v]) => (k.includes('_finish_') || k.includes('_종_')) && v && String(v).trim() !== '');
           }
 
           return (
@@ -823,7 +843,156 @@ export default function ReportList({ initialStatus = 'ALL' }) {
         );
       })()
       : (
-      <div className="table-container">
+      <>
+        <style>{`
+          .report-list-view .report-mobile-card-list {
+            display: none;
+          }
+          .report-list-view .report-desktop-table-wrap {
+            display: block;
+          }
+          @media (max-width: 768px) {
+            .report-list-view .report-desktop-table-wrap {
+              display: none !important;
+            }
+            .report-list-view .report-mobile-card-list {
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+              padding: 4px 0 12px 0;
+            }
+          }
+          body.mobile-preview-mode .report-list-view .report-desktop-table-wrap {
+            display: none !important;
+          }
+          body.mobile-preview-mode .report-list-view .report-mobile-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 4px 0 12px 0;
+          }
+          .report-list-view .report-mobile-card {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+          }
+          .report-list-view .report-mobile-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+          }
+          .report-list-view .report-mobile-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+            white-space: nowrap;
+          }
+          .report-list-view .report-mobile-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 12px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+          }
+          .report-list-view .report-mobile-meta-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            min-width: 0;
+            font-size: 12px;
+          }
+          .report-list-view .report-mobile-meta-label {
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+          }
+          .report-list-view .report-mobile-meta-val {
+            font-weight: 700;
+            color: #0f172a;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+        `}</style>
+
+        {/* 모바일 전용 카드형 목록 (차종 / 작업일자 / 공정 / 상태 + 상단 사각형 버튼 3개) */}
+        <div className="report-mobile-card-list">
+          {loading ? (
+            <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+          ) : filteredReports.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-dim)', background: '#fff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              {td('조건에 일치하는 작업일보가 없습니다.')}
+            </div>
+          ) : (
+            filteredReports.map((r) => (
+              <div key={`mobile-${r.id}`} className="report-mobile-card">
+                <div className="report-mobile-actions">
+                  <button
+                    type="button"
+                    className="report-mobile-action-btn"
+                    onClick={() => setSelectedReportForModal(r)}
+                    style={{ background: '#f1f5f9', borderColor: '#cbd5e1', color: '#334155' }}
+                  >
+                    {td('상세보기')}
+                  </button>
+                  <button
+                    type="button"
+                    className="report-mobile-action-btn"
+                    onClick={() => navigate('/form', { state: { existingData: r } })}
+                    style={{ background: '#0284c7', borderColor: '#0369a1', color: '#ffffff' }}
+                  >
+                    {td('이어작성')}
+                  </button>
+                  <button
+                    type="button"
+                    className="report-mobile-action-btn"
+                    onClick={() => handleDelete(r.id)}
+                    style={{ background: '#fef2f2', borderColor: '#fecaca', color: '#dc2626' }}
+                  >
+                    {t('btn_delete')}
+                  </button>
+                </div>
+
+                <div className="report-mobile-meta">
+                  <div className="report-mobile-meta-item">
+                    <span className="report-mobile-meta-label">{t('th_vehicle')}</span>
+                    <span className="report-mobile-meta-val" style={{ color: 'var(--accent-emerald)', background: 'rgba(5,150,105,0.12)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }}>
+                      {td(r.carModel)}
+                    </span>
+                  </div>
+                  <div className="report-mobile-meta-item">
+                    <span className="report-mobile-meta-label">{td('작업일자')}</span>
+                    <span className="report-mobile-meta-val">{r.date}</span>
+                  </div>
+                  <div className="report-mobile-meta-item">
+                    <span className="report-mobile-meta-label">{t('form_process')}</span>
+                    <span className="report-mobile-meta-val">{td(r.processName)}</span>
+                  </div>
+                  <div className="report-mobile-meta-item">
+                    <span className="report-mobile-meta-label">{t('th_status')}</span>
+                    <span className={`status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : r.status === '임시저장' ? 'draft' : 'pending'}`} style={{ padding: '2px 6px', fontSize: '11px' }}>
+                      {td(r.status)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+      <div className="table-container report-desktop-table-wrap">
         {loading ? (
           <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
         ) : (
@@ -956,6 +1125,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           </table>
         )}
       </div>
+      </>
       )}
 
       <LegacyDetailModal 

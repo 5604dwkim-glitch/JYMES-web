@@ -3,6 +3,7 @@ import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { applyUnifiedFormColors } from './formColorTheme.js';
 import { applyF1051DowntimeSection } from '../forms/f1051/downtimeSection.js';
 import { applyF1052DowntimeSection } from '../forms/f1052/downtimeSection.js';
+import { applyF4022DowntimeSection } from '../forms/f4022/downtimeSection.js';
 import { applyF5001DowntimeSection, restoreDefaultDowntimeReasonsIfNeeded } from '../forms/f5001/downtimeSection.js';
 import { applyF5002DowntimeSection } from '../forms/f5002/downtimeSection.js';
 import { applyF5003DowntimeSection } from '../forms/f5003/downtimeSection.js';
@@ -26,15 +27,33 @@ export function updateDowntimeSection(ctx) {
   if (downtimeCard) applyUnifiedFormColors(downtimeCard);
 }
 
+function clearHiddenDowntimeInputs(container) {
+  if (!container) return;
+  ['#downtimeMinutes', '#downtimeMinutes2', '#downtimeMinutes3'].forEach(sel => {
+    const el = container.querySelector(sel);
+    if (el) el.value = '0';
+  });
+  ['#downtimeEquip1', '#downtimeEquip2', '#downtimeEquip3', '#downtimeReason', '#downtimeReason2', '#downtimeReason3', '#notesInput'].forEach(sel => {
+    const el = container.querySelector(sel);
+    if (el) el.value = '';
+  });
+}
 function updateDowntimeSectionCore(ctx) {
   const { container, processValue, existingData, getCurrentFormCode, carModelValue, currentCarCode } = ctx;
     const curProc = processValue ? processValue.value : '';
     const downtimeCard = container.querySelector('#downtimeCard');
     const rawFormCode = getCurrentFormCode();
-    const formCode = (rawFormCode === 1051 || rawFormCode === 1052) ? rawFormCode : resolveFormCodeSource(rawFormCode);
+    const formCode = (rawFormCode === 1051 || rawFormCode === 1052 || rawFormCode === 4022) ? rawFormCode : resolveFormCodeSource(rawFormCode);
 
     if (!curProc) {
       if (downtimeCard) downtimeCard.style.display = 'none';
+      clearHiddenDowntimeInputs(container);
+      return;
+    }
+
+    if (formCode === 4022) {
+      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
+      applyF4022DowntimeSection(container, downtimeCard, existingData);
       return;
     }
 
@@ -110,6 +129,9 @@ function updateDowntimeSectionCore(ctx) {
 
     if (formCode === 1021 || formCode === 1041 || formCode === 4013 || formCode === 4014 || formCode === 4004 || (curProc === '후가공' || curProc === '검사포장' || curProc === '검사/포장')) {
       if (downtimeCard) downtimeCard.style.display = 'none';
+      if (!existingData || resolveFormCodeSource(Number(existingData.formCode)) !== formCode) {
+        clearHiddenDowntimeInputs(container);
+      }
       return;
     } else {
       if (downtimeCard) downtimeCard.style.display = 'block';
@@ -139,7 +161,7 @@ function updateDowntimeSectionCore(ctx) {
 
     const targetOptions = (formCode === 3001)
       ? ne1aPrepEquipOptions
-      : (formCode === 1011 || formCode === 1022)
+      : (formCode === 1011)
       ? lhRhEquipOptions
       : (formCode === 2041)
         ? kmkxClipEquipOptions

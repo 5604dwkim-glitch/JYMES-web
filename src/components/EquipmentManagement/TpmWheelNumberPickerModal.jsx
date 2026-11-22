@@ -4,6 +4,25 @@ import { useI18n } from '../../contexts/I18nContext';
 
 const ITEM_HEIGHT = 40;
 
+const getStepDecimals = (step) => {
+  if (!Number.isFinite(step) || step <= 0 || Number.isInteger(step)) return 0;
+  const str = String(step);
+  const dotIdx = str.indexOf('.');
+  return dotIdx >= 0 ? str.length - dotIdx - 1 : 0;
+};
+
+const snapToStep = (value, step, decimals) => {
+  if (!Number.isFinite(value)) return value;
+  const safeStep = step > 0 ? step : 1;
+  const snapped = Math.round(value / safeStep) * safeStep;
+  return decimals > 0 ? Number(snapped.toFixed(decimals)) : Math.round(snapped);
+};
+
+const formatStepValue = (value, decimals) => {
+  if (!Number.isFinite(value)) return '';
+  return decimals > 0 ? Number(value).toFixed(decimals) : String(Math.round(value));
+};
+
 export default function TpmWheelNumberPickerModal({
   isOpen,
   title = '수치 선택',
@@ -13,6 +32,7 @@ export default function TpmWheelNumberPickerModal({
   minSpec,
   maxSpec,
   range = 30,
+  step = 1,
   unit = '℃',
   centerLabel = '기준',
   allowX = false,
@@ -23,27 +43,32 @@ export default function TpmWheelNumberPickerModal({
   const wheelRef = useRef(null);
   const dragStateRef = useRef({ isDragging: false, startY: 0, startScrollTop: 0 });
 
-  const minVal = Math.round(defaultCenter - range);
-  const maxVal = Math.round(defaultCenter + range);
+  const safeStep = Number.isFinite(step) && step > 0 ? step : 1;
+  const decimals = getStepDecimals(safeStep);
+  const centerVal = snapToStep(defaultCenter, safeStep, decimals);
+  const rawMinVal = snapToStep(centerVal - range, safeStep, decimals);
+  const minVal = unit === 'kg/cm²' ? Math.max(0, rawMinVal) : rawMinVal;
+  const maxVal = snapToStep(centerVal + range, safeStep, decimals);
   const effMinSpec = Number.isFinite(minSpec)
-    ? minSpec
-    : (tolerance !== null && tolerance !== undefined ? defaultCenter - tolerance : null);
+    ? snapToStep(minSpec, safeStep, decimals)
+    : (tolerance !== null && tolerance !== undefined ? snapToStep(centerVal - tolerance, safeStep, decimals) : null);
   const effMaxSpec = Number.isFinite(maxSpec)
-    ? maxSpec
-    : (tolerance !== null && tolerance !== undefined ? defaultCenter + tolerance : null);
+    ? snapToStep(maxSpec, safeStep, decimals)
+    : (tolerance !== null && tolerance !== undefined ? snapToStep(centerVal + tolerance, safeStep, decimals) : null);
 
   const numbersList = useMemo(() => {
     const arr = [];
-    for (let v = minVal; v <= maxVal; v++) {
-      arr.push(v);
+    const totalSteps = Math.max(0, Math.round((maxVal - minVal) / safeStep));
+    for (let i = 0; i <= totalSteps; i++) {
+      arr.push(snapToStep(minVal + i * safeStep, safeStep, decimals));
     }
     return arr;
-  }, [minVal, maxVal]);
+  }, [minVal, maxVal, safeStep, decimals]);
 
   const computeInitialNumber = () => {
     const trimmed = initialValue !== undefined && initialValue !== null ? String(initialValue).trim() : '';
     const parsed = trimmed !== '' ? Number(trimmed) : NaN;
-    const base = Number.isFinite(parsed) ? Math.round(parsed) : Math.round(defaultCenter);
+    const base = Number.isFinite(parsed) ? snapToStep(parsed, safeStep, decimals) : centerVal;
     return Math.max(minVal, Math.min(maxVal, base));
   };
 
@@ -54,21 +79,21 @@ export default function TpmWheelNumberPickerModal({
     if (!isOpen) return;
     const startNum = computeInitialNumber();
     setSelectedNumber(startNum);
-    const idx = numbersList.indexOf(startNum);
+    const idx = numbersList.findIndex((n) => Math.abs(n - startNum) < safeStep / 2);
     if (wheelRef.current && idx !== -1) {
       wheelRef.current.scrollTop = idx * ITEM_HEIGHT;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, initialValue, defaultCenter, minVal, maxVal]);
+  }, [isOpen, initialValue, defaultCenter, minVal, maxVal, safeStep]);
 
   const scrollToValue = (val, smooth = true) => {
-    const idx = numbersList.indexOf(val);
+    const idx = numbersList.findIndex((n) => Math.abs(n - val) < safeStep / 2);
     if (idx !== -1 && wheelRef.current) {
       wheelRef.current.scrollTo({
         top: idx * ITEM_HEIGHT,
         behavior: smooth ? 'smooth' : 'auto'
       });
-      setSelectedNumber(val);
+      setSelectedNumber(numbersList[idx]);
     }
   };
 
@@ -87,18 +112,20 @@ export default function TpmWheelNumberPickerModal({
       effMaxSpec !== null &&
       (selectedNumber < effMinSpec || selectedNumber > effMaxSpec)
     ) {
+      const minText = formatStepValue(effMinSpec, decimals);
+      const maxText = formatStepValue(effMaxSpec, decimals);
       const outMsg = lang === 'en'
-        ? `Value is outside the spec (${effMinSpec}~${effMaxSpec}${unit}). Enter anyway?`
+        ? `Value is outside the spec (${minText}~${maxText}${unit}). Enter anyway?`
         : lang === 'th'
-          ? `ค่าอยู่นอกเกณฑ์ (${effMinSpec}~${effMaxSpec}${unit}) ต้องการบันทึกหรือไม่?`
+          ? `ค่าอยู่นอกเกณฑ์ (${minText}~${maxText}${unit}) ต้องการบันทึกหรือไม่?`
           : lang === 'vi'
-            ? `Giá trị nằm ngoài tiêu chuẩn (${effMinSpec}~${effMaxSpec}${unit}). Vẫn nhập?`
-            : `점검기준(${effMinSpec}~${effMaxSpec}${unit}) 범위를 벗어납니다. 그래도 입력하시겠습니까?`;
+            ? `Giá trị nằm ngoài tiêu chuẩn (${minText}~${maxText}${unit}). Vẫn nhập?`
+            : `점검기준(${minText}~${maxText}${unit}) 범위를 벗어납니다. 그래도 입력하시겠습니까?`;
       if (!window.confirm(outMsg)) {
         return;
       }
     }
-    if (onConfirm) onConfirm(String(selectedNumber));
+    if (onConfirm) onConfirm(formatStepValue(selectedNumber, decimals));
   };
 
   // PC 마우스 드래그 스크롤 및 키보드(Enter/Escape) 지원 (Rule 13: cleanup 철저)
@@ -140,21 +167,35 @@ export default function TpmWheelNumberPickerModal({
 
   const rawPresets = effMinSpec !== null && effMaxSpec !== null
     ? (() => {
+        if (decimals > 0) {
+          const spanSteps = Math.round((effMaxSpec - effMinSpec) / safeStep);
+          if (spanSteps <= 4) {
+            return [effMinSpec, centerVal, effMaxSpec];
+          }
+          const quarter = Math.max(safeStep, snapToStep((effMaxSpec - effMinSpec) / 4, safeStep, decimals));
+          return [
+            effMinSpec,
+            snapToStep(centerVal - quarter, safeStep, decimals),
+            centerVal,
+            snapToStep(centerVal + quarter, safeStep, decimals),
+            effMaxSpec
+          ];
+        }
         const quarter = Math.max(5, Math.round(((effMaxSpec - effMinSpec) / 4) / 5) * 5);
         return [
           effMinSpec,
-          defaultCenter - quarter,
-          defaultCenter,
-          defaultCenter + quarter,
+          centerVal - quarter,
+          centerVal,
+          centerVal + quarter,
           effMaxSpec
         ];
       })()
     : [
-        defaultCenter - 10,
-        defaultCenter - 5,
-        defaultCenter,
-        defaultCenter + 5,
-        defaultCenter + 10
+        snapToStep(centerVal - safeStep * 10, safeStep, decimals),
+        snapToStep(centerVal - safeStep * 5, safeStep, decimals),
+        centerVal,
+        snapToStep(centerVal + safeStep * 5, safeStep, decimals),
+        snapToStep(centerVal + safeStep * 10, safeStep, decimals)
       ];
   const presets = Array.from(new Set(rawPresets)).filter((p) => p >= minVal && p <= maxVal);
   const compactPresetUnit = unit.length > 2 ? '' : unit;
@@ -227,11 +268,12 @@ export default function TpmWheelNumberPickerModal({
           }}
         >
           {presets.map((p) => {
-            const isCenter = p === defaultCenter;
-            const isCur = p === selectedNumber;
+            const isCenter = Math.abs(p - centerVal) < safeStep / 2;
+            const isCur = Math.abs(p - selectedNumber) < safeStep / 2;
+            const pText = formatStepValue(p, decimals);
             return (
               <button
-                key={p}
+                key={pText}
                 type="button"
                 onClick={() => scrollToValue(p, true)}
                 style={{
@@ -246,7 +288,7 @@ export default function TpmWheelNumberPickerModal({
                   whiteSpace: 'nowrap'
                 }}
               >
-                {isCenter ? `${td(centerLabel)} (${p}${compactPresetUnit})` : `${p}${compactPresetUnit}`}
+                {isCenter ? `${td(centerLabel)} (${pText}${compactPresetUnit})` : `${pText}${compactPresetUnit}`}
               </button>
             );
           })}
@@ -322,14 +364,15 @@ export default function TpmWheelNumberPickerModal({
           >
             <div style={{ height: '80px' }} />
             {numbersList.map((n) => {
-              const isSelected = n === selectedNumber;
+              const isSelected = Math.abs(n - selectedNumber) < safeStep / 2;
+              const nText = formatStepValue(n, decimals);
               const isOutOfSpec =
                 effMinSpec !== null &&
                 effMaxSpec !== null &&
                 (n < effMinSpec || n > effMaxSpec);
               return (
                 <div
-                  key={n}
+                  key={nText}
                   onClick={() => scrollToValue(n, true)}
                   style={{
                     height: `${ITEM_HEIGHT}px`,
@@ -342,7 +385,7 @@ export default function TpmWheelNumberPickerModal({
                     transition: 'font-size 0.1s ease, color 0.1s ease'
                   }}
                 >
-                  {n}
+                  {nText}
                 </div>
               );
             })}

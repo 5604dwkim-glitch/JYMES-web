@@ -62,9 +62,11 @@ export function renderF5004LotTableHTML(curLots = {}, materialLots = {}) {
       const id = `f5004_FRT_${row.key}_${stage}`;
       const oldId = row.legacySide ? `f5004_FRT_${row.legacySide}_${stage}` : undefined;
       const legacyKey = row.legacySide ? `${row.legacySide}_FRT_${stage}` : undefined;
+      const legacyShortKey = row.legacySide ? `${row.legacySide}_${stage}` : undefined;
       const val = curLots[id] ?? materialLots[id]
         ?? (oldId ? materialLots[oldId] : undefined)
         ?? (legacyKey ? materialLots[legacyKey] : undefined)
+        ?? (legacyShortKey ? materialLots[legacyShortKey] : undefined)
         ?? '';
       return `<td style="${TD_STYLE}">
                   <textarea id="${id}" data-form-code="5004" data-save-group="materialLots" class="form-control lot-datetime-input" style="${TEXTAREA_STYLE}" placeholder="년월일\n시분">${escapeHtml(val)}</textarea>

@@ -56,7 +56,11 @@ export function procMatches(proc, filterProc) {
 
 export function cleanDefectName(rawName, fromComboKey = false) {
   let s = String(rawName || '');
-  if (fromComboKey) s = s.replace(/_/g, '/');
+  if (fromComboKey) {
+    // comboKey 직렬화 시 분류 대괄호(`[검사/소재]` 등) 내부의 `/`만 `_`로 치환되므로,
+    // 항목명의 본래 언더스코어(`클립누락_소재`)는 보존하고 대괄호 내부만 복원한다.
+    s = s.replace(/^\[([^\]]+)\]/, (_, category) => `[${category.replace(/_/g, '/')}]`);
+  }
   return s
     .replace(/스카치/g, '스코치')
     .replace('[공통] 기타 (상세 미지정)', '[공통] 기타')
@@ -130,11 +134,17 @@ export function extractStatDayMetrics(statDoc, filters = {}) {
   let actual = 0;
   let defect = 0;
   let detailed = 0;
+  let targetFromCombo = 0;
+  let hasAnyComboTarget = false;
   if (statDoc?.items) {
     Object.entries(statDoc.items).forEach(([comboKey, comboData]) => {
       if (!matchComboKey(comboKey, filters)) return;
       actual += Math.max(0, Number(comboData?.actualQty || 0));
       defect += Math.max(0, Number(comboData?.defectQty || 0));
+      if (comboData?.targetQty !== undefined) {
+        hasAnyComboTarget = true;
+        targetFromCombo += Math.max(0, Number(comboData.targetQty || 0));
+      }
       if (comboData?.defects) {
         Object.entries(comboData.defects).forEach(([k, v]) => {
           const val = Number(v || 0);
@@ -148,12 +158,14 @@ export function extractStatDayMetrics(statDoc, filters = {}) {
   }
   if (defect > detailed) addDefect('[공통] 기타', defect - detailed);
 
-  // 필터 적용 시 목표 수량은 일 전체 목표 대비 실적 비중으로 비례 추정 (0 나누기 방어)
+  // targetQty 가 항목별로 집계된 문서는 정확 합계를 사용하고, 구버전 문서만 일 전체 목표 대비 실적 비중으로 비례 추정
   const dayTotalActual = Number(statDoc?.totalActualQty || 0);
   const dayTotalTarget = Number(statDoc?.totalTargetQty || 0);
-  const target = dayTotalActual > 0 && dayTotalTarget > 0
-    ? Math.round(dayTotalTarget * (actual / dayTotalActual))
-    : 0;
+  const target = hasAnyComboTarget
+    ? targetFromCombo
+    : (dayTotalActual > 0 && dayTotalTarget > 0
+      ? Math.round(dayTotalTarget * (actual / dayTotalActual))
+      : 0);
 
   return { actual, target, defect, reports: 0, defects };
 }

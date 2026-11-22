@@ -5,12 +5,13 @@ import jsQR from 'jsqr';
 import { db } from '../../firebase';
 import {
   TPM_CIRCLED_NUMBERS,
-  DEFAULT_TPM_GUIDE_PHOTO,
+  getDefaultTpmPhotoForEquipment,
   normalizeTpmTemplate,
   normalizeTpmLog,
   getTpmLogKey,
   buildGroupedTpmQuestions,
-  parseWheelSpecFromCriterion
+  parseWheelSpecFromCriterion,
+  hasEquipmentTpmLog
 } from '../../constants/tpmLogTemplate';
 import TpmWheelNumberPickerModal from '../EquipmentManagement/TpmWheelNumberPickerModal';
 import { syncTpmAbnormalToRepairAndChangePoint } from '../../services/changePointAutoSync';
@@ -118,12 +119,24 @@ export default function JointTpmCheckModal({
         })
       );
 
-      const grouped = buildGroupedTpmQuestions(eqDocs, weekIndex);
+      const tpmTargets = eqDocs.filter(hasEquipmentTpmLog);
+      if (tpmTargets.length === 0) {
+        setEquipmentSet(setData);
+        setSetEquipments(eqDocs);
+        setQuestions([]);
+        setAnswers({});
+        setStepIndex(0);
+        setHighlightMissing(false);
+        setPhase('no_tpm');
+        return;
+      }
+
+      const grouped = buildGroupedTpmQuestions(tpmTargets, weekIndex);
       const initialAnswers = {};
       grouped.forEach((q) => {
         initialAnswers[q.key] = {};
         q.targets.forEach((t) => {
-          const eqObj = eqDocs.find(e => e.id === t.eqId);
+          const eqObj = tpmTargets.find(e => e.id === t.eqId);
           const log = normalizeTpmLog(eqObj?.tpmLogs?.[ymKey]);
           if (q.kind === 'daily') {
             const savedVal = log.daily?.[t.rowId]?.[dayNum] || '';
@@ -140,7 +153,7 @@ export default function JointTpmCheckModal({
       });
 
       setEquipmentSet(setData);
-      setSetEquipments(eqDocs);
+      setSetEquipments(tpmTargets);
       setQuestions(grouped);
       setAnswers(initialAnswers);
       setStepIndex(0);
@@ -505,9 +518,13 @@ export default function JointTpmCheckModal({
     }
   };
 
-  // 가이드 이미지 및 번호별 부위명칭 (첫 설비 템플릿 기준)
-  const guideTemplate = normalizeTpmTemplate(setEquipments[0]?.tpmTemplate);
-  const guidePhotoSrc = setEquipments.find(e => e.tpmPhoto)?.tpmPhoto || DEFAULT_TPM_GUIDE_PHOTO;
+  // 가이드 이미지 및 번호별 부위명칭 (현재 질문 설비 우선, 없으면 첫 설비 기준)
+  const fallbackTemplate = normalizeTpmTemplate(setEquipments[0]?.tpmTemplate, setEquipments[0]);
+  const guideLegend = currentQuestion?.guideLegend || fallbackTemplate.legend;
+  const guidePhotoSrc =
+    currentQuestion?.guidePhoto ||
+    setEquipments.find(e => e.tpmPhoto)?.tpmPhoto ||
+    getDefaultTpmPhotoForEquipment(setEquipments[0]);
   const activeGuideIdx = currentQuestion?.guideIndex ?? -1;
 
   const modalUI = (
@@ -687,6 +704,43 @@ export default function JointTpmCheckModal({
             </div>
           )}
 
+          {phase === 'no_tpm' && (
+            <div style={{ background: '#fff', border: '1px solid #cbd5e1', borderRadius: '12px', padding: '28px 20px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+              <div style={{ fontSize: '36px' }}>📋</div>
+              <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                {td('등록된 전용 TPM 일지가 없는 설비 셋트입니다')}
+              </div>
+              <div style={{ fontSize: '13px', color: '#475569', lineHeight: 1.5, maxWidth: '460px' }}>
+                <strong>{equipmentSet?.name || '-'}</strong>{' '}
+                {td('셋트의 설비는 전용 TPM 일지 추가 작성 예정(TPV 인젝션 · 열융착기 등)으로 현재 적용된 점검 양식이 없습니다.')}
+              </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '6px' }}>
+                {!initialSetId && (
+                  <button
+                    type="button"
+                    onClick={() => setPhase('scan')}
+                    style={{ padding: '10px 18px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', color: '#1e293b', fontWeight: 700, fontSize: '13.5px', cursor: 'pointer' }}
+                  >
+                    {td('← 다른 셋트 선택')}
+                  </button>
+                )}
+                {(onSkip || onClose) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      stopCamera();
+                      if (onSkip) onSkip();
+                      else if (onClose) onClose();
+                    }}
+                    style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', background: '#2563eb', color: '#fff', fontWeight: 800, fontSize: '13.5px', cursor: 'pointer' }}
+                  >
+                    {td('작업일보 작성으로 이동 →')}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
           {phase === 'questions' && currentQuestion && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* 진행률 표시 */}
@@ -719,12 +773,19 @@ export default function JointTpmCheckModal({
               <div style={{ background: '#fff', border: '2px solid #2563eb', borderRadius: '12px', padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'flex', gap: '14px', alignItems: 'stretch', flexWrap: 'wrap' }}>
                   {/* TPM 설명 이미지 */}
-                  <div style={{ width: '190px', flexShrink: 0, margin: '0 auto', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img
-                      src={guidePhotoSrc}
-                      alt="TPM 점검 부위 설명 이미지"
-                      style={{ width: '100%', maxHeight: '240px', objectFit: 'contain', display: 'block' }}
-                    />
+                  <div style={{ width: '215px', minHeight: '190px', flexShrink: 0, margin: '0 auto', background: '#f8fafc', border: currentQuestion?.hasStepSpecificPhoto ? '2px solid #eab308' : '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+                    {currentQuestion?.hasStepSpecificPhoto && (
+                      <div style={{ width: '100%', background: '#fef08a', color: '#b91c1c', fontSize: '11.5px', fontWeight: 900, padding: '4px 8px', textAlign: 'center', borderBottom: '1px solid #fde047', boxSizing: 'border-box' }}>
+                        {td(`${currentQuestion.badgeNumber} ${currentQuestion.partName} 점검 부위 사진`)}
+                      </div>
+                    )}
+                    <div style={{ flex: 1, width: '100%', padding: '6px', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <img
+                        src={guidePhotoSrc}
+                        alt="TPM 점검 부위 설명 이미지"
+                        style={{ width: '100%', maxHeight: '220px', objectFit: 'contain', display: 'block', borderRadius: '4px' }}
+                      />
+                    </div>
                   </div>
 
                   {/* 우측: 부위 번호표 + 현재 점검 질문 강조 */}
@@ -734,7 +795,7 @@ export default function JointTpmCheckModal({
                         {td('📌 설비 점검 부위 안내 (현재 점검 위치 강조)')}
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(115px, 1fr))', gap: '4px' }}>
-                        {guideTemplate.legend.filter(Boolean).map((legName, idx) => {
+                        {guideLegend.filter(Boolean).map((legName, idx) => {
                           const isCurrentPart = idx === activeGuideIdx;
                           return (
                             <div
@@ -759,9 +820,11 @@ export default function JointTpmCheckModal({
                     {/* 현재 질문 박스 */}
                     <div style={{ background: '#eff6ff', border: '1px solid #93c5fd', borderRadius: '10px', padding: '12px 14px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                        <span style={{ background: '#2563eb', color: '#fff', fontSize: '13px', fontWeight: 800, padding: '2px 9px', borderRadius: '999px' }}>
-                          {td(currentQuestion.badgeNumber)}
-                        </span>
+                        {currentQuestion.badgeNumber && (
+                          <span style={{ background: '#2563eb', color: '#fff', fontSize: '13px', fontWeight: 800, padding: '2px 9px', borderRadius: '999px' }}>
+                            {td(currentQuestion.badgeNumber)}
+                          </span>
+                        )}
                         <span style={{ fontSize: '17px', fontWeight: 900, color: '#0f172a' }}>
                           {td(currentQuestion.partName)}
                         </span>
@@ -776,8 +839,16 @@ export default function JointTpmCheckModal({
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#1d4ed8', marginTop: '4px' }}>
-                        {td(`점검기준: “${currentQuestion.criterion}”`)}
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#1d4ed8', marginTop: '4px', whiteSpace: 'pre-line', lineHeight: 1.4 }}>
+                        {(() => {
+                          const rawCrit = String(currentQuestion.criterion || '');
+                          const lowerSuffix = '(설비하단 게이지)';
+                          if (rawCrit.endsWith(lowerSuffix)) {
+                            const mainCrit = rawCrit.slice(0, -lowerSuffix.length).trim();
+                            return `${td('점검기준:')} “${td(mainCrit)}”${td(lowerSuffix)}`;
+                          }
+                          return td(`점검기준: “${rawCrit}”`);
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -882,9 +953,11 @@ export default function JointTpmCheckModal({
                               type="button"
                               data-tpm-wheel-trigger={idx}
                               onClick={() => {
-                                const shortTitle = (currentQuestion.criterion || '').includes(':')
+                                const rawPrefix = (currentQuestion.criterion || '').includes(':')
                                   ? currentQuestion.criterion.split(':')[0].trim()
-                                  : currentQuestion.partName;
+                                  : '';
+                                const shortTitle = currentQuestion.shortLabel ||
+                                  (rawPrefix && rawPrefix !== '범위' ? rawPrefix : currentQuestion.partName);
                                 setWheelTarget({
                                   qKey: currentQuestion.key,
                                   eqId: target.eqId,
@@ -1158,6 +1231,7 @@ export default function JointTpmCheckModal({
           minSpec={wheelTarget.spec.minSpec}
           maxSpec={wheelTarget.spec.maxSpec}
           range={wheelTarget.spec.range}
+          step={wheelTarget.spec.step || 1}
           unit={wheelTarget.spec.unit}
           centerLabel={wheelTarget.spec.centerLabel || '기준'}
           allowX={true}

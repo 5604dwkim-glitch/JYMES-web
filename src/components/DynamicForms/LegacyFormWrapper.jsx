@@ -59,6 +59,7 @@ export function setLegacyFormContext(ctx) {
 
 export const store = {
   getUserRole: () => _ctx.userRoleInfo,
+  isReadOnlyPreview: () => Boolean(_ctx.isReadOnlyPreview),
   getReportById: (id) => _ctx.existingData,
   getWorkers: () => _ctx.workers || [],
   getMolds: () => _ctx.molds || [],
@@ -520,7 +521,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
 
   // [3단계] 부품 칩 렌더링 함수
-  function renderPartChips(carCode) {
+  function renderPartChips(carCode, targetPart = null) {
     if (!partSelectSection || !partChipGroup) return;
     const parts = CAR_MODEL_PARTS[carCode];
     if (!parts || parts.length === 0) {
@@ -529,12 +530,16 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       return;
     }
     partSelectSection.style.display = 'block';
-    partChipGroup.innerHTML = parts.map((p, idx) => `
-      <div class="touch-chip part-chip ${idx === 0 ? 'active' : ''}" data-code="${p.code}" data-name="${p.name}" style="padding: 8px 14px; font-weight: 700; background: ${idx === 0 ? '' : ''}">
+    const matchedPart = targetPart
+      ? parts.find((p) => p.code === targetPart || p.name === targetPart)
+      : null;
+    const activePart = matchedPart || parts[0];
+    partChipGroup.innerHTML = parts.map((p) => `
+      <div class="touch-chip part-chip ${p.code === activePart.code ? 'active' : ''}" data-code="${p.code}" data-name="${p.name}" style="padding: 8px 14px; font-weight: 700;">
         ${p.name}
       </div>
     `).join('');
-    if (partValueInput) partValueInput.value = parts[0].code;
+    if (partValueInput) partValueInput.value = activePart.code;
     partChipGroup.querySelectorAll('.part-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         partChipGroup.querySelectorAll('.part-chip').forEach(c => c.classList.remove('active'));
@@ -574,7 +579,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
 
   // [2단계] 세부 차종 칩 동적 렌더링 함수
-  function renderSubCarChips(makerName, targetCarCode = null) {
+  function renderSubCarChips(makerName, targetCarCode = null, targetPart = null) {
     let makerObj = MANUFACTURERS.find(m => m.name === makerName);
     if (!makerObj && makerName) {
       makerObj = MANUFACTURERS.find(m => m.name.includes(makerName) || makerName.includes(m.name.split('(')[0]));
@@ -634,7 +639,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       `).join('');
     }
 
-    renderPartChips(activeCode);
+    renderPartChips(activeCode, targetPart);
     renderProcessChips(activeCode);
     renderQtySection();
     renderSection4LotTable();
@@ -916,7 +921,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
           });
 
           const standardFixedBar = document.getElementById('standardFixedActionBar');
-          if (standardFixedBar) standardFixedBar.style.display = 'flex';
+          if (standardFixedBar) {
+            standardFixedBar.style.display = (!_ctx.isReadOnlyPreview && container.isConnected) ? 'flex' : 'none';
+          }
 
           try { renderSection5(); } catch(e) { console.warn('renderSection5 error:', e); }
           try { renderQtySection(); } catch(e) { console.warn('renderQtySection error:', e); }
@@ -954,7 +961,9 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         if (el) el.style.display = 'block';
       });
       const standardFixedBar = document.getElementById('standardFixedActionBar');
-      if (standardFixedBar) standardFixedBar.style.display = 'flex';
+      if (standardFixedBar) {
+        standardFixedBar.style.display = (!_ctx.isReadOnlyPreview && container.isConnected) ? 'flex' : 'none';
+      }
 
       renderFormCodeBadge();
       updateSectionNumbers();
@@ -976,7 +985,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   }
 
   // 초기 렌더링
-  renderSubCarChips(currentMakerName, currentCarCode);
+  renderSubCarChips(currentMakerName, currentCarCode, existingData ? (existingData.itemCode || existingData.itemName) : null);
   renderProcessChips(currentCarCode, existingData ? existingData.processName : '');
   const initActiveProc = processValue ? processValue.value : '';
   const isCommonSpecialInit =
@@ -1167,17 +1176,20 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       // 기존 일보를 수정(관리자 포함)하는 경우 원래 작성자를 유지 (신규 작성 시에만 로그인 사용자 적용)
       const currentWorkerName = existingData?.workerName || currentUserRole?.workerName || loggedInWorkerName || '작업자';
 
-      const dt1Min = Number(container.querySelector('#downtimeMinutes')?.value) || 0;
-      const dt1Equip = container.querySelector('#downtimeEquip1')?.value || '';
-      const dt1Reason = container.querySelector('#downtimeReason')?.value || '';
+      const downtimeCardEl = container.querySelector('#downtimeCard');
+      const isDowntimeHidden = downtimeCardEl && downtimeCardEl.style.display === 'none';
 
-      const dt2Min = Number(container.querySelector('#downtimeMinutes2')?.value) || 0;
-      const dt2Equip = container.querySelector('#downtimeEquip2')?.value || '';
-      const dt2Reason = container.querySelector('#downtimeReason2')?.value || '';
+      const dt1Min = isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes')?.value) || 0);
+      const dt1Equip = isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip1')?.value || '');
+      const dt1Reason = isDowntimeHidden ? '' : (container.querySelector('#downtimeReason')?.value || '');
 
-      const dt3Min = Number(container.querySelector('#downtimeMinutes3')?.value) || 0;
-      const dt3Equip = container.querySelector('#downtimeEquip3')?.value || '';
-      const dt3Reason = container.querySelector('#downtimeReason3')?.value || '';
+      const dt2Min = isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes2')?.value) || 0);
+      const dt2Equip = isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip2')?.value || '');
+      const dt2Reason = isDowntimeHidden ? '' : (container.querySelector('#downtimeReason2')?.value || '');
+
+      const dt3Min = isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes3')?.value) || 0);
+      const dt3Equip = isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip3')?.value || '');
+      const dt3Reason = isDowntimeHidden ? '' : (container.querySelector('#downtimeReason3')?.value || '');
 
       const totalDowntimeMinutes = dt1Min + dt2Min + dt3Min;
 
@@ -2204,23 +2216,28 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
     }
   };
 
-  // 화면 하단 고정 버튼 바 (standard form) - fixed 방식
+  // 화면 하단 고정 버튼 바 (standard form) - fixed 방식 (상세조회 가상 렌더링이나 미마운트 컨테이너에서는 생성/표시하지 않음)
+  const shouldMountFixedBar = !_ctx.isReadOnlyPreview && Boolean(container.isConnected);
   let standardFixedBar = document.getElementById('standardFixedActionBar');
-  if (!standardFixedBar) {
-    standardFixedBar = document.createElement('div');
-    standardFixedBar.id = 'standardFixedActionBar';
-    document.body.appendChild(standardFixedBar);
+  if (shouldMountFixedBar) {
+    if (!standardFixedBar) {
+      standardFixedBar = document.createElement('div');
+      standardFixedBar.id = 'standardFixedActionBar';
+      document.body.appendChild(standardFixedBar);
+    }
+    standardFixedBar.style.cssText = 'position:fixed; bottom:0; left:0; right:0; z-index:500; background:rgba(255,255,255,0.97); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:12px 16px; border-top:2px solid var(--border-color); box-shadow:0 -4px 20px rgba(0,0,0,0.12); display:flex; gap:10px; justify-content:center;';
+    standardFixedBar.innerHTML = `
+      <button type="button" id="btnDraftSave" class="btn btn-secondary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_draft_save">
+        📁 작업일보 중간 저장
+      </button>
+      <button type="button" id="btnFinalSubmit" class="btn btn-primary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_final_submit">
+        ✅ 작업일보 등록 완료
+      </button>
+    `;
+    standardFixedBar.style.display = 'flex';
+  } else if (standardFixedBar) {
+    standardFixedBar.style.display = 'none';
   }
-  standardFixedBar.style.cssText = 'position:fixed; bottom:0; left:0; right:0; z-index:500; background:rgba(255,255,255,0.97); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:12px 16px; border-top:2px solid var(--border-color); box-shadow:0 -4px 20px rgba(0,0,0,0.12); display:flex; gap:10px; justify-content:center;';
-  standardFixedBar.innerHTML = `
-    <button type="button" id="btnDraftSave" class="btn btn-secondary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_draft_save">
-      📁 작업일보 중간 저장
-    </button>
-    <button type="button" id="btnFinalSubmit" class="btn btn-primary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_final_submit">
-      ✅ 작업일보 등록 완료
-    </button>
-  `;
-  standardFixedBar.style.display = 'flex';
 
   const hideLeaderFixedBar = document.getElementById('leaderFixedActionBar');
   if (hideLeaderFixedBar) {
@@ -2228,10 +2245,12 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   }
 
   i18n.applyTranslations(container);
-  i18n.applyTranslations(standardFixedBar);
+  if (shouldMountFixedBar && standardFixedBar) {
+    i18n.applyTranslations(standardFixedBar);
+  }
 
-  const btnDraftSave = standardFixedBar.querySelector('#btnDraftSave');
-  const btnFinalSubmit = standardFixedBar.querySelector('#btnFinalSubmit');
+  const btnDraftSave = shouldMountFixedBar && standardFixedBar ? standardFixedBar.querySelector('#btnDraftSave') : null;
+  const btnFinalSubmit = shouldMountFixedBar && standardFixedBar ? standardFixedBar.querySelector('#btnFinalSubmit') : null;
 
   if (btnDraftSave) {
     btnDraftSave.addEventListener('click', () => {

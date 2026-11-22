@@ -2,69 +2,83 @@
 <!-- ERRORS: none -->
 <!-- [section4LotTable] -->
 <div id="section4Card" style="display: block;"><div id="section4LotTableContainer">
-          <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
-            <thead>
-              <tr style="font-weight: 700;">
-                <th style="padding: 6px 2px; width: 20%; background: rgb(232, 238, 245); font-weight: 700; color: rgb(0, 0, 0); font-size: 12px; border: 1px solid rgb(0, 0, 0);">구분</th>
-                <th style="padding: 6px 2px; width: 40%; background: rgb(232, 238, 245); font-weight: 700; color: rgb(0, 0, 0); font-size: 12px; border: 1px solid rgb(0, 0, 0);">LH</th>
-                <th style="padding: 6px 2px; width: 40%; background: rgb(232, 238, 245); font-weight: 700; color: rgb(0, 0, 0); font-size: 12px; border: 1px solid rgb(0, 0, 0);">RH</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="padding: 6px 4px; background: rgb(241, 245, 249); font-weight: 700; color: rgb(0, 0, 0); font-size: 12px; border: 1px solid rgb(0, 0, 0);">초물</td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_초물" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="월일시"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_초물" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="월일시"></textarea>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 6px 4px; background: rgb(241, 245, 249); font-weight: 700; color: rgb(0, 0, 0); font-size: 12px; border: 1px solid rgb(0, 0, 0);">중물</td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_중물" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="월일시"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_중물" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="월일시"></textarea>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 6px 4px; background: rgb(241, 245, 249); font-weight: 700; color: rgb(0, 0, 0); font-size: 12px; border: 1px solid rgb(0, 0, 0);">종물</td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_LH_종물" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="월일시"></textarea>
-                </td>
-                <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_RH_종물" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 6px 2px; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="월일시"></textarea>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div></div>
+    <div data-form-code="4022">
+      <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+        <thead>
+          <tr style="font-weight: 700;">
+            <th rowspan="2" style="padding: 8px 4px; font-size: 12px; color: rgb(0, 0, 0); width: 22%; vertical-align: middle; background: rgb(232, 238, 245); border: 1px solid rgb(0, 0, 0);">
+              구 분(Division)
+            </th>
+            <th colspan="2" style="padding: 8px 4px; font-size: 13px; color: rgb(0, 0, 0); width: 78%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">Hood Side</th>
+          </tr>
+          <tr style="">
+            <th style="padding: 6px 2px; background: rgb(232, 238, 245); font-weight: 700; color: rgb(0, 0, 0); font-size: 11px; width: 39%; border: 1px solid rgb(0, 0, 0);">LH</th><th style="padding: 6px 2px; background: rgb(232, 238, 245); font-weight: 700; color: rgb(0, 0, 0); font-size: 11px; width: 39%; border: 1px solid rgb(0, 0, 0);">RH</th>
+          </tr>
+        </thead>
+        <tbody>
+
+      <tr>
+        <td style="padding: 8px 4px; background: rgb(241, 245, 249); font-weight: 700; color: rgb(0, 0, 0); font-size: 11px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">초물</td>
+
+        <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+          <textarea id="f4022_lh_초물" name="f4022_lh_초물" data-form-code="4022" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="년월일
+시분"></textarea>
+        </td>
+        <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+          <textarea id="f4022_rh_초물" name="f4022_rh_초물" data-form-code="4022" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="년월일
+시분"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 4px; background: rgb(241, 245, 249); font-weight: 700; color: rgb(0, 0, 0); font-size: 11px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">중물</td>
+
+        <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+          <textarea id="f4022_lh_중물" name="f4022_lh_중물" data-form-code="4022" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="년월일
+시분"></textarea>
+        </td>
+        <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+          <textarea id="f4022_rh_중물" name="f4022_rh_중물" data-form-code="4022" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="년월일
+시분"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 4px; background: rgb(241, 245, 249); font-weight: 700; color: rgb(0, 0, 0); font-size: 11px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">종물</td>
+
+        <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+          <textarea id="f4022_lh_종물" name="f4022_lh_종물" data-form-code="4022" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="년월일
+시분"></textarea>
+        </td>
+        <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
+          <textarea id="f4022_rh_종물" name="f4022_rh_종물" data-form-code="4022" data-save-group="materialLots" class="form-control lot-datetime-input" style="width: 100%; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0px; outline: none; background: rgb(255, 255, 255); border: medium;" placeholder="년월일
+시분"></textarea>
+        </td>
+      </tr>
+        </tbody>
+      </table>
+    </div>
+  </div></div>
 <!-- [section5] -->
 <div id="section5DynamicContainer">
-
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <div class="card" data-form-code="4022" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
             🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
           </label>
           <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
-          <input type="text" id="jointRubberLotNo" class="form-control lot-datetime-input" style="max-width: 280px; font-family: monospace;" placeholder="년월일시분 (예: 2607251330)" value="">
+          <input type="text" id="jointRubberLotNo" data-form-code="4022" class="form-control lot-datetime-input" style="max-width: 280px; font-family: monospace;" placeholder="년월일시분 (예: 2607251330)" value="">
         </div>
 
-        <div class="card" style="padding: 16px; margin-bottom: 16px;">
+        <div class="card" data-form-code="4022" style="padding: 16px; margin-bottom: 16px;">
           <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
             ♨️ <span class="sec-num"></span> 설비 가류온도 &amp; 가류시간 입력
           </label>
-
           <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
+            <table data-form-code="4022" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;">
               <thead>
                 <tr style="font-weight: 700; color: rgb(0, 0, 0);">
-                  <th colspan="2" style="padding: 6px; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">부 위(Part)</th>
-                  <th style="padding: 6px; width: 22%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">X부(L/R)</th>
-                  <th style="padding: 6px; width: 22%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">LH Y부</th>
-                  <th style="padding: 6px; width: 22%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RH Y부</th>
+                  <th colspan="2" style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">부 위(Part)</th>
+                  <th style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">X부(L/R)</th>
+                  <th style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">LH Y부</th>
+                  <th style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RH Y부</th>
                 </tr>
                 <tr style="font-weight: 700; color: rgb(0, 0, 0);">
                   <td colspan="2" style="padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">금형 No. [ 호기 ]</td>
@@ -86,83 +100,83 @@
                 <tr>
                   <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 2px; border: 1px solid rgb(0, 0, 0);">초물(Start)</td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_start_frt_p_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_start_frt_p_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_start_x_lr_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="초물 가류온도 X부(L/R) (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_start_x_lr_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="초물 가류온도 X부(L/R) (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_start_rr_s_lh_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_start_rr_s_lh_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_start_frt_q_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="초물 가류온도 LH Y부 (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_start_frt_q_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="초물 가류온도 LH Y부 (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_start_rr_s_rh_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_start_rr_s_rh_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_start_rh_y_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="초물 가류온도 RH Y부 (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_start_rh_y_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="초물 가류온도 RH Y부 (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 2px; border: 1px solid rgb(0, 0, 0);">중물(Harf)</td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_harf_frt_p_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_harf_frt_p_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_harf_x_lr_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="중물 가류온도 X부(L/R) (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_harf_x_lr_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="중물 가류온도 X부(L/R) (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_harf_rr_s_lh_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_harf_rr_s_lh_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_harf_frt_q_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="중물 가류온도 LH Y부 (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_harf_frt_q_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="중물 가류온도 LH Y부 (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_harf_rr_s_rh_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_harf_rr_s_rh_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_harf_rh_y_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="중물 가류온도 RH Y부 (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_harf_rh_y_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="중물 가류온도 RH Y부 (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 2px; border: 1px solid rgb(0, 0, 0);">종물(Finish)</td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_finish_frt_p_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_finish_frt_p_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_finish_x_lr_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="종물 가류온도 X부(L/R) (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_finish_x_lr_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="종물 가류온도 X부(L/R) (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_finish_rr_s_lh_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_finish_rr_s_lh_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_finish_frt_q_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="종물 가류온도 LH Y부 (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_finish_frt_q_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="종물 가류온도 LH Y부 (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
-            <input type="text" id="vulc_temp_finish_rr_s_rh_상" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
-          </div>
-          <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
-            <input type="text" id="vulc_temp_finish_rr_s_rh_하" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
-          </div>
-        </td>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px;">
+                      <input type="text" id="vulc_temp_finish_rh_y_상" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="종물 가류온도 RH Y부 (상)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(상)" readonly="">
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 2px;">
+                      <input type="text" id="vulc_temp_finish_rh_y_하" data-form-code="4022" data-wheel-parsed-spec="200" data-wheel-tolerance="10" data-wheel-unit="도" data-wheel-range="30" data-wheel-title="종물 가류온도 RH Y부 (하)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="(하)" readonly="">
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td rowspan="4" style="background: rgb(241, 245, 249); font-weight: 700; padding: 4px; vertical-align: middle; border: 1px solid rgb(0, 0, 0);">
@@ -176,50 +190,49 @@
                 <tr>
                   <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 2px; border: 1px solid rgb(0, 0, 0);">초물(Start)</td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_start_frt_p" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_start_x_lr" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="초물 가류시간 X부(L/R)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_start_rr_s_lh" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_start_frt_q" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="초물 가류시간 LH Y부" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_start_rr_s_rh" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_start_rh_y" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="초물 가류시간 RH Y부" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                 </tr>
                 <tr>
                   <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 2px; border: 1px solid rgb(0, 0, 0);">중물(Harf)</td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_harf_frt_p" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_harf_x_lr" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="중물 가류시간 X부(L/R)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_harf_rr_s_lh" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_harf_frt_q" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="중물 가류시간 LH Y부" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_harf_rr_s_rh" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_harf_rh_y" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="중물 가류시간 RH Y부" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                 </tr>
                 <tr>
                   <td style="background: rgb(248, 250, 252); font-weight: 700; padding: 2px; border: 1px solid rgb(0, 0, 0);">종물(Finish)</td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_finish_frt_p" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_finish_x_lr" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="종물 가류시간 X부(L/R)" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_finish_rr_s_lh" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_finish_frt_q" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="종물 가류시간 LH Y부" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-          <input type="text" id="vulc_time_finish_rr_s_rh" class="form-control" style="width: 80%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
-        </td>
+                    <input type="text" id="vulc_time_finish_rh_y" data-form-code="4022" data-wheel-parsed-spec="90" data-wheel-tolerance="10" data-wheel-unit="초" data-wheel-range="30" data-wheel-title="종물 가류시간 RH Y부" class="form-control" style="width: 100%; height: 24px; text-align: center; font-size: 11px; padding: 2px; background: rgb(255, 255, 255);" value="" placeholder="" readonly="">
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
-
         </div>
-      <div class="card" data-joint-mold-stroke-card="1" style="padding: 16px; margin-bottom: 16px;"><label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">🔄 <span class="sec-num"></span> 금일 금형 타수</label><div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;"><thead>
+      <div class="card" data-joint-mold-stroke-card="1" style="padding: 16px; margin-bottom: 16px;"><label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">🔄 <span class="sec-num"></span> 금일 금형 타수</label><div style="overflow-x: auto;"><table data-form-code="4022" style="width: 100%; border-collapse: collapse; border: 2px solid #000; text-align: center; font-size: 11px; background: #fff; font-family: 'Noto Sans KR', sans-serif;"><thead>
                 <tr style="font-weight: 700; color: rgb(0, 0, 0);">
-                  <th colspan="2" style="padding: 6px; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">부 위(Part)</th>
-                  <th style="padding: 6px; width: 22%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">X부(L/R)</th>
-                  <th style="padding: 6px; width: 22%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">LH Y부</th>
-                  <th style="padding: 6px; width: 22%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RH Y부</th>
+                  <th colspan="2" style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">부 위(Part)</th>
+                  <th style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">X부(L/R)</th>
+                  <th style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">LH Y부</th>
+                  <th style="padding: 6px; width: 25%; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">RH Y부</th>
                 </tr>
                 <tr style="font-weight: 700; color: rgb(0, 0, 0);">
                   <td colspan="2" style="padding: 4px; border: 1px solid rgb(0, 0, 0); background: rgb(232, 238, 245);">금형 No. [ 호기 ]</td>
@@ -235,7 +248,7 @@
           📊 <span class="sec-num"></span> 생산실적 및 불량 현황
         </label>
 
-        <input type="hidden" id="targetQty" value="0">
+        <input type="hidden" id="targetQty" value="600">
         <input type="hidden" id="actualQty" value="0">
         <input type="hidden" id="defectQty" value="0">
 
@@ -258,11 +271,11 @@
                 </td>
 
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                    <input type="number" id="jqty_plan_frt_p" class="form-control jqty-calc-input" style="width: 100%; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; border: medium; background: rgb(255, 255, 255);" value="" placeholder="0">
+                    <input type="number" id="jqty_plan_frt_p" class="form-control jqty-calc-input" style="width: 100%; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; border: medium; background: rgb(255, 255, 255);" value="300" placeholder="300">
                   </td>
 
                   <td style="padding: 2px; border: 1px solid rgb(0, 0, 0); background: rgb(255, 255, 255);">
-                    <input type="number" id="jqty_plan_frt_q" class="form-control jqty-calc-input" style="width: 100%; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; border: medium; background: rgb(255, 255, 255);" value="" placeholder="0">
+                    <input type="number" id="jqty_plan_frt_q" class="form-control jqty-calc-input" style="width: 100%; text-align: center; font-size: 10px; padding: 2px 0px; font-weight: 700; border: medium; background: rgb(255, 255, 255);" value="300" placeholder="300">
                   </td>
 
               </tr>

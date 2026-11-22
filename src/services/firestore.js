@@ -4,6 +4,7 @@ import { CAR_MODELS } from '../constants/masterData';
 import { buildStatsUpdate } from './statsAggregator';
 import { syncReportDowntimeToRepairAndChangePoint } from './changePointAutoSync';
 import { persistJointMoldDefaultsFromReport } from './jointMoldDefaults';
+import { resolveGm9bqcProcessCode } from './gm9bqcGrunEngine';
 
 const REPORTS_COLLECTION = 'reports';
 
@@ -174,7 +175,7 @@ function setReportsCache(serverFilters, data) {
 const myRecentReportsCache = new Map(); // workerName -> { data, timestamp }
 const MY_RECENT_CACHE_TTL_MS = 5 * 60 * 1000;
 
-export function invalidateReportsCache() {
+export function invalidateReportsCache({ reset9bqcHistory = false } = {}) {
   reportCache.clear();
   myRecentReportsCache.clear();
   downtimeReportsCache = null; // 일보가 저장/수정/삭제되면 비가동 일보 캐시도 함께 무효화
@@ -182,8 +183,219 @@ export function invalidateReportsCache() {
   stellantisReportsCache = null; // 주간 스텔란티스 실적 전용 캐시 무효화
   dailyStatsAllCache = null; // 일별 집계 캐시도 함께 무효화
   dailyStatsRecentCache = null;
+  if (reset9bqcHistory) {
+    reset9bqcPersistentCaches();
+  }
   removeSlimCache('daily_stats');
   removeSlimCache('daily_stats_recent');
+}
+
+// 9BQC G/RUN 종합 현황판 전용 영구 캐시 + 변동분 증분 동기화 (localStorage + RAM)
+// - 새로고침·재접속 시에도 캐시를 즉시 렌더링(0ms)하고, 이후 변동된 문서(updatedAtMs) 및 누락 날짜만 증분 조회
+const GM9BQC_HISTORY_STORAGE_KEY = 'jymes_9bqc_grun_history_v1';
+const GM9BQC_TODAY_STORAGE_KEY = 'jymes_9bqc_grun_today_v1';
+const GM9BQC_PERSIST_TTL_MS = 24 * 60 * 60 * 1000; // 24시간마다 1회 안전 전체 정합성 확인 (삭제 문서 정리용)
+const GM9BQC_TODAY_CACHE_TTL_MS = 10 * 60 * 1000;
+const GM9BQC_DELTA_COOLDOWN_MS = 20 * 1000; // 20초 내 재진입/날짜 이동 시 중복 delta 조회 방지
+const GM9BQC_MAX_RETENTION_DAYS = 45;
+
+let gm9bqcCacheHydrated = false;
+let gm9bqcHistoryIntervals = []; // [{ start: 'YYYY-MM-DD', end: 'YYYY-MM-DD', fetchedAt: number }]
+const gm9bqcHistoryDocsById = new Map();
+let gm9bqcLastDeltaSyncMs = 0;
+let gm9bqcLastDeltaCheckedAt = 0;
+let gm9bqcTodaySnapshotCache = { date: '', docs: null, fetchedAt: 0 };
+const gm9bqcHistoryInflight = new Map();
+let gm9bqcDeltaInflight = null;
+
+function mergeDateIntervals(intervals) {
+  if (!Array.isArray(intervals) || intervals.length === 0) return [];
+  const sorted = intervals
+    .filter((iv) => iv && iv.start && iv.end && iv.start <= iv.end)
+    .map((iv) => ({ start: iv.start, end: iv.end, fetchedAt: Number(iv.fetchedAt) || Date.now() }))
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const merged = [];
+  for (const iv of sorted) {
+    const prev = merged[merged.length - 1];
+    if (!prev) {
+      merged.push({ ...iv });
+      continue;
+    }
+    const prevNextDay = shiftYmdString(prev.end, 1);
+    if (iv.start <= prevNextDay) {
+      if (iv.end > prev.end) prev.end = iv.end;
+      prev.fetchedAt = Math.min(prev.fetchedAt, iv.fetchedAt);
+    } else {
+      merged.push({ ...iv });
+    }
+  }
+  return merged;
+}
+
+function getTodayYmdLocal() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function persist9bqcHistoryCache() {
+  try {
+    const cutoffYmd = shiftYmdString(getTodayYmdLocal(), -GM9BQC_MAX_RETENTION_DAYS);
+    const docsArr = [];
+    gm9bqcHistoryDocsById.forEach((r) => {
+      if (r?.date && r.date >= cutoffYmd) {
+        docsArr.push(r);
+      }
+    });
+    const trimmedIntervals = mergeDateIntervals(gm9bqcHistoryIntervals)
+      .map((iv) => ({
+        start: iv.start < cutoffYmd ? cutoffYmd : iv.start,
+        end: iv.end,
+        fetchedAt: iv.fetchedAt
+      }))
+      .filter((iv) => iv.start <= iv.end);
+
+    localStorage.setItem(
+      GM9BQC_HISTORY_STORAGE_KEY,
+      JSON.stringify({
+        v: 1,
+        lastDeltaSyncMs: gm9bqcLastDeltaSyncMs,
+        intervals: trimmedIntervals,
+        docs: docsArr
+      })
+    );
+  } catch {
+    // localStorage 용량 초과 등 무시 (RAM 캐시는 유지)
+  }
+}
+
+function hydrate9bqcHistoryCache() {
+  if (gm9bqcCacheHydrated) return;
+  gm9bqcCacheHydrated = true;
+  try {
+    const raw = localStorage.getItem(GM9BQC_HISTORY_STORAGE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.v !== 1 || !Array.isArray(parsed.docs) || !Array.isArray(parsed.intervals)) {
+      return;
+    }
+    const now = Date.now();
+    const validIntervals = parsed.intervals.filter(
+      (iv) => iv && iv.start && iv.end && now - (Number(iv.fetchedAt) || 0) < GM9BQC_PERSIST_TTL_MS
+    );
+    if (validIntervals.length === 0) return;
+
+    gm9bqcHistoryIntervals = mergeDateIntervals(validIntervals);
+    gm9bqcHistoryDocsById.clear();
+    parsed.docs.forEach((r) => {
+      if (r?.id && resolveGm9bqcProcessCode(r)) {
+        gm9bqcHistoryDocsById.set(r.id, r);
+      }
+    });
+    gm9bqcLastDeltaSyncMs = Number(parsed.lastDeltaSyncMs) || 0;
+  } catch {
+    // 손상된 캐시 무시
+  }
+}
+
+function reset9bqcPersistentCaches() {
+  gm9bqcCacheHydrated = true;
+  gm9bqcHistoryIntervals = [];
+  gm9bqcHistoryDocsById.clear();
+  gm9bqcLastDeltaSyncMs = 0;
+  gm9bqcLastDeltaCheckedAt = 0;
+  gm9bqcTodaySnapshotCache = { date: '', docs: null, fetchedAt: 0 };
+  try {
+    localStorage.removeItem(GM9BQC_HISTORY_STORAGE_KEY);
+    localStorage.removeItem(GM9BQC_TODAY_STORAGE_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function isDateCoveredBy9bqcIntervals(dateStr) {
+  if (!dateStr) return false;
+  return gm9bqcHistoryIntervals.some((iv) => iv.start <= dateStr && dateStr <= iv.end);
+}
+
+function upsert9bqcCachedReports(reportList) {
+  if (!Array.isArray(reportList) || reportList.length === 0) return;
+  hydrate9bqcHistoryCache();
+  const todayYmd = getTodayYmdLocal();
+  let historyMutated = false;
+  let todayMutated = false;
+
+  reportList.forEach((raw) => {
+    if (!raw?.id) return;
+    const cleaned = stripImageData(raw);
+    const isValid9bqc = Boolean(resolveGm9bqcProcessCode(cleaned));
+
+    if (cleaned.date === todayYmd) {
+      const prevDocs = Array.isArray(gm9bqcTodaySnapshotCache.docs)
+        ? gm9bqcTodaySnapshotCache.docs
+        : [];
+      const nextDocs = prevDocs.filter((d) => d.id !== cleaned.id);
+      if (isValid9bqc) nextDocs.push(cleaned);
+      if (gm9bqcTodaySnapshotCache.date === todayYmd) {
+        gm9bqcTodaySnapshotCache = {
+          date: todayYmd,
+          docs: nextDocs,
+          fetchedAt: Date.now()
+        };
+        todayMutated = true;
+      }
+      return;
+    }
+
+    if (isValid9bqc && (gm9bqcHistoryIntervals.length === 0 || isDateCoveredBy9bqcIntervals(cleaned.date))) {
+      gm9bqcHistoryDocsById.set(cleaned.id, cleaned);
+      historyMutated = true;
+    } else if (!isValid9bqc && gm9bqcHistoryDocsById.has(cleaned.id)) {
+      gm9bqcHistoryDocsById.delete(cleaned.id);
+      historyMutated = true;
+    }
+  });
+
+  if (historyMutated) persist9bqcHistoryCache();
+  if (todayMutated) {
+    try {
+      localStorage.setItem(GM9BQC_TODAY_STORAGE_KEY, JSON.stringify(gm9bqcTodaySnapshotCache));
+    } catch {
+      // ignore
+    }
+  }
+}
+
+function remove9bqcCachedReports(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) return;
+  hydrate9bqcHistoryCache();
+  const idSet = new Set(ids);
+  let historyMutated = false;
+
+  idSet.forEach((id) => {
+    if (gm9bqcHistoryDocsById.delete(id)) {
+      historyMutated = true;
+    }
+  });
+  if (historyMutated) persist9bqcHistoryCache();
+
+  if (Array.isArray(gm9bqcTodaySnapshotCache.docs)) {
+    const filtered = gm9bqcTodaySnapshotCache.docs.filter((d) => !idSet.has(d.id));
+    if (filtered.length !== gm9bqcTodaySnapshotCache.docs.length) {
+      gm9bqcTodaySnapshotCache = {
+        ...gm9bqcTodaySnapshotCache,
+        docs: filtered,
+        fetchedAt: Date.now()
+      };
+      try {
+        localStorage.setItem(GM9BQC_TODAY_STORAGE_KEY, JSON.stringify(gm9bqcTodaySnapshotCache));
+      } catch {
+        // ignore
+      }
+    }
+  }
 }
 
 // 비가동 일보 캐시 (대시보드 "연계 현황"용, 10분) — 대시보드 재방문 때마다 다시 읽지 않도록 한다
@@ -695,11 +907,14 @@ export function isSubmittedReportStatus(status) {
 }
 
 export async function processMoldStrokes(reportData, existingReport = null) {
-  // Only process when submitting (not drafting)
-  if (!isSubmittedReportStatus(reportData.status)) return;
+  const wasSubmitted = Boolean(
+    existingReport &&
+      isSubmittedReportStatus(existingReport.status) &&
+      existingReport.moldStrokesProcessed
+  );
+  const isNowSubmitted = Boolean(reportData && isSubmittedReportStatus(reportData.status));
+  if (!wasSubmitted && !isNowSubmitted) return false;
 
-  const isUpdate = existingReport && existingReport.moldStrokesProcessed;
-  
   // 금형 호기 번호(1~7)는 금형 간 중복되므로, 저장 시 함께 기록한 금형 고유 ID(moldRefs)를 우선 사용하고
   // moldRefs 가 없는 과거 일보는 기존 방식(호기 값 기준)으로 처리한다. (목표 금형별로 현재값 - 이전값 = 증감분)
   const collectStrokeTotals = (report) => {
@@ -725,8 +940,8 @@ export async function processMoldStrokes(reportData, existingReport = null) {
     return totals;
   };
 
-  const curTotals = collectStrokeTotals(reportData);
-  const prevTotals = isUpdate ? collectStrokeTotals(existingReport) : {};
+  const curTotals = isNowSubmitted ? collectStrokeTotals(reportData) : {};
+  const prevTotals = wasSubmitted ? collectStrokeTotals(existingReport) : {};
 
   const strokeUpdates = {};
   new Set([...Object.keys(curTotals), ...Object.keys(prevTotals)]).forEach(target => {
@@ -763,13 +978,15 @@ export async function processMoldStrokes(reportData, existingReport = null) {
     if (hasBatch) {
       try {
         await batch.commit();
-        // 타수 변경 후 전체 캐시 무효화 (일보 작성용 경량 캐시는 타수를 쓰지 않으므로 유지 → 작업자 폰이 사진 포함 7MB를 재다운로드하지 않음)
-        invalidateMoldsCache({ keepSlim: true });
+        // 타수 변경 시 금형 관리/대시보드 경량 캐시도 즉시 무효화해 누적 타수 지연 표시 방지
+        invalidateMoldsCache();
       } catch (err) {
         console.error('Failed to update mold strokes:', err);
+        return false;
       }
     }
   }
+  return true;
 }
 
 async function applyStatsUpdate(oldReport, newReport) {
@@ -933,7 +1150,8 @@ export async function addReport(reportData) {
         moldStrokesProcessed: isSubmittedReportStatus(reportData.status || '승인 대기'),
         approver: reportData.approver || '',
         approvedAt: reportData.approvedAt || '',
-        createdAt: new Date().toLocaleString('ko-KR')
+        createdAt: new Date().toLocaleString('ko-KR'),
+        updatedAtMs: Date.now()
       };
 
       Object.keys(reportObj).forEach(key => {
@@ -947,6 +1165,7 @@ export async function addReport(reportData) {
     });
 
     invalidateReportsCache();
+    upsert9bqcCachedReports([newReport]);
     
     await applyStatsUpdate(null, newReport);
     await processMoldStrokes(newReport);
@@ -974,22 +1193,27 @@ export async function updateReport(id, updatedFields) {
     const docSnap = await getDoc(docRef);
     const existingReport = docSnap.exists() ? docSnap.data() : null;
 
-    const cleanedFields = { ...updatedFields };
+    const cleanedFields = { ...updatedFields, updatedAtMs: Date.now() };
     Object.keys(cleanedFields).forEach(key => {
       if (cleanedFields[key] === undefined) delete cleanedFields[key];
     });
     await updateDoc(docRef, cleanedFields);
     invalidateReportsCache();
-    
+
     if (existingReport) {
       const mergedReport = { ...existingReport, ...cleanedFields, id };
+      upsert9bqcCachedReports([mergedReport]);
       await applyStatsUpdate(existingReport, mergedReport);
-      // 임시저장 → 제출완료 전환 및 제출완료 일보 수정 시에도 금형 타수 누적 반영 (기존에는 신규 등록 시에만 반영됨)
+      // 임시저장 ↔ 제출완료 전환 및 제출완료 일보 수정 시 금형 타수 증감 반영
       try {
-        if (isSubmittedReportStatus(mergedReport.status)) {
-          await processMoldStrokes(mergedReport, existingReport);
-          if (!existingReport.moldStrokesProcessed) {
+        const isNowSubmitted = isSubmittedReportStatus(mergedReport.status);
+        const wasProcessed = Boolean(existingReport.moldStrokesProcessed);
+        if (isNowSubmitted || wasProcessed) {
+          const ok = await processMoldStrokes(mergedReport, existingReport);
+          if (ok && isNowSubmitted && !wasProcessed) {
             await updateDoc(docRef, { moldStrokesProcessed: true });
+          } else if (ok && !isNowSubmitted && wasProcessed) {
+            await updateDoc(docRef, { moldStrokesProcessed: false });
           }
         }
       } catch (strokeErr) {
@@ -1022,9 +1246,15 @@ export async function deleteReport(id) {
 
     await deleteDoc(docRef);
     invalidateReportsCache();
+    remove9bqcCachedReports([id]);
 
     if (existingReport) {
       await applyStatsUpdate(existingReport, null);
+      try {
+        await processMoldStrokes(null, existingReport);
+      } catch (strokeErr) {
+        console.error('Failed to revert mold strokes on report delete:', strokeErr);
+      }
     }
 
     return true;
@@ -1038,12 +1268,23 @@ export async function bulkApproveReports(ids, approverName = '관리자') {
   try {
     const batch = writeBatch(db);
     const now = new Date().toLocaleString('ko-KR');
+    const nowMs = Date.now();
     ids.forEach(id => {
       const docRef = doc(db, REPORTS_COLLECTION, id);
-      batch.update(docRef, { status: '승인 완료', approver: approverName, approvedAt: now });
+      batch.update(docRef, { status: '승인 완료', approver: approverName, approvedAt: now, updatedAtMs: nowMs });
     });
     await batch.commit();
     invalidateReportsCache();
+    hydrate9bqcHistoryCache();
+    const updatedCachedDocs = [];
+    ids.forEach((id) => {
+      const existing = gm9bqcHistoryDocsById.get(id)
+        || (Array.isArray(gm9bqcTodaySnapshotCache.docs) ? gm9bqcTodaySnapshotCache.docs.find((d) => d.id === id) : null);
+      if (existing) {
+        updatedCachedDocs.push({ ...existing, status: '승인 완료', approver: approverName, approvedAt: now, updatedAtMs: nowMs });
+      }
+    });
+    if (updatedCachedDocs.length > 0) upsert9bqcCachedReports(updatedCachedDocs);
     return ids.length;
   } catch (error) {
     console.error('Error bulk approving:', error);
@@ -1068,9 +1309,15 @@ export async function bulkDeleteReports(ids) {
     });
     await batch.commit();
     invalidateReportsCache();
+    remove9bqcCachedReports(ids);
 
     for (const r of existingReports) {
       await applyStatsUpdate(r, null);
+      try {
+        await processMoldStrokes(null, r);
+      } catch (strokeErr) {
+        console.error('Failed to revert mold strokes on bulk delete:', strokeErr);
+      }
     }
 
     return ids.length;
@@ -1094,6 +1341,7 @@ const WORKERS_COLLECTION = 'workers';
 const WORKER_PHOTOS_COLLECTION = 'worker_photos';
 const MOLD_PHOTOS_COLLECTION = 'mold_photos';
 const EQUIPMENT_PHOTOS_COLLECTION = 'equipment_photos';
+const CALIBRATION_CERTIFICATES_COLLECTION = 'calibration_certificates';
 
 const isPhotoDataUrl = (v) => typeof v === 'string' && v.startsWith('data:image');
 
@@ -1240,6 +1488,39 @@ export async function saveEquipmentPhotos(equipmentId, patch) {
     payload[key] = isPhotoDataUrl(patch[key]) ? patch[key] : deleteField();
   });
   await setDoc(doc(db, EQUIPMENT_PHOTOS_COLLECTION, equipmentId), payload, { merge: true });
+}
+
+// ── 계측기 검교정 인증서 스캔 파일 (PDF / 이미지 분리 저장) ──
+export async function fetchCalibrationCertificate(certId) {
+  if (!certId) return null;
+  try {
+    const snap = await getDoc(doc(db, CALIBRATION_CERTIFICATES_COLLECTION, certId));
+    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+  } catch (error) {
+    console.warn('Error fetching calibration certificate:', error);
+    return null;
+  }
+}
+
+export async function saveCalibrationCertificate(certId, { equipmentId, fileName, mimeType, dataUrl, fileSize }) {
+  if (!certId || !dataUrl) return;
+  await setDoc(doc(db, CALIBRATION_CERTIFICATES_COLLECTION, certId), {
+    equipmentId: equipmentId || '',
+    fileName: fileName || 'certificate',
+    mimeType: mimeType || '',
+    fileSize: Number(fileSize) || 0,
+    dataUrl,
+    updatedAt: new Date().toISOString()
+  });
+}
+
+export async function deleteCalibrationCertificate(certId) {
+  if (!certId) return;
+  try {
+    await deleteDoc(doc(db, CALIBRATION_CERTIFICATES_COLLECTION, certId));
+  } catch (error) {
+    console.warn('Error deleting calibration certificate:', error);
+  }
 }
 
 
@@ -1497,5 +1778,229 @@ export function subscribeDailyStatsDate(dateStr, onUpdate) {
     console.warn('subscribeDailyStatsDate failed:', err);
     return () => {};
   }
+}
+
+function shiftYmdString(ymd, offsetDays) {
+  const d = new Date(`${ymd}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return ymd;
+  d.setDate(d.getDate() + offsetDays);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+export function get9bqcTodaySnapshotCache(todayYmd) {
+  if (!todayYmd) return null;
+  if (gm9bqcTodaySnapshotCache.date !== todayYmd || !Array.isArray(gm9bqcTodaySnapshotCache.docs)) {
+    try {
+      const raw = localStorage.getItem(GM9BQC_TODAY_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.date === todayYmd && Array.isArray(parsed.docs)) {
+          gm9bqcTodaySnapshotCache = parsed;
+        }
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }
+  if (gm9bqcTodaySnapshotCache.date !== todayYmd) return null;
+  if (!Array.isArray(gm9bqcTodaySnapshotCache.docs)) return null;
+  if (Date.now() - (gm9bqcTodaySnapshotCache.fetchedAt || 0) > GM9BQC_TODAY_CACHE_TTL_MS) return null;
+  return gm9bqcTodaySnapshotCache.docs;
+}
+
+export function set9bqcTodaySnapshotCache(todayYmd, docs) {
+  if (!todayYmd || !Array.isArray(docs)) return;
+  gm9bqcTodaySnapshotCache = {
+    date: todayYmd,
+    docs: docs.filter((r) => Boolean(resolveGm9bqcProcessCode(r))).map(stripImageData),
+    fetchedAt: Date.now()
+  };
+  try {
+    localStorage.setItem(GM9BQC_TODAY_STORAGE_KEY, JSON.stringify(gm9bqcTodaySnapshotCache));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function collectCached9bqcDocs(startDate, endDate) {
+  const results = [];
+  gm9bqcHistoryDocsById.forEach((r) => {
+    if (r?.date && r.date >= startDate && r.date <= endDate) {
+      results.push(r);
+    }
+  });
+  return results;
+}
+
+function computeMissing9bqcRanges(startDate, endDate) {
+  const sorted = [...gm9bqcHistoryIntervals].sort((a, b) => a.start.localeCompare(b.start));
+  const missingRanges = [];
+  let cursor = startDate;
+
+  for (const iv of sorted) {
+    if (iv.end < cursor) continue;
+    if (iv.start > endDate) break;
+    if (iv.start > cursor) {
+      missingRanges.push({ start: cursor, end: shiftYmdString(iv.start, -1) });
+    }
+    const nextCursor = shiftYmdString(iv.end, 1);
+    if (nextCursor > cursor) cursor = nextCursor;
+    if (cursor > endDate) break;
+  }
+  if (cursor <= endDate) {
+    missingRanges.push({ start: cursor, end: endDate });
+  }
+  return missingRanges;
+}
+
+/** 동기 캐시 조회: 화면 첫 프레임(0ms)에 즉시 기존 데이터를 그리기 위해 사용 */
+export function get9bqcGrunHistoryCacheSync(startDate, endDate) {
+  if (!startDate || !endDate || startDate > endDate) return [];
+  hydrate9bqcHistoryCache();
+  return collectCached9bqcDocs(startDate, endDate);
+}
+
+/** 요청한 날짜 구간이 영구 캐시로 이미 완전히 덮여 있는지 동기 확인 */
+export function has9bqcGrunHistoryCoverageSync(startDate, endDate) {
+  if (!startDate || !endDate || startDate > endDate) return false;
+  hydrate9bqcHistoryCache();
+  if (gm9bqcHistoryIntervals.length === 0) return false;
+  return computeMissing9bqcRanges(startDate, endDate).length === 0;
+}
+
+/**
+ * 마지막 동기화 이후 변경/추가된 문서(updatedAtMs >= lastDeltaSyncMs)만 증분 조회하여 캐시 갱신
+ */
+export async function sync9bqcGrunDelta({ startDate, endDate, onDeltaSynced = null } = {}) {
+  hydrate9bqcHistoryCache();
+  if (!gm9bqcLastDeltaSyncMs) return 0;
+  const now = Date.now();
+  if (now - gm9bqcLastDeltaCheckedAt < GM9BQC_DELTA_COOLDOWN_MS) return 0;
+  if (gm9bqcDeltaInflight) return gm9bqcDeltaInflight;
+
+  gm9bqcLastDeltaCheckedAt = now;
+  const sinceMs = Math.max(0, gm9bqcLastDeltaSyncMs - 5000);
+
+  gm9bqcDeltaInflight = (async () => {
+    try {
+      const q = query(
+        collection(db, REPORTS_COLLECTION),
+        where('updatedAtMs', '>=', sinceMs)
+      );
+      const snap = await getDocs(q);
+      const syncedAt = Date.now();
+      let changedCount = 0;
+
+      snap.forEach((docSnap) => {
+        const cleaned = stripImageData({ id: docSnap.id, ...docSnap.data() });
+        const valid9bqc = Boolean(resolveGm9bqcProcessCode(cleaned));
+        if (valid9bqc && isDateCoveredBy9bqcIntervals(cleaned.date)) {
+          gm9bqcHistoryDocsById.set(cleaned.id, cleaned);
+          changedCount += 1;
+        } else if (!valid9bqc && gm9bqcHistoryDocsById.has(cleaned.id)) {
+          gm9bqcHistoryDocsById.delete(cleaned.id);
+          changedCount += 1;
+        }
+      });
+
+      gm9bqcLastDeltaSyncMs = syncedAt;
+      persist9bqcHistoryCache();
+
+      if (changedCount > 0 && typeof onDeltaSynced === 'function' && startDate && endDate) {
+        onDeltaSynced(collectCached9bqcDocs(startDate, endDate));
+      }
+      return changedCount;
+    } catch (err) {
+      console.warn('9BQC G/RUN delta sync skipped:', err?.message || err);
+      return 0;
+    } finally {
+      gm9bqcDeltaInflight = null;
+    }
+  })();
+
+  return gm9bqcDeltaInflight;
+}
+
+/**
+ * 9BQC G/RUN 종합 현황판용 과거 일보 누적 구간 조회
+ * - localStorage + RAM 캐시에 해당 구간이 이미 있으면 즉시(0ms) 반환하고, 백그라운드에서 updatedAtMs 변동분만 증분 반영
+ * - 캐시에 없는 과거 날짜 구간만 추가로 getDocs 조회
+ */
+export async function fetch9bqcGrunHistoryWindow({
+  startDate,
+  endDate,
+  forceRefresh = false,
+  onDeltaSynced = null
+} = {}) {
+  if (!startDate || !endDate || startDate > endDate) return [];
+
+  if (forceRefresh) {
+    gm9bqcCacheHydrated = true;
+    gm9bqcHistoryIntervals = [];
+    gm9bqcHistoryDocsById.clear();
+    gm9bqcLastDeltaSyncMs = 0;
+    gm9bqcLastDeltaCheckedAt = 0;
+  } else {
+    hydrate9bqcHistoryCache();
+    const now = Date.now();
+    gm9bqcHistoryIntervals = mergeDateIntervals(
+      gm9bqcHistoryIntervals.filter((iv) => now - iv.fetchedAt < GM9BQC_PERSIST_TTL_MS)
+    );
+    if (gm9bqcHistoryIntervals.length === 0) {
+      gm9bqcHistoryDocsById.clear();
+    }
+  }
+
+  const missingRanges = computeMissing9bqcRanges(startDate, endDate);
+
+  if (missingRanges.length > 0) {
+    await Promise.all(
+      missingRanges.map(async (range) => {
+        if (range.start > range.end) return;
+        const inflightKey = `${range.start}~${range.end}`;
+        let promise = gm9bqcHistoryInflight.get(inflightKey);
+        if (!promise) {
+          promise = (async () => {
+            const q = query(
+              collection(db, REPORTS_COLLECTION),
+              where('date', '>=', range.start),
+              where('date', '<=', range.end)
+            );
+            const snap = await getDocs(q);
+            const fetchedAt = Date.now();
+            snap.forEach((docSnap) => {
+              const r = stripImageData({ id: docSnap.id, ...docSnap.data() });
+              if (resolveGm9bqcProcessCode(r)) {
+                gm9bqcHistoryDocsById.set(r.id, r);
+              }
+            });
+            gm9bqcHistoryIntervals = mergeDateIntervals([
+              ...gm9bqcHistoryIntervals,
+              { start: range.start, end: range.end, fetchedAt }
+            ]);
+            if (!gm9bqcLastDeltaSyncMs || fetchedAt > gm9bqcLastDeltaSyncMs) {
+              gm9bqcLastDeltaSyncMs = fetchedAt;
+            }
+          })();
+          gm9bqcHistoryInflight.set(inflightKey, promise);
+        }
+        try {
+          await promise;
+        } finally {
+          gm9bqcHistoryInflight.delete(inflightKey);
+        }
+      })
+    );
+    gm9bqcLastDeltaCheckedAt = Date.now();
+    persist9bqcHistoryCache();
+  } else if (!forceRefresh && gm9bqcLastDeltaSyncMs > 0) {
+    // 이미 캐시된 구간이므로 0ms로 즉시 반환하면서 백그라운드에서만 변동분(updatedAtMs) 증분 확인
+    void sync9bqcGrunDelta({ startDate, endDate, onDeltaSynced });
+  }
+
+  return collectCached9bqcDocs(startDate, endDate);
 }
 

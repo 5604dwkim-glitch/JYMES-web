@@ -265,6 +265,18 @@ export function extractDefectBreakdown(r) {
       addDefect('[후가공] 기타', r.qtyTable[`f4003_def_post_etc_${col}`]);
     });
 
+    // #4004 (기아 OV1K PTG 검사포장) — 검사항목 8종
+    ['FL', 'FR'].forEach(col => {
+      addDefect('[검사/조인트] 불량',        r.qtyTable[`f4004_def_joint_${col}`]);
+      addDefect('[검사/후가공] 사상불량',    r.qtyTable[`f4004_def_trim_${col}`]);
+      addDefect('[검사/압출] 외면흠',        r.qtyTable[`f4004_def_blemish_${col}`]);
+      addDefect('[검사/소재] 클립누락_소재', r.qtyTable[`f4004_def_clip_mat_${col}`]);
+      addDefect('[검사/성형] 클립누락_성형', r.qtyTable[`f4004_def_clip_mold_${col}`]);
+      addDefect('[검사/후가공] 길이불량',    r.qtyTable[`f4004_def_len_${col}`]);
+      addDefect('[검사/압출] 코팅불량',      r.qtyTable[`f4004_def_coating_${col}`]);
+      addDefect('[검사/후가공] 기타',        r.qtyTable[`f4004_def_etc_${col}`]);
+    });
+
     // #1051 (JG1 FRUNK 소재준비 — 타공 단면 / 무타공 단면)
     ['perf', 'nonperf'].forEach(col => {
       addDefect('[검사/압출] 스코치',     r.qtyTable[`f1051_def_ext_scorch_${col}`]);
@@ -587,9 +599,6 @@ export function extractDefectBreakdown(r) {
   let unclassified = totalGeneralDefects - totalDetailedDefects;
   if (unclassified > 0) {
     defectMap['[공통] 기타 (상세 미지정)'] = unclassified;
-  } else if (unclassified < 0) {
-    // Should theoretically not happen, but just in case
-    defectMap['[공통] 기타 (상세 미지정)'] = 0;
   }
 
   return defectMap;
@@ -665,8 +674,10 @@ export function buildStatsUpdate(oldReport, newReport) {
     if (!updates.items[key]) updates.items[key] = {};
     const combo = updates.items[key];
     
+    const tgt = Number(report.targetQty || 0) * mult;
     const act = Number(report.actualQty || 0) * mult;
     const def = Number(report.defectQty || 0) * mult;
+    if (tgt !== 0) combo.targetQty = (combo.targetQty || 0) + tgt;
     if (act !== 0) combo.actualQty = (combo.actualQty || 0) + act;
     if (def !== 0) combo.defectQty = (combo.defectQty || 0) + def;
     

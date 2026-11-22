@@ -131,23 +131,28 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
     </div>
   `;
 
-  // 화면 하단 고정 버튼 바 (fixed 방식)
+  // 화면 하단 고정 버튼 바 (fixed 방식 - 가상 상세조회/미연결 DOM 제외)
+  const shouldMountFixedBar = !(store.isReadOnlyPreview && store.isReadOnlyPreview()) && Boolean(container.isConnected);
   let forkliftFixedBar = document.getElementById('forkliftFixedActionBar');
-  if (!forkliftFixedBar) {
-    forkliftFixedBar = document.createElement('div');
-    forkliftFixedBar.id = 'forkliftFixedActionBar';
-    document.body.appendChild(forkliftFixedBar);
+  if (shouldMountFixedBar) {
+    if (!forkliftFixedBar) {
+      forkliftFixedBar = document.createElement('div');
+      forkliftFixedBar.id = 'forkliftFixedActionBar';
+      document.body.appendChild(forkliftFixedBar);
+    }
+    forkliftFixedBar.style.cssText = 'position:fixed; bottom:0; left:0; right:0; z-index:500; background:rgba(255,255,255,0.97); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:12px 16px; border-top:2px solid var(--border-color); box-shadow:0 -4px 20px rgba(0,0,0,0.12); display:flex; gap:10px; justify-content:center;';
+    forkliftFixedBar.innerHTML = `
+      <button type="button" id="btnForkDraftSave" class="btn btn-secondary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;">
+        📁 일보 중간 저장
+      </button>
+      <button type="button" id="btnForkFinalSubmit" class="btn btn-primary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;">
+        ✅ 일보 등록 완료
+      </button>
+    `;
+    forkliftFixedBar.style.display = 'flex';
+  } else if (forkliftFixedBar) {
+    forkliftFixedBar.style.display = 'none';
   }
-  forkliftFixedBar.style.cssText = 'position:fixed; bottom:0; left:0; right:0; z-index:500; background:rgba(255,255,255,0.97); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:12px 16px; border-top:2px solid var(--border-color); box-shadow:0 -4px 20px rgba(0,0,0,0.12); display:flex; gap:10px; justify-content:center;';
-  forkliftFixedBar.innerHTML = `
-    <button type="button" id="btnForkDraftSave" class="btn btn-secondary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;">
-      📁 일보 중간 저장
-    </button>
-    <button type="button" id="btnForkFinalSubmit" class="btn btn-primary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;">
-      ✅ 일보 등록 완료
-    </button>
-  `;
-  forkliftFixedBar.style.display = 'flex';
 
   const hideStandardFixedBar = document.getElementById('standardFixedActionBar');
   if (hideStandardFixedBar) hideStandardFixedBar.style.display = 'none';
@@ -155,13 +160,15 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
   if (hideLeaderFixedBar) hideLeaderFixedBar.style.display = 'none';
 
   i18n.applyTranslations(container);
-  i18n.applyTranslations(forkliftFixedBar);
+  if (shouldMountFixedBar && forkliftFixedBar) {
+    i18n.applyTranslations(forkliftFixedBar);
+  }
 
   bindTimeWheelPicker(container.querySelector('#forkStartTime'), '시작시간 선택');
   bindTimeWheelPicker(container.querySelector('#forkEndTime'), '종료시간 선택');
 
-  const btnForkDraftSave = forkliftFixedBar.querySelector('#btnForkDraftSave');
-  const btnForkFinalSubmit = forkliftFixedBar.querySelector('#btnForkFinalSubmit');
+  const btnForkDraftSave = shouldMountFixedBar && forkliftFixedBar ? forkliftFixedBar.querySelector('#btnForkDraftSave') : null;
+  const btnForkFinalSubmit = shouldMountFixedBar && forkliftFixedBar ? forkliftFixedBar.querySelector('#btnForkFinalSubmit') : null;
 
   const processForkliftSave = (targetStatus) => {
     try {

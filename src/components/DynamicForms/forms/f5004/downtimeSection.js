@@ -8,6 +8,8 @@
  * - 양식 전용 로직은 이 파일에만 두고 공통 렌더러에서는 한 줄 위임 (GEMINI.md 원칙 8·9·13)
  */
 
+import { resolveFormCodeSource } from '../../../../constants/formCloneSources.js';
+
 export const F5004_DOWNTIME_EQUIPS = ['FRT LH', 'FRT RH'];
 
 /**
@@ -25,7 +27,7 @@ export function applyF5004DowntimeSection(container, downtimeCard, existingData 
     titleLabel.innerHTML = '📝 <span class="sec-num"></span> 작업 특이사항';
   }
 
-  const isEditing5004 = Boolean(existingData && Number(existingData.formCode) === 5004);
+  const isEditing5004 = Boolean(existingData && resolveFormCodeSource(Number(existingData.formCode)) === 5004);
   [1, 2, 3].forEach(num => {
     const select = container.querySelector(`#downtimeEquip${num}`);
     if (!select) return;

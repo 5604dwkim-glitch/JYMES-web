@@ -1145,6 +1145,510 @@ export function buildLotTraceabilityTimeline(validEntries = [], trackingEntries 
   };
 }
 
+export const MATERIAL_TRACE_OPTIONS = [
+  { key: 'FRT_A', group: 'FRT', section: 'A', label: 'FRT A', branchStages: ['단컷팅', '조인트', '출하'] },
+  { key: 'FRT_B', group: 'FRT', section: 'B', label: 'FRT B', branchStages: ['단컷팅', '조인트', '출하'] },
+  { key: 'FRT_C', group: 'FRT', section: 'C', label: 'FRT C', branchStages: ['조인트', '출하'] },
+  { key: 'RR_A', group: 'RR', section: 'A', label: 'RR A', branchStages: ['단컷팅', '조인트', '후가공', '출하'] },
+  { key: 'RR_B', group: 'RR', section: 'B', label: 'RR B', branchStages: ['단컷팅', '조인트', '후가공', '출하'] }
+];
+
+const MATERIAL_OPTION_MAP = new Map(MATERIAL_TRACE_OPTIONS.map((opt) => [opt.key, opt]));
+const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
+
+function shiftYmdLocal(ymd, deltaDays) {
+  const [y, m, d] = String(ymd || '').split('-').map(Number);
+  if (!y || !m || !d) return '';
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + deltaDays);
+  const ny = dt.getFullYear();
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}
+
+function getWeekdayKo(ymd) {
+  const [y, m, d] = String(ymd || '').split('-').map(Number);
+  if (!y || !m || !d) return '';
+  const dt = new Date(y, m - 1, d);
+  return WEEKDAY_KO[dt.getDay()] || '';
+}
+
+function getTodayYmdFallback() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * 단일 materialLots 키를 소재(FRT_A..RR_B) + 갈래(COMMON | LH | RH) + 공정 단계로 매핑한다.
+ */
+function resolveMaterialLotBranchEvent(key, code, report) {
+  if (!key || typeof key !== 'string') return null;
+  if (key.startsWith('f5006_rec_') || key === 'f5006_selected_equip') return null;
+  if (key.endsWith('_chk1') || key.endsWith('_chk2')) return null;
+  if (!(key.includes('초물') || key.includes('중물') || key.includes('종물') || /_(초|중|종)$/.test(key))) {
+    return null;
+  }
+
+  const clean = key
+    .replace(new RegExp(`^f${code}_`), '')
+    .replace(/_(초물|중물|종물|초|중|종)$/, '');
+
+  if (code === 5007 || clean.startsWith('DV_')) return null;
+
+  if (code === 5002) {
+    const m = clean.match(/^(FRT|RR)_([ABC])$/);
+    if (!m) return null;
+    if (m[1] === 'RR' && m[2] === 'C') return null;
+    return {
+      materialKey: `${m[1]}_${m[2]}`,
+      branch: 'COMMON',
+      stageGroup: '정치절단',
+      stageLabel: '정치절단',
+      stageOrder: 0
+    };
+  }
+
+  if (code === 5003) {
+    const m = clean.match(/^(FRT|RR)_(LH|RH)_([AB])$/);
+    if (m) {
+      return {
+        materialKey: `${m[1]}_${m[3]}`,
+        branch: m[2],
+        stageGroup: '단컷팅',
+        stageLabel: '단컷팅',
+        stageOrder: 1
+      };
+    }
+    const leg = clean.match(/^(LH|RH)_(FRT|RR)$/);
+    if (leg) {
+      return {
+        materialKey: `${leg[2]}_A`,
+        branch: leg[1],
+        stageGroup: '단컷팅',
+        stageLabel: '단컷팅',
+        stageOrder: 1
+      };
+    }
+    return null;
+  }
+
+  if (code === 5004) {
+    const m = clean.match(/^FRT_(LH|RH)_([ABC])$/);
+    if (m) {
+      return {
+        materialKey: `FRT_${m[2]}`,
+        branch: m[1],
+        stageGroup: '조인트',
+        stageLabel: '조인트',
+        stageOrder: 2
+      };
+    }
+    const leg = clean.match(/^(?:FRT_(LH|RH)|(LH|RH)_FRT)$/);
+    if (leg) {
+      return {
+        materialKey: 'FRT_A',
+        branch: leg[1] || leg[2],
+        stageGroup: '조인트',
+        stageLabel: '조인트',
+        stageOrder: 2
+      };
+    }
+    return null;
+  }
+
+  if (code === 5005) {
+    const m = clean.match(/^RR_(LH|RH)_([AB])$/);
+    if (m) {
+      return {
+        materialKey: `RR_${m[2]}`,
+        branch: m[1],
+        stageGroup: '조인트',
+        stageLabel: '조인트(R)',
+        stageOrder: 2
+      };
+    }
+    const leg = clean.match(/^(?:FRT_(LH|RH)|(LH|RH)_FRT)$/);
+    if (leg) {
+      return {
+        materialKey: 'RR_A',
+        branch: leg[1] || leg[2],
+        stageGroup: '조인트',
+        stageLabel: '조인트(R)',
+        stageOrder: 2
+      };
+    }
+    return null;
+  }
+
+  if (code === 5006) {
+    const equip = resolveF5006Equip(report);
+    const mSide = clean.match(/^RR_(LH|RH)_([AB])$/);
+    if (mSide) {
+      return {
+        materialKey: `RR_${mSide[2]}`,
+        branch: mSide[1],
+        stageGroup: '조인트',
+        stageLabel: '조인트(Fix)',
+        stageOrder: 2
+      };
+    }
+    const mSec = clean.match(/^RR_([AB])$/);
+    if (mSec) {
+      return {
+        materialKey: `RR_${mSec[1]}`,
+        branch: equip.side,
+        stageGroup: '조인트',
+        stageLabel: '조인트(Fix)',
+        stageOrder: 2
+      };
+    }
+    const leg = clean.match(/^FRT_(LH|RH)$/);
+    if (leg) {
+      return {
+        materialKey: 'RR_A',
+        branch: leg[1],
+        stageGroup: '조인트',
+        stageLabel: '조인트(Fix)',
+        stageOrder: 2
+      };
+    }
+    return null;
+  }
+
+  if (code === 5010) {
+    const m = clean.match(/^(?:RR|FRT)_(LH|RH)_([AB])$/);
+    if (m) {
+      return {
+        materialKey: `RR_${m[2]}`,
+        branch: m[1],
+        stageGroup: '후가공',
+        stageLabel: '후가공',
+        stageOrder: 3
+      };
+    }
+    return null;
+  }
+
+  if (code === 5011) {
+    const m = clean.match(/^FRT_(LH|RH)_([ABC])$/);
+    if (m) {
+      return {
+        materialKey: `FRT_${m[2]}`,
+        branch: m[1],
+        stageGroup: '출하',
+        stageLabel: '검사포장',
+        stageOrder: 4
+      };
+    }
+    const leg = clean.match(/^(?:FRT_(LH|RH)|(LH|RH)_FRT)$/);
+    if (leg) {
+      return {
+        materialKey: 'FRT_A',
+        branch: leg[1] || leg[2],
+        stageGroup: '출하',
+        stageLabel: '검사포장',
+        stageOrder: 4
+      };
+    }
+    return null;
+  }
+
+  if (code === 5012 || code === 5013 || code === 5014) {
+    const m = clean.match(/^(?:RR|FRT)_(LH|RH)_([AB])$/);
+    if (m) {
+      return {
+        materialKey: `RR_${m[2]}`,
+        branch: m[1],
+        stageGroup: '출하',
+        stageLabel: code === 5012 ? '포장(R)' : code === 5014 ? '포장(길이)' : '포장(RR)',
+        stageOrder: 4
+      };
+    }
+    return null;
+  }
+
+  return null;
+}
+
+/**
+ * 선택된 단일 소재(FRT_A..RR_B)의 주간(7일) 분기형 LOT 추이도 모델을 계산한다.
+ * - 출발 LOT(정치절단 #5002)는 L/R 구별 없이 단일 출발 노드로 시작
+ * - 이후 공정(#5003~#5014)은 LH / RH 갈래로 나뉘어 7일 타임라인을 따라 표기
+ */
+export function buildMaterialWeeklyLotTimeline(
+  reports = [],
+  { materialKey = 'FRT_A', weekEndDate = '', shiftFilter = 'ALL' } = {}
+) {
+  const matOption = MATERIAL_OPTION_MAP.get(materialKey) || MATERIAL_TRACE_OPTIONS[0];
+  const resolvedEnd = weekEndDate || getTodayYmdFallback();
+  const weekStart = shiftYmdLocal(resolvedEnd, -6) || resolvedEnd;
+
+  const dateColumns = [];
+  for (let offset = -6; offset <= 0; offset += 1) {
+    const ymd = shiftYmdLocal(resolvedEnd, offset);
+    if (ymd) {
+      dateColumns.push({
+        ymd,
+        label: formatMmDd(ymd),
+        weekday: getWeekdayKo(ymd)
+      });
+    }
+  }
+  const weekDateSet = new Set(dateColumns.map((c) => c.ymd));
+
+  // 주간 활성 LOT 집합 (전체 5개 소재별 카운트 계산용)
+  const activeLotsByMaterial = new Map(MATERIAL_TRACE_OPTIONS.map((o) => [o.key, new Set()]));
+  // 선택된 소재의 전체 추적(과거 14일+주간 포함) 이벤트 버킷
+  const selectedLotTracks = new Map();
+
+  const createEmptyBranch = () => ({
+    eventsByDate: new Map(), // reportDate -> Map(stageLabel -> stageInfo)
+    stageDates: { 단컷팅: new Set(), 조인트: new Set(), 후가공: new Set(), 출하: new Set() },
+    reportsById: new Map()
+  });
+
+  reports.forEach((r) => {
+    const code = resolveGm9bqcProcessCode(r, { excludeDraftRejected: true });
+    if (!code) return;
+    const shift = classifyReportShift(r);
+    if (shiftFilter !== 'ALL' && shift !== shiftFilter) return;
+
+    const reportDate = cleanText(r?.date);
+    if (!reportDate || reportDate > resolvedEnd) return;
+
+    const lots = r?.materialLots || {};
+    Object.entries(lots).forEach(([key, rawVal]) => {
+      if (typeof rawVal === 'boolean') return;
+      const evt = resolveMaterialLotBranchEvent(key, code, r);
+      if (!evt) return;
+
+      const lotInfo = extractLotYmdInfo(rawVal);
+      if (!lotInfo || !lotInfo.lotKey) return;
+
+      if (weekDateSet.has(reportDate)) {
+        activeLotsByMaterial.get(evt.materialKey)?.add(lotInfo.lotKey);
+      }
+
+      if (evt.materialKey !== matOption.key) return;
+
+      let tr = selectedLotTracks.get(lotInfo.lotKey);
+      if (!tr) {
+        tr = {
+          lotKey: lotInfo.lotKey,
+          lotYmd: lotInfo.lotYmd,
+          lotMmDd: lotInfo.lotMmDd,
+          common: {
+            datesSet: new Set(),
+            reportsById: new Map()
+          },
+          LH: createEmptyBranch(),
+          RH: createEmptyBranch(),
+          allReportsById: new Map()
+        };
+        selectedLotTracks.set(lotInfo.lotKey, tr);
+      }
+
+      if (r.id) {
+        tr.allReportsById.set(r.id, r);
+      }
+
+      if (evt.branch === 'COMMON') {
+        tr.common.datesSet.add(reportDate);
+        if (r.id) tr.common.reportsById.set(r.id, r);
+      } else {
+        const br = evt.branch === 'RH' ? tr.RH : tr.LH;
+        if (!br.eventsByDate.has(reportDate)) {
+          br.eventsByDate.set(reportDate, new Map());
+        }
+        const stageMap = br.eventsByDate.get(reportDate);
+        if (!stageMap.has(evt.stageLabel)) {
+          stageMap.set(evt.stageLabel, {
+            stageGroup: evt.stageGroup,
+            stageLabel: evt.stageLabel,
+            stageOrder: evt.stageOrder,
+            code
+          });
+        }
+        if (br.stageDates[evt.stageGroup]) {
+          br.stageDates[evt.stageGroup].add(reportDate);
+        }
+        if (r.id) br.reportsById.set(r.id, r);
+      }
+    });
+  });
+
+  const materialCounts = {};
+  MATERIAL_TRACE_OPTIONS.forEach((opt) => {
+    materialCounts[opt.key] = activeLotsByMaterial.get(opt.key)?.size || 0;
+  });
+
+  const activeSetForSelected = activeLotsByMaterial.get(matOption.key) || new Set();
+  const expectedBranchStages = matOption.branchStages;
+  const palette = ['#2563eb', '#0d9488', '#7c3aed', '#0284c7', '#475569'];
+
+  const buildBranchView = (br, branchKey, color) => {
+    const cellMap = new Map(dateColumns.map((c) => [c.ymd, []]));
+
+    dateColumns.forEach((col) => {
+      const dateStages = br.eventsByDate.get(col.ymd);
+      if (!dateStages) return;
+      const items = [...dateStages.values()]
+        .sort((a, b) => a.stageOrder - b.stageOrder || a.code - b.code)
+        .map((st) => ({
+          type: 'stage',
+          stageGroup: st.stageGroup,
+          label: st.stageLabel,
+          ymd: col.ymd,
+          code: st.code
+        }));
+      cellMap.get(col.ymd).push(...items);
+    });
+
+    const stageDatesSorted = {
+      단컷팅: [...br.stageDates.단컷팅].sort(),
+      조인트: [...br.stageDates.조인트].sort(),
+      후가공: [...br.stageDates.후가공].sort(),
+      출하: [...br.stageDates.출하].sort()
+    };
+
+    let lastObservedIdx = -1;
+    expectedBranchStages.forEach((st, idx) => {
+      if ((stageDatesSorted[st] || []).length > 0) lastObservedIdx = idx;
+    });
+
+    const missingStages = [];
+    if (lastObservedIdx > 0) {
+      let lastKnownDate = '';
+      for (let idx = 0; idx <= lastObservedIdx; idx += 1) {
+        const st = expectedBranchStages[idx];
+        const dates = stageDatesSorted[st] || [];
+        if (dates.length > 0) {
+          if (missingStages.length > 0) {
+            const firstInWeekDate = dates.find((d) => weekDateSet.has(d));
+            const latestMiss = missingStages[missingStages.length - 1];
+            if (!latestMiss.placed && firstInWeekDate) {
+              const emptyGapCol = lastKnownDate
+                ? dateColumns.find(
+                    (c) =>
+                      c.ymd > lastKnownDate &&
+                      c.ymd < firstInWeekDate &&
+                      (cellMap.get(c.ymd) || []).length === 0
+                  )
+                : null;
+              const targetCol = emptyGapCol ? emptyGapCol.ymd : firstInWeekDate;
+              if (targetCol && cellMap.has(targetCol)) {
+                cellMap.get(targetCol).unshift({
+                  type: 'missing',
+                  stage: latestMiss.stage,
+                  label: `✕ ${latestMiss.stage} 끊김`,
+                  detail: `${branchKey} ${latestMiss.stage} 공정 미확인`
+                });
+                latestMiss.placed = true;
+              }
+            }
+          }
+          lastKnownDate = dates[dates.length - 1];
+        } else {
+          missingStages.push({ stage: st, placed: false });
+        }
+      }
+    }
+
+    const cells = dateColumns.map((c) => ({
+      ymd: c.ymd,
+      items: cellMap.get(c.ymd) || []
+    }));
+
+    const hasWeekActivity = cells.some((c) => c.items.some((it) => it.type === 'stage'));
+    const preWeekDates = Object.values(stageDatesSorted)
+      .flat()
+      .filter((d) => d < weekStart)
+      .sort();
+
+    return {
+      branch: branchKey,
+      color,
+      cells,
+      hasWeekActivity,
+      preWeekLastDate: preWeekDates.length > 0 ? formatMmDd(preWeekDates[preWeekDates.length - 1]) : '',
+      stageSummary: stageDatesSorted,
+      missingStages: missingStages.map((m) => m.stage),
+      reports: [...br.reportsById.values()]
+    };
+  };
+
+  const isValidCalendarLotKey = (lotKey) => {
+    const m = String(lotKey || '').match(/^(\d{2})\.(\d{2})\.(\d{2})$/);
+    if (!m) return false;
+    const mm = Number(m[2]);
+    const dd = Number(m[3]);
+    return mm >= 1 && mm <= 12 && dd >= 1 && dd <= 31;
+  };
+
+  const lots = [...activeSetForSelected]
+    .sort((a, b) => {
+      const aValid = isValidCalendarLotKey(a) ? 0 : 1;
+      const bValid = isValidCalendarLotKey(b) ? 0 : 1;
+      if (aValid !== bValid) return aValid - bValid;
+      return String(a).localeCompare(String(b), 'ko', { numeric: true });
+    })
+    .map((lotKey, idx) => {
+      const tr = selectedLotTracks.get(lotKey);
+      const commonDatesAll = [...tr.common.datesSet].sort();
+      const commonPreDates = commonDatesAll.filter((d) => d < weekStart);
+      const originColor = palette[idx % palette.length];
+
+      const originCells = dateColumns.map((col) => ({
+        ymd: col.ymd,
+        items: tr.common.datesSet.has(col.ymd)
+          ? [{ type: 'origin', stageGroup: '정치절단', label: '정치절단', ymd: col.ymd, code: 5002 }]
+          : []
+      }));
+
+      const lhBranch = buildBranchView(tr.LH, 'LH', '#2563eb');
+      const rhBranch = buildBranchView(tr.RH, 'RH', '#0d9488');
+
+      const allReports = [...tr.allReportsById.values()].sort((a, b) => {
+        const dCmp = String(a.date || '').localeCompare(String(b.date || ''));
+        if (dCmp !== 0) return dCmp;
+        return Number(a.formCode || 0) - Number(b.formCode || 0);
+      });
+
+      return {
+        lotKey,
+        lotYmd: tr.lotYmd,
+        materialKey: matOption.key,
+        materialLabel: matOption.label,
+        group: matOption.group,
+        section: matOption.section,
+        originColor,
+        origin: {
+          datesAll: commonDatesAll,
+          preWeekLastDate: commonPreDates.length > 0 ? formatMmDd(commonPreDates[commonPreDates.length - 1]) : '',
+          hasWeekActivity: commonDatesAll.some((d) => weekDateSet.has(d)),
+          cells: originCells,
+          reports: [...tr.common.reportsById.values()]
+        },
+        lh: lhBranch,
+        rh: rhBranch,
+        reports: allReports
+      };
+    });
+
+  return {
+    material: matOption,
+    weekStart,
+    weekEnd: resolvedEnd,
+    dateColumns,
+    materialCounts,
+    lots
+  };
+}
+
 /**
  * 우하단 '부자재 LOT 현황' 5종 카드 구성 (패드 lot [5T/7T], 브라켓 lot, 조인트 재료 lot, Glass lot, D/V lot)
  */

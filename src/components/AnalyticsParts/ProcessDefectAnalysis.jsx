@@ -455,15 +455,21 @@ export default function ProcessDefectAnalysis({
     }
   };
 
-  // 파레토 막대 클릭 시 불량명의 [공정] 태그로 공정 드릴다운 지원
+  // 파레토 막대 클릭 시 불량명의 [공정] 또는 [공정/세부] 태그로 공정 드릴다운 지원
   const handleParetoBarClick = (_, elements) => {
-    if (!elements || elements.length === 0) return;
+    if (!elements || elements.length === 0 || filterProc !== 'ALL') return;
     const idx = elements[0].index;
     const item = paretoData.paretoWithCum[idx];
     if (!item) return;
     const m = String(item.name || '').match(/^\[([^\]]+)\]/);
-    if (m && PROC_OPTIONS.includes(m[1]) && filterProc === 'ALL') {
-      setFilterProc(m[1]);
+    if (!m) return;
+    const tag = m[1];
+    const matchedProc =
+      tag === '검사' || tag.startsWith('검사/')
+        ? '검사포장'
+        : PROC_OPTIONS.find((p) => tag === p || tag.startsWith(`${p}/`));
+    if (matchedProc) {
+      setFilterProc(matchedProc);
     }
   };
 

@@ -791,8 +791,8 @@ function matchMoldForReportDowntime(reportData, slot, allMolds) {
   //    (호기 번호는 금형 간 중복되므로 일보 저장 시 함께 기록한 금형 고유 ID(moldRefs)를 우선 사용)
   const moldRefs = reportData.moldRefs || {};
   const vTables = [
-    [reportData.vulcTable || {}, 'vulc'],
-    [reportData.vulcTable2 || {}, 'vulc2']
+    [reportData.vulcTable || reportData.vulcData || {}, 'vulc'],
+    [reportData.vulcTable2 || reportData.vulcData2 || {}, 'vulc2']
   ];
   const activeMoldEntries = [];
   vTables.forEach(([vt, prefix]) => {
@@ -800,6 +800,7 @@ function matchMoldForReportDowntime(reportData, slot, allMolds) {
       if (k.startsWith('mold_') && val && String(val).trim()) {
         const refId = moldRefs[`${prefix}_mold_${k.slice(5)}`];
         activeMoldEntries.push({
+          prefix,
           key: k.slice(5),
           code: String(val).trim(),
           mold: (refId && moldById.get(refId)) || null
@@ -808,18 +809,81 @@ function matchMoldForReportDowntime(reportData, slot, allMolds) {
     });
   });
 
+  const scoreMoldEntry = (entry, eqUpper) => {
+    const keyUp = entry.key.toUpperCase();
+    const mTypeUp = String(entry.mold?.moldType || '').toUpperCase();
+    const formCodeNum = Number(reportData.formCode);
+    let score = 0;
+
+    // 1) 좌/우 구분 (LH / RH / L/R)
+    const eqHasLH = eqUpper.includes('LH');
+    const eqHasRH = eqUpper.includes('RH');
+    const eqIsLR = eqUpper.includes('L/R') || eqUpper.includes('(L/R)');
+    const entryIsLH = keyUp.includes('LH') || mTypeUp.includes('LH') || (formCodeNum === 2013 && entry.prefix === 'vulc');
+    const entryIsRH = keyUp.includes('RH') || mTypeUp.includes('RH') || (formCodeNum === 2013 && entry.prefix === 'vulc2');
+    const entryIsLR = keyUp.includes('X_LR') || keyUp.includes('_LR') || mTypeUp.includes('L/R');
+
+    if (eqIsLR) {
+      if (entryIsLR) score += 25;
+      else if (entryIsLH || entryIsRH) score -= 20;
+    } else if (eqHasLH && !eqHasRH) {
+      if (entryIsRH && !entryIsLR) return -1000;
+      if (entryIsLH) score += 20;
+      else if (entryIsLR) score += 5;
+    } else if (eqHasRH && !eqHasLH) {
+      if (entryIsLH && !entryIsLR) return -1000;
+      if (entryIsRH) score += 20;
+      else if (entryIsLR) score += 5;
+    }
+
+    // 2) 부위 (X부 / Y부 / R·S·T / FRT P·Q / RR R·S)
+    if (eqUpper.includes('X부') || /\bX\b/.test(eqUpper)) {
+      if (keyUp.includes('Y') || mTypeUp.includes('Y부')) return -1000;
+      if (keyUp.includes('X') || mTypeUp.includes('X부')) score += 30;
+    } else if (eqUpper.includes('Y부') || /\bY\b/.test(eqUpper)) {
+      if (keyUp.includes('X') || mTypeUp.includes('X부')) return -1000;
+      if (keyUp.includes('Y') || mTypeUp.includes('Y부')) score += 30;
+    }
+
+    if (eqUpper.includes('직각') || /\bR\b/.test(eqUpper)) {
+      if (keyUp === 'R' || keyUp.endsWith('_R') || mTypeUp.includes('직각')) score += 30;
+      else if (keyUp === 'S' || keyUp === 'T' || mTypeUp.includes('둔각') || mTypeUp.includes('직선')) return -1000;
+    } else if (eqUpper.includes('둔각') || /\bS\b/.test(eqUpper)) {
+      if (keyUp === 'S' || keyUp.endsWith('_S') || mTypeUp.includes('둔각')) score += 30;
+      else if (keyUp === 'R' || keyUp === 'T' || mTypeUp.includes('직각') || mTypeUp.includes('직선')) return -1000;
+    } else if (eqUpper.includes('직선') || /\bT\b/.test(eqUpper)) {
+      if (keyUp === 'T' || keyUp.endsWith('_T') || mTypeUp.includes('직선')) score += 30;
+      else if (keyUp === 'R' || keyUp === 'S' || mTypeUp.includes('직각') || mTypeUp.includes('둔각')) return -1000;
+    }
+
+    if (eqUpper.includes('FRT P') || eqUpper.includes('(P)')) {
+      if (keyUp.includes('FRT_P')) score += 30;
+    } else if (eqUpper.includes('FRT Q') || eqUpper.includes('(Q)')) {
+      if (keyUp.includes('FRT_Q')) score += 30;
+    } else if (eqUpper.includes('RR R') || eqUpper.includes('(R)')) {
+      if (keyUp.includes('RR_R')) score += 30;
+    } else if (eqUpper.includes('RR S') || eqUpper.includes('(S)')) {
+      if (keyUp.includes('RR_S')) score += 30;
+    }
+
+    return score;
+  };
+
   const equipUpper = String(slot.equip || '').toUpperCase();
   if (activeMoldEntries.length > 0) {
     if (equipUpper) {
-      const suffixMatch = activeMoldEntries.find((entry) => {
-        const keyUp = entry.key.toUpperCase();
-        if (equipUpper.includes('LH') && !keyUp.includes('LH')) return false;
-        if (equipUpper.includes('RH') && !keyUp.includes('RH')) return false;
-        return true;
-      });
-      if (suffixMatch) {
-        if (suffixMatch.mold) return suffixMatch.mold;
-        if (moldByCode.has(suffixMatch.code)) return moldByCode.get(suffixMatch.code);
+      let bestEntry = null;
+      let bestScore = -1;
+      for (const entry of activeMoldEntries) {
+        const s = scoreMoldEntry(entry, equipUpper);
+        if (s > bestScore) {
+          bestScore = s;
+          bestEntry = entry;
+        }
+      }
+      if (bestEntry && bestScore >= 0) {
+        if (bestEntry.mold) return bestEntry.mold;
+        if (moldByCode.has(bestEntry.code)) return moldByCode.get(bestEntry.code);
       }
     }
     for (const entry of activeMoldEntries) {
@@ -838,11 +902,15 @@ function matchMoldForReportDowntime(reportData, slot, allMolds) {
 
   if (carCandidates.length === 0) return null;
 
+  const isPtgSideAlias = (mp, ip) =>
+    carCode.toUpperCase() === 'MV1A' &&
+    ((ip === 'PTG' && mp === 'SIDE TALE GATE') || (ip === 'SIDE TALE GATE' && mp === 'PTG'));
+
   const partCandidates = itemName
     ? carCandidates.filter((m) => {
         const mp = String(m.partName || m.name || '').toUpperCase();
         const ip = itemName.toUpperCase();
-        return mp.includes(ip) || ip.includes(mp);
+        return mp.includes(ip) || ip.includes(mp) || isPtgSideAlias(mp, ip);
       })
     : carCandidates;
 

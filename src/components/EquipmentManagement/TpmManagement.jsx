@@ -13,7 +13,8 @@ import {
   evaluateEquipmentDayTpm,
   collectUnapprovedEquipmentTpmLogs,
   getSavedManagerStamp,
-  saveManagerStamp
+  saveManagerStamp,
+  hasEquipmentTpmLog
 } from '../../constants/tpmLogTemplate';
 import {
   getEquipmentCategory,
@@ -93,14 +94,44 @@ export default function TpmManagement({
     getSavedManagerStamp(userRole?.workerName)
   );
 
-  const equipments = useMemo(() => {
+  const categoryEquipments = useMemo(() => {
     const base = externalEquipments ?? localEquipments;
     return base.filter((eq) => getEquipmentCategory(eq) === category);
   }, [externalEquipments, localEquipments, category]);
 
+  const equipments = useMemo(
+    () => categoryEquipments.filter(hasEquipmentTpmLog),
+    [categoryEquipments]
+  );
+
+  const unassignedTpmCount = categoryEquipments.length - equipments.length;
+
+  const tpmEqIdSet = useMemo(() => new Set(equipments.map((eq) => eq.id)), [equipments]);
+  const tpmEqCodeSet = useMemo(() => {
+    const set = new Set();
+    equipments.forEach((eq) => {
+      const code = eq?.code ? String(eq.code).trim() : '';
+      if (code) set.add(code);
+    });
+    return set;
+  }, [equipments]);
+
   const equipmentSets = useMemo(
-    () => allEquipmentSets.filter((s) => getEquipmentSetCategory(s) === category),
-    [allEquipmentSets, category]
+    () =>
+      allEquipmentSets.filter((s) => {
+        if (getEquipmentSetCategory(s) !== category) return false;
+        const hasMemberInIds =
+          Array.isArray(s.equipmentIds) && s.equipmentIds.some((id) => tpmEqIdSet.has(id));
+        const hasMemberInObjs =
+          Array.isArray(s.equipments) &&
+          s.equipments.some((item) => {
+            if (item?.id && tpmEqIdSet.has(item.id)) return true;
+            const code = item?.code ? String(item.code).trim() : '';
+            return Boolean(code && tpmEqCodeSet.has(code));
+          });
+        return hasMemberInIds || hasMemberInObjs;
+      }),
+    [allEquipmentSets, category, tpmEqIdSet, tpmEqCodeSet]
   );
 
   const todayYmd = getTodayLocalYmd();
@@ -724,6 +755,23 @@ export default function TpmManagement({
             placeholder="관리번호 / 설비명 검색"
             style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px', width: '170px', background: '#fff' }}
           />
+          {unassignedTpmCount > 0 && (
+            <span
+              title="인젝션 프레스(10/15/30ton) 외 전용 TPM 일지 추가 작성 예정 설비는 제외됩니다."
+              style={{
+                padding: '4px 9px',
+                borderRadius: '999px',
+                fontSize: '11.5px',
+                fontWeight: 700,
+                background: '#f1f5f9',
+                color: '#475569',
+                border: '1px solid #cbd5e1',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              전용 TPM 미등록 {unassignedTpmCount}대 제외
+            </span>
+          )}
         </div>
 
         {isAdmin && (

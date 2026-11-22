@@ -136,10 +136,13 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
         };
         setLegacyFormContext(formCtx);
 
-        // 금형 목록이 늦게 도착한 경우: 양식은 먼저 열고, 도착하면 컨텍스트에 반영 (공정 선택 시점에 읽음)
+        // 금형 목록이 늦게 도착한 경우: 양식은 먼저 열고, 도착하면 컨텍스트에 반영 및 섹션5 옵션 갱신
         if (moldsFirst === null) {
           moldsPromise.then((late) => {
             formCtx.molds = late || [];
+            if (containerRef.current) {
+              containerRef.current.dispatchEvent(new CustomEvent('jymes:molds-loaded'));
+            }
           });
         }
         moldDefaultsPromise.then((lateDefaults) => {

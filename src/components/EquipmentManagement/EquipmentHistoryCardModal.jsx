@@ -6,6 +6,255 @@ import { invalidateEquipmentsCache, fetchEquipmentPhotos, saveEquipmentPhotos } 
 import { syncEquipmentRepairToChangePoint } from '../../services/changePointAutoSync';
 import { getEquipmentCategory } from '../../constants/equipmentCategories';
 
+const ANCILLARY_FIELD_KEYS = ['name', 'spec', 'qty', 'manufacturer', 'note'];
+
+const buildEqHistoryMobileCss = (prefix) => `
+  ${prefix} > .modal-content {
+    width: 96% !important;
+    max-width: 96vw !important;
+    max-height: 94vh !important;
+    padding: 0 !important;
+    border-radius: 10px !important;
+  }
+  ${prefix} .eq-modal-header {
+    padding: 12px 14px !important;
+    gap: 8px !important;
+  }
+  ${prefix} .eq-modal-header .modal-title {
+    font-size: 15px !important;
+    gap: 6px !important;
+  }
+  ${prefix} .eq-status-badge {
+    font-size: 11px !important;
+    padding: 3px 8px !important;
+    line-height: 1.35 !important;
+  }
+  ${prefix} .eq-modal-body {
+    padding: 12px !important;
+  }
+  ${prefix} .eq-doc-top {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  ${prefix} .eq-doc-title {
+    margin: 0 !important;
+    font-size: 19px !important;
+    letter-spacing: 1px !important;
+    text-align: center !important;
+  }
+  ${prefix} .eq-approval-table {
+    width: 180px !important;
+    margin-left: auto !important;
+    font-size: 11.5px !important;
+  }
+  ${prefix} .eq-approval-sign-cell {
+    height: 28px !important;
+  }
+  ${prefix} .eq-paper-box {
+    margin-bottom: 16px !important;
+    overflow: hidden !important;
+  }
+  ${prefix} .eq-basic-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    font-size: 11.5px !important;
+  }
+  ${prefix} .eq-basic-table th {
+    width: 21% !important;
+    padding: 6px 3px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+  ${prefix} .eq-basic-table td {
+    width: 29% !important;
+    padding: 6px 4px !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+  }
+  ${prefix} .eq-basic-table td[colspan="3"] {
+    width: auto !important;
+    padding: 6px 8px !important;
+  }
+  ${prefix} .eq-basic-table th.eq-anc-banner {
+    width: auto !important;
+    letter-spacing: 4px !important;
+    padding: 8px !important;
+    font-size: 12.5px !important;
+  }
+  ${prefix} .eq-ancillary-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+    font-size: 11px !important;
+  }
+  ${prefix} .eq-ancillary-table th:nth-child(1),
+  ${prefix} .eq-ancillary-table td:nth-child(1) { width: 24% !important; }
+  ${prefix} .eq-ancillary-table th:nth-child(2),
+  ${prefix} .eq-ancillary-table td:nth-child(2) { width: 28% !important; }
+  ${prefix} .eq-ancillary-table th:nth-child(3),
+  ${prefix} .eq-ancillary-table td:nth-child(3) { width: 11% !important; }
+  ${prefix} .eq-ancillary-table th:nth-child(4),
+  ${prefix} .eq-ancillary-table td:nth-child(4) { width: 21% !important; }
+  ${prefix} .eq-ancillary-table th:nth-child(5),
+  ${prefix} .eq-ancillary-table td:nth-child(5) { width: 16% !important; }
+  ${prefix} .eq-ancillary-table th {
+    padding: 6px 2px !important;
+    font-size: 10.5px !important;
+    white-space: nowrap !important;
+    letter-spacing: -0.3px !important;
+  }
+  ${prefix} .eq-ancillary-table td {
+    padding: 5px 3px !important;
+    word-break: break-word !important;
+    overflow-wrap: anywhere !important;
+    vertical-align: middle !important;
+  }
+  ${prefix} .eq-ancillary-table input,
+  ${prefix} .eq-basic-table input {
+    min-width: 0 !important;
+    width: 100% !important;
+    padding: 4px 2px !important;
+    font-size: 11px !important;
+  }
+  ${prefix} .eq-photo-table,
+  ${prefix} .eq-photo-table tbody,
+  ${prefix} .eq-photo-table tr,
+  ${prefix} .eq-photo-table th,
+  ${prefix} .eq-photo-table td {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  ${prefix} .eq-photo-table th,
+  ${prefix} .eq-photo-table td {
+    border-left: none !important;
+    border-right: none !important;
+  }
+  ${prefix} .eq-photo-table td.eq-photo-cell {
+    padding: 10px !important;
+  }
+  ${prefix} [data-eq-photo-slot] {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 3 / 4;
+  }
+  ${prefix} [data-eq-photo-slot][data-has-photo="1"][data-editing="0"] {
+    aspect-ratio: auto !important;
+    background: #f8fafc !important;
+  }
+  ${prefix} [data-eq-photo-slot][data-has-photo="1"][data-editing="0"] img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 360px !important;
+    object-fit: contain !important;
+  }
+  ${prefix} [data-eq-photo-slot][data-has-photo="0"][data-editing="0"] {
+    aspect-ratio: auto !important;
+    min-height: 68px !important;
+    padding: 12px !important;
+  }
+  ${prefix} [data-eq-photo-slot][data-editing="1"] {
+    max-width: 240px !important;
+  }
+  ${prefix} [data-eq-photo-slot][data-editing="1"] img {
+    object-fit: contain !important;
+  }
+  ${prefix} .eq-history-table thead {
+    display: none !important;
+  }
+  ${prefix} .eq-history-table,
+  ${prefix} .eq-history-table tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-empty-row="1"] {
+    display: none !important;
+  }
+  ${prefix} .eq-history-table tr.eq-history-mobile-empty {
+    display: block !important;
+    padding: 0 !important;
+  }
+  ${prefix} .eq-history-table tr.eq-history-mobile-empty td {
+    display: block !important;
+    width: 100% !important;
+    border: none !important;
+    padding: 18px 12px !important;
+    text-align: center !important;
+    color: #64748b !important;
+    font-size: 12.5px !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"] {
+    display: block !important;
+    padding: 10px 12px !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"]:last-child {
+    border-bottom: none !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"] td {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    width: 100% !important;
+    border: none !important;
+    padding: 4px 0 !important;
+    text-align: left !important;
+    font-size: 12px !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"] td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 84px;
+    font-weight: 700;
+    font-size: 11.5px;
+    color: #475569;
+    white-space: nowrap;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"] td.eq-hist-check[data-editing="0"] {
+    display: none !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"] td:not(.eq-hist-check) > * {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    text-align: left !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"] td > button {
+    text-align: center !important;
+  }
+  ${prefix} .eq-history-table tr[data-eq-history-row="1"] td.eq-hist-check input[type="checkbox"] {
+    flex: 0 0 auto !important;
+    width: auto !important;
+  }
+  ${prefix} .eq-modal-footer {
+    padding: 10px 12px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    justify-content: stretch !important;
+  }
+  ${prefix} .eq-modal-footer button {
+    flex: 1 1 calc(50% - 4px) !important;
+    min-width: 0 !important;
+    padding: 10px 8px !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+`;
+
+const EQ_HISTORY_SCOPED_CSS = `
+  [data-eq-history-modal="1"] .eq-history-mobile-empty {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    ${buildEqHistoryMobileCss('[data-eq-history-modal="1"]')}
+  }
+  ${buildEqHistoryMobileCss('body.mobile-preview-mode [data-eq-history-modal="1"]')}
+`;
+
 const readAndOptimizePhoto = (file, maxWidth = 600, maxHeight = 800) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -65,7 +314,7 @@ const getInitialAncillaryEquipments = (anc, useJointDefaults = true) => {
 export const DEFAULT_EQUIPMENT_PHOTO_1 = '/images/equipment_photo_1.jpg';
 export const DEFAULT_EQUIPMENT_PHOTO_2 = '/images/equipment_photo_2.jpg';
 
-export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate }) {
+export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate, readOnly = false, disableBackdropClose = false }) {
   const eqCategory = getEquipmentCategory(equipment);
   const useJointDefaults = eqCategory === 'joint';
 
@@ -106,7 +355,12 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
     };
   }, [equipment.id]);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingState, setEditingState] = useState(false);
+  const isEditing = !readOnly && editingState;
+  const setIsEditing = (next) => {
+    if (readOnly) return;
+    setEditingState(next);
+  };
   const [editingRepairIndex, setEditingRepairIndex] = useState(null);
   const [selectedIndices, setSelectedIndices] = useState([]);
 
@@ -277,14 +531,20 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
   };
 
   return (
-    <div className="modal-backdrop active" onClick={onClose} style={{ zIndex: 9999 }}>
+    <div
+      className="modal-backdrop active"
+      data-eq-history-modal="1"
+      onClick={disableBackdropClose ? undefined : onClose}
+      style={{ zIndex: 9999 }}
+    >
+      <style>{EQ_HISTORY_SCOPED_CSS}</style>
       <div className="modal-content" style={{ width: '95%', maxWidth: '920px', maxHeight: '95vh', display: 'flex', flexDirection: 'column', padding: '0', borderRadius: '12px', overflow: 'hidden' }} onClick={e => e.stopPropagation()}>
         
         {/* Header */}
-        <div className="modal-header" style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="modal-header eq-modal-header" style={{ padding: '16px 24px', background: '#f8fafc', borderBottom: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="modal-title" style={{ fontSize: '18px', fontWeight: 'bold', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <span>📄 설비 이력 카드 상세 정보</span>
-            <span style={{
+            <span className="eq-status-badge" style={{
               fontSize: '12px',
               padding: '3px 10px',
               borderRadius: '999px',
@@ -292,18 +552,22 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
               color: isEditing ? '#1d4ed8' : '#475569',
               fontWeight: 600
             }}>
-              {isEditing ? "✏️ 수정 모드 — 변경 후 하단 '수정 저장'을 눌러주세요" : "🔒 조회 전용 — 하단 '카드수정' 클릭 시 편집 가능"}
+              {readOnly
+                ? '👁️ 열람 전용 — QR 스캔 조회 모드 (수정은 관리자만 가능)'
+                : isEditing
+                  ? "✏️ 수정 모드 — 변경 후 하단 '수정 저장'을 눌러주세요"
+                  : "🔒 조회 전용 — 하단 '카드수정' 클릭 시 편집 가능"}
             </span>
           </div>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', color: '#64748b', cursor: 'pointer', lineHeight: 1 }}>&times;</button>
         </div>
 
         {/* Body */}
-        <div className="modal-body" style={{ overflowY: 'auto', flex: 1, padding: '24px', background: '#ffffff' }}>
+        <div className="modal-body eq-modal-body" style={{ overflowY: 'auto', flex: 1, padding: '24px', background: '#ffffff' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-            <h2 style={{ fontSize: '28px', fontWeight: '900', margin: '0 0 0 40px', letterSpacing: '4px', color: '#000' }}>(제조) 설비이력카드</h2>
-            <table style={{ borderCollapse: 'collapse', border: '1px solid #000', fontSize: '14px', width: '200px', textAlign: 'center' }}>
+          <div className="eq-doc-top" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+            <h2 className="eq-doc-title" style={{ fontSize: '28px', fontWeight: '900', margin: '0 0 0 40px', letterSpacing: '4px', color: '#000' }}>(제조) 설비이력카드</h2>
+            <table className="eq-approval-table" style={{ borderCollapse: 'collapse', border: '1px solid #000', fontSize: '14px', width: '200px', textAlign: 'center' }}>
               <tbody>
                 <tr>
                   <td style={{ border: '1px solid #000', padding: '4px', fontWeight: 'bold' }}>작성</td>
@@ -311,16 +575,16 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                   <td style={{ border: '1px solid #000', padding: '4px', fontWeight: 'bold' }}>승인</td>
                 </tr>
                 <tr>
-                  <td style={{ border: '1px solid #000', height: '40px' }}></td>
-                  <td style={{ border: '1px solid #000', height: '40px' }}></td>
-                  <td style={{ border: '1px solid #000', height: '40px' }}></td>
+                  <td className="eq-approval-sign-cell" style={{ border: '1px solid #000', height: '40px' }}></td>
+                  <td className="eq-approval-sign-cell" style={{ border: '1px solid #000', height: '40px' }}></td>
+                  <td className="eq-approval-sign-cell" style={{ border: '1px solid #000', height: '40px' }}></td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div style={{ border: '2px solid #000', marginBottom: '24px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '14px' }}>
+          <div className="eq-paper-box" style={{ border: '2px solid #000', marginBottom: '24px' }}>
+            <table className="eq-basic-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '14px' }}>
               <tbody>
                 <tr>
                   <th style={{ border: '1px solid #000', padding: '8px', width: '15%', background: '#fff' }}>설 비 명</th>
@@ -360,25 +624,28 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                 <tr>
                   <th style={{ border: '1px solid #000', padding: '8px', background: '#fff' }}>제 작 처</th>
                   <td colSpan="3" style={{ border: '1px solid #000', padding: '4px 8px 4px 16px', textAlign: 'left' }}>
-                    <input
-                      type="text"
-                      readOnly={!isEditing}
-                      tabIndex={isEditing ? 0 : -1}
-                      style={{ ...tableInputStyle, textAlign: 'left' }}
-                      value={formData.manufacturer}
-                      onChange={e => {
-                        if (!isEditing) return;
-                        setFormData({ ...formData, manufacturer: e.target.value });
-                      }}
-                    />
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        style={{ ...tableInputStyle, textAlign: 'left' }}
+                        value={formData.manufacturer}
+                        onChange={e => {
+                          setFormData({ ...formData, manufacturer: e.target.value });
+                        }}
+                      />
+                    ) : (
+                      <div style={{ ...tableInputStyle, textAlign: 'left', whiteSpace: 'pre-wrap', wordBreak: 'break-word', minHeight: '24px' }}>
+                        {formData.manufacturer}
+                      </div>
+                    )}
                   </td>
                 </tr>
                 <tr>
-                  <th colSpan="4" style={{ border: '1px solid #000', padding: '12px', background: '#fff', letterSpacing: '16px' }}>부 대 설 비</th>
+                  <th colSpan="4" className="eq-anc-banner" style={{ border: '1px solid #000', padding: '12px', background: '#fff', letterSpacing: '16px' }}>부 대 설 비</th>
                 </tr>
               </tbody>
             </table>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px', marginTop: '-1px' }}>
+            <table className="eq-ancillary-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px', marginTop: '-1px' }}>
               <thead>
                 <tr>
                   <th style={{ border: '1px solid #000', padding: '8px', width: '20%', background: '#fff' }}>설 비 명</th>
@@ -391,52 +658,32 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
               <tbody>
                 {formData.ancillaryEquipments.map((eq, i) => (
                   <tr key={i}>
-                    <td style={{ border: '1px solid #000', padding: '4px' }}>
-                      <input type="text" readOnly={!isEditing} tabIndex={isEditing ? 0 : -1} style={{ ...tableInputStyle, textAlign: 'center' }} value={eq.name} onChange={e => {
-                        if (!isEditing) return;
-                        const newAnc = [...formData.ancillaryEquipments];
-                        newAnc[i] = { ...newAnc[i], name: e.target.value };
-                        setFormData({...formData, ancillaryEquipments: newAnc});
-                      }} />
-                    </td>
-                    <td style={{ border: '1px solid #000', padding: '4px' }}>
-                      <input type="text" readOnly={!isEditing} tabIndex={isEditing ? 0 : -1} style={{ ...tableInputStyle, textAlign: 'center' }} value={eq.spec} onChange={e => {
-                        if (!isEditing) return;
-                        const newAnc = [...formData.ancillaryEquipments];
-                        newAnc[i] = { ...newAnc[i], spec: e.target.value };
-                        setFormData({...formData, ancillaryEquipments: newAnc});
-                      }} />
-                    </td>
-                    <td style={{ border: '1px solid #000', padding: '4px' }}>
-                      <input type="text" readOnly={!isEditing} tabIndex={isEditing ? 0 : -1} style={{ ...tableInputStyle, textAlign: 'center' }} value={eq.qty} onChange={e => {
-                        if (!isEditing) return;
-                        const newAnc = [...formData.ancillaryEquipments];
-                        newAnc[i] = { ...newAnc[i], qty: e.target.value };
-                        setFormData({...formData, ancillaryEquipments: newAnc});
-                      }} />
-                    </td>
-                    <td style={{ border: '1px solid #000', padding: '4px' }}>
-                      <input type="text" readOnly={!isEditing} tabIndex={isEditing ? 0 : -1} style={{ ...tableInputStyle, textAlign: 'center' }} value={eq.manufacturer} onChange={e => {
-                        if (!isEditing) return;
-                        const newAnc = [...formData.ancillaryEquipments];
-                        newAnc[i] = { ...newAnc[i], manufacturer: e.target.value };
-                        setFormData({...formData, ancillaryEquipments: newAnc});
-                      }} />
-                    </td>
-                    <td style={{ border: '1px solid #000', padding: '4px' }}>
-                      <input type="text" readOnly={!isEditing} tabIndex={isEditing ? 0 : -1} style={{ ...tableInputStyle, textAlign: 'center' }} value={eq.note} onChange={e => {
-                        if (!isEditing) return;
-                        const newAnc = [...formData.ancillaryEquipments];
-                        newAnc[i] = { ...newAnc[i], note: e.target.value };
-                        setFormData({...formData, ancillaryEquipments: newAnc});
-                      }} />
-                    </td>
+                    {ANCILLARY_FIELD_KEYS.map((fieldKey) => (
+                      <td key={fieldKey} style={{ border: '1px solid #000', padding: '4px' }}>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            style={{ ...tableInputStyle, textAlign: 'center' }}
+                            value={eq[fieldKey]}
+                            onChange={e => {
+                              const newAnc = [...formData.ancillaryEquipments];
+                              newAnc[i] = { ...newAnc[i], [fieldKey]: e.target.value };
+                              setFormData({ ...formData, ancillaryEquipments: newAnc });
+                            }}
+                          />
+                        ) : (
+                          <div style={{ ...tableInputStyle, textAlign: 'center', whiteSpace: 'pre-wrap', wordBreak: 'break-word', minHeight: '24px' }}>
+                            {eq[fieldKey]}
+                          </div>
+                        )}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
             </table>
             
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px', marginTop: '-1px' }}>
+            <table className="eq-photo-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px', marginTop: '-1px' }}>
               <tbody>
                 <tr>
                   <th colSpan="2" style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', background: '#fff' }}>설비사진</th>
@@ -446,9 +693,11 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                     { slot: 0, src: formData.equipmentPhoto, label: '설비 사진 1' },
                     { slot: 1, src: formData.equipmentPhoto2, label: '설비 사진 2' }
                   ].map(({ slot, src, label }) => (
-                    <td key={slot} style={{ border: '1px solid #000', padding: '12px', width: '50%', verticalAlign: 'middle' }}>
+                    <td key={slot} className="eq-photo-cell" style={{ border: '1px solid #000', padding: '12px', width: '50%', verticalAlign: 'middle' }}>
                       <div
                         data-eq-photo-slot={slot + 1}
+                        data-has-photo={src ? '1' : '0'}
+                        data-editing={isEditing ? '1' : '0'}
                         style={{
                           width: '300px',
                           maxWidth: '100%',
@@ -562,7 +811,7 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
             </div>
 
             <div style={{ border: '1px solid #cbd5e1', borderRadius: '8px', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px' }}>
+              <table className="eq-history-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '13px' }}>
                 <thead>
                   <tr style={{ background: '#f1f5f9', color: '#334155' }}>
                     <th rowSpan="2" style={{ borderBottom: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', padding: '12px 4px', width: '4%' }}>
@@ -590,8 +839,8 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                 </thead>
                 <tbody>
                   {formData.history.map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #cbd5e1' }}>
-                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
+                    <tr key={i} data-eq-history-row="1" style={{ borderBottom: '1px solid #cbd5e1' }}>
+                      <td className="eq-hist-check" data-label="선택" data-editing={isEditing ? '1' : '0'} style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         <input
                           type="checkbox"
                           disabled={!isEditing}
@@ -600,7 +849,7 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                           onChange={() => toggleSelection(i)}
                         />
                       </td>
-                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
+                      <td data-label="일자" style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         {isEditing ? (
                           <input
                             type="date"
@@ -615,29 +864,37 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                           </span>
                         )}
                       </td>
-                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
-                        <input
-                          type="text"
-                          readOnly={!isEditing}
-                          tabIndex={isEditing ? 0 : -1}
-                          style={tableInputStyle}
-                          value={row.issue}
-                          onChange={e => updateHistory(i, 'issue', e.target.value)}
-                          placeholder={isEditing ? '내용 입력...' : ''}
-                        />
+                      <td data-label="문제점/내용" style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            style={tableInputStyle}
+                            value={row.issue}
+                            onChange={e => updateHistory(i, 'issue', e.target.value)}
+                            placeholder="내용 입력..."
+                          />
+                        ) : (
+                          <div style={{ ...tableInputStyle, whiteSpace: 'pre-wrap', wordBreak: 'break-word', minHeight: '24px' }}>
+                            {row.issue}
+                          </div>
+                        )}
                       </td>
-                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
-                        <input
-                          type="text"
-                          readOnly={!isEditing}
-                          tabIndex={isEditing ? 0 : -1}
-                          style={tableInputStyle}
-                          value={row.action}
-                          onChange={e => updateHistory(i, 'action', e.target.value)}
-                          placeholder={isEditing ? '조치 내용...' : ''}
-                        />
+                      <td data-label="대책/조치" style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            style={tableInputStyle}
+                            value={row.action}
+                            onChange={e => updateHistory(i, 'action', e.target.value)}
+                            placeholder="조치 내용..."
+                          />
+                        ) : (
+                          <div style={{ ...tableInputStyle, whiteSpace: 'pre-wrap', wordBreak: 'break-word', minHeight: '24px' }}>
+                            {row.action}
+                          </div>
+                        )}
                       </td>
-                      <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
+                      <td data-label="수리의뢰서" style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         {row.repairDetails ? (
                           <button 
                             type="button"
@@ -681,13 +938,18 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                           </button>
                         )}
                       </td>
-                      <td style={{ padding: '4px', fontWeight: 'bold', color: '#2563eb' }}>
+                      <td data-label="확인" style={{ padding: '4px', fontWeight: 'bold', color: '#2563eb' }}>
                         {(row.issue || row.repairDetails) ? '승인' : ''}
                       </td>
                     </tr>
                   ))}
+                  {formData.history.length === 0 && (
+                    <tr className="eq-history-mobile-empty">
+                      <td colSpan="6">등록된 수리 및 점검 이력이 없습니다.</td>
+                    </tr>
+                  )}
                   {Array.from({ length: Math.max(1, 10 - formData.history.length) }).map((_, i) => (
-                    <tr key={`empty-${i}`} style={{ borderBottom: '1px solid #cbd5e1' }}>
+                    <tr key={`empty-${i}`} data-eq-empty-row="1" style={{ borderBottom: '1px solid #cbd5e1' }}>
                       <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
                       <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
                       <td style={{ borderRight: '1px solid #cbd5e1', padding: '16px' }}></td>
@@ -700,32 +962,34 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
               </table>
             </div>
             
-            <div style={{ marginTop: '12px', textAlign: 'left' }}>
-              <button
-                type="button"
-                disabled={!isEditing}
-                className="btn btn-sm"
-                style={{
-                  background: '#f1f5f9',
-                  color: '#334155',
-                  border: '1px solid #cbd5e1',
-                  fontWeight: 'bold',
-                  padding: '6px 12px',
-                  borderRadius: '4px',
-                  cursor: isEditing ? 'pointer' : 'not-allowed',
-                  opacity: isEditing ? 1 : 0.45
-                }}
-                onClick={addHistoryRow}
-              >
-                + 이력 행 추가
-              </button>
-            </div>
+            {!readOnly && (
+              <div style={{ marginTop: '12px', textAlign: 'left' }}>
+                <button
+                  type="button"
+                  disabled={!isEditing}
+                  className="btn btn-sm"
+                  style={{
+                    background: '#f1f5f9',
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    fontWeight: 'bold',
+                    padding: '6px 12px',
+                    borderRadius: '4px',
+                    cursor: isEditing ? 'pointer' : 'not-allowed',
+                    opacity: isEditing ? 1 : 0.45
+                  }}
+                  onClick={addHistoryRow}
+                >
+                  + 이력 행 추가
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
 
         {/* Footer */}
-        <div className="modal-footer" style={{ padding: '16px 24px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+        <div className="modal-footer eq-modal-footer" style={{ padding: '16px 24px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
           <button
             type="button"
             className="btn btn-secondary"
@@ -734,59 +998,63 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
           >
             닫기
           </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={!isEditing}
-            onClick={handleDeleteSelected}
-            title={isEditing ? '선택한 이력 삭제' : "'카드수정'을 클릭한 후 삭제할 수 있습니다"}
-            style={{
-              padding: '8px 24px',
-              background: '#fee2e2',
-              color: '#991b1b',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: isEditing ? 'pointer' : 'not-allowed',
-              opacity: isEditing ? 1 : 0.45,
-              fontWeight: 'bold'
-            }}
-          >
-            삭제
-          </button>
-          <button
-            type="button"
-            className="btn"
-            disabled={isEditing}
-            onClick={() => setIsEditing(true)}
-            style={{
-              padding: '8px 24px',
-              background: isEditing ? '#e2e8f0' : '#dbeafe',
-              color: isEditing ? '#94a3b8' : '#1d4ed8',
-              border: isEditing ? 'none' : '1px solid #93c5fd',
-              borderRadius: '6px',
-              cursor: isEditing ? 'default' : 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            카드수정
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={!isEditing}
-            onClick={handleSave}
-            style={{
-              padding: '8px 24px',
-              background: isEditing ? '#2563eb' : '#cbd5e1',
-              color: isEditing ? '#fff' : '#64748b',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: isEditing ? 'pointer' : 'not-allowed',
-              fontWeight: 'bold'
-            }}
-          >
-            수정 저장
-          </button>
+          {!readOnly && (
+            <>
+              <button
+                type="button"
+                className="btn"
+                disabled={!isEditing}
+                onClick={handleDeleteSelected}
+                title={isEditing ? '선택한 이력 삭제' : "'카드수정'을 클릭한 후 삭제할 수 있습니다"}
+                style={{
+                  padding: '8px 24px',
+                  background: '#fee2e2',
+                  color: '#991b1b',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: isEditing ? 'pointer' : 'not-allowed',
+                  opacity: isEditing ? 1 : 0.45,
+                  fontWeight: 'bold'
+                }}
+              >
+                삭제
+              </button>
+              <button
+                type="button"
+                className="btn"
+                disabled={isEditing}
+                onClick={() => setIsEditing(true)}
+                style={{
+                  padding: '8px 24px',
+                  background: isEditing ? '#e2e8f0' : '#dbeafe',
+                  color: isEditing ? '#94a3b8' : '#1d4ed8',
+                  border: isEditing ? 'none' : '1px solid #93c5fd',
+                  borderRadius: '6px',
+                  cursor: isEditing ? 'default' : 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                카드수정
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={!isEditing}
+                onClick={handleSave}
+                style={{
+                  padding: '8px 24px',
+                  background: isEditing ? '#2563eb' : '#cbd5e1',
+                  color: isEditing ? '#fff' : '#64748b',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: isEditing ? 'pointer' : 'not-allowed',
+                  fontWeight: 'bold'
+                }}
+              >
+                수정 저장
+              </button>
+            </>
+          )}
         </div>
         
       </div>

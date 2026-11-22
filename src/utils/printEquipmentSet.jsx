@@ -16,7 +16,7 @@ function formatBriefSpec(eq) {
   const validType = type && type !== '-' ? type : '';
   const validSpec = spec && spec !== '-' ? spec : '';
 
-  if (validType && validSpec) return `${validType} / ${validSpec}`;
+  if (validType && validSpec) return `${validType}/${validSpec}`;
   if (validSpec) return validSpec;
   if (validType) return validType;
   return '-';
@@ -30,6 +30,10 @@ function formatManufacturerOrLoc(eq) {
   return '-';
 }
 
+/**
+ * 지브라 라벨 프린터용 설비 셋트 관리 카드 QR 출력 (104mm × 104mm)
+ * - 추가 프로그램 설치 없이 Windows 드라이버(브라우저 인쇄)로 104×104mm 라벨 1매 출력
+ */
 export function printEquipmentSetCard(equipmentSet, resolvedEquipments = []) {
   if (!equipmentSet) return;
 
@@ -43,12 +47,17 @@ export function printEquipmentSetCard(equipmentSet, resolvedEquipments = []) {
   }
 
   const rowCount = displayRows.length;
-  const qrSize = rowCount > 8 ? 118 : rowCount > 6 ? 128 : 138;
-  const eqFontSize = rowCount > 8 ? '10.5px' : rowCount > 6 ? '11.5px' : '13px';
-  const eqCellPad = rowCount > 8 ? '2px 4px' : rowCount > 6 ? '3px 5px' : '5px 6px';
+  const eqFontSize = rowCount > 8 ? '7.5pt' : rowCount > 6 ? '8.5pt' : '9.5pt';
+  const eqCellPad = rowCount > 8 ? '0.5mm 0.8mm' : rowCount > 6 ? '0.7mm 0.8mm' : '0.9mm 1mm';
+  const setTitleFontSize = String(equipmentSet.name || '').length > 16 ? '13pt' : '15.5pt';
 
   const qrSvgString = ReactDOMServer.renderToString(
-    <QRCodeSVG value={qrUrl} size={qrSize} level="M" />
+    <QRCodeSVG
+      value={qrUrl}
+      size={132}
+      level="M"
+      shapeRendering="crispEdges"
+    />
   );
 
   const printWindow = window.open('', '_blank');
@@ -58,7 +67,6 @@ export function printEquipmentSetCard(equipmentSet, resolvedEquipments = []) {
   }
 
   const setTitle = escapeHtml(equipmentSet.name || '-');
-  const rowspanCount = 2 + displayRows.length;
 
   const rowsHtml = displayRows
     .map((eq, idx) => {
@@ -85,70 +93,32 @@ export function printEquipmentSetCard(equipmentSet, resolvedEquipments = []) {
     })
     .join('');
 
-  const renderCardTable = () => `
-    <table class="set-card">
-      <colgroup>
-        <col style="width: 9mm;" />
-        <col style="width: 28mm;" />
-        <col style="width: 38mm;" />
-        <col style="width: 36mm;" />
-        <col style="width: 25mm;" />
-        <col style="width: 48mm;" />
-      </colgroup>
-      <tbody>
-        <tr>
-          <td colspan="6" class="header-td">
-            설비 셋트 관리 카드
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" class="title-td">셋트 이름</td>
-          <td colspan="2" class="set-name-td">${setTitle}</td>
-          <td class="count-td">총 ${eqList.length}대</td>
-          <td rowspan="${rowspanCount}" class="qr-td">
-            <div class="qr-box">
-              <div class="qr-heading">TPM 일지 QR 코드</div>
-              <div class="qr-frame">
-                ${qrSvgString}
-              </div>
-              <div class="qr-set-name">${setTitle}</div>
-              <div class="qr-caption">작업 전 QR 스캔하여<br/>셋트 TPM 일지 작성</div>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <th class="sub-th">No</th>
-          <th class="sub-th">관리번호</th>
-          <th class="sub-th">포함 설비명</th>
-          <th class="sub-th">간략 사양</th>
-          <th class="sub-th">제작처</th>
-        </tr>
-        ${rowsHtml}
-      </tbody>
-    </table>
-  `;
-
   const htmlContent = `
     <!DOCTYPE html>
     <html>
       <head>
-        <title>설비 셋트 QR 코드 출력 - ${setTitle}</title>
-        <meta charset="utf-8">
+        <title>설비 셋트 QR 라벨 출력 (104×104mm) - ${setTitle}</title>
+        <meta charset="utf-8" />
         <style>
           @page {
-            size: A4 portrait;
+            size: 104mm 104mm;
             margin: 0;
           }
-          body {
+
+          * {
+            box-sizing: border-box;
+          }
+
+          html, body {
             margin: 0;
             padding: 0;
-            background-color: #fff;
+            background: #ffffff;
+            color: #000000;
+            font-family: 'Malgun Gothic', '맑은 고딕', 'Noto Sans KR', Arial, sans-serif;
+            -webkit-font-smoothing: none;
+            text-rendering: geometricPrecision;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif, Arial;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
           }
 
           .no-print-bar {
@@ -156,12 +126,25 @@ export function printEquipmentSetCard(equipmentSet, resolvedEquipments = []) {
             top: 12px;
             right: 16px;
             display: flex;
+            align-items: center;
             gap: 8px;
             z-index: 100;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+          }
+
+          .no-print-tip {
+            font-size: 12px;
+            color: #334155;
+            font-weight: 600;
+            margin-right: 4px;
           }
 
           .no-print-btn {
-            padding: 8px 14px;
+            padding: 7px 14px;
             border-radius: 6px;
             font-size: 13px;
             font-weight: 700;
@@ -169,7 +152,6 @@ export function printEquipmentSetCard(equipmentSet, resolvedEquipments = []) {
             border: 1px solid #cbd5e1;
             background: #ffffff;
             color: #1e293b;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
           }
 
           .no-print-btn.primary {
@@ -178,157 +160,250 @@ export function printEquipmentSetCard(equipmentSet, resolvedEquipments = []) {
             border-color: #1d4ed8;
           }
 
+          @media screen {
+            body {
+              background: #f1f5f9;
+              padding: 64px 16px 24px;
+              display: flex;
+              justify-content: center;
+            }
+            .label-card {
+              background: #ffffff;
+              border: 1px dashed #94a3b8;
+              box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+            }
+          }
+
           @media print {
             .no-print-bar {
               display: none !important;
             }
+            body {
+              background: #ffffff;
+              padding: 0;
+            }
+            .label-card {
+              border: none;
+              box-shadow: none;
+            }
           }
 
-          .card-wrapper {
-            width: 210mm;
-            height: 148mm;
-            padding: 11mm 13mm;
-            box-sizing: border-box;
+          .label-card {
+            width: 104mm;
+            height: 104mm;
+            padding: 3mm 3.5mm;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            border-bottom: 1px dashed #ccc;
-            page-break-inside: avoid;
-            break-inside: avoid;
+            flex-direction: column;
+            gap: 1.8mm;
+            overflow: hidden;
           }
 
-          table.set-card {
+          .card-header {
+            background: #000000;
+            color: #ffffff;
+            text-align: center;
+            font-size: 13pt;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            padding: 1.1mm 2mm;
+            flex-shrink: 0;
+          }
+
+          .top-row {
+            display: flex;
+            gap: 2.5mm;
+            align-items: stretch;
+            border: 2px solid #000000;
+            padding: 1.8mm 2.2mm;
+            flex-shrink: 0;
+          }
+
+          .set-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }
+
+          .info-label {
+            font-size: 9pt;
+            font-weight: 900;
+            color: #000000;
+          }
+
+          .set-name {
+            font-size: ${setTitleFontSize};
+            font-weight: 900;
+            line-height: 1.18;
+            color: #000000;
+            word-break: keep-all;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin-top: 0.4mm;
+          }
+
+          .set-count-row {
+            display: flex;
+            align-items: center;
+            gap: 2mm;
+            margin-top: 1.2mm;
+            padding-top: 1.2mm;
+            border-top: 1.5px solid #000000;
+          }
+
+          .set-count-badge {
+            font-size: 10pt;
+            font-weight: 900;
+            border: 1.5px solid #000000;
+            padding: 0.4mm 2mm;
+            white-space: nowrap;
+          }
+
+          .qr-caption {
+            margin-top: 1.2mm;
+            font-size: 8.5pt;
+            font-weight: 900;
+            line-height: 1.22;
+            color: #000000;
+          }
+
+          .qr-panel {
+            width: 33mm;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-left: 1.5px solid #000000;
+            padding-left: 2mm;
+          }
+
+          .qr-title {
+            font-size: 8.5pt;
+            font-weight: 900;
+            margin-bottom: 0.8mm;
+            text-align: center;
+          }
+
+          .qr-frame {
+            width: 29mm;
+            height: 29mm;
+            padding: 1.2mm;
+            border: 1.5px solid #000000;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+
+          .qr-frame svg {
+            width: 26.5mm;
+            height: 26.5mm;
+            display: block;
+          }
+
+          .table-wrap {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+          }
+
+          table.eq-table {
             width: 100%;
             height: 100%;
             border-collapse: collapse;
             table-layout: fixed;
-            border: 2px solid #111;
-            color: #111;
+            border: 2px solid #000000;
             text-align: center;
           }
 
-          table.set-card td,
-          table.set-card th {
-            border: 1px solid #111;
-            color: #111;
-            word-break: keep-all;
-            overflow-wrap: break-word;
+          table.eq-table th,
+          table.eq-table td {
+            border: 1.2px solid #000000;
+            color: #000000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
 
-          .header-td {
-            height: 13.5mm;
+          table.eq-table th {
+            font-size: 8.5pt;
             font-weight: 900;
-            font-size: 23px;
-            letter-spacing: 3px;
-          }
-
-          .title-td {
-            height: 12.5mm;
-            font-weight: 800;
-            font-size: 15px;
-            background-color: #f8fafc;
-          }
-
-          .set-name-td {
-            height: 12.5mm;
-            font-weight: 900;
-            font-size: 18px;
-            padding: 4px 8px;
-          }
-
-          .count-td {
-            height: 12.5mm;
-            font-weight: 800;
-            font-size: 14px;
-            background-color: #f8fafc;
-          }
-
-          .sub-th {
-            height: 8.5mm;
-            font-weight: 800;
-            font-size: 12.5px;
-            background-color: #f8fafc;
-            padding: 3px 4px;
+            padding: 0.8mm 0.8mm;
+            background: #ffffff;
+            border-bottom: 2px solid #000000;
+            height: 5.5mm;
           }
 
           .eq-td {
             font-size: ${eqFontSize};
             padding: ${eqCellPad};
-            font-weight: 600;
-          }
-
-          .eq-code {
-            font-weight: 800;
-            letter-spacing: 0.2px;
-          }
-
-          .eq-name {
-            font-weight: 700;
-          }
-
-          .qr-td {
-            vertical-align: middle;
-            padding: 8px 6px;
-          }
-
-          .qr-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .qr-heading {
-            font-size: 13px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-          }
-
-          .qr-frame {
-            padding: 8px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background: #fff;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-          }
-
-          .qr-frame svg {
-            display: block;
-          }
-
-          .qr-set-name {
-            margin-top: 8px;
-            font-size: 13.5px;
             font-weight: 900;
           }
 
-          .qr-caption {
-            margin-top: 4px;
-            font-size: 11px;
-            color: #334155;
-            line-height: 1.35;
-            font-weight: 600;
+          .eq-code {
+            font-weight: 900;
           }
         </style>
       </head>
       <body>
         <div class="no-print-bar">
+          <span class="no-print-tip">104×104mm 라벨 · 인쇄 시 여백 없음 / 배율 100%</span>
           <button type="button" class="no-print-btn primary" onclick="window.print()">인쇄하기</button>
           <button type="button" class="no-print-btn" onclick="window.close()">창 닫기</button>
         </div>
 
-        <!-- First Card -->
-        <div class="card-wrapper">
-          ${renderCardTable()}
-        </div>
+        <section class="label-card">
+          <div class="card-header">설비 셋트 관리 카드</div>
 
-        <!-- Second Card (Duplicate for 2 per A4 portrait page) -->
-        <div class="card-wrapper" style="border-bottom: none;">
-          ${renderCardTable()}
-        </div>
+          <div class="top-row">
+            <div class="set-info">
+              <div>
+                <div class="info-label">셋트 이름</div>
+                <div class="set-name">${setTitle}</div>
+              </div>
+              <div>
+                <div class="set-count-row">
+                  <span class="set-count-badge">포함 설비 총 ${eqList.length}대</span>
+                </div>
+                <div class="qr-caption">작업 전 QR 스캔하여<br/>셋트 TPM 일지 작성</div>
+              </div>
+            </div>
+
+            <div class="qr-panel">
+              <div class="qr-title">TPM 일지 QR</div>
+              <div class="qr-frame">${qrSvgString}</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="eq-table">
+              <colgroup>
+                <col style="width: 6.5mm;" />
+                <col style="width: 22.5mm;" />
+                <col style="width: 27mm;" />
+                <col style="width: 23mm;" />
+                <col style="width: 17mm;" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>관리번호</th>
+                  <th>포함 설비명</th>
+                  <th>간략 사양</th>
+                  <th>제작처</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </body>
     </html>
   `;

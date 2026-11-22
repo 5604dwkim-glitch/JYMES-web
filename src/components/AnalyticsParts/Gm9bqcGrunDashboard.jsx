@@ -3,8 +3,17 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase';
 import {
   resolveGm9bqcProcessCode,
-  buildGm9bqcGrunDashboardModel
+  buildGm9bqcGrunDashboardModel,
+  MATERIAL_TRACE_OPTIONS,
+  buildMaterialWeeklyLotTimeline
 } from '../../services/gm9bqcGrunEngine';
+import {
+  fetch9bqcGrunHistoryWindow,
+  get9bqcGrunHistoryCacheSync,
+  has9bqcGrunHistoryCoverageSync,
+  get9bqcTodaySnapshotCache,
+  set9bqcTodaySnapshotCache
+} from '../../services/firestore';
 
 const LegacyDetailModal = lazy(() => import('../DynamicForms/LegacyDetailModal'));
 
@@ -68,50 +77,72 @@ function MiniBarcode({ seedText, isEmpty }) {
 
 export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = false }) {
   const today = useMemo(() => formatTodayYmd(), []);
+  const yesterday = useMemo(() => shiftDateYmd(today, -1), [today]);
 
-  // 최근 reports 중 9BQC G/RUN 일보가 존재하는 가장 최근 가동일 탐색
-  const latestActiveGrunDate = useMemo(() => {
-    const dates = [];
-    reports.forEach((r) => {
-      if (r?.date && resolveGm9bqcProcessCode(r)) {
-        dates.push(r.date);
+  // localStorage 영구 캐시 + 메모리 캐시에서 첫 프레임(0ms)에 동기 초기화
+  const initialSyncRef = useRef(null);
+  if (!initialSyncRef.current) {
+    const initHistoryStart = shiftDateYmd(today, -21);
+    const cachedHist = get9bqcGrunHistoryCacheSync(initHistoryStart, yesterday);
+    const histCovered = has9bqcGrunHistoryCoverageSync(initHistoryStart, yesterday);
+    const cachedToday = get9bqcTodaySnapshotCache(today);
+    const allCached = [...(cachedHist || []), ...(cachedToday || [])];
+    const hasTodayCachedReport =
+      Array.isArray(cachedToday) && cachedToday.some((r) => Boolean(resolveGm9bqcProcessCode(r)));
+    let latestCachedDate = null;
+    allCached.forEach((r) => {
+      if (r?.date && resolveGm9bqcProcessCode(r) && (!latestCachedDate || r.date > latestCachedDate)) {
+        latestCachedDate = r.date;
       }
     });
-    if (dates.length === 0) return null;
-    dates.sort();
-    return dates[dates.length - 1];
-  }, [reports]);
+    const defaultDate =
+      !hasTodayCachedReport && histCovered && latestCachedDate ? latestCachedDate : today;
+    initialSyncRef.current = {
+      cachedHist,
+      histCovered,
+      cachedToday: cachedToday || [],
+      hasTodayCache: Boolean(cachedToday),
+      defaultDate,
+      autoAppliedFromCache: Boolean(!hasTodayCachedReport && histCovered && latestCachedDate)
+    };
+  }
+  const initSnap = initialSyncRef.current;
 
   const [viewMode, setViewMode] = useState('single'); // 'single' | 'range'
-  const [selectedDate, setSelectedDate] = useState(today);
-  const [rangeStart, setRangeStart] = useState(today);
-  const [rangeEnd, setRangeEnd] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(initSnap.defaultDate);
+  const [rangeStart, setRangeStart] = useState(initSnap.defaultDate);
+  const [rangeEnd, setRangeEnd] = useState(initSnap.defaultDate);
   const userChangedDateRef = useRef(false);
-  const autoAppliedLatestRef = useRef(false);
+  const autoAppliedLatestRef = useRef(initSnap.autoAppliedFromCache);
+  const hasInitializedHistoryRef = useRef(initSnap.histCovered);
+  const forceHistoryRefreshRef = useRef(false);
 
-  // 오늘 일보가 0건이고 최근 가동일 일보가 있으면 최초 1회 최근 가동일로 자동 맞춤
-  useEffect(() => {
-    if (userChangedDateRef.current || autoAppliedLatestRef.current) return;
-    if (!reportsLoading && latestActiveGrunDate) {
-      autoAppliedLatestRef.current = true;
-      const hasTodayReport = reports.some(
-        (r) => r?.date === today && Boolean(resolveGm9bqcProcessCode(r))
-      );
-      if (!hasTodayReport && latestActiveGrunDate !== today) {
-        setSelectedDate(latestActiveGrunDate);
-        setRangeStart(latestActiveGrunDate);
-        setRangeEnd(latestActiveGrunDate);
-      }
-    }
-  }, [reportsLoading, latestActiveGrunDate, reports, today]);
-
+  const [selectedMaterialKey, setSelectedMaterialKey] = useState('FRT_A');
+  const [lotWeekOffset, setLotWeekOffset] = useState(0);
   const [lotSearch, setLotSearch] = useState('');
   const [exporting, setExporting] = useState(false);
 
-  // 실시간 Firestore 구독 상태 (LOT 추이도의 공정별 투입일자 연계를 위해 기준 시작일 -14일 구간 함께 구독)
-  const [liveWindowReports, setLiveWindowReports] = useState(null);
-  const [liveStatus, setLiveStatus] = useState('connecting'); // 'connecting' | 'live' | 'fallback'
-  const [lastSyncedAt, setLastSyncedAt] = useState('');
+  // 과거(-14일 추적 풀) 누적 캐시 상태 + 오늘 날짜 전용 실시간 onSnapshot 상태
+  const [historyReports, setHistoryReports] = useState(() => initSnap.cachedHist);
+  const [historyResolved, setHistoryResolved] = useState(() => initSnap.histCovered);
+  const [historyRefreshTick, setHistoryRefreshTick] = useState(0);
+  const [liveTodayReports, setLiveTodayReports] = useState(() => initSnap.cachedToday);
+  const [todayResolved, setTodayResolved] = useState(() => initSnap.hasTodayCache);
+  const [liveStatus, setLiveStatus] = useState(() => {
+    if (initSnap.histCovered && initSnap.defaultDate < today) return 'history';
+    if (initSnap.hasTodayCache) return 'live';
+    return 'connecting';
+  }); // 'connecting' | 'live' | 'history' | 'fallback'
+  const [lastSyncedAt, setLastSyncedAt] = useState(() =>
+    initSnap.histCovered || initSnap.hasTodayCache
+      ? new Date().toLocaleTimeString('ko-KR', {
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })
+      : ''
+  );
 
   // 상세 드릴다운 모달 상태
   const [inspectorModal, setInspectorModal] = useState(null); // { type: 'process' | 'sublot' | 'lot_track', data }
@@ -121,26 +152,123 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
     viewMode === 'single' ? selectedDate : rangeStart <= rangeEnd ? rangeStart : rangeEnd;
   const effectiveEnd =
     viewMode === 'single' ? selectedDate : rangeStart <= rangeEnd ? rangeEnd : rangeStart;
-  const trackingQueryStart = useMemo(() => shiftDateYmd(effectiveStart, -14), [effectiveStart]);
 
   useEffect(() => {
-    if (!trackingQueryStart || !effectiveEnd) return undefined;
-    setLiveStatus('connecting');
+    setLotWeekOffset(0);
+  }, [effectiveEnd]);
 
-    const q = query(
-      collection(db, 'reports'),
-      where('date', '>=', trackingQueryStart),
-      where('date', '<=', effectiveEnd)
-    );
+  const lotWeekEnd = useMemo(
+    () => shiftDateYmd(effectiveEnd, lotWeekOffset * 7),
+    [effectiveEnd, lotWeekOffset]
+  );
+  const lotWeekStart = useMemo(() => shiftDateYmd(lotWeekEnd, -6), [lotWeekEnd]);
+
+  const trackingQueryStart = useMemo(() => shiftDateYmd(effectiveStart, -14), [effectiveStart]);
+  const lotTrackingStart = useMemo(() => shiftDateYmd(lotWeekStart, -14), [lotWeekStart]);
+  const minTrackingStart = useMemo(
+    () => (lotTrackingStart && lotTrackingStart < trackingQueryStart ? lotTrackingStart : trackingQueryStart),
+    [lotTrackingStart, trackingQueryStart]
+  );
+  const maxQueryEnd = useMemo(
+    () => (lotWeekEnd && lotWeekEnd > effectiveEnd ? lotWeekEnd : effectiveEnd),
+    [lotWeekEnd, effectiveEnd]
+  );
+  const includesToday = maxQueryEnd >= today;
+  const historyEndNeeded = maxQueryEnd < today ? maxQueryEnd : yesterday;
+  // 초기 진입 시에는 21일 전까지 1회만 선조회하여, 오늘 일보 0건 -> 최근 가동일 자동 전환 시 추가 읽기 0회 보장
+  const historyStartNeeded = useMemo(() => {
+    if (!minTrackingStart) return '';
+    if (!hasInitializedHistoryRef.current && effectiveStart === today && lotWeekOffset === 0) {
+      return shiftDateYmd(today, -21);
+    }
+    return minTrackingStart;
+  }, [minTrackingStart, effectiveStart, lotWeekOffset, today]);
+
+  // 1) 과거 날짜 구간(-14일 추적 풀): localStorage+RAM 영구 캐시로 0ms 즉시 표시 후, 변동분(updatedAtMs) 및 누락 구간만 증분 동기화
+  useEffect(() => {
+    if (!historyStartNeeded || !historyEndNeeded || historyStartNeeded > historyEndNeeded) {
+      setHistoryReports([]);
+      setHistoryResolved(true);
+      return undefined;
+    }
+
+    let cancelled = false;
+    const forceRefresh = forceHistoryRefreshRef.current;
+    forceHistoryRefreshRef.current = false;
+    const alreadyCovered = !forceRefresh && has9bqcGrunHistoryCoverageSync(historyStartNeeded, historyEndNeeded);
+    if (!includesToday && !alreadyCovered) setLiveStatus('connecting');
+
+    fetch9bqcGrunHistoryWindow({
+      startDate: historyStartNeeded,
+      endDate: historyEndNeeded,
+      forceRefresh,
+      onDeltaSynced: (updatedDocs) => {
+        if (cancelled) return;
+        setHistoryReports(Array.isArray(updatedDocs) ? updatedDocs : []);
+        setLastSyncedAt(
+          new Date().toLocaleTimeString('ko-KR', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          })
+        );
+      }
+    })
+      .then((docs) => {
+        if (cancelled) return;
+        hasInitializedHistoryRef.current = true;
+        setHistoryReports(Array.isArray(docs) ? docs : []);
+        setHistoryResolved(true);
+        if (!includesToday) {
+          setLiveStatus('history');
+          setLastSyncedAt(
+            new Date().toLocaleTimeString('ko-KR', {
+              hour12: false,
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            })
+          );
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('9BQC G/RUN 과거 이력 조회 오류:', err);
+        setHistoryResolved(true);
+        if (!includesToday) setLiveStatus('fallback');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [historyStartNeeded, historyEndNeeded, historyRefreshTick, includesToday]);
+
+  // 2) 실시간 onSnapshot 구독은 오늘(today)이 조회 범위에 포함된 경우에만 + 오늘 날짜 1일치에만 한정
+  useEffect(() => {
+    if (!includesToday) {
+      setLiveStatus((prev) => (prev === 'fallback' ? prev : 'history'));
+      return undefined;
+    }
+
+    if (!get9bqcTodaySnapshotCache(today)) {
+      setLiveStatus('connecting');
+    }
+    const q = query(collection(db, 'reports'), where('date', '==', today));
 
     const unsub = onSnapshot(
       q,
       (snapshot) => {
         const docs = [];
         snapshot.forEach((docSnap) => {
-          docs.push({ id: docSnap.id, ...docSnap.data() });
+          const r = { id: docSnap.id, ...docSnap.data() };
+          if (resolveGm9bqcProcessCode(r)) {
+            docs.push(r);
+          }
         });
-        setLiveWindowReports(docs);
+        set9bqcTodaySnapshotCache(today, docs);
+        setLiveTodayReports(docs);
+        setTodayResolved(true);
         setLiveStatus('live');
         setLastSyncedAt(
           new Date().toLocaleTimeString('ko-KR', {
@@ -152,64 +280,91 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
         );
       },
       (err) => {
-        console.error('9BQC G/RUN 실시간 구독 오류 (기존 캐시 폴백):', err);
+        console.error('9BQC G/RUN 오늘 실시간 구독 오류 (캐시 폴백):', err);
+        setTodayResolved(true);
         setLiveStatus('fallback');
-        import('../../services/firestore')
-          .then(({ fetchReports }) =>
-            fetchReports({ startDate: trackingQueryStart, endDate: effectiveEnd })
-          )
-          .then((docs) => {
-            if (Array.isArray(docs)) setLiveWindowReports(docs);
-          })
-          .catch(() => {});
       }
     );
 
     return () => {
       unsub();
     };
-  }, [trackingQueryStart, effectiveEnd]);
+  }, [includesToday, today]);
 
-  // 만약 초기 진입 시 오늘 일보가 없고 실시간 윈도우 내에 최근 9BQC 가동일이 있으면 자동 맞춤
+  // 최근 9BQC 가동일 탐색 (부모 reports + 캐시 이력 + 오늘 실시간 풀 합산)
+  const latestActiveGrunDate = useMemo(() => {
+    const dates = [];
+    const collect = (list) => {
+      if (!Array.isArray(list)) return;
+      list.forEach((r) => {
+        if (r?.date && resolveGm9bqcProcessCode(r)) {
+          dates.push(r.date);
+        }
+      });
+    };
+    collect(reports);
+    collect(historyReports);
+    collect(liveTodayReports);
+    if (dates.length === 0) return null;
+    dates.sort();
+    return dates[dates.length - 1];
+  }, [reports, historyReports, liveTodayReports]);
+
+  // 초기 진입 시 오늘 일보가 0건이고 최근 가동일 일보가 있으면 최초 1회만 최근 가동일로 자동 맞춤
   useEffect(() => {
     if (userChangedDateRef.current || autoAppliedLatestRef.current) return;
-    if (!Array.isArray(liveWindowReports) || liveWindowReports.length === 0) return;
-    const grunDates = liveWindowReports
-      .filter((r) => r?.date && resolveGm9bqcProcessCode(r))
-      .map((r) => r.date)
-      .sort();
-    if (grunDates.length > 0 && !grunDates.includes(today)) {
-      const latest = grunDates[grunDates.length - 1];
-      autoAppliedLatestRef.current = true;
-      setSelectedDate(latest);
-      setRangeStart(latest);
-      setRangeEnd(latest);
-    }
-  }, [liveWindowReports, today]);
+    if (reportsLoading || !historyResolved || (includesToday && !todayResolved)) return;
 
-  // 전체 추적 풀 (부모 reports + 실시간 14일 윈도우 병합)
-  const trackingReports = useMemo(() => {
+    const allKnown = [...reports, ...historyReports, ...liveTodayReports];
+    const hasTodayReport = allKnown.some(
+      (r) => r?.date === today && Boolean(resolveGm9bqcProcessCode(r))
+    );
+    autoAppliedLatestRef.current = true;
+    if (!hasTodayReport && latestActiveGrunDate && latestActiveGrunDate !== today) {
+      setSelectedDate(latestActiveGrunDate);
+      setRangeStart(latestActiveGrunDate);
+      setRangeEnd(latestActiveGrunDate);
+    }
+  }, [
+    reportsLoading,
+    historyResolved,
+    todayResolved,
+    includesToday,
+    reports,
+    historyReports,
+    liveTodayReports,
+    latestActiveGrunDate,
+    today
+  ]);
+
+  // 전체 추적 풀 (부모 reports + 과거 캐시 + 오늘 실시간 풀 병합, 최신 실시간 우선)
+  const mergedReportsById = useMemo(() => {
     const byId = new Map();
     reports.forEach((r) => {
-      if (r?.id && r.date && r.date <= effectiveEnd) byId.set(r.id, r);
+      if (r?.id && r.date && r.date <= maxQueryEnd) byId.set(r.id, r);
     });
-    if (Array.isArray(liveWindowReports)) {
-      liveWindowReports.forEach((r) => {
-        if (r?.id) byId.set(r.id, r);
+    historyReports.forEach((r) => {
+      if (r?.id && r.date && r.date <= maxQueryEnd) byId.set(r.id, r);
+    });
+    if (includesToday) {
+      liveTodayReports.forEach((r) => {
+        if (r?.id && r.date && r.date <= maxQueryEnd) byId.set(r.id, r);
       });
     }
     return [...byId.values()];
-  }, [reports, liveWindowReports, effectiveEnd]);
+  }, [reports, historyReports, liveTodayReports, includesToday, maxQueryEnd]);
+
+  const trackingReports = useMemo(
+    () => mergedReportsById.filter((r) => r?.date && r.date <= effectiveEnd),
+    [mergedReportsById, effectiveEnd]
+  );
 
   // 선택된 기간 [effectiveStart, effectiveEnd] 일보
   const sourceReports = useMemo(() => {
-    if (Array.isArray(liveWindowReports)) {
-      return liveWindowReports.filter(
-        (r) => r?.date && r.date >= effectiveStart && r.date <= effectiveEnd
-      );
-    }
-    return reports.filter((r) => r?.date && r.date >= effectiveStart && r.date <= effectiveEnd);
-  }, [liveWindowReports, reports, effectiveStart, effectiveEnd]);
+    return mergedReportsById.filter(
+      (r) => r?.date && r.date >= effectiveStart && r.date <= effectiveEnd
+    );
+  }, [mergedReportsById, effectiveStart, effectiveEnd]);
 
   const model = useMemo(
     () =>
@@ -220,22 +375,50 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
     [sourceReports, trackingReports]
   );
 
-  // 공정별 최대 생산량 및 최대 불량 건수 (차트 스케일용)
-  const maxProcActual = useMemo(() => {
-    let m = 100;
+  // 좌하단: 선택 소재(FRT A/B/C, RR A/B) 기준 주간(7일) 분기형 LOT 추이도
+  const materialTimeline = useMemo(
+    () =>
+      buildMaterialWeeklyLotTimeline(mergedReportsById, {
+        materialKey: selectedMaterialKey,
+        weekEndDate: lotWeekEnd,
+        shiftFilter: 'ALL'
+      }),
+    [mergedReportsById, selectedMaterialKey, lotWeekEnd]
+  );
+
+  // 공정별 최대 생산량 및 최대 불량율(%) (5등분 눈금 맞춤 차트 스케일용)
+  const { maxProcActual, procActualStep } = useMemo(() => {
+    let rawMax = 0;
     model.processRows.forEach((p) => {
-      if (p.actual > m) m = p.actual;
-      if (p.plan > m) m = p.plan;
+      if (p.actual > rawMax) rawMax = p.actual;
     });
-    return m;
+    if (rawMax <= 0) return { maxProcActual: 100, procActualStep: 20 };
+    const roughStep = rawMax / 5;
+    const mag = Math.pow(10, Math.floor(Math.log10(roughStep)));
+    const norm = roughStep / mag;
+    let niceNorm = 1;
+    if (norm <= 1) niceNorm = 1;
+    else if (norm <= 2) niceNorm = 2;
+    else if (norm <= 2.5) niceNorm = 2.5;
+    else if (norm <= 5) niceNorm = 5;
+    else niceNorm = 10;
+    const step = Math.max(1, Math.round(niceNorm * mag));
+    return { maxProcActual: step * 5, procActualStep: step };
   }, [model.processRows]);
 
-  const maxProcDefect = useMemo(() => {
-    let m = 10;
+  const { maxProcDefectRate, defectRateStep } = useMemo(() => {
+    let rawMax = 0;
     model.processRows.forEach((p) => {
-      if (p.defect > m) m = p.defect;
+      if (p.defectRate > rawMax) rawMax = p.defectRate;
     });
-    return Math.ceil(m * 1.15);
+    if (rawMax <= 0) return { maxProcDefectRate: 1.0, defectRateStep: 0.2 };
+    const padded = rawMax * 1.25;
+    const candidates = [0.2, 0.5, 1, 2, 3, 5, 10, 20];
+    const step = candidates.find((s) => s * 5 >= padded) || Math.ceil(padded / 5);
+    return {
+      maxProcDefectRate: Number((step * 5).toFixed(1)),
+      defectRateStep: step
+    };
   }, [model.processRows]);
 
   const maxParetoCount = useMemo(() => {
@@ -243,27 +426,17 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
     return Math.max(1, model.top5Defects[0].count);
   }, [model.top5Defects]);
 
-  // 좌하단 LOT 추이도 행 필터링
-  const filteredTimelineRows = useMemo(() => {
-    const rows = model.lotTimeline?.rows || [];
+  // 좌하단 LOT 추이도 검색 필터링
+  const filteredMaterialLots = useMemo(() => {
+    const lots = materialTimeline.lots || [];
     const kw = lotSearch.trim().toLowerCase();
-    if (!kw) return rows;
-    return rows.filter(
-      (r) =>
-        r.group.toLowerCase().includes(kw) ||
-        r.sideSec.toLowerCase().includes(kw) ||
-        (r.lotKey && r.lotKey.toLowerCase().includes(kw))
+    if (!kw) return lots;
+    return lots.filter(
+      (l) =>
+        (l.lotKey && l.lotKey.toLowerCase().includes(kw)) ||
+        (l.materialLabel && l.materialLabel.toLowerCase().includes(kw))
     );
-  }, [model.lotTimeline, lotSearch]);
-
-  const frtTimelineRows = useMemo(
-    () => filteredTimelineRows.filter((r) => r.group === 'FRT'),
-    [filteredTimelineRows]
-  );
-  const rrTimelineRows = useMemo(
-    () => filteredTimelineRows.filter((r) => r.group === 'RR'),
-    [filteredTimelineRows]
-  );
+  }, [materialTimeline, lotSearch]);
 
   const periodLabel =
     viewMode === 'single'
@@ -290,15 +463,24 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
     }
   };
 
-  // 좌상단 12공정 불량 건수 SVG 폴리라인 좌표 (viewBox 0 0 1200 180)
+  // 좌상단 12공정 불량율(%) SVG 폴리라인 좌표 (viewBox 0 0 1200 172, 상단 여백 22px + 플롯 150px)
   const defectLinePoints = useMemo(() => {
     return model.processRows.map((p, idx) => {
+      const hasData = p.reportCount > 0 || p.actual > 0 || p.defect > 0;
       const x = ((idx + 0.5) / 12) * 1200;
-      const ratio = maxProcDefect > 0 ? Math.min(1, p.defect / maxProcDefect) : 0;
-      const y = 166 - ratio * 138;
-      return { x, y, defect: p.defect, code: p.code };
+      const ratio = maxProcDefectRate > 0 ? Math.min(1, p.defectRate / maxProcDefectRate) : 0;
+      const y = 170 - ratio * 148;
+      return {
+        x,
+        y,
+        ratio,
+        hasData,
+        defect: p.defect,
+        defectRate: p.defectRate,
+        code: p.code
+      };
     });
-  }, [model.processRows, maxProcDefect]);
+  }, [model.processRows, maxProcDefectRate]);
 
   const defectPolylineStr = useMemo(
     () => defectLinePoints.map((pt) => `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`).join(' '),
@@ -311,200 +493,375 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
       ? ((worstDefectIssue.count / model.totalDefect) * 100).toFixed(1)
       : '0.0';
 
-  const dateColumns = model.lotTimeline?.dateColumns || [];
+  const weekDateColumns = materialTimeline.dateColumns || [];
 
-  const renderTimelineRow = (row) => {
+  const renderTimelineCells = (cells, lineColor, emptyHint = '') => {
     const activeColIndices = [];
-    row.cells.forEach((cell, cIdx) => {
+    cells.forEach((cell, cIdx) => {
       if (cell.items && cell.items.length > 0) activeColIndices.push(cIdx);
     });
     const firstActiveIdx = activeColIndices.length > 0 ? activeColIndices[0] : -1;
     const lastActiveIdx =
       activeColIndices.length > 0 ? activeColIndices[activeColIndices.length - 1] : -1;
 
-    const isLh = row.sideSec.startsWith('LH');
+    return cells.map((cell, cIdx) => {
+      const inChain =
+        firstActiveIdx !== -1 &&
+        lastActiveIdx !== -1 &&
+        firstActiveIdx !== lastActiveIdx &&
+        cIdx >= firstActiveIdx &&
+        cIdx <= lastActiveIdx;
+      const isChainStart = cIdx === firstActiveIdx && firstActiveIdx !== lastActiveIdx;
+      const isChainEnd = cIdx === lastActiveIdx && firstActiveIdx !== lastActiveIdx;
+
+      return (
+        <div
+          key={cell.ymd}
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '3px',
+            flexWrap: 'wrap',
+            minHeight: '26px',
+            padding: '2px 3px',
+            borderLeft: '1px solid #f1f5f9'
+          }}
+        >
+          {inChain && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: isChainStart ? '50%' : 0,
+                right: isChainEnd ? '50%' : 0,
+                height: '2px',
+                background: lineColor,
+                transform: 'translateY(-50%)',
+                zIndex: 1,
+                opacity: 0.75
+              }}
+            />
+          )}
+
+          {emptyHint && cIdx === 0 && activeColIndices.length === 0 && (
+            <span
+              style={{
+                fontSize: '10px',
+                color: '#94a3b8',
+                fontWeight: 600,
+                zIndex: 2
+              }}
+            >
+              {emptyHint}
+            </span>
+          )}
+
+          {cell.items.map((item, iIdx) => {
+            if (item.type === 'missing') {
+              return (
+                <span
+                  key={`${cell.ymd}-miss-${iIdx}`}
+                  title={item.detail || '중간 공정 데이터 미확인'}
+                  style={{
+                    position: 'relative',
+                    zIndex: 2,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2px 7px',
+                    borderRadius: '999px',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    background: '#fef2f2',
+                    color: '#e11d48',
+                    border: '1px solid #fda4af',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {item.label}
+                </span>
+              );
+            }
+
+            return (
+              <span
+                key={`${cell.ymd}-item-${iIdx}`}
+                title={`${item.label} (${cell.ymd})`}
+                style={{
+                  position: 'relative',
+                  zIndex: 2,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '2px 8px',
+                  borderRadius: '999px',
+                  fontSize: '10px',
+                  fontWeight: 800,
+                  background: lineColor,
+                  color: '#ffffff',
+                  boxShadow: '0 1px 2px rgba(15, 23, 42, 0.14)',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {item.label}
+              </span>
+            );
+          })}
+        </div>
+      );
+    });
+  };
+
+  const renderLotBranchBlock = (lot) => {
+    const colCount = Math.max(1, weekDateColumns.length);
+    const gridTemplate = `144px repeat(${colCount}, minmax(74px, 1fr))`;
 
     return (
       <div
-        key={row.rowKey}
-        className="grun-lot-timeline-row"
+        key={lot.lotKey}
+        className="grun-lot-branch-card"
         onClick={() => {
-          if (!row.isEmpty && row.reports?.length > 0) {
-            setInspectorModal({ type: 'lot_track', data: row });
+          if (lot.reports?.length > 0) {
+            setInspectorModal({ type: 'lot_track', data: lot });
           }
         }}
-        title={
-          row.isEmpty
-            ? `${row.group} ${row.sideSec} — 조회 기간 내 입력된 소재 LOT 없음`
-            : `${row.group} ${row.sideSec} | 소재 시작 LOT: ${row.lotKey} (클릭 시 투입 공정 일보 상세 보기)`
-        }
+        title={`${lot.materialLabel} | 출발 LOT ${lot.lotKey} (클릭 시 공정별 추적 및 원본 일보 보기)`}
         style={{
-          display: 'grid',
-          gridTemplateColumns: `112px repeat(${Math.max(1, dateColumns.length)}, minmax(96px, 1fr))`,
-          alignItems: 'center',
-          minHeight: '31px',
-          padding: '3px 6px',
-          borderBottom: '1px solid #f1f5f9',
-          cursor: !row.isEmpty && row.reports?.length > 0 ? 'pointer' : 'default',
-          position: 'relative',
-          transition: 'background 0.12s ease'
+          border: '1px solid #cbd5e1',
+          borderRadius: '8px',
+          background: '#ffffff',
+          marginBottom: '8px',
+          overflow: 'hidden',
+          cursor: lot.reports?.length > 0 ? 'pointer' : 'default',
+          transition: 'border-color 0.15s ease, box-shadow 0.15s ease'
         }}
       >
-        {/* 좌측 간결 표기: [FRT / RR] + [LH A / RH A ...] */}
+        {/* 1) 출발 LOT 행 (L/R 구별 없음 · 단일 출발) */}
         <div
           style={{
-            display: 'flex',
+            display: 'grid',
+            gridTemplateColumns: gridTemplate,
             alignItems: 'center',
-            gap: '5px',
-            paddingRight: '6px',
-            zIndex: 2
+            background: '#f8fafc',
+            borderBottom: '1px dashed #cbd5e1',
+            minHeight: '32px'
           }}
         >
-          <span
+          <div
             style={{
-              display: 'inline-flex',
+              position: 'relative',
+              display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              width: '34px',
-              height: '20px',
-              borderRadius: '5px',
-              fontSize: '10.5px',
-              fontWeight: 800,
-              background: row.group === 'FRT' ? '#e0e7ff' : '#ccfbf1',
-              color: row.group === 'FRT' ? '#3730a3' : '#115e59',
-              flexShrink: 0
+              gap: '5px',
+              padding: '4px 6px 4px 10px',
+              height: '100%'
             }}
           >
-            {row.group}
-          </span>
-          <span
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '52px',
-              height: '20px',
-              borderRadius: '5px',
-              fontSize: '11px',
-              fontWeight: 800,
-              background: isLh ? '#f1f5f9' : '#f8fafc',
-              color: isLh ? '#0f172a' : '#334155',
-              border: '1px solid #cbd5e1',
-              flexShrink: 0
-            }}
-          >
-            {row.sideSec}
-          </span>
-        </div>
-
-        {/* 우측 날짜 타임라인 셀들 */}
-        {row.cells.map((cell, cIdx) => {
-          const inChain =
-            firstActiveIdx !== -1 &&
-            lastActiveIdx !== -1 &&
-            firstActiveIdx !== lastActiveIdx &&
-            cIdx >= firstActiveIdx &&
-            cIdx <= lastActiveIdx;
-          const isChainStart = cIdx === firstActiveIdx && firstActiveIdx !== lastActiveIdx;
-          const isChainEnd = cIdx === lastActiveIdx && firstActiveIdx !== lastActiveIdx;
-
-          return (
+            {/* 아래 LH/RH 분기선 시작점 */}
             <div
-              key={cell.ymd}
+              aria-hidden="true"
               style={{
+                position: 'absolute',
+                left: '14px',
+                bottom: 0,
+                height: '6px',
+                width: '2px',
+                background: '#94a3b8'
+              }}
+            />
+            <span
+              style={{
+                width: '9px',
+                height: '9px',
+                borderRadius: '50%',
+                background: lot.originColor,
+                flexShrink: 0,
                 position: 'relative',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '4px',
-                flexWrap: 'wrap',
-                minHeight: '24px',
-                padding: '1px 4px'
+                zIndex: 2
+              }}
+            />
+            <span
+              style={{
+                fontSize: '11.5px',
+                fontWeight: 900,
+                color: '#0f172a',
+                whiteSpace: 'nowrap'
               }}
             >
-              {/* 공정 배지 간 가로 연결선 */}
-              {inChain && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: isChainStart ? '50%' : 0,
-                    right: isChainEnd ? '50%' : 0,
-                    height: '2px',
-                    background: row.color,
-                    transform: 'translateY(-50%)',
-                    zIndex: 1,
-                    opacity: 0.75
-                  }}
-                />
-              )}
+              {lot.lotKey}
+            </span>
+            <span
+              style={{
+                fontSize: '9.5px',
+                fontWeight: 800,
+                padding: '1px 5px',
+                borderRadius: '4px',
+                background: '#e2e8f0',
+                color: '#334155',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {!lot.origin.hasWeekActivity && lot.origin.preWeekLastDate
+                ? `전주 ${lot.origin.preWeekLastDate}`
+                : '공용 출발'}
+            </span>
+          </div>
 
-              {row.isEmpty && cIdx === 0 && (
-                <span
-                  style={{
-                    fontSize: '10.5px',
-                    color: '#94a3b8',
-                    fontWeight: 600,
-                    zIndex: 2
-                  }}
-                >
-                  투입 LOT 대기
-                </span>
-              )}
+          {renderTimelineCells(lot.origin.cells, lot.originColor)}
+        </div>
 
-              {cell.items.map((item, iIdx) => {
-                if (item.type === 'missing') {
-                  return (
-                    <span
-                      key={`${cell.ymd}-miss-${iIdx}`}
-                      title={item.detail || '중간 공정 데이터 미확인'}
-                      style={{
-                        position: 'relative',
-                        zIndex: 2,
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '2px 9px',
-                        borderRadius: '999px',
-                        fontSize: '10.5px',
-                        fontWeight: 800,
-                        background: '#fef2f2',
-                        color: '#e11d48',
-                        border: '1px solid #fda4af',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {item.label}
-                    </span>
-                  );
-                }
+        {/* 2) LH 갈래 행 */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: gridTemplate,
+            alignItems: 'center',
+            borderBottom: '1px solid #f1f5f9',
+            minHeight: '30px'
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '3px 6px 3px 26px',
+              height: '100%'
+            }}
+          >
+            {/* ├─ 분기 커넥터 */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '14px',
+                top: 0,
+                bottom: 0,
+                width: '2px',
+                background: '#94a3b8'
+              }}
+            />
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '14px',
+                top: '50%',
+                width: '10px',
+                height: '2px',
+                background: '#94a3b8',
+                transform: 'translateY(-50%)'
+              }}
+            />
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '30px',
+                height: '19px',
+                padding: '0 6px',
+                borderRadius: '4px',
+                fontSize: '10.5px',
+                fontWeight: 900,
+                background: '#dbeafe',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe'
+              }}
+            >
+              LH
+            </span>
+            {!lot.lh.hasWeekActivity && lot.lh.preWeekLastDate && (
+              <span style={{ fontSize: '9.5px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                전주 {lot.lh.preWeekLastDate}
+              </span>
+            )}
+          </div>
 
-                return (
-                  <span
-                    key={`${cell.ymd}-item-${iIdx}`}
-                    style={{
-                      position: 'relative',
-                      zIndex: 2,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '2px 10px',
-                      borderRadius: '999px',
-                      fontSize: '10.5px',
-                      fontWeight: 800,
-                      background: row.color,
-                      color: '#ffffff',
-                      boxShadow: '0 1px 2px rgba(15, 23, 42, 0.12)',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                );
-              })}
-            </div>
-          );
-        })}
+          {renderTimelineCells(
+            lot.lh.cells,
+            '#2563eb',
+            !lot.lh.hasWeekActivity && !lot.lh.preWeekLastDate ? '미투입' : ''
+          )}
+        </div>
+
+        {/* 3) RH 갈래 행 */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: gridTemplate,
+            alignItems: 'center',
+            minHeight: '30px'
+          }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '3px 6px 3px 26px',
+              height: '100%'
+            }}
+          >
+            {/* └─ 분기 커넥터 */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '14px',
+                top: 0,
+                height: '50%',
+                width: '2px',
+                background: '#94a3b8'
+              }}
+            />
+            <div
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '14px',
+                top: '50%',
+                width: '10px',
+                height: '2px',
+                background: '#94a3b8',
+                transform: 'translateY(-50%)'
+              }}
+            />
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '30px',
+                height: '19px',
+                padding: '0 6px',
+                borderRadius: '4px',
+                fontSize: '10.5px',
+                fontWeight: 900,
+                background: '#ccfbf1',
+                color: '#0f766e',
+                border: '1px solid #99f6e4'
+              }}
+            >
+              RH
+            </span>
+            {!lot.rh.hasWeekActivity && lot.rh.preWeekLastDate && (
+              <span style={{ fontSize: '9.5px', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                전주 {lot.rh.preWeekLastDate}
+              </span>
+            )}
+          </div>
+
+          {renderTimelineCells(
+            lot.rh.cells,
+            '#0d9488',
+            !lot.rh.hasWeekActivity && !lot.rh.preWeekLastDate ? '미투입' : ''
+          )}
+        </div>
       </div>
     );
   };
@@ -561,8 +918,12 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           background: rgba(79, 70, 229, 0.06);
           border-radius: 6px;
         }
-        [data-analytics-board="9bqc-grun"] .grun-lot-timeline-row:hover {
-          background: #f8fafc !important;
+        [data-analytics-board="9bqc-grun"] .grun-lot-branch-card:hover {
+          border-color: #6366f1 !important;
+          box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
+        }
+        [data-analytics-board="9bqc-grun"] .grun-mat-btn:hover {
+          background: #e2e8f0 !important;
         }
         [data-analytics-board="9bqc-grun"] .grun-sublot-row:hover {
           border-color: #4f46e5 !important;
@@ -754,8 +1115,18 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
               borderRadius: '8px',
               fontSize: '12px',
               fontWeight: 800,
-              background: liveStatus === 'live' ? '#dce4f2' : '#fef3c7',
-              color: liveStatus === 'live' ? '#1e293b' : '#b45309',
+              background:
+                liveStatus === 'live'
+                  ? '#dce4f2'
+                  : liveStatus === 'history'
+                    ? '#eef2f6'
+                    : '#fef3c7',
+              color:
+                liveStatus === 'live'
+                  ? '#1e293b'
+                  : liveStatus === 'history'
+                    ? '#334155'
+                    : '#b45309',
               border: '1px solid #cbd5e1'
             }}
             title={lastSyncedAt ? `최근 동기화: ${lastSyncedAt}` : ''}
@@ -765,12 +1136,44 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 width: '7px',
                 height: '7px',
                 borderRadius: '50%',
-                background: liveStatus === 'live' ? '#10b981' : '#f59e0b',
-                animation: 'gm9bqcPulse 1.8s infinite'
+                background:
+                  liveStatus === 'live'
+                    ? '#10b981'
+                    : liveStatus === 'history'
+                      ? '#64748b'
+                      : '#f59e0b',
+                animation: liveStatus === 'live' || liveStatus === 'connecting' ? 'gm9bqcPulse 1.8s infinite' : 'none'
               }}
             />
-            {liveStatus === 'live' ? '실시간 ON' : '연결중...'}
+            {liveStatus === 'live'
+              ? '실시간 ON'
+              : liveStatus === 'history'
+                ? '과거 이력 (캐시)'
+                : liveStatus === 'fallback'
+                  ? '캐시 모드'
+                  : '조회중...'}
           </span>
+          <button
+            type="button"
+            onClick={() => {
+              forceHistoryRefreshRef.current = true;
+              setHistoryRefreshTick((t) => t + 1);
+            }}
+            style={{
+              background: '#ffffff',
+              color: '#334155',
+              border: '1px solid #cbd5e1',
+              borderRadius: '7px',
+              padding: '4px 9px',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              height: '30px'
+            }}
+            title="로컬 캐시를 비우고 Firestore에서 전체 이력을 다시 동기화합니다"
+          >
+            새로고침
+          </button>
         </div>
 
         {/* 우측: 3대 핵심 요약 배지 (종합 수율 / 총 생산 / 불량률) + 엑셀 다운로드 */}
@@ -851,7 +1254,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           </div>
 
           <div style={{ padding: '12px 16px 14px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {/* 상단 범례 */}
+            {/* 상단 범례 (생산수량 · 불량율 % 2종) */}
             <div
               style={{
                 display: 'flex',
@@ -870,46 +1273,35 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                     width: '10px',
                     height: '10px',
                     borderRadius: '2px',
-                    background: '#4338ca'
-                  }}
-                />
-                공정 품질 (%)
-              </span>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                <span
-                  style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '2px',
                     background: '#10b981'
                   }}
                 />
-                생산 실적 지수
+                생산수량 (EA)
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                 <span
                   style={{
                     width: '16px',
                     height: '2.5px',
-                    background: '#9d174d',
+                    background: '#be123c',
                     display: 'inline-block'
                   }}
                 />
-                불량 건수
+                불량율 (%)
               </span>
             </div>
 
-            {/* 복합 차트 본체: 좌측 Y축(%) + 중앙 12개 공정 막대 & 꺾은선 + 우측 Y축(불량 건수) */}
+            {/* 복합 차트 본체: 좌측 Y축(생산수량) + 중앙 12개 공정 막대 & 꺾은선 + 우측 Y축(불량율 %) */}
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '38px 1fr 34px',
+                gridTemplateColumns: '48px 1fr 40px',
                 alignItems: 'stretch',
                 gap: '6px',
-                height: '188px'
+                height: '174px'
               }}
             >
-              {/* 좌측 Y축 (0% ~ 100%) */}
+              {/* 좌측 Y축 (생산수량) */}
               <div
                 style={{
                   display: 'flex',
@@ -919,24 +1311,22 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   fontWeight: 700,
                   color: '#475569',
                   textAlign: 'right',
-                  paddingTop: '14px',
-                  paddingBottom: '4px'
+                  lineHeight: 1,
+                  paddingTop: '17px',
+                  paddingBottom: '0px'
                 }}
               >
-                <span>100%</span>
-                <span>80%</span>
-                <span>60%</span>
-                <span>40%</span>
-                <span>20%</span>
-                <span>0%</span>
+                {[5, 4, 3, 2, 1, 0].map((stepIdx) => (
+                  <span key={stepIdx}>{(procActualStep * stepIdx).toLocaleString()}</span>
+                ))}
               </div>
 
-              {/* 중앙 12개 공정 막대 + 불량 건수 SVG 오버레이 */}
+              {/* 중앙 12개 공정 막대(생산수량) + 꺾은선(불량율 %) */}
               <div
                 style={{
                   position: 'relative',
                   borderBottom: '1.5px solid #cbd5e1',
-                  paddingTop: '18px',
+                  paddingTop: '22px',
                   display: 'grid',
                   gridTemplateColumns: 'repeat(12, minmax(0, 1fr))',
                   alignItems: 'end'
@@ -950,7 +1340,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                       position: 'absolute',
                       left: 0,
                       right: 0,
-                      top: `${18 + step * 148}px`,
+                      top: `${22 + step * 150}px`,
                       borderTop: '1px solid #e2e8f0',
                       pointerEvents: 'none'
                     }}
@@ -959,23 +1349,23 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
 
                 {model.processRows.map((proc) => {
                   const hasData = proc.reportCount > 0 || proc.actual > 0 || proc.defect > 0;
-                  const qPct = hasData ? Math.max(8, Math.min(100, proc.qualityRate)) : 0;
                   const actPct =
                     proc.actual > 0
-                      ? Math.max(12, Math.min(100, Math.round((proc.actual / maxProcActual) * 100)))
+                      ? Math.max(4, Math.min(100, (proc.actual / maxProcActual) * 100))
                       : 0;
-                  const shortDisplay = proc.shortName
-                    .replace(/^(조인트|후가공|검사포장)-/, '');
+                  const barHeightPx = hasData ? (actPct / 100) * 150 : 4;
+                  const barLabelBottom = Math.min(154, Math.max(6, Math.round(barHeightPx) + 3));
+                  const shortDisplay = proc.shortName.replace(/^(조인트|후가공|검사포장)-/, '');
 
                   return (
                     <div
                       key={proc.code}
                       className="grun-proc-col"
                       onClick={() => setInspectorModal({ type: 'process', data: proc })}
-                      title={`#${proc.code} ${proc.processName} | 품질 ${proc.qualityRate.toFixed(1)}% | 실적 ${proc.actual.toLocaleString()} EA (LH ${proc.lh.toLocaleString()} / RH ${proc.rh.toLocaleString()}) | 불량 ${proc.defect}건`}
+                      title={`#${proc.code} ${proc.processName} | 생산수량 ${proc.actual.toLocaleString()} EA (LH ${proc.lh.toLocaleString()} / RH ${proc.rh.toLocaleString()}) | 불량 ${proc.defect}건 (${proc.defectRate.toFixed(1)}%)`}
                       style={{
                         position: 'relative',
-                        height: '152px',
+                        height: '150px',
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
@@ -985,18 +1375,26 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                         padding: '0 2px'
                       }}
                     >
+                      {/* 막대 위 생산수량 숫자 표시 */}
                       {hasData && (
                         <span
                           style={{
                             position: 'absolute',
-                            top: '-15px',
+                            bottom: `${barLabelBottom}px`,
                             fontSize: '10px',
                             fontWeight: 800,
-                            color: proc.defect > 0 ? '#be123c' : '#0f172a',
-                            whiteSpace: 'nowrap'
+                            color: '#065f46',
+                            background: 'rgba(255, 255, 255, 0.88)',
+                            padding: '0 3px',
+                            borderRadius: '3px',
+                            lineHeight: 1.15,
+                            whiteSpace: 'nowrap',
+                            letterSpacing: '-0.3px',
+                            zIndex: 4,
+                            pointerEvents: 'none'
                           }}
                         >
-                          {proc.qualityRate.toFixed(1)}%
+                          {proc.actual.toLocaleString()}
                         </span>
                       )}
 
@@ -1005,30 +1403,18 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                           display: 'flex',
                           alignItems: 'flex-end',
                           justifyContent: 'center',
-                          gap: '3px',
                           width: '100%',
-                          height: '148px'
+                          height: '150px'
                         }}
                       >
-                        {/* 막대 1: 공정 품질 (%) */}
+                        {/* 단일 막대: 생산수량 */}
                         <div
                           style={{
-                            width: '34%',
-                            maxWidth: '17px',
-                            height: hasData ? `${qPct}%` : '4px',
-                            background: hasData ? '#4338ca' : '#e2e8f0',
-                            borderRadius: '3px 3px 0 0',
-                            transition: 'height 0.2s ease'
-                          }}
-                        />
-                        {/* 막대 2: 생산 실적 지수 */}
-                        <div
-                          style={{
-                            width: '34%',
-                            maxWidth: '17px',
+                            width: '54%',
+                            maxWidth: '28px',
                             height: hasData ? `${actPct}%` : '4px',
                             background: hasData ? '#10b981' : '#e2e8f0',
-                            borderRadius: '3px 3px 0 0',
+                            borderRadius: '4px 4px 0 0',
                             transition: 'height 0.2s ease'
                           }}
                         />
@@ -1051,23 +1437,24 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   );
                 })}
 
-                {/* 불량 건수 꺾은선 오버레이 */}
+                {/* 불량율 (%) 꺾은선 + 점별 수치 라벨 오버레이 */}
                 <svg
-                  viewBox="0 0 1200 180"
+                  viewBox="0 0 1200 172"
                   preserveAspectRatio="none"
                   style={{
                     position: 'absolute',
-                    inset: 0,
+                    top: 0,
+                    left: 0,
                     width: '100%',
-                    height: '166px',
+                    height: '172px',
                     pointerEvents: 'none',
-                    zIndex: 3
+                    zIndex: 5
                   }}
                 >
                   <polyline
                     fill="none"
-                    stroke="#9d174d"
-                    strokeWidth="4"
+                    stroke="#be123c"
+                    strokeWidth="3.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     points={defectPolylineStr}
@@ -1077,16 +1464,60 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                       key={pt.code}
                       cx={pt.x}
                       cy={pt.y}
-                      r={pt.defect > 0 ? '6' : '4'}
-                      fill={pt.defect > 0 ? '#be123c' : '#9d174d'}
+                      r={pt.defect > 0 ? '6' : '4.5'}
+                      fill={pt.defect > 0 ? '#be123c' : '#9f1239'}
                       stroke="#ffffff"
                       strokeWidth="2"
                     />
                   ))}
                 </svg>
+
+                {/* 불량율 (%) 수치 라벨 (HTML 오버레이: 글자 찌그러짐 없이 선명 표시 + 막대 수치와 겹침 회피) */}
+                {defectLinePoints.map((pt, idx) => {
+                  if (!pt.hasData) return null;
+                  const proc = model.processRows[idx];
+                  const actPct =
+                    proc?.actual > 0
+                      ? Math.max(4, Math.min(100, (proc.actual / maxProcActual) * 100))
+                      : 0;
+                  const barHeightPx = (actPct / 100) * 150;
+                  const barLabelBottom = Math.min(154, Math.max(6, Math.round(barHeightPx) + 3));
+                  const dotBottomPx = 2 + pt.ratio * 148;
+                  let labelBottomPx = dotBottomPx + 9;
+                  if (labelBottomPx < barLabelBottom + 14 && labelBottomPx + 14 > barLabelBottom) {
+                    labelBottomPx =
+                      dotBottomPx < barLabelBottom && dotBottomPx >= 24
+                        ? dotBottomPx - 20
+                        : Math.min(160, barLabelBottom + 15);
+                  }
+                  return (
+                    <span
+                      key={`rate-${pt.code}`}
+                      style={{
+                        position: 'absolute',
+                        left: `${((idx + 0.5) / 12) * 100}%`,
+                        bottom: `${Math.min(160, labelBottomPx)}px`,
+                        transform: 'translateX(-50%)',
+                        fontSize: '9.5px',
+                        fontWeight: 800,
+                        color: pt.defect > 0 ? '#be123c' : '#64748b',
+                        background: pt.defect > 0 ? 'rgba(255, 241, 242, 0.94)' : 'rgba(255, 255, 255, 0.9)',
+                        border: pt.defect > 0 ? '1px solid #fecdd3' : '1px solid #e2e8f0',
+                        padding: '0 3px',
+                        borderRadius: '4px',
+                        lineHeight: 1.2,
+                        whiteSpace: 'nowrap',
+                        zIndex: 6,
+                        pointerEvents: 'none'
+                      }}
+                    >
+                      {pt.defectRate.toFixed(1)}%
+                    </span>
+                  );
+                })}
               </div>
 
-              {/* 우측 Y축 (불량 건수) */}
+              {/* 우측 Y축 (불량율 %) */}
               <div
                 style={{
                   display: 'flex',
@@ -1094,18 +1525,17 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   justifyContent: 'space-between',
                   fontSize: '10.5px',
                   fontWeight: 700,
-                  color: '#475569',
+                  color: '#be123c',
                   textAlign: 'left',
-                  paddingTop: '14px',
-                  paddingBottom: '4px'
+                  lineHeight: 1,
+                  paddingTop: '17px',
+                  paddingBottom: '0px'
                 }}
               >
-                <span>{maxProcDefect}</span>
-                <span>{Math.round(maxProcDefect * 0.8)}</span>
-                <span>{Math.round(maxProcDefect * 0.6)}</span>
-                <span>{Math.round(maxProcDefect * 0.4)}</span>
-                <span>{Math.round(maxProcDefect * 0.2)}</span>
-                <span>0</span>
+                {[5, 4, 3, 2, 1, 0].map((stepIdx) => {
+                  const v = Number((defectRateStep * stepIdx).toFixed(1));
+                  return <span key={stepIdx}>{v === 0 ? '0%' : `${v}%`}</span>;
+                })}
               </div>
             </div>
 
@@ -1113,7 +1543,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '38px 1fr 34px',
+                gridTemplateColumns: '48px 1fr 40px',
                 gap: '6px',
                 marginTop: '26px'
               }}
@@ -1314,7 +1744,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
           </div>
         </div>
 
-        {/* ==================== 3. 좌하단: LOT 추이도 (예시 1-B안 날짜 타임라인축) ==================== */}
+        {/* ==================== 3. 좌하단: LOT 추이도 (좌측 5개 소재 선택 + 일주일 단위 분기 타임라인) ==================== */}
         <div className="grun-panel-card">
           <div className="grun-panel-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -1329,19 +1759,94 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   fontWeight: 800
                 }}
               >
-                일 단위 소재 LOT · 복수 LOT 동시 추적
+                {materialTimeline.material?.label || 'FRT A'} · 공용 출발 → LH/RH 분기 (7일)
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '11px', color: '#e2e8f0', fontWeight: 700 }}>
-                — 정상 연계 &nbsp;&nbsp; ✕ 공정 끊김(미추적)
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              {/* 일주일 단위 기간 이동 컨트롤 */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'rgba(255,255,255,0.12)',
+                  padding: '2px 6px',
+                  borderRadius: '7px'
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setLotWeekOffset((w) => w - 1)}
+                  title="이전 1주일 보기"
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#ffffff',
+                    cursor: 'pointer',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    padding: '2px 5px'
+                  }}
+                >
+                  ◀ 이전 주
+                </button>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: '#f8fafc',
+                    padding: '0 4px',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {weekDateColumns[0]?.label || ''} ~ {weekDateColumns[weekDateColumns.length - 1]?.label || ''}
+                </span>
+                <button
+                  type="button"
+                  disabled={lotWeekEnd >= today}
+                  onClick={() => setLotWeekOffset((w) => w + 1)}
+                  title="다음 1주일 보기"
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: lotWeekEnd >= today ? '#64748b' : '#ffffff',
+                    cursor: lotWeekEnd >= today ? 'not-allowed' : 'pointer',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    padding: '2px 5px'
+                  }}
+                >
+                  다음 주 ▶
+                </button>
+                {lotWeekOffset !== 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setLotWeekOffset(0)}
+                    style={{
+                      border: '1px solid rgba(255,255,255,0.3)',
+                      background: 'rgba(255,255,255,0.15)',
+                      color: '#ffffff',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '10.5px',
+                      fontWeight: 700,
+                      padding: '1px 6px'
+                    }}
+                  >
+                    기준주
+                  </button>
+                )}
+              </div>
+
+              <span style={{ fontSize: '10.5px', color: '#e2e8f0', fontWeight: 700 }}>
+                — 정상연계 &nbsp; ✕ 끊김
               </span>
               <input
                 type="text"
                 value={lotSearch}
                 onChange={(e) => setLotSearch(e.target.value)}
-                placeholder="🔍 LOT / 구분 검색"
+                placeholder="🔍 LOT 검색"
                 style={{
                   background: '#ffffff',
                   color: '#0f172a',
@@ -1349,57 +1854,182 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                   borderRadius: '6px',
                   padding: '3px 8px',
                   fontSize: '11px',
-                  width: '124px',
+                  width: '106px',
                   height: '24px'
                 }}
               />
             </div>
           </div>
 
-          <div style={{ padding: '8px 10px 10px', overflowX: 'auto', flex: 1 }}>
-            {/* 상단 날짜 타임라인 헤더 */}
+          <div
+            style={{
+              display: 'flex',
+              flex: 1,
+              minHeight: '240px',
+              alignItems: 'stretch'
+            }}
+          >
+            {/* 좌측 5개 소재 선택 사이드 레일 (FRT A/B/C, RR A/B) */}
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: `112px repeat(${Math.max(1, dateColumns.length)}, minmax(96px, 1fr))`,
-                alignItems: 'center',
-                background: '#f1f5f9',
-                borderRadius: '6px',
-                padding: '6px 6px',
-                fontSize: '11.5px',
-                fontWeight: 800,
-                color: '#1e293b',
-                marginBottom: '4px'
+                width: '116px',
+                flexShrink: 0,
+                background: '#f8fafc',
+                borderRight: '1px solid #cbd5e1',
+                padding: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5px'
               }}
             >
-              <div style={{ paddingLeft: '10px' }}>구분</div>
-              {dateColumns.map((col) => (
-                <div key={col.ymd} style={{ textAlign: 'center' }}>
-                  {col.label}
-                </div>
-              ))}
-            </div>
-
-            {/* FRT (LH A ~ RH C) 추적 행 */}
-            <div>{frtTimelineRows.map((row) => renderTimelineRow(row))}</div>
-
-            {/* FRT / RR 구분선 */}
-            {frtTimelineRows.length > 0 && rrTimelineRows.length > 0 && (
               <div
                 style={{
-                  borderTop: '2px solid #cbd5e1',
-                  margin: '4px 0'
+                  fontSize: '10.5px',
+                  fontWeight: 800,
+                  color: '#64748b',
+                  padding: '2px 4px',
+                  marginBottom: '2px'
                 }}
-              />
-            )}
+              >
+                소재 선택 (5종)
+              </div>
+              {MATERIAL_TRACE_OPTIONS.map((opt, idx) => {
+                const isSelected = selectedMaterialKey === opt.key;
+                const cnt = materialTimeline.materialCounts?.[opt.key] || 0;
+                const isFrt = opt.group === 'FRT';
+                return (
+                  <React.Fragment key={opt.key}>
+                    {idx === 3 && (
+                      <div style={{ borderTop: '1px solid #cbd5e1', margin: '3px 0' }} />
+                    )}
+                    <button
+                      type="button"
+                      className={isSelected ? undefined : 'grun-mat-btn'}
+                      onClick={() => setSelectedMaterialKey(opt.key)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '4px',
+                        width: '100%',
+                        padding: '8px 8px',
+                        borderRadius: '8px',
+                        border: isSelected ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                        background: isSelected ? '#162b4c' : '#ffffff',
+                        color: isSelected ? '#ffffff' : '#0f172a',
+                        cursor: 'pointer',
+                        transition: 'all 0.12s ease',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            padding: '1px 5px',
+                            borderRadius: '4px',
+                            background: isSelected
+                              ? isFrt
+                                ? '#3b82f6'
+                                : '#14b8a6'
+                              : isFrt
+                                ? '#e0e7ff'
+                                : '#ccfbf1',
+                            color: isSelected
+                              ? '#ffffff'
+                              : isFrt
+                                ? '#3730a3'
+                                : '#115e59'
+                          }}
+                        >
+                          {opt.group}
+                        </span>
+                        <span style={{ fontSize: '12.5px', fontWeight: 900 }}>
+                          {opt.section}
+                        </span>
+                      </div>
+                      <span
+                        style={{
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          color: isSelected
+                            ? '#cbd5e1'
+                            : cnt > 0
+                              ? '#2563eb'
+                              : '#94a3b8'
+                        }}
+                      >
+                        {cnt}
+                      </span>
+                    </button>
+                  </React.Fragment>
+                );
+              })}
+            </div>
 
-            {/* RR (LH A ~ RH B) 추적 행 */}
-            <div>{rrTimelineRows.map((row) => renderTimelineRow(row))}</div>
+            {/* 우측 선택 소재 주간(7일) 분기 타임라인 영역 */}
+            <div style={{ flex: 1, minWidth: 0, padding: '8px 10px 10px', overflowX: 'auto' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `144px repeat(${Math.max(1, weekDateColumns.length)}, minmax(74px, 1fr))`,
+                  alignItems: 'center',
+                  background: '#f1f5f9',
+                  borderRadius: '6px',
+                  padding: '6px 0',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  color: '#1e293b',
+                  marginBottom: '8px'
+                }}
+              >
+                <div style={{ paddingLeft: '10px' }}>출발 LOT / 갈래</div>
+                {weekDateColumns.map((col) => {
+                  const isTodayCol = col.ymd === today;
+                  const isRefEndCol = col.ymd === effectiveEnd;
+                  return (
+                    <div
+                      key={col.ymd}
+                      style={{
+                        textAlign: 'center',
+                        color: isTodayCol || isRefEndCol ? '#1d4ed8' : '#1e293b'
+                      }}
+                    >
+                      {col.label}
+                      <span style={{ fontSize: '10px', fontWeight: 700, marginLeft: '2px', opacity: 0.8 }}>
+                        ({col.weekday})
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {filteredMaterialLots.length > 0 ? (
+                <div>{filteredMaterialLots.map((lot) => renderLotBranchBlock(lot))}</div>
+              ) : (
+                <div
+                  style={{
+                    padding: '32px 16px',
+                    textAlign: 'center',
+                    color: '#64748b',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    background: '#f8fafc',
+                    borderRadius: '8px',
+                    border: '1px dashed #cbd5e1'
+                  }}
+                >
+                  선택한 소재(<strong>{materialTimeline.material?.label}</strong>)의 해당 주간(
+                  {materialTimeline.weekStart} ~ {materialTimeline.weekEnd}) 투입 LOT 이력이 없습니다.
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* ==================== 4. 우하단: 부자재 LOT 현황 (5종 카드: 패드/브라켓/조인트재료/Glass/D/V) ==================== */}
-        <div className="grun-panel-card">
+        <div className="grun-panel-card" style={{ alignSelf: 'start' }}>
           <div className="grun-panel-header">
             <span style={{ fontSize: '14.5px', fontWeight: 800 }}>부자재 LOT 현황</span>
             <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 600 }}>
@@ -1409,12 +2039,11 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
 
           <div
             style={{
-              padding: '10px 12px',
+              padding: '12px',
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
-              gap: '7px',
-              flex: 1
+              justifyContent: 'flex-start',
+              gap: '10px'
             }}
           >
             {(model.subMaterial5Cards || []).map((card) => {
@@ -1579,7 +2208,7 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 {inspectorModal.type === 'process'
                   ? `🏭 #${inspectorModal.data.code} ${inspectorModal.data.processName} — 상세 현황 (${periodLabel})`
                   : inspectorModal.type === 'lot_track'
-                    ? `🧵 [${inspectorModal.data.group} ${inspectorModal.data.sideSec}] 소재 LOT ${inspectorModal.data.lotKey} 공정별 추적 내역`
+                    ? `🧵 [${inspectorModal.data.materialLabel}] 출발 LOT ${inspectorModal.data.lotKey} 분기 추적 내역`
                     : `🧪 부자재 [${inspectorModal.data.title}] 실시간 LOT 투입 내역 (${periodLabel})`}
               </div>
               <button
@@ -1807,53 +2436,104 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
                 </>
               ) : inspectorModal.type === 'lot_track' ? (
                 <>
+                  {/* 공용 출발 LOT (#5002 정치절단) */}
                   <div
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(4, 1fr)',
+                      background: '#f8fafc',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '8px',
+                      padding: '10px 12px',
+                      marginBottom: '10px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
                       gap: '8px',
-                      marginBottom: '14px'
+                      flexWrap: 'wrap'
                     }}
                   >
-                    {['절단', '조인트', '후가공', '출하'].map((st) => {
-                      const dates = inspectorModal.data.stageSummary?.[st] || [];
-                      const isMissing = (inspectorModal.data.missingStages || []).includes(st);
-                      return (
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a' }}>
+                      ● 공용 출발 (정치절단 #5002 · L/R 구분 없음)
+                    </span>
+                    <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#1e293b' }}>
+                      {inspectorModal.data.origin?.datesAll?.length > 0
+                        ? inspectorModal.data.origin.datesAll.join(', ')
+                        : '조회 구간 이전 절단 / 기록 없음'}
+                    </span>
+                  </div>
+
+                  {/* LH / RH 갈래별 공정 요약 */}
+                  {[
+                    { key: 'lh', label: 'LH 갈래', color: '#1d4ed8', bg: '#eff6ff', border: '#bfdbfe' },
+                    { key: 'rh', label: 'RH 갈래', color: '#0f766e', bg: '#f0fdfa', border: '#99f6e4' }
+                  ].map((brMeta) => {
+                    const br = inspectorModal.data[brMeta.key];
+                    const stages =
+                      inspectorModal.data.materialKey === 'FRT_C'
+                        ? ['조인트', '출하']
+                        : inspectorModal.data.group === 'FRT'
+                          ? ['단컷팅', '조인트', '출하']
+                          : ['단컷팅', '조인트', '후가공', '출하'];
+                    return (
+                      <div key={brMeta.key} style={{ marginBottom: '12px' }}>
                         <div
-                          key={st}
                           style={{
-                            background: isMissing ? '#fef2f2' : '#f8fafc',
-                            border: isMissing ? '1px solid #fda4af' : '1px solid #e2e8f0',
-                            borderRadius: '8px',
-                            padding: '8px 10px'
+                            fontSize: '12px',
+                            fontWeight: 800,
+                            color: brMeta.color,
+                            marginBottom: '6px'
                           }}
                         >
-                          <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>
-                            {st} 투입일
-                          </div>
-                          <div
-                            style={{
-                              fontSize: '13px',
-                              fontWeight: 800,
-                              color:
-                                dates.length > 0
-                                  ? '#0f172a'
-                                  : isMissing
-                                    ? '#e11d48'
-                                    : '#94a3b8',
-                              marginTop: '3px'
-                            }}
-                          >
-                            {dates.length > 0
-                              ? dates.join(', ')
-                              : isMissing
-                                ? '✕ 끊김 (미확인)'
-                                : '-'}
-                          </div>
+                          ↳ {brMeta.label} 이동 공정
                         </div>
-                      );
-                    })}
-                  </div>
+                        <div
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: `repeat(${stages.length}, 1fr)`,
+                            gap: '8px'
+                          }}
+                        >
+                          {stages.map((st) => {
+                            const dates = br?.stageSummary?.[st] || [];
+                            const isMissing = (br?.missingStages || []).includes(st);
+                            return (
+                              <div
+                                key={st}
+                                style={{
+                                  background: isMissing ? '#fef2f2' : brMeta.bg,
+                                  border: isMissing ? '1px solid #fda4af' : `1px solid ${brMeta.border}`,
+                                  borderRadius: '8px',
+                                  padding: '8px 10px'
+                                }}
+                              >
+                                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>
+                                  {st}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: '12.5px',
+                                    fontWeight: 800,
+                                    color:
+                                      dates.length > 0
+                                        ? '#0f172a'
+                                        : isMissing
+                                          ? '#e11d48'
+                                          : '#94a3b8',
+                                    marginTop: '3px'
+                                  }}
+                                >
+                                  {dates.length > 0
+                                    ? dates.join(', ')
+                                    : isMissing
+                                      ? '✕ 끊김 (미확인)'
+                                      : '-'}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
 
                   <div
                     style={{

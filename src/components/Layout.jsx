@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import {
+  BarChart2,
+  TrendingUp,
+  Activity,
+  Settings,
+  Box,
+  Users,
+  CheckSquare,
+  FolderPen,
+  ChevronRight,
+  ArrowLeftRight,
+  Smartphone,
+  Monitor
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
 import { isFluidPage } from '../constants/layoutPages';
 import { EQUIPMENT_CATEGORIES, getCategoryMeta } from '../constants/equipmentCategories';
 import { prefetchAnalyticsData } from '../services/firestore';
+import './Sidebar.css';
 
-function LiveClock({ lang }) {
+function LiveClock() {
   const [time, setTime] = useState(() => new Date());
 
   useEffect(() => {
@@ -14,9 +29,7 @@ function LiveClock({ lang }) {
     return () => clearInterval(timer);
   }, []);
 
-  const formattedClock = lang === 'ko'
-    ? time.toLocaleTimeString('ko-KR', { hour12: false })
-    : `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
+  const formattedClock = `${String(time.getHours()).padStart(2, '0')}:${String(time.getMinutes()).padStart(2, '0')}:${String(time.getSeconds()).padStart(2, '0')}`;
 
   return <span className="live-clock">{formattedClock}</span>;
 }
@@ -28,7 +41,9 @@ export default function Layout() {
   const [isMobilePreview, setIsMobilePreview] = useState(false);
   const location = useLocation();
   const [isReportMenuOpen, setIsReportMenuOpen] = useState(true);
-  const [isEquipmentMenuOpen, setIsEquipmentMenuOpen] = useState(false);
+  const [isEquipmentMenuOpen, setIsEquipmentMenuOpen] = useState(
+    () => location.pathname === '/equipment' || location.pathname.startsWith('/equipment/')
+  );
   const analyticsPrefetchedAtRef = useRef(0);
 
   const handlePrefetchAnalytics = useCallback(() => {
@@ -74,11 +89,18 @@ export default function Layout() {
         sub: ''
       };
     }
+    if (location.pathname.startsWith('/equipment-history')) {
+      return {
+        title: td('설비 이력카드'),
+        sub: td('QR 스캔 설비 이력 상세 조회')
+      };
+    }
     switch (location.pathname) {
       case '/': return { title: t('title_dashboard'), sub: t('subtitle_dashboard') };
       case '/form': return { title: t('title_form'), sub: t('subtitle_form') };
       case '/drafts': return { title: t('title_drafts') || td('작성중인 작업일보'), sub: t('subtitle_drafts') };
       case '/mold': return { title: td('금형 리스트'), sub: '' };
+      case '/incoming-inspection': return { title: td('수입검사'), sub: td('입고 원자재 및 외주품 수입검사 관리') };
       case '/change-point': return { title: td('변동점 관리'), sub: td('4M 변동점 등록 및 이력 관리') };
       case '/reports': return { title: t('title_reports'), sub: t('subtitle_reports') };
       case '/analytics': return { title: t('title_analytics'), sub: t('subtitle_analytics') };
@@ -88,53 +110,70 @@ export default function Layout() {
   };
 
   const { title, sub } = getPageTitle();
+  const isWorker = userRole?.role === 'worker';
+  const roleBadgeLabel = userRole?.role === 'admin'
+    ? td('관리자')
+    : `${td('작업자')}${userRole?.workerName ? ` ${td(userRole.workerName)}` : ''}`;
+  const isEquipmentActive = location.pathname === '/equipment' || location.pathname.startsWith('/equipment/');
+  const isReportActive = ['/form', '/drafts', '/reports'].includes(location.pathname);
 
   return (
     <div id="app">
-      <aside className="sidebar" id="sidebar">
+      <aside className="sidebar sidebar-clean" id="sidebar">
         <div className="sidebar-header">
+          <span className="sidebar-brand-mark" aria-hidden="true">JY</span>
           <div className="sidebar-title">
             <h1>{t('system_title')}</h1>
             <span>{t('system_subtitle')}</span>
           </div>
         </div>
 
-        <div style={{ padding: '10px 16px', borderBottom: '1px solid #1e293b', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span className="user-role-badge">
-              {userRole?.role === 'admin' ? t('badge_admin') : `${t('badge_worker')} ${userRole?.workerName ? td(userRole.workerName) : ''}`}
+        <div className="sidebar-account-panel">
+          <div className="sidebar-status-card">
+            <span className="sidebar-role-pill" title={roleBadgeLabel}>
+              <span className="sidebar-status-dot" aria-hidden="true" />
+              <span className="sidebar-role-text">{roleBadgeLabel}</span>
             </span>
-            <LiveClock lang={lang} />
+            <LiveClock />
           </div>
-          <div style={{ display: 'flex', gap: '4px', marginTop: '2px' }}>
-            <button 
-              className="btn btn-secondary btn-sm" 
-              style={{ flex: 1, fontSize: '11px', padding: '4px 8px' }}
+          <div className="sidebar-action-row">
+            <button
+              type="button"
+              className="sidebar-action-btn"
               onClick={logout}
             >
-              {t('role_switch')}
+              <ArrowLeftRight size={13} strokeWidth={2} aria-hidden="true" />
+              <span>{td('접속 전환')}</span>
             </button>
             {userRole?.role === 'admin' && (
               <button
-                className="btn btn-primary btn-sm"
-                style={{ flex: 1, fontSize: '11px', padding: '4px 8px', background: isMobilePreview ? 'var(--accent-emerald)' : 'var(--accent-blue)', color: 'white' }}
+                type="button"
+                className={`sidebar-action-btn ${isMobilePreview ? 'is-active' : ''}`}
+                aria-pressed={isMobilePreview}
                 onClick={() => setIsMobilePreview(!isMobilePreview)}
                 title={td('PC 화면에서도 모바일 크기로 미리 봅니다')}
               >
-                {isMobilePreview ? td('🖥️ PC 모드') : td('📱 모바일 모드')}
+                {isMobilePreview ? (
+                  <Monitor size={13} strokeWidth={2} aria-hidden="true" />
+                ) : (
+                  <Smartphone size={13} strokeWidth={2} aria-hidden="true" />
+                )}
+                <span>{isMobilePreview ? td('PC 모드') : td('모바일 모드')}</span>
               </button>
             )}
           </div>
         </div>
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav" aria-label={td('모니터링')}>
+          <div className="sidebar-section-label">{td('모니터링')}</div>
+
           {/* 1. 메인 대시보드 */}
           <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
-            <span>📊</span>
-            <span>{t('nav_dashboard')}</span>
+            <BarChart2 size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+            <span className="sidebar-nav-label">{t('nav_dashboard')}</span>
           </NavLink>
 
-          {userRole?.role !== 'worker' && (
+          {!isWorker && (
             <>
               {/* 2. 공정 및 불량 분석 */}
               <NavLink
@@ -143,41 +182,46 @@ export default function Layout() {
                 onMouseEnter={handlePrefetchAnalytics}
                 onFocus={handlePrefetchAnalytics}
               >
-                <span>📈</span>
-                <span>{t('nav_analytics')}</span>
+                <TrendingUp size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+                <span className="sidebar-nav-label">{t('nav_analytics')}</span>
               </NavLink>
 
               {/* 3. 변동점 관리 */}
               <NavLink to="/change-point" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>🔍</span>
-                <span>{td('변동점 관리')}</span>
+                <Activity size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+                <span className="sidebar-nav-label">{td('변동점 관리')}</span>
               </NavLink>
 
+              <div className="sidebar-section-label">{td('생산 · 기준정보')}</div>
+
               {/* 4. 설비 관리 */}
-              <div className="nav-group" style={{ margin: '4px 0' }}>
-                <div
-                  className="nav-item nav-group-header"
+              <div className="nav-group">
+                <button
+                  type="button"
+                  className={`nav-item nav-group-header ${isEquipmentActive && !isEquipmentMenuOpen ? 'has-active-child' : ''}`}
+                  aria-expanded={isEquipmentMenuOpen}
+                  aria-controls="sidebar-equipment-menu"
                   onClick={() => setIsEquipmentMenuOpen(!isEquipmentMenuOpen)}
-                  style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', paddingRight: '16px', background: 'rgba(255,255,255,0.03)', fontWeight: 'bold' }}
                 >
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <span>⚙️</span>
-                    <span>{t('nav_equipment') || td('설비 관리')}</span>
-                  </div>
-                  <span style={{ fontSize: '10px', transform: isEquipmentMenuOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', marginTop: '4px' }}>▶</span>
-                </div>
+                  <Settings size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+                  <span className="sidebar-nav-label">{t('nav_equipment') || td('설비 관리')}</span>
+                  <ChevronRight
+                    size={15}
+                    strokeWidth={2}
+                    className={`sidebar-chevron ${isEquipmentMenuOpen ? 'is-open' : ''}`}
+                    aria-hidden="true"
+                  />
+                </button>
 
                 {isEquipmentMenuOpen && (
-                  <div className="nav-group-children" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.15)', borderLeft: '2px solid rgba(255,255,255,0.1)', marginLeft: '12px' }}>
+                  <div className="nav-group-children" id="sidebar-equipment-menu">
                     {EQUIPMENT_CATEGORIES.map((cat) => (
                       <NavLink
                         key={cat.id}
                         to={`/equipment/${cat.id}`}
-                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                        style={{ paddingLeft: '24px' }}
+                        className={({ isActive }) => `nav-item nav-subitem ${isActive ? 'active' : ''}`}
                       >
-                        <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
-                        <span>{td(cat.label)}</span>
+                        <span className="sidebar-nav-label">{td(cat.label)}</span>
                       </NavLink>
                     ))}
                   </div>
@@ -186,46 +230,56 @@ export default function Layout() {
 
               {/* 5. 금형 관리 */}
               <NavLink to="/mold" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>🗜️</span>
-                <span>{t('nav_mold') || td('금형 관리')}</span>
+                <Box size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+                <span className="sidebar-nav-label">{t('nav_mold') || td('금형 관리')}</span>
               </NavLink>
 
               {/* 6. 작업자 관리 */}
               <NavLink to="/master" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
-                <span>👥</span>
-                <span>{t('nav_master')}</span>
+                <Users size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+                <span className="sidebar-nav-label">{t('nav_master')}</span>
+              </NavLink>
+
+              {/* 7. 수입검사 */}
+              <NavLink to="/incoming-inspection" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                <CheckSquare size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+                <span className="sidebar-nav-label">{td('수입검사')}</span>
               </NavLink>
             </>
           )}
 
-          {/* 7. 작업일보 */}
-          <div className="nav-group" style={{ margin: '4px 0' }}>
-            <div 
-              className="nav-item nav-group-header" 
+          <div className="sidebar-section-label">{td('현장 기록')}</div>
+
+          {/* 8. 작업일보 */}
+          <div className="nav-group">
+            <button
+              type="button"
+              className={`nav-item nav-group-header ${isReportActive && !isReportMenuOpen ? 'has-active-child' : ''}`}
+              aria-expanded={isReportMenuOpen}
+              aria-controls="sidebar-report-menu"
               onClick={() => setIsReportMenuOpen(!isReportMenuOpen)}
-              style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', paddingRight: '16px', background: 'rgba(255,255,255,0.03)', fontWeight: 'bold' }}
             >
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <span>📁</span>
-                <span>{td('작업일보')}</span>
-              </div>
-              <span style={{ fontSize: '10px', transform: isReportMenuOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', marginTop: '4px' }}>▶</span>
-            </div>
-            
+              <FolderPen size={18} strokeWidth={1.85} className="sidebar-nav-icon" aria-hidden="true" />
+              <span className="sidebar-nav-label">{td('작업일보')}</span>
+              <ChevronRight
+                size={15}
+                strokeWidth={2}
+                className={`sidebar-chevron ${isReportMenuOpen ? 'is-open' : ''}`}
+                aria-hidden="true"
+              />
+            </button>
+
             {isReportMenuOpen && (
-              <div className="nav-group-children" style={{ display: 'flex', flexDirection: 'column', background: 'rgba(0,0,0,0.15)', borderLeft: '2px solid rgba(255,255,255,0.1)', marginLeft: '12px' }}>
-                <NavLink to="/form" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
-                  <span>{td('신규작성')}</span>
+              <div className="nav-group-children" id="sidebar-report-menu">
+                <NavLink to="/form" className={({ isActive }) => `nav-item nav-subitem ${isActive ? 'active' : ''}`}>
+                  <span className="sidebar-nav-label">{td('신규작성')}</span>
                 </NavLink>
-                <NavLink to="/drafts" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
-                  <span>{td('이어작성')}</span>
+                <NavLink to="/drafts" className={({ isActive }) => `nav-item nav-subitem ${isActive ? 'active' : ''}`}>
+                  <span className="sidebar-nav-label">{td('이어작성')}</span>
                 </NavLink>
-                {userRole?.role !== 'worker' && (
-                  <NavLink to="/reports" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '24px' }}>
-                    <span style={{ fontSize: '12px', color: '#94a3b8' }}>└</span>
-                    <span>{td('조회 및 승인')}</span>
+                {!isWorker && (
+                  <NavLink to="/reports" className={({ isActive }) => `nav-item nav-subitem ${isActive ? 'active' : ''}`}>
+                    <span className="sidebar-nav-label">{td('조회 및 승인')}</span>
                   </NavLink>
                 )}
               </div>

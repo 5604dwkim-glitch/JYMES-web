@@ -213,23 +213,28 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
     </div>
   `;
 
-  // 화면 하단 고정 버튼 바 (leader form) - fixed 방식
+  // 화면 하단 고정 버튼 바 (leader form) - fixed 방식 (가상 상세조회/미연결 DOM 제외)
+  const shouldMountFixedBar = !(store.isReadOnlyPreview && store.isReadOnlyPreview()) && Boolean(container.isConnected);
   let leaderFixedBar = document.getElementById('leaderFixedActionBar');
-  if (!leaderFixedBar) {
-    leaderFixedBar = document.createElement('div');
-    leaderFixedBar.id = 'leaderFixedActionBar';
-    document.body.appendChild(leaderFixedBar);
+  if (shouldMountFixedBar) {
+    if (!leaderFixedBar) {
+      leaderFixedBar = document.createElement('div');
+      leaderFixedBar.id = 'leaderFixedActionBar';
+      document.body.appendChild(leaderFixedBar);
+    }
+    leaderFixedBar.style.cssText = 'position:fixed; bottom:0; left:0; right:0; z-index:500; background:rgba(255,255,255,0.97); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:12px 16px; border-top:2px solid var(--border-color); box-shadow:0 -4px 20px rgba(0,0,0,0.12); display:flex; gap:10px; justify-content:center;';
+    leaderFixedBar.innerHTML = `
+      <button type="button" id="btnLeaderDraftSave" class="btn btn-secondary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_draft_save">
+        📁 작업일보 중간 저장
+      </button>
+      <button type="button" id="btnLeaderFinalSubmit" class="btn btn-primary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_final_submit">
+        ✅ 작업일보 등록 완료
+      </button>
+    `;
+    leaderFixedBar.style.display = 'flex';
+  } else if (leaderFixedBar) {
+    leaderFixedBar.style.display = 'none';
   }
-  leaderFixedBar.style.cssText = 'position:fixed; bottom:0; left:0; right:0; z-index:500; background:rgba(255,255,255,0.97); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:12px 16px; border-top:2px solid var(--border-color); box-shadow:0 -4px 20px rgba(0,0,0,0.12); display:flex; gap:10px; justify-content:center;';
-  leaderFixedBar.innerHTML = `
-    <button type="button" id="btnLeaderDraftSave" class="btn btn-secondary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_draft_save">
-      📁 작업일보 중간 저장
-    </button>
-    <button type="button" id="btnLeaderFinalSubmit" class="btn btn-primary" style="flex:1; max-width:240px; padding:13px 18px; font-size:14px; font-weight:700;" data-i18n="btn_final_submit">
-      ✅ 작업일보 등록 완료
-    </button>
-  `;
-  leaderFixedBar.style.display = 'flex';
 
   const hideStandardFixedBar = document.getElementById('standardFixedActionBar');
   if (hideStandardFixedBar) {
@@ -241,7 +246,9 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
   }
 
   i18n.applyTranslations(container);
-  i18n.applyTranslations(leaderFixedBar);
+  if (shouldMountFixedBar && leaderFixedBar) {
+    i18n.applyTranslations(leaderFixedBar);
+  }
 
   
 
@@ -274,8 +281,8 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
   container.querySelector('#att_halfLeave')?.addEventListener('input', updateAttendance);
 
   // leader form용 fixed 버튼 이벤트 바인딩
-  const btnLeaderDraftSave = leaderFixedBar.querySelector('#btnLeaderDraftSave');
-  const btnLeaderFinalSubmit = leaderFixedBar.querySelector('#btnLeaderFinalSubmit');
+  const btnLeaderDraftSave = shouldMountFixedBar && leaderFixedBar ? leaderFixedBar.querySelector('#btnLeaderDraftSave') : null;
+  const btnLeaderFinalSubmit = shouldMountFixedBar && leaderFixedBar ? leaderFixedBar.querySelector('#btnLeaderFinalSubmit') : null;
 
   const processLeaderSave = (targetStatus) => {
     try {

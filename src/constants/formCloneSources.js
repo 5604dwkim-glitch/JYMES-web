@@ -9,10 +9,20 @@
  *   이 표에서 해당 항목을 삭제하세요.
  */
 export const FORM_CLONE_SOURCE = {
+  // 제네시스 JG1 / JG1S - G/RUN 'E' 조인트 : GM 9BQC - 조인트-FRT(#5004) 복사본
+  1022: 5004, // JG1_G/RUN 'E'_조인트
+  1042: 5004, // JG1S_G/RUN 'E'_조인트
+
   // 제네시스 JG1 - FRUNK : 기아 OV1K - FRUNK 복사본 (후가공 제외)
   1051: 4011, // JG1_FRUNK_소재준비
   1052: 4012, // JG1_FRUNK_조인트
-  1054: 4014  // JG1_FRUNK_검사포장
+  1054: 4014, // JG1_FRUNK_검사포장
+
+  // 기아 LQ2a - HOOD SIDE : 기아 OV1K - PTG 복사본
+  4021: 4001, // LQ2a_HOOD SIDE_소재준비
+  4022: 4002, // LQ2a_HOOD SIDE_조인트
+  4023: 4003, // LQ2a_HOOD SIDE_후가공
+  4024: 4004  // LQ2a_HOOD SIDE_검사포장
 };
 
 export function resolveFormCodeSource(formCode) {

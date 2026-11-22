@@ -1066,6 +1066,13 @@ export default function LegacyAnalyticsWrapper({
     ? 'tab-weekly'
     : (initialActiveTab || 'tab-charts');
   const [activeTabId, setActiveTabId] = useState(normalizedInitialTab);
+  const [hasMountedGrun, setHasMountedGrun] = useState(() => normalizedInitialTab === 'tab-9bqc-grun');
+
+  useEffect(() => {
+    if (activeTabId === 'tab-9bqc-grun') {
+      setHasMountedGrun(true);
+    }
+  }, [activeTabId]);
 
   useLayoutEffect(() => {
     const rootEl = containerRef.current;
@@ -1141,7 +1148,7 @@ export default function LegacyAnalyticsWrapper({
       {chartsMount && activeTabId === 'tab-charts' && chartsContent
         ? createPortal(chartsContent, chartsMount)
         : null}
-      {grunMount && activeTabId === 'tab-9bqc-grun' && grunContent
+      {grunMount && hasMountedGrun && grunContent
         ? createPortal(grunContent, grunMount)
         : null}
     </>
