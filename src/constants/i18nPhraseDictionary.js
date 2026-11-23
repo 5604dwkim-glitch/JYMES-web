@@ -8,6 +8,15 @@
 
 export const PHRASE_TUPLES = [
   // ── Sidebar, Header & Navigation ──
+  ['현황 · 분석', 'Overview & Analytics', 'ภาพรวมและการวิเคราะห์', 'Tổng quan & Phân tích'],
+  ['생산 · 작업일보', 'Production & Work Reports', 'การผลิตและรายงานการทำงาน', 'Sản xuất & Báo cáo'],
+  ['품질 · 변동점 관리', 'Quality & 4M Control', 'คุณภาพและการจัดการจุดเปลี่ยน', 'Chất lượng & Điểm thay đổi'],
+  ['설비 · 기준정보', 'Equipment & Master Data', 'อุปกรณ์และข้อมูลหลัก', 'Thiết bị & Dữ liệu gốc'],
+  ['변동점(4M) 관리', '4M Change Control', 'การจัดการจุดเปลี่ยนแปลง (4M)', 'Quản lý điểm thay đổi (4M)'],
+  ['계측 · 검교정', 'Instruments & Calibration', 'เครื่องมือวัดและการสอบเทียบ', 'Thiết bị đo & Hiệu chuẩn'],
+  ['조도 점검', 'Illuminance Check', 'การตรวจสอบความสว่าง', 'Kiểm tra độ rọi'],
+  ['금형 관리', 'Mold Management', 'การจัดการแม่พิมพ์', 'Quản lý khuôn'],
+  ['금형 마스터, 이력카드 및 누적 타수 관리', 'Mold master, history cards & cumulative shot count', 'ข้อมูลหลักแม่พิมพ์ การ์ดประวัติ และจำนวนช็อตสะสม', 'Danh mục khuôn, thẻ lịch sử & số lần dập tích lũy'],
   ['조도 측정', 'Illuminance Check', 'การวัดความสว่าง', 'Đo độ rọi'],
   ['조도 측정 기록 리스트', 'Illuminance Measurement Records', 'รายการบันทึกการวัดความสว่าง', 'Danh sách ghi nhận đo độ rọi'],
   ['작업장 조도(lux) 측정 기록 관리 및 기준 적합 여부 판정', 'Workplace illuminance (lux) records and pass/fail judgement', 'บันทึกความสว่างพื้นที่ทำงาน (lux) และการตัดสินผ่าน/ไม่ผ่าน', 'Quản lý ghi nhận độ rọi (lux) nơi làm việc và đánh giá đạt/không đạt'],
