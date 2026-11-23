@@ -264,21 +264,22 @@ export default function CalibrationInstrumentListView({
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '4px',
-          padding: '4px 6px',
+          gap: '2px',
+          padding: '2px 3px',
           borderRadius: '4px',
           border: isFiltered || isOpen ? '1px solid #93c5fd' : '1px solid transparent',
           background: isFiltered ? '#eff6ff' : isOpen ? '#f8fafc' : 'transparent',
           color: isFiltered ? '#1d4ed8' : 'inherit',
           fontWeight: 'bold',
           fontSize: 'inherit',
+          letterSpacing: 'inherit',
           fontFamily: 'inherit',
           cursor: 'pointer',
           whiteSpace: 'nowrap'
         }}
       >
         <span>{label}</span>
-        <span style={{ fontSize: '10px', color: isFiltered ? '#2563eb' : '#64748b' }}>
+        <span style={{ fontSize: '9px', color: isFiltered ? '#2563eb' : '#64748b' }}>
           {isFiltered ? `▼(${selectedVals.length})` : '▾'}
         </span>
       </button>
@@ -288,33 +289,36 @@ export default function CalibrationInstrumentListView({
   return (
     <div data-cal-instrument-list="1">
       <style>{`
-        /* 조인트 설비 리스트와 동일한 표 스타일: 세로선·회색 헤더 배경 없이 가로 구분선만 사용 */
+        /* 조인트 설비 리스트와 동일한 표 스타일: 자간·좌우 여백을 컴팩트하게 조정해 한 화면에 수용 */
         [data-cal-instrument-list="1"] .cal-sheet-table {
           border-collapse: collapse;
+          font-size: 11.5px;
+          letter-spacing: -0.04em;
+          font-variant-numeric: tabular-nums;
         }
         [data-cal-instrument-list="1"] .cal-sheet-table th,
         [data-cal-instrument-list="1"] .cal-sheet-table td {
           border: none;
           text-align: center;
           vertical-align: middle;
-          padding-left: 12px;
-          padding-right: 12px;
+          padding-left: 3px;
+          padding-right: 3px;
           white-space: nowrap;
         }
         [data-cal-instrument-list="1"] .cal-sheet-table thead th {
           background: transparent;
           color: inherit;
           font-weight: bold;
-          font-size: inherit;
+          font-size: 11.5px;
           padding-top: 4px;
-          padding-bottom: 6px;
+          padding-bottom: 5px;
         }
         [data-cal-instrument-list="1"] .cal-sheet-table thead tr:last-child th {
           border-bottom: 1px solid #cbd5e1;
         }
         [data-cal-instrument-list="1"] .cal-sheet-table thead th[data-cal-group="1"] {
           color: #475569;
-          font-size: 12px;
+          font-size: 11px;
           border-bottom: 1px solid #e2e8f0;
           padding-bottom: 2px;
         }
@@ -324,8 +328,8 @@ export default function CalibrationInstrumentListView({
         [data-cal-instrument-list="1"] .cal-sheet-table td {
           background: transparent;
           color: #0f172a;
-          padding-top: 10px;
-          padding-bottom: 10px;
+          padding-top: 8px;
+          padding-bottom: 8px;
           border-bottom: 1px solid #cbd5e1;
         }
         [data-cal-instrument-list="1"] .cal-sheet-table tbody tr:hover td {
@@ -503,11 +507,11 @@ export default function CalibrationInstrumentListView({
       <div style={{ overflowX: 'auto' }}>
         <table
           className="cal-sheet-table"
-          style={{ width: '100%', borderCollapse: 'collapse', minWidth: '1180px' }}
+          style={{ width: '100%', borderCollapse: 'collapse' }}
         >
           <thead>
             <tr>
-              <th rowSpan={2} data-cal-rowspan="2" style={{ width: '52px' }}>
+              <th rowSpan={2} data-cal-rowspan="2" style={{ width: '32px' }}>
                 {isEquip ? '순번' : 'NO'}
               </th>
               {isEquip && <th rowSpan={2} data-cal-rowspan="2">{renderFilterHeaderButton('location', '위치')}</th>}
@@ -521,7 +525,7 @@ export default function CalibrationInstrumentListView({
               <th colSpan={2} data-cal-group="1">구매관련</th>
               <th colSpan={2} data-cal-group="1">관리현황</th>
               <th rowSpan={2} data-cal-rowspan="2">{renderFilterHeaderButton('calibrationAgency', '교정 주관')}</th>
-              <th rowSpan={2} data-cal-rowspan="2" style={{ width: '150px' }}>
+              <th rowSpan={2} data-cal-rowspan="2" style={{ width: '112px' }}>
                 관리
               </th>
             </tr>
@@ -572,7 +576,7 @@ export default function CalibrationInstrumentListView({
                   <td>{eq.manager || '-'}</td>
                   <td>{eq.calibrationAgency || '-'}</td>
                   <td>
-                    <div style={{ display: 'inline-flex', gap: '4px', justifyContent: 'center' }}>
+                    <div style={{ display: 'inline-flex', gap: '3px', justifyContent: 'center' }}>
                       <button
                         type="button"
                         className="btn btn-sm"
@@ -581,8 +585,9 @@ export default function CalibrationInstrumentListView({
                           color: '#1d4ed8',
                           border: '1px solid #bfdbfe',
                           borderRadius: '4px',
-                          padding: '4px 8px',
-                          fontSize: '12px',
+                          padding: '3px 5px',
+                          fontSize: '11px',
+                          letterSpacing: '-0.03em',
                           cursor: 'pointer'
                         }}
                         onClick={() => onOpenEdit(eq)}
@@ -597,8 +602,9 @@ export default function CalibrationInstrumentListView({
                           color: '#1e293b',
                           border: 'none',
                           borderRadius: '4px',
-                          padding: '4px 8px',
-                          fontSize: '12px',
+                          padding: '3px 5px',
+                          fontSize: '11px',
+                          letterSpacing: '-0.03em',
                           cursor: 'pointer'
                         }}
                         onClick={() => onOpenHistory(eq)}
@@ -613,8 +619,9 @@ export default function CalibrationInstrumentListView({
                           color: '#991b1b',
                           border: '1px solid #fecaca',
                           borderRadius: '4px',
-                          padding: '4px 8px',
-                          fontSize: '12px',
+                          padding: '3px 5px',
+                          fontSize: '11px',
+                          letterSpacing: '-0.03em',
                           cursor: 'pointer'
                         }}
                         onClick={() => onDelete(eq.id)}
