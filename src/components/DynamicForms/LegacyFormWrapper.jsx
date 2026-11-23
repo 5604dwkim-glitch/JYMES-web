@@ -253,6 +253,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
           📝 <span class="sec-num"></span> 작업 특이사항
         </label>
 
+        <div id="standardDowntimeRows" data-std-downtime-body="1">
         <!-- 1차 비가동 -->
         <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap;">
           <span style="font-size: 11px; font-weight: 700; color: var(--accent-blue); width: 68px; flex-shrink: 0;">1차 비가동</span>
@@ -323,6 +324,7 @@ function renderStandardMobileForm(container, existingData, loggedInWorkerName) {
               `).join('')}
             </select>
           </div>
+        </div>
         </div>
 
         <textarea id="notesInput" class="form-control" style="margin-top: 8px;" placeholder="작업 특이사항 입력" data-i18n-placeholder="notes_placeholder">${existingData ? existingData.notes : ''}</textarea>
@@ -484,6 +486,10 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
              getCurrentFormCode, bindNumberWheelPicker, bindTimeWheelPicker, bindLotDateWheelPicker, updateDowntimeSection, 
              get qtySection() { return container.querySelector('#qtySection'); },
              isDtCrewClip, currentMakerName, molds: store.getMolds(),
+             equipments: _ctx.equipments || [],
+             getTpmSummary: _ctx.getTpmSummary,
+             onOpenTpmModal: _ctx.onOpenTpmModal,
+             isReadOnlyPreview: store.isReadOnlyPreview(),
              jointMoldDefaults: _ctx.jointMoldDefaults,
              loadFormJointMoldDefaults: _ctx.loadFormJointMoldDefaults };
   }
@@ -1178,27 +1184,31 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
       const downtimeCardEl = container.querySelector('#downtimeCard');
       const isDowntimeHidden = downtimeCardEl && downtimeCardEl.style.display === 'none';
+      const isJointDowntimeMode = !isDowntimeHidden && downtimeCardEl?.dataset?.jointDowntimeMode === '1';
+      const jointDowntimePayload = isJointDowntimeMode ? _Sections.collectJointDowntimePayload(container) : null;
 
-      const dt1Min = isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes')?.value) || 0);
-      const dt1Equip = isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip1')?.value || '');
-      const dt1Reason = isDowntimeHidden ? '' : (container.querySelector('#downtimeReason')?.value || '');
+      const dt1Min = jointDowntimePayload ? jointDowntimePayload.downtimeMinutes1 : (isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes')?.value) || 0));
+      const dt1Equip = jointDowntimePayload ? jointDowntimePayload.downtimeEquip1 : (isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip1')?.value || ''));
+      const dt1Reason = jointDowntimePayload ? jointDowntimePayload.downtimeReason1 : (isDowntimeHidden ? '' : (container.querySelector('#downtimeReason')?.value || ''));
 
-      const dt2Min = isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes2')?.value) || 0);
-      const dt2Equip = isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip2')?.value || '');
-      const dt2Reason = isDowntimeHidden ? '' : (container.querySelector('#downtimeReason2')?.value || '');
+      const dt2Min = jointDowntimePayload ? jointDowntimePayload.downtimeMinutes2 : (isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes2')?.value) || 0));
+      const dt2Equip = jointDowntimePayload ? jointDowntimePayload.downtimeEquip2 : (isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip2')?.value || ''));
+      const dt2Reason = jointDowntimePayload ? jointDowntimePayload.downtimeReason2 : (isDowntimeHidden ? '' : (container.querySelector('#downtimeReason2')?.value || ''));
 
-      const dt3Min = isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes3')?.value) || 0);
-      const dt3Equip = isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip3')?.value || '');
-      const dt3Reason = isDowntimeHidden ? '' : (container.querySelector('#downtimeReason3')?.value || '');
+      const dt3Min = jointDowntimePayload ? jointDowntimePayload.downtimeMinutes3 : (isDowntimeHidden ? 0 : (Number(container.querySelector('#downtimeMinutes3')?.value) || 0));
+      const dt3Equip = jointDowntimePayload ? jointDowntimePayload.downtimeEquip3 : (isDowntimeHidden ? '' : (container.querySelector('#downtimeEquip3')?.value || ''));
+      const dt3Reason = jointDowntimePayload ? jointDowntimePayload.downtimeReason3 : (isDowntimeHidden ? '' : (container.querySelector('#downtimeReason3')?.value || ''));
 
-      const totalDowntimeMinutes = dt1Min + dt2Min + dt3Min;
+      const totalDowntimeMinutes = jointDowntimePayload ? jointDowntimePayload.downtimeMinutes : (dt1Min + dt2Min + dt3Min);
 
       const reasonsArr = [];
       if (dt1Min > 0 && dt1Reason) reasonsArr.push(`1차: ${dt1Equip ? dt1Equip + ' ' : ''}${dt1Reason}(${dt1Min}분)`);
       if (dt2Min > 0 && dt2Reason) reasonsArr.push(`2차: ${dt2Equip ? dt2Equip + ' ' : ''}${dt2Reason}(${dt2Min}분)`);
       if (dt3Min > 0 && dt3Reason) reasonsArr.push(`3차: ${dt3Equip ? dt3Equip + ' ' : ''}${dt3Reason}(${dt3Min}분)`);
 
-      const combinedDowntimeReason = reasonsArr.length > 0 ? reasonsArr.join(', ') : (dt1Reason || '');
+      const combinedDowntimeReason = jointDowntimePayload
+        ? jointDowntimePayload.downtimeReason
+        : (reasonsArr.length > 0 ? reasonsArr.join(', ') : (dt1Reason || ''));
 
       const dimData = {
 
@@ -1882,6 +1892,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
         inspQtyTable: inspQtyTable,
         downtimeMinutes: totalDowntimeMinutes,
         downtimeReason: combinedDowntimeReason,
+        ...(jointDowntimePayload ? { downtimeItems: jointDowntimePayload.downtimeItems } : {}),
         downtimeMinutes1: dt1Min,
         downtimeEquip1: dt1Equip,
         downtimeReason1: dt1Reason,

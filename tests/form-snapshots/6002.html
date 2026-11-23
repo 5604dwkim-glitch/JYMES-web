@@ -334,4 +334,347 @@
       </div>
     </div>
 <!-- [downtime] -->
-<div id="downtimeCard" style="display: block;"><label id="downtimeTitleLabel">📝 <span class="sec-num"></span> 작업 특이사항</label><div id="downtimeList"></div></div>
+<div id="downtimeCard" style="display: block;" data-joint-downtime-mode="1"><label id="downtimeTitleLabel" data-i18n="step6_downtime">⚠️ 📝 <span class="sec-num"></span> 비가동 시간 &amp; 원터치 특이사항 작성</label><div id="downtimeList"></div><div id="jointDowntimeRoot" data-joint-downtime-root="1" data-jdt-root-bound="1"><style data-jdt-style="1">
+[data-joint-downtime-root="1"] {
+  margin-bottom: 10px;
+}
+[data-joint-downtime-root="1"] .jdt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+[data-joint-downtime-root="1"] .jdt-item-card {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 11px;
+  background: #f8fafc;
+}
+[data-joint-downtime-root="1"] .jdt-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+[data-joint-downtime-root="1"] .jdt-item-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1e293b;
+}
+[data-joint-downtime-root="1"] .jdt-min-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+[data-joint-downtime-root="1"] .jdt-remove-btn {
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fff;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+  cursor: pointer;
+}
+[data-joint-downtime-root="1"] .jdt-step-block {
+  margin-bottom: 9px;
+}
+[data-joint-downtime-root="1"] .jdt-step-block:last-child {
+  margin-bottom: 0;
+}
+[data-joint-downtime-root="1"] .jdt-step-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+[data-joint-downtime-root="1"] .jdt-step-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #334155;
+}
+[data-joint-downtime-root="1"] .jdt-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #1e293b;
+  font-size: 10px;
+  font-weight: 800;
+}
+[data-joint-downtime-root="1"] .jdt-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+[data-joint-downtime-root="1"] .jdt-cat-btn {
+  padding: 8px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.12s ease;
+}
+[data-joint-downtime-root="1"] .jdt-mat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+[data-joint-downtime-root="1"] .jdt-mat-btn {
+  padding: 8px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  text-align: center;
+}
+[data-joint-downtime-root="1"] .jdt-mat-btn.is-active {
+  background: #fffbeb;
+  border-color: #d97706;
+  color: #b45309;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.14);
+}
+[data-joint-downtime-root="1"] .jdt-hint {
+  font-size: 11px;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 7px;
+  padding: 7px 10px;
+}
+[data-joint-downtime-root="1"] .jdt-hint-warn {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fcd34d;
+  margin-top: 5px;
+}
+[data-joint-downtime-root="1"] .jdt-tpm-btn {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+  cursor: pointer;
+}
+[data-joint-downtime-root="1"] .jdt-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+[data-joint-downtime-root="1"] .jdt-photo-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1e40af;
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  border-radius: 7px;
+  cursor: pointer;
+}
+[data-joint-downtime-root="1"] .jdt-photo-label-alt {
+  color: #334155;
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+[data-joint-downtime-root="1"] .jdt-photo-preview-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 4px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+[data-joint-downtime-root="1"] .jdt-photo-thumb {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+}
+[data-joint-downtime-root="1"] .jdt-photo-del-btn {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  cursor: pointer;
+}
+[data-joint-downtime-root="1"] .jdt-time-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+[data-joint-downtime-root="1"] .jdt-time-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 110px;
+  max-width: 170px;
+}
+[data-joint-downtime-root="1"] .jdt-time-quick-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+[data-joint-downtime-root="1"] .jdt-quick-min-btn {
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+}
+[data-joint-downtime-root="1"] .jdt-footer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 9px;
+}
+[data-joint-downtime-root="1"] .jdt-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 14px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1.5px dashed #3b82f6;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 170px;
+}
+[data-joint-downtime-root="1"] .jdt-total-summary {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+[data-joint-downtime-root="1"] .jdt-ro-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 9px 11px;
+  background: #f8fafc;
+  margin-bottom: 7px;
+}
+[data-joint-downtime-root="1"] .jdt-ro-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+[data-joint-downtime-root="1"] .jdt-ro-detail {
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+  line-height: 1.45;
+}
+</style>
+    <div class="jdt-list">
+        <div class="jdt-item-card" data-jdt-item-idx="0">
+          <div class="jdt-item-header">
+            <div class="jdt-item-title">
+              <span>1차 비가동</span>
+
+            </div>
+
+          </div>
+
+          <div class="jdt-step-block">
+            <div class="jdt-step-label-row">
+              <span class="jdt-step-label"><span class="jdt-step-num">1단계</span> 비가동 원인</span>
+            </div>
+            <div class="jdt-cat-grid"><button type="button" class="jdt-cat-btn" data-jdt-cat="설비" style="">설비</button><button type="button" class="jdt-cat-btn" data-jdt-cat="금형" style="">금형</button><button type="button" class="jdt-cat-btn" data-jdt-cat="소재" style="">소재</button><button type="button" class="jdt-cat-btn" data-jdt-cat="기타" style="">기타</button></div>
+          </div>
+
+          <div class="jdt-step-block">
+            <div class="jdt-step-label-row">
+              <span class="jdt-step-label"><span class="jdt-step-num">2단계</span> 세부 선택 / 입력</span>
+
+            </div>
+            <div class="jdt-hint">위 1단계에서 비가동 원인(설비 · 금형 · 소재 · 기타)을 선택해 주세요.</div>
+          </div>
+
+          <div class="jdt-step-block">
+            <div class="jdt-step-label-row">
+              <span class="jdt-step-label"><span class="jdt-step-num">3단계</span> 현장 사진 첨부 <span style="font-weight:500;color:#64748b;">(선택)</span></span>
+            </div>
+            <div class="jdt-photo-row">
+              <label class="jdt-photo-label">
+                📷 사진 촬영
+                <input type="file" accept="image/*" capture="environment" data-jdt-photo-input="camera" style="display:none;">
+              </label>
+              <label class="jdt-photo-label jdt-photo-label-alt">
+                🖼️ 앨범 선택
+                <input type="file" accept="image/*" data-jdt-photo-input="gallery" style="display:none;">
+              </label>
+
+            </div>
+          </div>
+
+          <div class="jdt-step-block">
+            <div class="jdt-step-label-row">
+              <span class="jdt-step-label"><span class="jdt-step-num">4단계</span> 비가동 시간</span>
+            </div>
+            <div class="jdt-time-row">
+              <div class="jdt-time-input-wrap">
+                <input type="number" id="jdt_min_0" class="form-control" data-jdt-field="minutesInput" min="0" inputmode="numeric" placeholder="0" value="">
+                <span style="font-size:12px;font-weight:700;color:#475569;flex-shrink:0;">분</span>
+              </div>
+              <div class="jdt-time-quick-group">
+                <button type="button" class="jdt-quick-min-btn" data-jdt-add-min="5">+5분</button>
+                <button type="button" class="jdt-quick-min-btn" data-jdt-add-min="10">+10분</button>
+                <button type="button" class="jdt-quick-min-btn" data-jdt-add-min="30">+30분</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <div class="jdt-footer-bar">
+      <button type="button" class="jdt-add-btn" data-jdt-add-btn="1">➕ 비가동 추가 (2차)</button>
+
+    </div>
+  </div></div>

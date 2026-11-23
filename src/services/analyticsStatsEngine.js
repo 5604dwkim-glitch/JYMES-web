@@ -844,7 +844,7 @@ export function buildEquipMoldImpact({
     slots.forEach((sl) => {
       const m = Number(sl.minutes || 0);
       if (m <= 0) return;
-      const kind = classifyDowntimeIssueKind(sl.reason);
+      const kind = classifyDowntimeIssueKind(sl.reason, sl.category);
       if (kind === 'equipment' || kind === 'mold' || !sl.reason) {
         repMins += m;
       }

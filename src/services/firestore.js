@@ -1075,6 +1075,9 @@ export async function addReport(reportData) {
     const prefix = `RPT-${todayStr.replace(/-/g, '')}-`;
     const counterRef = doc(db, 'counters', prefix);
 
+    const { sanitizedItems, pendingPhotoSaves } = prepareDowntimeItemsForSave(reportData?.downtimeItems);
+    const preparedReportData = sanitizedItems ? { ...reportData, downtimeItems: sanitizedItems } : reportData;
+
     // Migration check: If counter doesn't exist, check existing reports to initialize properly
     let startCount = 100; // Legacy started from 101
     const counterSnap = await getDoc(counterRef);
@@ -1106,50 +1109,50 @@ export async function addReport(reportData) {
       // Update the counter
       transaction.set(counterRef, { count: seq }, { merge: true });
 
-      const targetQty = Number(reportData.targetQty) || 0;
-      const actualQty = Number(reportData.actualQty) || 0;
-      const defectQty = Number(reportData.defectQty) || 0;
+      const targetQty = Number(preparedReportData.targetQty) || 0;
+      const actualQty = Number(preparedReportData.actualQty) || 0;
+      const defectQty = Number(preparedReportData.defectQty) || 0;
 
       const attainmentRate = targetQty > 0 ? Number(((actualQty / targetQty) * 100).toFixed(1)) : 0;
       const defectRate = actualQty > 0 ? Number(((defectQty / actualQty) * 100).toFixed(2)) : 0;
 
-      const carModel = reportData.carModel || 'JG1';
+      const carModel = preparedReportData.carModel || 'JG1';
       const carObj = CAR_MODELS.find(c => c.code === carModel);
 
       const reportObj = {
-        ...reportData,
+        ...preparedReportData,
         id: newId,
-        date: reportData.date || todayStr,
-        workHours: reportData.workHours || '08:00 ~ 17:00',
-        shift: reportData.shift || '주간',
+        date: preparedReportData.date || todayStr,
+        workHours: preparedReportData.workHours || '08:00 ~ 17:00',
+        shift: preparedReportData.shift || '주간',
         carModel: carModel,
         carModelName: carObj ? carObj.name : carModel,
-        processId: reportData.processId || '',
-        processName: reportData.processName || '검사포장',
-        line: reportData.line || '1라인',
-        workerId: reportData.workerId || 'EMP001',
-        workerName: reportData.workerName || '장수미',
-        itemCode: reportData.itemCode || '인벨트',
-        itemName: reportData.itemName || '인벨트',
+        processId: preparedReportData.processId || '',
+        processName: preparedReportData.processName || '검사포장',
+        line: preparedReportData.line || '1라인',
+        workerId: preparedReportData.workerId || 'EMP001',
+        workerName: preparedReportData.workerName || '장수미',
+        itemCode: preparedReportData.itemCode || '인벨트',
+        itemName: preparedReportData.itemName || '인벨트',
         targetQty,
         actualQty,
         defectQty,
         attainmentRate,
         defectRate,
-        materialLots: reportData.materialLots || {},
-        isLeaderForm: reportData.isLeaderForm || false,
-        isForkliftForm: reportData.isForkliftForm || false,
-        isSupportForm: reportData.isSupportForm || false,
-        formCode: reportData.formCode || '',
-        leaderFormItems: reportData.leaderFormItems || [],
-        attendanceData: reportData.attendanceData || {},
-        downtimeMinutes: Number(reportData.downtimeMinutes) || 0,
-        downtimeReason: reportData.downtimeReason || '',
-        notes: reportData.notes || '',
-        status: reportData.status || '승인 대기',
-        moldStrokesProcessed: isSubmittedReportStatus(reportData.status || '승인 대기'),
-        approver: reportData.approver || '',
-        approvedAt: reportData.approvedAt || '',
+        materialLots: preparedReportData.materialLots || {},
+        isLeaderForm: preparedReportData.isLeaderForm || false,
+        isForkliftForm: preparedReportData.isForkliftForm || false,
+        isSupportForm: preparedReportData.isSupportForm || false,
+        formCode: preparedReportData.formCode || '',
+        leaderFormItems: preparedReportData.leaderFormItems || [],
+        attendanceData: preparedReportData.attendanceData || {},
+        downtimeMinutes: Number(preparedReportData.downtimeMinutes) || 0,
+        downtimeReason: preparedReportData.downtimeReason || '',
+        notes: preparedReportData.notes || '',
+        status: preparedReportData.status || '승인 대기',
+        moldStrokesProcessed: isSubmittedReportStatus(preparedReportData.status || '승인 대기'),
+        approver: preparedReportData.approver || '',
+        approvedAt: preparedReportData.approvedAt || '',
         createdAt: new Date().toLocaleString('ko-KR'),
         updatedAtMs: Date.now()
       };
@@ -1163,6 +1166,8 @@ export async function addReport(reportData) {
 
       return reportObj;
     });
+
+    await saveDowntimePhotosBatch(newReport.id, pendingPhotoSaves);
 
     invalidateReportsCache();
     upsert9bqcCachedReports([newReport]);
@@ -1193,11 +1198,26 @@ export async function updateReport(id, updatedFields) {
     const docSnap = await getDoc(docRef);
     const existingReport = docSnap.exists() ? docSnap.data() : null;
 
-    const cleanedFields = { ...updatedFields, updatedAtMs: Date.now() };
+    const { sanitizedItems, pendingPhotoSaves } = prepareDowntimeItemsForSave(updatedFields?.downtimeItems);
+    const cleanedFields = {
+      ...updatedFields,
+      ...(sanitizedItems ? { downtimeItems: sanitizedItems } : {}),
+      updatedAtMs: Date.now()
+    };
     Object.keys(cleanedFields).forEach(key => {
       if (cleanedFields[key] === undefined) delete cleanedFields[key];
     });
     await updateDoc(docRef, cleanedFields);
+    await saveDowntimePhotosBatch(id, pendingPhotoSaves);
+    if (sanitizedItems && Array.isArray(existingReport?.downtimeItems)) {
+      const keptIds = new Set(sanitizedItems.map((it) => String(it?.photoId || '').trim()).filter(Boolean));
+      const orphanIds = existingReport.downtimeItems
+        .map((it) => String(it?.photoId || '').trim())
+        .filter((pid) => pid && !keptIds.has(pid));
+      if (orphanIds.length > 0) {
+        await deleteDowntimePhotosByIds(orphanIds);
+      }
+    }
     invalidateReportsCache();
 
     if (existingReport) {
@@ -1249,6 +1269,10 @@ export async function deleteReport(id) {
     remove9bqcCachedReports([id]);
 
     if (existingReport) {
+      if (Array.isArray(existingReport.downtimeItems)) {
+        const photoIds = existingReport.downtimeItems.map((it) => String(it?.photoId || '').trim()).filter(Boolean);
+        if (photoIds.length > 0) await deleteDowntimePhotosByIds(photoIds);
+      }
       await applyStatsUpdate(existingReport, null);
       try {
         await processMoldStrokes(null, existingReport);
@@ -1312,6 +1336,10 @@ export async function bulkDeleteReports(ids) {
     remove9bqcCachedReports(ids);
 
     for (const r of existingReports) {
+      if (Array.isArray(r?.downtimeItems)) {
+        const photoIds = r.downtimeItems.map((it) => String(it?.photoId || '').trim()).filter(Boolean);
+        if (photoIds.length > 0) await deleteDowntimePhotosByIds(photoIds);
+      }
       await applyStatsUpdate(r, null);
       try {
         await processMoldStrokes(null, r);
@@ -1342,8 +1370,109 @@ const WORKER_PHOTOS_COLLECTION = 'worker_photos';
 const MOLD_PHOTOS_COLLECTION = 'mold_photos';
 const EQUIPMENT_PHOTOS_COLLECTION = 'equipment_photos';
 const CALIBRATION_CERTIFICATES_COLLECTION = 'calibration_certificates';
+const REPORT_DOWNTIME_PHOTOS_COLLECTION = 'report_downtime_photos';
 
 const isPhotoDataUrl = (v) => typeof v === 'string' && v.startsWith('data:image');
+const downtimePhotoCache = new Map();
+
+function prepareDowntimeItemsForSave(items) {
+  if (!Array.isArray(items)) return { sanitizedItems: null, pendingPhotoSaves: [] };
+  const pendingPhotoSaves = [];
+  const sanitizedItems = items.map((item, idx) => {
+    if (!item || typeof item !== 'object') return item;
+    const rawPhoto = item.photoDataUrl;
+    let photoId = String(item.photoId || '').trim();
+    const clean = { ...item };
+    delete clean.photoDataUrl;
+    if (isPhotoDataUrl(rawPhoto)) {
+      if (!photoId) {
+        photoId = `dtp_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}_${idx}`;
+      }
+      clean.photoId = photoId;
+      clean.hasPhoto = true;
+      pendingPhotoSaves.push({ photoId, dataUrl: rawPhoto });
+    } else if (photoId && clean.hasPhoto !== false) {
+      clean.photoId = photoId;
+      clean.hasPhoto = true;
+    } else {
+      delete clean.photoId;
+      clean.hasPhoto = false;
+    }
+    return clean;
+  });
+  return { sanitizedItems, pendingPhotoSaves };
+}
+
+async function saveDowntimePhotosBatch(reportId, pendingPhotoSaves) {
+  if (!Array.isArray(pendingPhotoSaves) || pendingPhotoSaves.length === 0) return;
+  await Promise.all(
+    pendingPhotoSaves.map(async ({ photoId, dataUrl }) => {
+      downtimePhotoCache.set(photoId, dataUrl);
+      try {
+        await setDoc(doc(db, REPORT_DOWNTIME_PHOTOS_COLLECTION, photoId), {
+          reportId: reportId || '',
+          dataUrl,
+          updatedAt: new Date().toISOString()
+        });
+      } catch (err) {
+        console.warn('Error saving downtime photo:', photoId, err);
+      }
+    })
+  );
+}
+
+async function deleteDowntimePhotosByIds(photoIds) {
+  if (!Array.isArray(photoIds) || photoIds.length === 0) return;
+  await Promise.all(
+    photoIds.map(async (photoId) => {
+      if (!photoId) return;
+      downtimePhotoCache.delete(photoId);
+      try {
+        await deleteDoc(doc(db, REPORT_DOWNTIME_PHOTOS_COLLECTION, photoId));
+      } catch (err) {
+        console.warn('Error deleting downtime photo:', photoId, err);
+      }
+    })
+  );
+}
+
+export async function fetchReportDowntimePhoto(photoId) {
+  if (!photoId) return '';
+  if (downtimePhotoCache.has(photoId)) return downtimePhotoCache.get(photoId) || '';
+  try {
+    const snap = await getDoc(doc(db, REPORT_DOWNTIME_PHOTOS_COLLECTION, photoId));
+    const url = snap.exists() ? String(snap.data()?.dataUrl || '') : '';
+    if (url) downtimePhotoCache.set(photoId, url);
+    return url;
+  } catch (error) {
+    console.warn('Error fetching downtime photo:', photoId, error);
+    return '';
+  }
+}
+
+export async function fetchReportDowntimePhotos(photoIds = []) {
+  const uniqueIds = [...new Set((photoIds || []).map((id) => String(id || '').trim()).filter(Boolean))];
+  const result = {};
+  await Promise.all(
+    uniqueIds.map(async (photoId) => {
+      const url = await fetchReportDowntimePhoto(photoId);
+      if (url) result[photoId] = url;
+    })
+  );
+  return result;
+}
+
+export async function fetchTodayTpmLogsByDate(dateStr) {
+  if (!dateStr) return [];
+  try {
+    const q = query(collection(db, 'tpm_logs'), where('reportDate', '==', dateStr));
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (error) {
+    console.warn('Error fetching tpm_logs by date:', error);
+    return [];
+  }
+}
 
 export async function fetchWorkers() {
   // 캐시 hit: Firestore 호출 없이 즉시 반환

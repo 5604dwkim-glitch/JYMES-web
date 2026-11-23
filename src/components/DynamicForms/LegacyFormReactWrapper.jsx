@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim } from '../../services/firestore';
+import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim, fetchEquipmentsSlim } from '../../services/firestore';
 import { fetchJointMoldDefaults, fetchLatestJointMoldEntryForForm } from '../../services/jointMoldDefaults';
 import { readLocalJointMoldDefaults } from '../../utils/jointMoldDefaultsHelper';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
@@ -35,6 +35,8 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
   const initialTpmSummaryRef = useRef(initialTpmSummary);
   initialTpmSummaryRef.current = initialTpmSummary;
   const isSavingRef = useRef(false);
+  const handleOpenTpmModalRef = useRef(null);
+  const tpmOpenOriginRef = useRef('gate');
 
   const [showTpmModal, setShowTpmModal] = useState(false);
   const [modalMeta, setModalMeta] = useState({ reportDate: '', workerName: '' });
@@ -50,10 +52,12 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
           new Promise((resolve) => setTimeout(() => resolve(fallback), ms))
         ]);
         const moldsPromise = fetchMoldsSlim();
+        const equipmentsPromise = fetchEquipmentsSlim();
         const moldDefaultsPromise = fetchJointMoldDefaults();
-        const [workersRaw, moldsFirst, jointMoldDefaults] = await Promise.all([
+        const [workersRaw, moldsFirst, equipmentsFirst, jointMoldDefaults] = await Promise.all([
           withTimeout(fetchWorkersSlim(), 10000, []),
           withTimeout(moldsPromise, 8000, null),
+          withTimeout(equipmentsPromise, 8000, null),
           withTimeout(moldDefaultsPromise, 2500, readLocalJointMoldDefaults())
         ]);
 
@@ -76,7 +80,9 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
             }
             return entry;
           },
-          equipments: [],
+          equipments: equipmentsFirst || [],
+          getTpmSummary: () => tpmSummaryRef.current,
+          onOpenTpmModal: () => handleOpenTpmModalRef.current?.('downtime'),
           processes: DEFAULT_PROCESSES,
           getItems: (code) => {
             return DEFAULT_ITEMS.filter(item => item.carModel === code);
@@ -127,6 +133,7 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
             ) {
               setTpmSkipped(false);
               if (!existingData && !initialTpmSummaryRef.current) {
+                tpmSummaryRef.current = null;
                 setTpmSummary(null);
               }
             }
@@ -136,12 +143,20 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
         };
         setLegacyFormContext(formCtx);
 
-        // 금형 목록이 늦게 도착한 경우: 양식은 먼저 열고, 도착하면 컨텍스트에 반영 및 섹션5 옵션 갱신
+        // 금형/설비 목록이 늦게 도착한 경우: 양식은 먼저 열고, 도착하면 컨텍스트에 반영 및 섹션 갱신
         if (moldsFirst === null) {
           moldsPromise.then((late) => {
             formCtx.molds = late || [];
             if (containerRef.current) {
               containerRef.current.dispatchEvent(new CustomEvent('jymes:molds-loaded'));
+            }
+          });
+        }
+        if (equipmentsFirst === null) {
+          equipmentsPromise.then((late) => {
+            formCtx.equipments = late || [];
+            if (containerRef.current) {
+              containerRef.current.dispatchEvent(new CustomEvent('jymes:equipments-loaded'));
             }
           });
         }
@@ -221,7 +236,8 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
     }, 80);
   };
 
-  const handleOpenTpmModal = () => {
+  const handleOpenTpmModal = (origin = 'gate') => {
+    tpmOpenOriginRef.current = origin === 'downtime' ? 'downtime' : 'gate';
     const curDate = containerRef.current?.querySelector('#reportDate')?.value || new Date().toLocaleDateString('sv-SE');
     const curWorker =
       containerRef.current?.querySelector('#workerSearchInput')?.value ||
@@ -231,6 +247,7 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
     setModalMeta({ reportDate: curDate, workerName: curWorker });
     setShowTpmModal(true);
   };
+  handleOpenTpmModalRef.current = handleOpenTpmModal;
 
   const handleSkipTpm = () => {
     setTpmSkipped(true);
@@ -239,10 +256,18 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
   };
 
   const handleTpmComplete = (summary) => {
+    const openedFromDowntime = tpmOpenOriginRef.current === 'downtime';
+    tpmOpenOriginRef.current = 'gate';
+    tpmSummaryRef.current = summary;
     setTpmSummary(summary);
     setTpmSkipped(false);
     setShowTpmModal(false);
-    scrollToNextReportStep();
+    if (containerRef.current) {
+      containerRef.current.dispatchEvent(new CustomEvent('jymes:tpm-updated', { detail: summary }));
+    }
+    if (!openedFromDowntime) {
+      scrollToNextReportStep();
+    }
   };
 
   return (

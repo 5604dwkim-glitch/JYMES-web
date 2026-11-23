@@ -17,6 +17,7 @@ import {
 import TpmWheelNumberPickerModal from './TpmWheelNumberPickerModal';
 import { printTpmLogSheet } from '../../utils/printTpmLog';
 import { syncTpmAbnormalToRepairAndChangePoint } from '../../services/changePointAutoSync';
+import { invalidateEquipmentsCache } from '../../services/firestore';
 
 const BORDER = '1px solid #000';
 const MARK_COLORS = { O: '#15803d', X: '#dc2626', '△': '#d97706' };
@@ -198,6 +199,7 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
         tpmPhoto: photo,
         tpmLogs: { ...(eqData.tpmLogs || {}), [key]: log }
       };
+      invalidateEquipmentsCache();
       setEqData(updated);
       if (onUpdate) onUpdate(updated);
       setIsEditing(false);
@@ -263,6 +265,7 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
         ...eqData,
         tpmLogs: { ...(eqData.tpmLogs || {}), [key]: nextLog }
       };
+      invalidateEquipmentsCache();
       setLog(nextLog);
       setEqData(updated);
       if (onUpdate) onUpdate(updated);

@@ -15,6 +15,7 @@ import {
 } from '../../constants/tpmLogTemplate';
 import TpmWheelNumberPickerModal from '../EquipmentManagement/TpmWheelNumberPickerModal';
 import { syncTpmAbnormalToRepairAndChangePoint } from '../../services/changePointAutoSync';
+import { invalidateEquipmentsCache } from '../../services/firestore';
 import { getEquipmentSetCategory } from '../../constants/equipmentCategories';
 import { useI18n } from '../../contexts/I18nContext';
 
@@ -498,11 +499,21 @@ export default function JointTpmCheckModal({
         createdAt: serverTimestamp()
       });
 
+      invalidateEquipmentsCache();
+
       const summary = {
         setId: equipmentSet.id,
         setName: equipmentSet.name,
         equipmentCount: setEquipments.length,
+        equipmentIds: setEquipments.map(e => e.id),
         equipmentCodes: setEquipments.map(e => e.code),
+        equipments: setEquipments.map(e => ({
+          id: e.id,
+          code: e.code || '',
+          name: e.name || '',
+          location: e.location || '',
+          type: e.type || ''
+        })),
         reportDate: effectiveDateStr,
         workerName: stampWorker,
         hasIssue,

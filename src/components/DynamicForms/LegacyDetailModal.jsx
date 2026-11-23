@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { DEFAULT_LEADER_ITEMS, DEFAULT_ATTENDANCE, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { buildFmbDetailHTML } from './forms/f9004/f9004Renderer.js';
+import { fetchReportDowntimePhotos } from '../../services/firestore';
 import { useI18n } from '../../contexts/I18nContext';
 import { i18n } from '../../constants/translations';
 
@@ -117,6 +118,10 @@ export function printIsolatedReport(element, title = '공정작업일보') {
           max-width: 90% !important;
           width: auto !important;
           height: auto !important;
+        }
+        img.downtime-photo-thumb {
+          max-height: 150px !important;
+          max-width: 220px !important;
         }
         .status-badge {
           display: inline-block;
@@ -826,6 +831,75 @@ export default function LegacyDetailModal({ report, onClose }) {
       });
       i18n.setLang(lang, false);
       i18n.applyTranslations(modalBodyRef.current);
+
+      const openDowntimeZoom = (srcUrl, altText) => {
+        if (!srcUrl) return;
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;';
+        const bar = document.createElement('div');
+        bar.style.cssText = 'width:100%;max-width:680px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:#fff;';
+        const titleSpan = document.createElement('span');
+        titleSpan.style.cssText = 'font-size:14px;font-weight:700;';
+        titleSpan.textContent = altText || '비가동 현장 사진';
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.textContent = '닫기';
+        closeBtn.style.cssText = 'background:rgba(255,255,255,0.16);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;';
+        bar.appendChild(titleSpan);
+        bar.appendChild(closeBtn);
+        const bigImg = document.createElement('img');
+        bigImg.src = srcUrl;
+        bigImg.alt = altText || '비가동 현장 사진';
+        bigImg.style.cssText = 'max-width:100%;max-height:80vh;border-radius:10px;object-fit:contain;background:#0f172a;box-shadow:0 12px 32px rgba(0,0,0,0.45);';
+        overlay.appendChild(bar);
+        overlay.appendChild(bigImg);
+        overlay.addEventListener('click', (ev) => {
+          if (ev.target === overlay || ev.target === closeBtn) overlay.remove();
+        });
+        document.body.appendChild(overlay);
+      };
+
+      const photoSlots = Array.from(modalBodyRef.current.querySelectorAll('[data-downtime-photo-id]'));
+      if (photoSlots.length > 0) {
+        let cancelled = false;
+        photoSlots.forEach((slotEl) => {
+          slotEl.style.pointerEvents = 'auto';
+          const existingImg = slotEl.querySelector('img.downtime-photo-thumb');
+          if (existingImg) {
+            existingImg.onclick = () => openDowntimeZoom(existingImg.src, existingImg.alt);
+          }
+        });
+        const needIds = photoSlots
+          .map((el) => String(el.getAttribute('data-downtime-photo-id') || '').trim())
+          .filter(Boolean);
+        if (needIds.length > 0) {
+          fetchReportDowntimePhotos(needIds)
+            .then((photoMap) => {
+              if (cancelled || !modalBodyRef.current) return;
+              photoSlots.forEach((slotEl) => {
+                const pid = String(slotEl.getAttribute('data-downtime-photo-id') || '').trim();
+                const url = pid ? photoMap[pid] : '';
+                if (url) {
+                  slotEl.innerHTML = '';
+                  slotEl.style.pointerEvents = 'auto';
+                  const imgEl = document.createElement('img');
+                  imgEl.className = 'downtime-photo-thumb';
+                  imgEl.src = url;
+                  imgEl.alt = '비가동 현장 사진';
+                  imgEl.style.cssText = 'max-width:160px;max-height:110px;border-radius:6px;border:1px solid #cbd5e1;object-fit:cover;cursor:pointer;';
+                  imgEl.onclick = () => openDowntimeZoom(url, '비가동 현장 사진');
+                  slotEl.appendChild(imgEl);
+                } else if (!slotEl.querySelector('img')) {
+                  slotEl.innerHTML = '';
+                }
+              });
+            })
+            .catch(() => {});
+        }
+        return () => {
+          cancelled = true;
+        };
+      }
     } catch (err) {
       alert("상세보기 오류: " + err.message);
       console.error(err);

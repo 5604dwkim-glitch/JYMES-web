@@ -109,8 +109,8 @@ export function buildDowntimeChains({ reports = [], equipments = [], molds = [],
 
     extractDowntimeSlots(report).forEach((slot) => {
       if (!(slot.minutes > 0)) return;
-      const kind = classifyDowntimeIssueKind(slot.reason);
-      if (!kind) return; // 소재 사유 등은 수리/변동점 자동등록 대상이 아님
+      const kind = classifyDowntimeIssueKind(slot.reason, slot.category);
+      if (!kind) return; // 소재/기타 사유 등은 수리/변동점 자동등록 대상이 아님
 
       const autoKey = `report_dt_${report.id}_s${slot.slotNum}`;
       const repair = repairIndex.get(autoKey) || null;

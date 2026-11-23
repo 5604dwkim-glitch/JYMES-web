@@ -13,6 +13,7 @@ import { CAR_MODELS, DEFAULT_ITEMS } from '../constants/masterData';
 import {
   fetchMolds,
   fetchEquipments,
+  fetchReportDowntimePhotos,
   invalidateMoldsCache,
   invalidateEquipmentsCache,
   invalidateChangePointsCache
@@ -623,9 +624,18 @@ export async function syncMoldRepairToChangePoint(mold, historyRow, rowIndex = 0
  * 비가동 사유가 설비 문제인지 금형 문제인지 판별한다.
  * (소재 불량 / 소재 없음 등 자재 사유는 수리·변동점 대상에서 제외)
  */
-export function classifyDowntimeIssueKind(reason = '') {
+export function classifyDowntimeIssueKind(reason = '', category = '') {
+  const cat = String(category || '').trim();
+  if (cat === '설비') return 'equipment';
+  if (cat === '금형') return 'mold';
+  if (cat === '소재' || cat === '기타') return null;
+
   const r = String(reason || '').trim();
   if (!r) return null;
+
+  if (r.startsWith('[소재]') || r.startsWith('[기타]')) return null;
+  if (r.startsWith('[금형]')) return 'mold';
+  if (r.startsWith('[설비]')) return 'equipment';
 
   // 자재 사유 명확 제외
   if (r.includes('소재') || r.includes('재료') || r.includes('원자재') || r.includes('자재')) {
@@ -689,6 +699,18 @@ function matchEquipmentForReportDowntime(reportData, slot, allEquipments, allSet
   const prodSets = Array.isArray(allSets)
     ? allSets.filter((s) => s?.category !== 'measuring')
     : [];
+
+  if (slot.targetId) {
+    const byTargetId = prodEquipments.find((eq) => eq.id === slot.targetId);
+    if (byTargetId) return byTargetId;
+  }
+  if (slot.targetCode) {
+    const normCode = String(slot.targetCode).replace(/\s+/g, '').toUpperCase();
+    const byTargetCode = prodEquipments.find(
+      (eq) => String(eq.code || '').replace(/\s+/g, '').toUpperCase() === normCode
+    );
+    if (byTargetCode) return byTargetCode;
+  }
 
   const equipLabel = String(slot.equip || '').trim();
   const normLabel = equipLabel.replace(/\s+/g, '').toUpperCase();
@@ -787,6 +809,10 @@ function matchMoldForReportDowntime(reportData, slot, allMolds) {
     if (m.moldNumber) moldByCode.set(String(m.moldNumber).trim(), m);
   });
 
+  if (slot.targetId && moldById.has(slot.targetId)) {
+    return moldById.get(slot.targetId);
+  }
+
   // 1. 작업일보 `vulcTable` / `vulcTable2` 에 입력된 실제 가동 금형 우선 매칭
   //    (호기 번호는 금형 간 중복되므로 일보 저장 시 함께 기록한 금형 고유 ID(moldRefs)를 우선 사용)
   const moldRefs = reportData.moldRefs || {};
@@ -869,8 +895,28 @@ function matchMoldForReportDowntime(reportData, slot, allMolds) {
     return score;
   };
 
+  const targetCodeStr = String(slot.targetCode || '').trim();
   const equipUpper = String(slot.equip || '').toUpperCase();
   if (activeMoldEntries.length > 0) {
+    if (targetCodeStr) {
+      const codeMatches = activeMoldEntries.filter((e) => e.code === targetCodeStr);
+      if (codeMatches.length === 1) {
+        if (codeMatches[0].mold) return codeMatches[0].mold;
+        if (moldByCode.has(codeMatches[0].code)) return moldByCode.get(codeMatches[0].code);
+      } else if (codeMatches.length > 1 && equipUpper) {
+        let bestCodeEntry = codeMatches[0];
+        let bestCodeScore = -Infinity;
+        for (const entry of codeMatches) {
+          const s = scoreMoldEntry(entry, equipUpper);
+          if (s > bestCodeScore) {
+            bestCodeScore = s;
+            bestCodeEntry = entry;
+          }
+        }
+        if (bestCodeEntry?.mold) return bestCodeEntry.mold;
+        if (bestCodeEntry && moldByCode.has(bestCodeEntry.code)) return moldByCode.get(bestCodeEntry.code);
+      }
+    }
     if (equipUpper) {
       let bestEntry = null;
       let bestScore = -1;
@@ -932,6 +978,21 @@ function matchMoldForReportDowntime(reportData, slot, allMolds) {
 
 export function extractDowntimeSlots(reportData) {
   if (!reportData) return [];
+
+  if (Array.isArray(reportData.downtimeItems) && reportData.downtimeItems.length > 0) {
+    return reportData.downtimeItems.map((item, idx) => ({
+      slotNum: Number(item?.seq) || (idx + 1),
+      minutes: Number(item?.minutes) || 0,
+      equip: String(item?.equip || item?.detail || '').trim(),
+      reason: String(item?.reason || '').trim(),
+      category: String(item?.category || '').trim(),
+      targetId: String(item?.targetId || '').trim(),
+      targetCode: String(item?.targetCode || '').trim(),
+      photoId: String(item?.photoId || '').trim(),
+      photoDataUrl: String(item?.photoDataUrl || '')
+    }));
+  }
+
   const hasExplicitSlots =
     reportData.downtimeMinutes1 !== undefined ||
     reportData.downtimeMinutes2 !== undefined ||
@@ -985,24 +1046,28 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
   const prevSlots = existingReport ? extractDowntimeSlots(existingReport) : [];
 
   const activeSlots = slots
-    .map((s) => ({ ...s, kind: s.minutes > 0 ? classifyDowntimeIssueKind(s.reason) : null }))
+    .map((s) => ({ ...s, kind: s.minutes > 0 ? classifyDowntimeIssueKind(s.reason, s.category) : null }))
     .filter((s) => s.kind !== null);
 
   const hadPrevAutoSlots = prevSlots.some(
-    (s) => s.minutes > 0 && classifyDowntimeIssueKind(s.reason) !== null
+    (s) => s.minutes > 0 && classifyDowntimeIssueKind(s.reason, s.category) !== null
   );
 
   if (activeSlots.length === 0 && !hadPrevAutoSlots) {
     return;
   }
 
-  // 비가동이 해제된 슬롯의 미검증 자동 변동점 정리
-  for (const s of slots) {
-    const kind = s.minutes > 0 ? classifyDowntimeIssueKind(s.reason) : null;
-    if (!kind && hadPrevAutoSlots) {
-      const prevSlot = prevSlots.find((p) => p.slotNum === s.slotNum);
-      if (prevSlot && prevSlot.minutes > 0 && classifyDowntimeIssueKind(prevSlot.reason)) {
-        await cleanupStaleAutoChangePointIfUnconfirmed(`report_dt_${reportData.id}_s${s.slotNum}`);
+  // 비가동이 해제되거나 삭제된 슬롯의 미검증 자동 변동점 정리
+  const activeSlotNums = new Set(activeSlots.map((s) => s.slotNum));
+  const candidateSlotNums = new Set([
+    ...slots.map((s) => s.slotNum),
+    ...prevSlots.map((s) => s.slotNum)
+  ]);
+  for (const slotNum of candidateSlotNums) {
+    if (!activeSlotNums.has(slotNum) && hadPrevAutoSlots) {
+      const prevSlot = prevSlots.find((p) => p.slotNum === slotNum);
+      if (prevSlot && prevSlot.minutes > 0 && classifyDowntimeIssueKind(prevSlot.reason, prevSlot.category)) {
+        await cleanupStaleAutoChangePointIfUnconfirmed(`report_dt_${reportData.id}_s${slotNum}`);
       }
     }
   }
@@ -1011,11 +1076,13 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
 
   const needEquip = activeSlots.some((s) => s.kind === 'equipment');
   const needMold = activeSlots.some((s) => s.kind === 'mold');
+  const photoIds = activeSlots.map((s) => String(s.photoId || '').trim()).filter(Boolean);
 
-  const [allEquipments, allSets, allMolds] = await Promise.all([
+  const [allEquipments, allSets, allMolds, photoMap] = await Promise.all([
     needEquip ? fetchEquipments() : Promise.resolve([]),
     needEquip ? fetchEquipmentSetsCached() : Promise.resolve([]),
-    needMold ? fetchMolds() : Promise.resolve([])
+    needMold ? fetchMolds() : Promise.resolve([]),
+    photoIds.length > 0 ? fetchReportDowntimePhotos(photoIds) : Promise.resolve({})
   ]);
 
   // 동일 설비/금형에 여러 슬롯이 매핑될 때 덮어쓰기 방지를 위해 최신 history 맵 유지
@@ -1035,6 +1102,7 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
     const autoKey = `report_dt_${reportData.id}_s${slot.slotNum}`;
     const equipPrefix = slot.equip ? `[${slot.equip}] ` : '';
     const issueHeadline = `[작업일보 ${slot.slotNum}차 비가동 ${slot.minutes}분] ${equipPrefix}${slot.reason}${notesSuffix}`;
+    const slotPhoto = slot.photoDataUrl || (slot.photoId ? (photoMap[slot.photoId] || '') : '');
 
     if (slot.kind === 'equipment') {
       const targetEq = matchEquipmentForReportDowntime(reportData, slot, allEquipments, allSets);
@@ -1059,7 +1127,8 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
           requestContent: issueHeadline,
           actionContent: '',
           verificationResult: '',
-          qualityPic: ''
+          qualityPic: '',
+          ...(slotPhoto ? { beforeImage: slotPhoto } : {})
         };
 
         if (existingIdx >= 0) {
@@ -1072,7 +1141,8 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
               ...baseRepairDetails,
               ...(prevRow.repairDetails || {}),
               requestDate: dateYmd,
-              requestContent: issueHeadline
+              requestContent: issueHeadline,
+              ...(slotPhoto ? { beforeImage: slotPhoto } : {})
             }
           };
         } else {
@@ -1115,7 +1185,8 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
           changeWorker: workerName,
           changeDate: dateYmd,
           applyDate: dateYmd,
-          changeContentText: `공정: ${reportData.processName || '-'}\n대상 설비: ${eqDesc}\n내용: ${issueHeadline}`
+          changeContentText: `공정: ${reportData.processName || '-'}\n대상 설비: ${eqDesc}\n내용: ${issueHeadline}`,
+          ...(slotPhoto ? { beforeImage: slotPhoto } : {})
         }
       );
     } else if (slot.kind === 'mold') {
@@ -1139,7 +1210,8 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
           requestContent: issueHeadline,
           actionContent: '',
           verificationResult: '',
-          qualityPic: ''
+          qualityPic: '',
+          ...(slotPhoto ? { beforeImage: slotPhoto } : {})
         };
 
         if (existingIdx >= 0) {
@@ -1152,7 +1224,8 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
               ...baseRepairDetails,
               ...(prevRow.repairDetails || {}),
               requestDate: dateYmd,
-              requestContent: issueHeadline
+              requestContent: issueHeadline,
+              ...(slotPhoto ? { beforeImage: slotPhoto } : {})
             }
           };
         } else {
@@ -1196,7 +1269,8 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
           changeWorker: workerName,
           changeDate: dateYmd,
           applyDate: dateYmd,
-          changeContentText: `공정: ${reportData.processName || '-'}\n대상 금형: ${moldDesc}\n내용: ${issueHeadline}`
+          changeContentText: `공정: ${reportData.processName || '-'}\n대상 금형: ${moldDesc}\n내용: ${issueHeadline}`,
+          ...(slotPhoto ? { beforeImage: slotPhoto } : {})
         }
       );
     }

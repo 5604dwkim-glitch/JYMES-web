@@ -1,15 +1,11 @@
 import { DOWNTIME_REASONS } from '../../../constants/masterData.js';
 import { resolveFormCodeSource } from '../../../constants/formCloneSources.js';
 import { applyUnifiedFormColors } from './formColorTheme.js';
+import { renderJointDowntimeSection, restoreNonJointDowntimeBody } from './jointDowntimeSection.js';
 import { applyF1051DowntimeSection } from '../forms/f1051/downtimeSection.js';
-import { applyF1052DowntimeSection } from '../forms/f1052/downtimeSection.js';
-import { applyF4022DowntimeSection } from '../forms/f4022/downtimeSection.js';
 import { applyF5001DowntimeSection, restoreDefaultDowntimeReasonsIfNeeded } from '../forms/f5001/downtimeSection.js';
 import { applyF5002DowntimeSection } from '../forms/f5002/downtimeSection.js';
 import { applyF5003DowntimeSection } from '../forms/f5003/downtimeSection.js';
-import { applyF5004DowntimeSection } from '../forms/f5004/downtimeSection.js';
-import { applyF5005DowntimeSection } from '../forms/f5005/downtimeSection.js';
-import { applyF5006DowntimeSection } from '../forms/f5006/downtimeSection.js';
 import { applyF5007DowntimeSection } from '../forms/f5007/downtimeSection.js';
 import { applyF5010DowntimeSection } from '../forms/f5010/downtimeSection.js';
 import { applyF5011DowntimeSection } from '../forms/f5011/downtimeSection.js';
@@ -46,25 +42,22 @@ function updateDowntimeSectionCore(ctx) {
     const formCode = (rawFormCode === 1051 || rawFormCode === 1052 || rawFormCode === 4022) ? rawFormCode : resolveFormCodeSource(rawFormCode);
 
     if (!curProc) {
+      restoreNonJointDowntimeBody(container);
       if (downtimeCard) downtimeCard.style.display = 'none';
       clearHiddenDowntimeInputs(container);
       return;
     }
 
-    if (formCode === 4022) {
-      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
-      applyF4022DowntimeSection(container, downtimeCard, existingData);
+    const isJointProc = curProc === '조인트' || curProc === '조인트 V부' || curProc.startsWith('조인트');
+    if (isJointProc) {
+      renderJointDowntimeSection(ctx);
       return;
     }
+    restoreNonJointDowntimeBody(container);
 
     if (formCode === 1051) {
       restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
       applyF1051DowntimeSection(container, downtimeCard, existingData);
-      return;
-    }
-    if (formCode === 1052) {
-      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
-      applyF1052DowntimeSection(container, downtimeCard, existingData);
       return;
     }
     if (formCode === 5001) {
@@ -78,21 +71,6 @@ function updateDowntimeSectionCore(ctx) {
     if (formCode === 5003) {
       restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
       applyF5003DowntimeSection(container, downtimeCard, existingData);
-      return;
-    }
-    if (formCode === 5004) {
-      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
-      applyF5004DowntimeSection(container, downtimeCard, existingData);
-      return;
-    }
-    if (formCode === 5005) {
-      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
-      applyF5005DowntimeSection(container, downtimeCard, existingData);
-      return;
-    }
-    if (formCode === 5006) {
-      restoreDefaultDowntimeReasonsIfNeeded(container, downtimeCard, DOWNTIME_REASONS, existingData);
-      applyF5006DowntimeSection(container, downtimeCard, existingData);
       return;
     }
     if (formCode === 5007) {
