@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { doc, updateDoc, deleteField } from 'firebase/firestore';
+import React, { useEffect, useRef, useState } from 'react';
+import { doc, getDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '../../firebase';
 import MoldRepairRequestModal from './MoldRepairRequestModal';
-import { invalidateMoldsCache, fetchMoldPhoto, saveMoldPhoto } from '../../services/firestore';
+import { invalidateMoldsCache, fetchMoldPhoto, saveMoldPhoto, fetchReportDowntimePhotos } from '../../services/firestore';
 import { syncMoldRepairToChangePoint } from '../../services/changePointAutoSync';
 
 const addThreeMonths = (dateStr) => {
@@ -25,21 +25,48 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
   // 사진은 별도 컬렉션(mold_photos)에 분리 저장되므로, 사용자가 사진을 바꾼 경우에만 사진 저장을 수행
   const [photoDirty, setPhotoDirty] = useState(false);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const isEditingRef = useRef(false);
+  isEditingRef.current = isEditing;
+  const initialHistoryRef = useRef(mold.history);
+  const [editingRepairIndex, setEditingRepairIndex] = useState(null);
+  const [selectedIndices, setSelectedIndices] = useState([]);
+
   useEffect(() => {
-    if (mold.moldPhoto) return undefined;
     let alive = true;
-    fetchMoldPhoto(mold.id).then((photo) => {
-      if (!alive || !photo) return;
-      setFormData((prev) => (prev.moldPhoto ? prev : { ...prev, moldPhoto: photo }));
-    });
+    if (!mold.moldPhoto) {
+      fetchMoldPhoto(mold.id).then((photo) => {
+        if (!alive || !photo) return;
+        setFormData((prev) => (prev.moldPhoto ? prev : { ...prev, moldPhoto: photo }));
+      });
+    }
+
+    // MoldManagement 는 fetchMoldsSlim 을 사용하므로 수리의뢰 사진(beforeImage)이 제거되어 있음 → 원본 history 및 분리 사진 복원
+    const hist = Array.isArray(initialHistoryRef.current) ? initialHistoryRef.current : [];
+    const hasRepairRows = hist.some((row) => row?.repairDetails);
+    if (hasRepairRows) {
+      Promise.all([
+        getDoc(doc(db, 'molds', mold.id)).catch(() => null),
+        fetchReportDowntimePhotos(hist.map((r) => r?.repairDetails?.beforePhotoId).filter(Boolean)).catch(() => ({}))
+      ]).then(([fullSnap, dtPhotos]) => {
+        if (!alive || isEditingRef.current) return;
+        const fullHist = fullSnap?.exists?.() && Array.isArray(fullSnap.data()?.history) ? fullSnap.data().history : hist;
+        const mergedHist = fullHist.map((row) => {
+          const rd = row?.repairDetails;
+          if (!rd) return row;
+          if (!rd.beforeImage && rd.beforePhotoId && dtPhotos[rd.beforePhotoId]) {
+            return { ...row, repairDetails: { ...rd, beforeImage: dtPhotos[rd.beforePhotoId] } };
+          }
+          return row;
+        });
+        setFormData((prev) => ({ ...prev, history: mergedHist }));
+      });
+    }
+
     return () => {
       alive = false;
     };
   }, [mold.id, mold.moldPhoto]);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingRepairIndex, setEditingRepairIndex] = useState(null);
-  const [selectedIndices, setSelectedIndices] = useState([]);
 
   const handlePhotoUpload = (e) => {
     if (!isEditing) return;
@@ -729,7 +756,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                               fontWeight: 'bold'
                             }}
                           >
-                            {row.repairDetails.repairStatus === '완료' ? '수리완료' : '수리의뢰요청'}
+                            {row.repairDetails.repairStatus === '완료' ? '수리완료' : '수리의뢰요청'}{(row.repairDetails.beforeImage || row.repairDetails.beforePhotoId) ? ' 📷' : ''}
                           </button>
                         ) : (
                           <button

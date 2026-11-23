@@ -1,20 +1,45 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { fetchReportDowntimePhoto } from '../../services/firestore';
 
 export default function MoldRepairRequestModal({ mold, initialData, onClose, onSave, readOnly = false }) {
-  const [formData, setFormData] = useState(initialData || {
-    department: '오록 신천',
-    requestDate: new Date().toLocaleDateString('sv-SE'),
-    requestType: '수리', // 수리, 설변, 파손, 습합
-    pic: '',
-    completionDate: '',
-    remarks: '',
-    requestContent: '',
-    actionContent: '',
-    verificationResult: '',
-    qualityPic: ''
-  });
+  const [formData, setFormData] = useState(() =>
+    initialData
+      ? {
+          beforePhotoId: initialData.beforePhotoId ?? '',
+          beforeImage: initialData.beforeImage ?? '',
+          afterImage: initialData.afterImage ?? '',
+          ...initialData
+        }
+      : {
+          department: '오록 신천',
+          requestDate: new Date().toLocaleDateString('sv-SE'),
+          requestType: '수리', // 수리, 설변, 파손, 습합
+          pic: '',
+          completionDate: '',
+          remarks: '',
+          requestContent: '',
+          actionContent: '',
+          verificationResult: '',
+          qualityPic: '',
+          beforePhotoId: '',
+          beforeImage: '',
+          afterImage: ''
+        }
+  );
+
+  useEffect(() => {
+    if (formData.beforeImage || !formData.beforePhotoId) return undefined;
+    let alive = true;
+    fetchReportDowntimePhoto(formData.beforePhotoId).then((url) => {
+      if (!alive || !url) return;
+      setFormData((prev) => (prev.beforeImage ? prev : { ...prev, beforeImage: url }));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [formData.beforePhotoId, formData.beforeImage]);
 
   const handleSave = async () => {
     try {

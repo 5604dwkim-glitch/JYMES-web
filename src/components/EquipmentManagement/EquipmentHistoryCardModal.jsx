@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { doc, updateDoc, deleteField } from 'firebase/firestore';
+import React, { useEffect, useRef, useState } from 'react';
+import { doc, getDoc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from '../../firebase';
 import EquipmentRepairRequestModal from './EquipmentRepairRequestModal';
-import { invalidateEquipmentsCache, fetchEquipmentPhotos, saveEquipmentPhotos } from '../../services/firestore';
+import { invalidateEquipmentsCache, fetchEquipmentPhotos, saveEquipmentPhotos, fetchReportDowntimePhotos } from '../../services/firestore';
 import { syncEquipmentRepairToChangePoint } from '../../services/changePointAutoSync';
 import { getEquipmentCategory } from '../../constants/equipmentCategories';
 
@@ -340,6 +340,8 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
   // 대표사진은 별도 컬렉션(equipment_photos)에 분리 저장 — 사용자가 바꾼 슬롯만 저장 대상으로 추적
   const [dirtyPhotos, setDirtyPhotos] = useState({ equipmentPhoto: false, equipmentPhoto2: false });
 
+  const initialHistoryRef = useRef(equipment.history);
+
   useEffect(() => {
     let alive = true;
     fetchEquipmentPhotos(equipment.id).then((photos) => {
@@ -350,6 +352,28 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
         equipmentPhoto2: photos.equipmentPhoto2 || prev.equipmentPhoto2
       }));
     });
+
+    const hist = Array.isArray(initialHistoryRef.current) ? initialHistoryRef.current : [];
+    const needHydrate = hist.some((row) => row?.repairDetails && !row.repairDetails.beforeImage && (row.repairDetails.beforePhotoId || row.autoSyncKey));
+    if (needHydrate) {
+      Promise.all([
+        getDoc(doc(db, 'equipments', equipment.id)).catch(() => null),
+        fetchReportDowntimePhotos(hist.map((r) => r?.repairDetails?.beforePhotoId).filter(Boolean)).catch(() => ({}))
+      ]).then(([fullSnap, dtPhotos]) => {
+        if (!alive) return;
+        const fullHist = fullSnap?.exists?.() && Array.isArray(fullSnap.data()?.history) ? fullSnap.data().history : hist;
+        const mergedHist = fullHist.map((row) => {
+          const rd = row?.repairDetails;
+          if (!rd) return row;
+          if (!rd.beforeImage && rd.beforePhotoId && dtPhotos[rd.beforePhotoId]) {
+            return { ...row, repairDetails: { ...rd, beforeImage: dtPhotos[rd.beforePhotoId] } };
+          }
+          return row;
+        });
+        setFormData((prev) => ({ ...prev, history: mergedHist }));
+      });
+    }
+
     return () => {
       alive = false;
     };
@@ -911,7 +935,7 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                               fontWeight: 'bold'
                             }}
                           >
-                            {row.repairDetails.repairStatus === '완료' ? '수리완료' : '수리의뢰요청'}
+                            {row.repairDetails.repairStatus === '완료' ? '수리완료' : '수리의뢰요청'}{(row.repairDetails.beforeImage || row.repairDetails.beforePhotoId) ? ' 📷' : ''}
                           </button>
                         ) : (
                           <button 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { fetchReportDowntimePhoto } from '../../services/firestore';
 
 const EQUIPMENT_REPAIR_TYPES = ['온조기', '상단누유', '하단누유', '작동이상'];
 
@@ -18,9 +19,22 @@ export default function EquipmentRepairRequestModal({ equipment, initialData, on
     actionContent: initialData?.actionContent ?? '',
     verificationResult: initialData?.verificationResult ?? '',
     qualityPic: initialData?.qualityPic ?? '',
+    beforePhotoId: initialData?.beforePhotoId ?? '',
     beforeImage: initialData?.beforeImage ?? '',
     afterImage: initialData?.afterImage ?? ''
   }));
+
+  useEffect(() => {
+    if (formData.beforeImage || !formData.beforePhotoId) return undefined;
+    let alive = true;
+    fetchReportDowntimePhoto(formData.beforePhotoId).then((url) => {
+      if (!alive || !url) return;
+      setFormData((prev) => (prev.beforeImage ? prev : { ...prev, beforeImage: url }));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [formData.beforePhotoId, formData.beforeImage]);
 
   const handleSave = async () => {
     try {

@@ -988,6 +988,8 @@ export function extractDowntimeSlots(reportData) {
       category: String(item?.category || '').trim(),
       targetId: String(item?.targetId || '').trim(),
       targetCode: String(item?.targetCode || '').trim(),
+      repairType: String(item?.repairType || '').trim(),
+      comment: String(item?.comment || '').trim(),
       photoId: String(item?.photoId || '').trim(),
       photoDataUrl: String(item?.photoDataUrl || '')
     }));
@@ -1045,13 +1047,18 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
   const slots = extractDowntimeSlots(reportData);
   const prevSlots = existingReport ? extractDowntimeSlots(existingReport) : [];
 
+  const isSyncTargetSlot = (s) => {
+    const k = classifyDowntimeIssueKind(s.reason, s.category);
+    if (!k) return null;
+    if (s.minutes > 0 || s.comment || s.repairType || s.photoId || s.photoDataUrl) return k;
+    return null;
+  };
+
   const activeSlots = slots
-    .map((s) => ({ ...s, kind: s.minutes > 0 ? classifyDowntimeIssueKind(s.reason, s.category) : null }))
+    .map((s) => ({ ...s, kind: isSyncTargetSlot(s) }))
     .filter((s) => s.kind !== null);
 
-  const hadPrevAutoSlots = prevSlots.some(
-    (s) => s.minutes > 0 && classifyDowntimeIssueKind(s.reason, s.category) !== null
-  );
+  const hadPrevAutoSlots = prevSlots.some((s) => isSyncTargetSlot(s) !== null);
 
   if (activeSlots.length === 0 && !hadPrevAutoSlots) {
     return;
@@ -1066,7 +1073,7 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
   for (const slotNum of candidateSlotNums) {
     if (!activeSlotNums.has(slotNum) && hadPrevAutoSlots) {
       const prevSlot = prevSlots.find((p) => p.slotNum === slotNum);
-      if (prevSlot && prevSlot.minutes > 0 && classifyDowntimeIssueKind(prevSlot.reason, prevSlot.category)) {
+      if (prevSlot && isSyncTargetSlot(prevSlot)) {
         await cleanupStaleAutoChangePointIfUnconfirmed(`report_dt_${reportData.id}_s${slotNum}`);
       }
     }
@@ -1101,8 +1108,14 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
   for (const slot of activeSlots) {
     const autoKey = `report_dt_${reportData.id}_s${slot.slotNum}`;
     const equipPrefix = slot.equip ? `[${slot.equip}] ` : '';
-    const issueHeadline = `[작업일보 ${slot.slotNum}차 비가동 ${slot.minutes}분] ${equipPrefix}${slot.reason}${notesSuffix}`;
+    const minLabel = slot.minutes > 0 ? ` ${slot.minutes}분` : '';
+    const rawComment = String(slot.comment || '').trim();
+    const issueBody = rawComment && slot.reason && !slot.reason.includes(rawComment)
+      ? `${slot.reason} · ${rawComment}`
+      : (slot.reason || rawComment);
+    const issueHeadline = `[작업일보 ${slot.slotNum}차 비가동${minLabel}] ${equipPrefix}${issueBody}${notesSuffix}`.trim();
     const slotPhoto = slot.photoDataUrl || (slot.photoId ? (photoMap[slot.photoId] || '') : '');
+    const slotPhotoId = String(slot.photoId || '').trim();
 
     if (slot.kind === 'equipment') {
       const targetEq = matchEquipmentForReportDowntime(reportData, slot, allEquipments, allSets);
@@ -1114,7 +1127,20 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
         const nextHistory = Array.isArray(currentEq.history) ? [...currentEq.history] : [];
         const existingIdx = nextHistory.findIndex((h) => h?.autoSyncKey === autoKey);
 
-        const reqType = slot.reason.includes('온조기') ? '온조기' : '작동이상';
+        const typeSource = `${slot.repairType || ''} ${slot.comment || ''} ${slot.reason || ''}`;
+        const reqType = slot.repairType || (
+          typeSource.includes('상단누유') || typeSource.includes('상단 누유')
+            ? '상단누유'
+            : typeSource.includes('하단누유') || typeSource.includes('하단 누유')
+              ? '하단누유'
+              : typeSource.includes('온조기')
+                ? '온조기'
+                : '작동이상'
+        );
+        const repairReqContent = rawComment
+          ? `[${reqType}] ${rawComment}\n(작업일보 #${reportData.id} · ${slot.slotNum}차 비가동${minLabel}${notesSuffix})`
+          : issueHeadline;
+
         const baseRepairDetails = {
           equipmentName: targetEq.name || '',
           equipmentCode: targetEq.code || '',
@@ -1124,10 +1150,11 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
           pic: workerName,
           completionDate: '',
           remarks: `작업일보 #${reportData.id} 자동연동 (${carModel} ${partName} / ${reportData.processName || ''})`,
-          requestContent: issueHeadline,
+          requestContent: repairReqContent,
           actionContent: '',
           verificationResult: '',
           qualityPic: '',
+          ...(slotPhotoId ? { beforePhotoId: slotPhotoId } : {}),
           ...(slotPhoto ? { beforeImage: slotPhoto } : {})
         };
 
@@ -1140,8 +1167,10 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
             repairDetails: {
               ...baseRepairDetails,
               ...(prevRow.repairDetails || {}),
+              requestType: reqType,
               requestDate: dateYmd,
-              requestContent: issueHeadline,
+              requestContent: repairReqContent,
+              ...(slotPhotoId ? { beforePhotoId: slotPhotoId } : {}),
               ...(slotPhoto ? { beforeImage: slotPhoto } : {})
             }
           };
@@ -1169,7 +1198,7 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
           issueItem: '설비 고장/수리',
           carModel,
           partName,
-          details: `[작업일보 비가동 ${slot.minutes}분] ${eqDesc} — ${slot.reason}${notesSuffix}`,
+          details: `[작업일보 비가동${minLabel}] ${eqDesc} — ${issueBody}${notesSuffix}`,
           actionTime: dateYmd,
           actionPlan: '비가동 원인 설비 점검·수리 후 초품 품질 확인',
           actionResult: targetEq
@@ -1181,7 +1210,7 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
         },
         {
           author: workerName,
-          changeReason: `작업일보 설비 비가동 ${slot.minutes}분 발생 (${slot.reason})`,
+          changeReason: `작업일보 설비 비가동${minLabel} 발생 (${issueBody})`,
           changeWorker: workerName,
           changeDate: dateYmd,
           applyDate: dateYmd,
@@ -1200,17 +1229,32 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
         const nextHistory = Array.isArray(currentMold.history) ? [...currentMold.history] : [];
         const existingIdx = nextHistory.findIndex((h) => h?.autoSyncKey === autoKey);
 
+        const moldTypeSource = `${slot.repairType || ''} ${slot.comment || ''} ${slot.reason || ''}`;
+        const moldReqType = slot.repairType || (
+          moldTypeSource.includes('설변') || moldTypeSource.includes('설계변경')
+            ? '설변'
+            : moldTypeSource.includes('파손')
+              ? '파손'
+              : moldTypeSource.includes('습합')
+                ? '습합'
+                : '수리'
+        );
+        const moldReqContent = rawComment
+          ? `[${moldReqType}] ${rawComment}\n(작업일보 #${reportData.id} · ${slot.slotNum}차 비가동${minLabel}${notesSuffix})`
+          : issueHeadline;
+
         const baseRepairDetails = {
           department: '생산팀',
           requestDate: dateYmd,
-          requestType: '수리',
+          requestType: moldReqType,
           pic: workerName,
           completionDate: '',
           remarks: `작업일보 #${reportData.id} 자동연동 (${carModel} ${partName} / ${reportData.processName || ''})`,
-          requestContent: issueHeadline,
+          requestContent: moldReqContent,
           actionContent: '',
           verificationResult: '',
           qualityPic: '',
+          ...(slotPhotoId ? { beforePhotoId: slotPhotoId } : {}),
           ...(slotPhoto ? { beforeImage: slotPhoto } : {})
         };
 
@@ -1223,8 +1267,10 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
             repairDetails: {
               ...baseRepairDetails,
               ...(prevRow.repairDetails || {}),
+              requestType: moldReqType,
               requestDate: dateYmd,
-              requestContent: issueHeadline,
+              requestContent: moldReqContent,
+              ...(slotPhotoId ? { beforePhotoId: slotPhotoId } : {}),
               ...(slotPhoto ? { beforeImage: slotPhoto } : {})
             }
           };
@@ -1252,7 +1298,7 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
           issueItem: '금형 수리/보수',
           carModel: targetMold?.carModel || carModel,
           partName: targetMold?.partName || partName,
-          details: `[작업일보 비가동 ${slot.minutes}분] ${moldDesc} — ${slot.reason}${notesSuffix}`,
+          details: `[작업일보 비가동${minLabel}] ${moldDesc} — ${issueBody}${notesSuffix}`,
           actionTime: dateYmd,
           actionPlan: '금형 점검·수리/습합 후 초품 치수·외관 검사',
           actionResult: targetMold
@@ -1265,7 +1311,7 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
         {
           partNo: targetMold?.itemNo || '',
           author: workerName,
-          changeReason: `작업일보 금형 비가동 ${slot.minutes}분 발생 (${slot.reason})`,
+          changeReason: `작업일보 금형 비가동${minLabel} 발생 (${issueBody})`,
           changeWorker: workerName,
           changeDate: dateYmd,
           applyDate: dateYmd,
@@ -1318,7 +1364,10 @@ async function writeAutoHistoryRowsMerged(collectionName, docId, cachedHistory, 
           repairDetails: {
             ...(freshRow.repairDetails || {}),
             requestDate: row.repairDetails?.requestDate,
-            requestContent: row.repairDetails?.requestContent
+            requestContent: row.repairDetails?.requestContent,
+            ...(row.repairDetails?.requestType ? { requestType: row.repairDetails.requestType } : {}),
+            ...(row.repairDetails?.beforePhotoId ? { beforePhotoId: row.repairDetails.beforePhotoId } : {}),
+            ...(row.repairDetails?.beforeImage ? { beforeImage: row.repairDetails.beforeImage } : {})
           }
         };
       } else {

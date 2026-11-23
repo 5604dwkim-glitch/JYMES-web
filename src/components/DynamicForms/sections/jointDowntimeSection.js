@@ -4,6 +4,8 @@ import { fetchReportDowntimePhoto, fetchTodayTpmLogsByDate } from '../../../serv
 
 export const JOINT_DOWNTIME_CATEGORIES = ['설비', '금형', '소재', '기타'];
 export const JOINT_DOWNTIME_MATERIAL_OPTIONS = ['단면 불량', '소재결품'];
+export const JOINT_EQUIPMENT_REPAIR_TYPES = ['온조기', '상단누유', '하단누유', '작동이상'];
+export const JOINT_MOLD_REPAIR_TYPES = ['수리', '파손', '습합', '설변'];
 
 const CATEGORY_STYLE_MAP = {
   '설비': { bg: '#eff6ff', border: '#2563eb', text: '#1d4ed8', badgeBg: '#dbeafe' },
@@ -119,6 +121,8 @@ function createEmptyItem() {
     targetCode: '',
     targetName: '',
     detail: '',
+    repairType: '',
+    comment: '',
     equip: '',
     reason: '',
     minutes: 0,
@@ -131,8 +135,14 @@ function createEmptyItem() {
 export function buildFormattedDowntimeFields(item) {
   const category = String(item?.category || '').trim();
   const detail = String(item?.detail || '').trim();
+  const repairType = String(item?.repairType || '').trim();
+  const comment = String(item?.comment || '').trim();
   const equip = String(item?.equip || '').trim();
   const minutes = Math.max(0, Math.round(Number(item?.minutes) || 0));
+
+  const commentText = repairType && comment
+    ? `[${repairType}] ${comment}`
+    : (repairType ? `[${repairType}]` : comment);
 
   let normalizedEquip = equip;
   let normalizedReason = '';
@@ -140,11 +150,17 @@ export function buildFormattedDowntimeFields(item) {
   if (category === '설비') {
     const label = detail || equip || String(item?.targetName || item?.targetCode || '').trim();
     normalizedEquip = normalizedEquip || label;
-    normalizedReason = label ? `[설비] ${label}` : '[설비]';
+    if (label && commentText) normalizedReason = `[설비] ${label} · ${commentText}`;
+    else if (label) normalizedReason = `[설비] ${label}`;
+    else if (commentText) normalizedReason = `[설비] ${commentText}`;
+    else normalizedReason = '[설비]';
   } else if (category === '금형') {
     const label = detail || equip || String(item?.targetCode || item?.targetName || '').trim();
     normalizedEquip = normalizedEquip || label;
-    normalizedReason = label ? `[금형] ${label}` : '[금형]';
+    if (label && commentText) normalizedReason = `[금형] ${label} · ${commentText}`;
+    else if (label) normalizedReason = `[금형] ${label}`;
+    else if (commentText) normalizedReason = `[금형] ${commentText}`;
+    else normalizedReason = '[금형]';
   } else if (category === '소재') {
     normalizedEquip = '';
     normalizedReason = detail ? `[소재] ${detail}` : '[소재]';
@@ -152,7 +168,7 @@ export function buildFormattedDowntimeFields(item) {
     normalizedEquip = '';
     normalizedReason = detail ? `[기타] ${detail}` : '[기타]';
   } else {
-    normalizedReason = String(item?.reason || detail || '').trim();
+    normalizedReason = String(item?.reason || detail || commentText || '').trim();
   }
 
   return {
@@ -161,6 +177,8 @@ export function buildFormattedDowntimeFields(item) {
     targetCode: String(item?.targetCode || '').trim(),
     targetName: String(item?.targetName || '').trim(),
     detail,
+    repairType,
+    comment,
     equip: normalizedEquip,
     reason: normalizedReason,
     minutes
@@ -184,6 +202,8 @@ export function parseInitialDowntimeItems(existingData) {
           targetCode: String(it.targetCode || '').trim(),
           targetName: String(it.targetName || '').trim(),
           detail,
+          repairType: String(it.repairType || '').trim(),
+          comment: String(it.comment || '').trim(),
           equip: String(it.equip || '').trim(),
           reason: String(it.reason || '').trim(),
           minutes: Math.max(0, Math.round(Number(it.minutes) || 0)),
@@ -709,7 +729,7 @@ export function getTpmWrittenEquipments(ctx, state, reportDateStr) {
   });
 }
 
-function resizeImageFileToDataUrl(file, maxSize = 960, quality = 0.72) {
+function resizeImageFileToDataUrl(file, maxSize = 720, quality = 0.68) {
   return new Promise((resolve, reject) => {
     if (!file) {
       reject(new Error('파일이 없습니다.'));
@@ -928,6 +948,40 @@ const SCOPED_STYLE_HTML = `<style data-jdt-style="1">
   color: #1d4ed8;
   cursor: pointer;
 }
+[data-joint-downtime-root="1"] .jdt-comment-wrap {
+  margin-top: 7px;
+  padding: 7px 9px;
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+}
+[data-joint-downtime-root="1"] .jdt-comment-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e3a8a;
+  margin-bottom: 5px;
+}
+[data-joint-downtime-root="1"] .jdt-type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+[data-joint-downtime-root="1"] .jdt-type-chip {
+  padding: 4px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+}
+[data-joint-downtime-root="1"] .jdt-type-chip.is-active {
+  background: #dbeafe;
+  border-color: #2563eb;
+  color: #1d4ed8;
+}
 [data-joint-downtime-root="1"] .jdt-photo-row {
   display: flex;
   align-items: center;
@@ -1064,9 +1118,36 @@ const SCOPED_STYLE_HTML = `<style data-jdt-style="1">
 }
 </style>`;
 
+function buildRepairCommentBlockHtml(item, idx, cat) {
+  const chips = cat === '설비' ? JOINT_EQUIPMENT_REPAIR_TYPES : JOINT_MOLD_REPAIR_TYPES;
+  const chipsHtml = chips
+    .map((t) => {
+      const active = item.repairType === t;
+      return `<button type="button" class="jdt-type-chip ${active ? 'is-active' : ''}" data-jdt-repair-type="${escapeHtml(t)}">${escapeHtml(t)}</button>`;
+    })
+    .join('');
+
+  const placeholder = cat === '설비'
+    ? '고장·이상 멘트 입력 (예: 히터 온도 불량, 유압 누유 등 → 설비 수리의뢰 자동등록)'
+    : '금형 이상/수리 멘트 입력 (예: 파팅 불량, 코어 손상, 수지 노출 등 → 금형 수리의뢰 자동등록)';
+
+  return `
+    <div class="jdt-comment-wrap">
+      <div class="jdt-comment-title">🛠️ ${escapeHtml(cat)} 수리의뢰 내용 / 멘트 <span style="font-weight:500;color:#64748b;">(수리의뢰·사진 자동연동)</span></div>
+      <div class="jdt-type-chips">${chipsHtml}</div>
+      <input type="text"
+        id="jdt_comment_${idx}"
+        class="form-control"
+        data-jdt-field="commentInput"
+        placeholder="${escapeHtml(placeholder)}"
+        value="${escapeHtml(item.comment || '')}" />
+    </div>
+  `;
+}
+
 function renderReadOnlyDowntimeHtml(items) {
   const activeItems = items.filter(
-    (it) => Number(it.minutes) > 0 || it.category || it.detail || it.reason || it.hasPhoto || it.photoId || it.photoDataUrl
+    (it) => Number(it.minutes) > 0 || it.category || it.detail || it.comment || it.repairType || it.reason || it.hasPhoto || it.photoId || it.photoDataUrl
   );
 
   if (activeItems.length === 0) {
@@ -1078,7 +1159,14 @@ function renderReadOnlyDowntimeHtml(items) {
     .map((item, idx) => {
       const cat = item.category || inferCategoryFromLegacyReason(item.reason, item.equip);
       const style = CATEGORY_STYLE_MAP[cat] || CATEGORY_STYLE_MAP['기타'];
-      const detailText = item.detail || item.equip || stripCategoryPrefix(item.reason, cat) || item.reason || '-';
+      const targetText = item.detail || item.equip || stripCategoryPrefix(item.reason, cat) || item.reason || '-';
+      const commentParts = [
+        item.repairType ? `[${item.repairType}]` : '',
+        item.comment || ''
+      ].filter(Boolean).join(' ');
+      const detailText = commentParts && !targetText.includes(commentParts)
+        ? `${targetText} · ${commentParts}`
+        : targetText;
       const photoUrl = item.photoDataUrl || '';
       const photoBlock = item.hasPhoto || item.photoId || photoUrl
         ? `<div style="margin-top:6px;" data-downtime-photo-id="${escapeHtml(item.photoId || '')}">
@@ -1166,6 +1254,7 @@ function buildStep2Html(item, idx, equipOptions, moldResult) {
         ${fallbackSavedOption}
       </select>
       ${emptyWarn}
+      ${buildRepairCommentBlockHtml(item, idx, '설비')}
     `;
   }
 
@@ -1216,6 +1305,7 @@ function buildStep2Html(item, idx, equipOptions, moldResult) {
         ${fallbackSavedOption}
       </select>
       ${emptyWarn}
+      ${buildRepairCommentBlockHtml(item, idx, '금형')}
     `;
   }
 
@@ -1505,10 +1595,22 @@ function bindRootEvents(container, root) {
         item.targetCode = '';
         item.targetName = '';
         item.detail = '';
+        item.repairType = '';
+        item.comment = '';
         item.equip = '';
         item.reason = '';
         rerenderRoot();
       }
+      return;
+    }
+
+    const repairTypeBtn = target?.closest?.('[data-jdt-repair-type]');
+    if (repairTypeBtn) {
+      const nextType = repairTypeBtn.dataset.jdtRepairType || '';
+      item.repairType = item.repairType === nextType ? '' : nextType;
+      const built = buildFormattedDowntimeFields(item);
+      item.reason = built.reason;
+      rerenderRoot();
       return;
     }
 
@@ -1595,6 +1697,13 @@ function bindRootEvents(container, root) {
     const idx = Number(card.dataset.jdtItemIdx);
     const item = state.items[idx];
     if (!item) return;
+
+    if (target.matches('[data-jdt-field="commentInput"]')) {
+      item.comment = String(target.value || '');
+      const built = buildFormattedDowntimeFields(item);
+      item.reason = built.reason;
+      return;
+    }
 
     if (target.matches('[data-jdt-field="etcInput"]')) {
       item.category = '기타';
@@ -1749,6 +1858,8 @@ export function renderJointDowntimeSection(ctx) {
         it.targetCode = '';
         it.targetName = '';
         it.detail = '';
+        it.repairType = '';
+        it.comment = '';
         it.equip = '';
         it.reason = '';
       }
@@ -1815,6 +1926,8 @@ export function collectJointDowntimePayload(container) {
       built.minutes <= 0 &&
       !built.category &&
       !built.detail &&
+      !built.repairType &&
+      !built.comment &&
       !built.equip &&
       !built.reason &&
       !hasPhoto;
@@ -1828,6 +1941,8 @@ export function collectJointDowntimePayload(container) {
       targetCode: built.targetCode,
       targetName: built.targetName,
       detail: built.detail,
+      repairType: built.repairType,
+      comment: built.comment,
       equip: built.equip,
       reason: built.reason,
       minutes: built.minutes,
