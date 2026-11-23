@@ -12,6 +12,31 @@ const CATEGORY_STYLE_MAP = {
   '기타': { bg: '#f1f5f9', border: '#475569', text: '#334155', badgeBg: '#e2e8f0' }
 };
 
+const JOINT_FORM_SCOPE_MAP = {
+  1002: { car: 'JG1',     part: 'INBELT' },
+  1011: { car: 'JG1',     part: 'RR_C_PARTG' },
+  1022: { car: 'JG1',     part: 'GRUN_E' },
+  1032: { car: 'JG1S',    part: 'INBELT' },
+  1042: { car: 'JG1S',    part: 'GRUN_E' },
+  1052: { car: 'JG1',     part: 'FRUNK' },
+  2003: { car: 'DT CREW', part: 'D/SIDE' },
+  2013: { car: 'DT QUAD', part: 'D/SIDE' },
+  2024: { car: 'DS CREW', part: 'D/SIDE' },
+  2025: { car: 'DS CREW', part: 'D/SIDE' },
+  2033: { car: 'DS STD',  part: 'D/SIDE' },
+  2042: { car: 'KM/KX',   part: 'HOOD' },
+  3002: { car: 'NE1a',    part: 'D/SIDE' },
+  3012: { car: 'ME1a',    part: 'PARTG' },
+  4002: { car: 'OV1K',    part: 'PTG' },
+  4012: { car: 'OV1K',    part: 'FRUNK' },
+  4022: { car: 'LQ2a',    part: 'HOOD' },
+  4032: { car: 'MV1a',    part: 'PTG' },
+  5004: { car: '9BQC',    part: 'FRT' },
+  5005: { car: '9BQC',    part: 'RR_R' },
+  5006: { car: '9BQC',    part: 'RR_FIXED' },
+  6002: { car: 'P417',    part: 'UPR' }
+};
+
 const containerStateMap = new WeakMap();
 
 function escapeHtml(value) {
@@ -30,6 +55,8 @@ function getContainerState(container) {
       items: [],
       ctx: null,
       existingSignature: '',
+      scopeKey: '',
+      tpmLogDocs: [],
       tpmLogEquipmentIds: new Set(),
       tpmLogEquipmentCodes: new Set(),
       tpmFetchedDate: '',
@@ -377,10 +404,151 @@ export function getTopSelectedMolds(container, allMolds = [], carCode = '', part
   };
 }
 
+function normalizeCarModelName(val) {
+  const up = String(val || '').trim().toUpperCase();
+  if (!up) return '';
+  if (up.includes('JG1S')) return 'JG1S';
+  if (up.includes('JG1')) return 'JG1';
+  if (up.includes('DT CREW') || up === 'DTCREW') return 'DT CREW';
+  if (up.includes('DT QUAD') || up === 'DTQUAD') return 'DT QUAD';
+  if (up.includes('DS CREW') || up === 'DSCREW') return 'DS CREW';
+  if (up.includes('DS STD') || up === 'DSSTD') return 'DS STD';
+  if (up.includes('KM/KX') || up.includes('KMKX')) return 'KM/KX';
+  if (up.includes('NE1')) return 'NE1a';
+  if (up.includes('ME1')) return 'ME1a';
+  if (up.includes('OV1')) return 'OV1K';
+  if (up.includes('LQ2')) return 'LQ2a';
+  if (up.includes('MV1')) return 'MV1a';
+  if (up.includes('9BQC')) return '9BQC';
+  if (up.includes('P417')) return 'P417';
+  return String(val || '').trim();
+}
+
+function normalizeTargetScope(ctx) {
+  const rawFormCode = typeof ctx?.getCurrentFormCode === 'function'
+    ? Number(ctx.getCurrentFormCode())
+    : (Number(ctx?.existingData?.formCode) || 0);
+  const byCode = rawFormCode && JOINT_FORM_SCOPE_MAP[rawFormCode];
+  if (byCode) {
+    return { targetCar: byCode.car, targetPart: byCode.part, formCode: rawFormCode };
+  }
+  const rawCar = String(ctx?.carModelValue?.value || ctx?.currentCarCode || ctx?.existingData?.carModel || '').trim();
+  const targetCar = normalizeCarModelName(rawCar);
+  const partUp = String(ctx?.partValueInput?.value || ctx?.existingData?.itemName || '').trim().toUpperCase();
+  let targetPart = '';
+  if (partUp.includes('FRUNK')) targetPart = 'FRUNK';
+  else if (partUp.includes('PTG')) targetPart = 'PTG';
+  else if (partUp.includes('인벨트') || partUp.includes('INBELT')) targetPart = 'INBELT';
+  else if (partUp.includes('RR C PART') || partUp.includes('PART\'G')) targetPart = 'RR_C_PARTG';
+  else if (partUp.includes('G/RUN \'E\'') || partUp.includes('GRUN')) targetPart = 'GRUN_E';
+  return { targetCar, targetPart, formCode: rawFormCode };
+}
+
+function detectEquipmentScope(eq, setNames = []) {
+  const codeUp = String(eq?.code || '').trim().toUpperCase();
+  const setText = (setNames || []).map((s) => String(s || '').toUpperCase()).join(' ');
+  const explicitCar = normalizeCarModelName(eq?.carModel || '');
+  const cars = new Set();
+  if (explicitCar) cars.add(explicitCar);
+
+  // 물리 관리번호 접두어 기반 차종 식별
+  if (codeUp.startsWith('OV-')) cars.add('OV1K');
+  else if (codeUp.startsWith('DT-C-')) cars.add('DT CREW');
+  else if (codeUp.startsWith('DT-Q-')) cars.add('DT QUAD');
+  else if (codeUp.startsWith('DS-C-')) cars.add('DS CREW');
+  else if (codeUp.startsWith('DS-S-') || codeUp.startsWith('DS-D-') || codeUp.startsWith('DS-Q-')) cars.add('DS STD');
+  else if (codeUp.startsWith('JG-P-') || codeUp.startsWith('JG-F-')) cars.add('JG1');
+  else if (codeUp.startsWith('JG-')) {
+    cars.add('JG1');
+    // 코치도어(JG1S)와 스윙도어(JG1) C동 인벨트/TPV 설비 공유 가능성 반영
+    if (!setText || !setText.includes('스윙') || setText.includes('JG1S') || setText.includes('코치')) {
+      cars.add('JG1S');
+    }
+  } else if (codeUp.startsWith('NE-')) cars.add('NE1a');
+  else if (codeUp.startsWith('ME-')) cars.add('ME1a');
+  else if (codeUp.startsWith('LQ-')) cars.add('LQ2a');
+  else if (codeUp.startsWith('MV-')) cars.add('MV1a');
+  else if (codeUp.startsWith('9B-') || codeUp.startsWith('9B_')) cars.add('9BQC');
+  else if (codeUp.startsWith('P4-')) cars.add('P417');
+  else if (codeUp.startsWith('KM-') || codeUp.startsWith('KX-')) cars.add('KM/KX');
+
+  // 셋트명 기반 차종 보강/우선
+  if (setText) {
+    if (setText.includes('JG1S') || setText.includes('코치')) {
+      cars.delete('JG1');
+      cars.add('JG1S');
+    } else if (setText.includes('JG1') || setText.includes('스윙')) {
+      cars.add('JG1');
+    }
+    if (setText.includes('DT CREW') || setText.includes('DTCREW')) { cars.delete('DT QUAD'); cars.add('DT CREW'); }
+    if (setText.includes('DT QUAD') || setText.includes('DTQUAD')) { cars.delete('DT CREW'); cars.add('DT QUAD'); }
+    if (setText.includes('DS CREW') || setText.includes('DSCREW')) { cars.delete('DS STD'); cars.add('DS CREW'); }
+    if (setText.includes('DS STD') || setText.includes('DSSTD')) { cars.delete('DS CREW'); cars.add('DS STD'); }
+    if (setText.includes('KM/KX') || setText.includes('KMKX')) cars.add('KM/KX');
+    if (setText.includes('NE1')) cars.add('NE1a');
+    if (setText.includes('ME1')) cars.add('ME1a');
+    if (setText.includes('OV1')) cars.add('OV1K');
+    if (setText.includes('LQ2')) cars.add('LQ2a');
+    if (setText.includes('MV1')) cars.add('MV1a');
+    if (setText.includes('9BQC')) cars.add('9BQC');
+    if (setText.includes('P417')) cars.add('P417');
+  }
+
+  let part = '';
+  if (codeUp.startsWith('OV-P-')) part = 'PTG';
+  else if (codeUp.startsWith('OV-F-')) part = 'FRUNK';
+  else if (codeUp.startsWith('JG-I-')) part = 'INBELT';
+  else if (codeUp.startsWith('JG-P-')) part = 'RR_C_PARTG';
+  else if (codeUp.startsWith('JG-E-')) part = 'GRUN_E';
+  else if (codeUp.startsWith('JG-F-')) part = 'FRUNK';
+  else if (codeUp.startsWith('9B-F-')) part = 'FRT';
+  else if (codeUp.startsWith('9B-R-')) part = 'RR';
+
+  if (!part && setText) {
+    if (setText.includes('FRUNK')) part = 'FRUNK';
+    else if (setText.includes('PTG')) part = 'PTG';
+    else if (setText.includes('인벨트') || setText.includes('INBELT')) part = 'INBELT';
+    else if (setText.includes('PART\'G') || setText.includes('RR C')) part = 'RR_C_PARTG';
+    else if (setText.includes('G/RUN') || setText.includes('TPV')) part = 'GRUN_E';
+    else if (setText.includes('FRT') && !setText.includes('RR')) part = 'FRT';
+    else if (setText.includes('RR') && !setText.includes('FRT')) {
+      if (setText.includes('FIXED') && !setText.includes('R부')) part = 'RR_FIXED';
+      else if (setText.includes('R부') && !setText.includes('FIXED')) part = 'RR_R';
+      else part = 'RR';
+    }
+  }
+
+  return { cars, part };
+}
+
+function matchesJointFormEquipment({ eq, setNames = [], targetCar, targetPart, fromCurrentTpmSummary = false }) {
+  if (!eq || getEquipmentCategory(eq) === 'measuring') return false;
+  const { cars, part } = detectEquipmentScope(eq, setNames);
+
+  if (targetCar) {
+    if (cars.size > 0) {
+      if (!cars.has(targetCar)) return false;
+    } else if (!fromCurrentTpmSummary) {
+      // 현재 리포트에서 직접 스캔한 TPM 요약 외의 미분류 설비는 타 차종 혼입 방지를 위해 제외
+      return false;
+    }
+  }
+
+  if (targetPart && part) {
+    if (part === targetPart) return true;
+    if ((targetPart === 'RR_R' || targetPart === 'RR_FIXED') && part === 'RR') return true;
+    return false;
+  }
+
+  return true;
+}
+
 export function getTpmWrittenEquipments(ctx, state, reportDateStr) {
   const equipments = Array.isArray(ctx?.equipments) ? ctx.equipments : [];
+  const equipmentSets = Array.isArray(ctx?.equipmentSets) ? ctx.equipmentSets : [];
   const tpmSummary = (typeof ctx?.getTpmSummary === 'function' ? ctx.getTpmSummary() : null) || ctx?.existingData?.tpmCheckSummary || null;
   const parsedDate = parseYmd(reportDateStr);
+  const { targetCar, targetPart } = normalizeTargetScope(ctx);
 
   const eqById = new Map();
   const eqByCode = new Map();
@@ -390,14 +558,60 @@ export function getTpmWrittenEquipments(ctx, state, reportDateStr) {
     if (eq.code) eqByCode.set(String(eq.code).trim().toUpperCase(), eq);
   });
 
+  // 설비별 소속 셋트명 매핑 (equipment_sets + 당일 tpm_logs.setName)
+  const setNamesById = new Map();
+  const setNamesByCode = new Map();
+  const pushSetName = (id, code, sName) => {
+    const clean = String(sName || '').trim();
+    if (!clean) return;
+    if (id) {
+      const k = String(id);
+      if (!setNamesById.has(k)) setNamesById.set(k, new Set());
+      setNamesById.get(k).add(clean);
+    }
+    if (code) {
+      const ck = String(code).trim().toUpperCase();
+      if (!setNamesByCode.has(ck)) setNamesByCode.set(ck, new Set());
+      setNamesByCode.get(ck).add(clean);
+    }
+  };
+
+  equipmentSets.forEach((s) => {
+    if (!s) return;
+    (s.equipmentIds || []).forEach((id) => pushSetName(id, '', s.name));
+    (s.equipments || []).forEach((item) => pushSetName(item?.id, item?.code, s.name));
+  });
+  (state?.tpmLogDocs || []).forEach((logDoc) => {
+    (logDoc?.equipmentIds || []).forEach((id) => pushSetName(id, '', logDoc.setName));
+    (logDoc?.equipmentCodes || []).forEach((code) => pushSetName('', code, logDoc.setName));
+  });
+
+  const getSetNamesForEq = (eq, extraSetName = '') => {
+    const names = new Set();
+    if (extraSetName) names.add(extraSetName);
+    if (eq?.id && setNamesById.has(String(eq.id))) {
+      setNamesById.get(String(eq.id)).forEach((n) => names.add(n));
+    }
+    const cUp = String(eq?.code || '').trim().toUpperCase();
+    if (cUp && setNamesByCode.has(cUp)) {
+      setNamesByCode.get(cUp).forEach((n) => names.add(n));
+    }
+    return Array.from(names);
+  };
+
   const resultMap = new Map();
 
-  const registerEquipment = (rawEq, sourcePriority = 1) => {
+  const registerEquipment = (rawEq, sourcePriority = 1, { extraSetName = '', fromCurrentTpmSummary = false } = {}) => {
     if (!rawEq) return;
     const eqId = String(rawEq.id || '').trim();
     const eqCode = String(rawEq.code || '').trim();
     const fullEq = (eqId && eqById.get(eqId)) || (eqCode && eqByCode.get(eqCode.toUpperCase())) || rawEq;
     if (getEquipmentCategory(fullEq) === 'measuring') return;
+
+    const setNames = getSetNamesForEq(fullEq, extraSetName);
+    if (!matchesJointFormEquipment({ eq: fullEq, setNames, targetCar, targetPart, fromCurrentTpmSummary })) {
+      return;
+    }
 
     const mapKey = String(fullEq.id || eqCode || fullEq.name || '').trim();
     if (!mapKey || resultMap.has(mapKey)) return;
@@ -425,13 +639,14 @@ export function getTpmWrittenEquipments(ctx, state, reportDateStr) {
 
   // 1) 현재 작업자가 방금 작성했거나 일보에 연결된 TPM 요약 설비
   if (tpmSummary && (!reportDateStr || !tpmSummary.reportDate || tpmSummary.reportDate === reportDateStr)) {
+    const summaryOpts = { extraSetName: tpmSummary.setName || '', fromCurrentTpmSummary: true };
     if (Array.isArray(tpmSummary.equipments)) {
-      tpmSummary.equipments.forEach((e) => registerEquipment(e, 0));
+      tpmSummary.equipments.forEach((e) => registerEquipment(e, 0, summaryOpts));
     }
     if (Array.isArray(tpmSummary.equipmentIds)) {
       tpmSummary.equipmentIds.forEach((id) => {
         const matched = eqById.get(String(id));
-        if (matched) registerEquipment(matched, 0);
+        if (matched) registerEquipment(matched, 0, summaryOpts);
       });
     }
     if (Array.isArray(tpmSummary.equipmentCodes)) {
@@ -439,39 +654,50 @@ export function getTpmWrittenEquipments(ctx, state, reportDateStr) {
         const norm = String(code || '').trim().toUpperCase();
         const matched = eqByCode.get(norm);
         if (matched) {
-          registerEquipment(matched, 0);
+          registerEquipment(matched, 0, summaryOpts);
         } else if (norm) {
-          registerEquipment({ id: '', code: String(code).trim(), name: tpmSummary.setName ? `${tpmSummary.setName} ${code}` : String(code).trim() }, 0);
+          registerEquipment(
+            { id: '', code: String(code).trim(), name: tpmSummary.setName ? `${tpmSummary.setName} ${code}` : String(code).trim() },
+            0,
+            summaryOpts
+          );
         }
       });
     }
   }
 
-  // 2) Firestore tpm_logs 컬렉션에서 오늘(해당 일보 날짜) 작성 확인된 설비
+  // 2) Firestore tpm_logs 컬렉션에서 오늘(해당 일보 날짜) 작성 확인된 설비 (현재 차종·부품만 필터)
   if (state) {
-    state.tpmLogEquipmentIds?.forEach((id) => {
-      const matched = eqById.get(String(id));
-      if (matched) registerEquipment(matched, 1);
-    });
-    state.tpmLogEquipmentCodes?.forEach((code) => {
-      const norm = String(code || '').trim().toUpperCase();
-      const matched = eqByCode.get(norm);
-      if (matched) {
-        registerEquipment(matched, 1);
-      } else if (norm) {
-        registerEquipment({ id: '', code: String(code).trim(), name: String(code).trim() }, 1);
-      }
+    (state.tpmLogDocs || []).forEach((logDoc) => {
+      const logOpts = { extraSetName: logDoc?.setName || '', fromCurrentTpmSummary: false };
+      (logDoc?.equipmentIds || []).forEach((id) => {
+        const matched = eqById.get(String(id));
+        if (matched) registerEquipment(matched, 1, logOpts);
+      });
+      (logDoc?.equipmentCodes || []).forEach((code) => {
+        const norm = String(code || '').trim().toUpperCase();
+        const matched = eqByCode.get(norm);
+        if (matched) {
+          registerEquipment(matched, 1, logOpts);
+        } else if (norm) {
+          registerEquipment(
+            { id: '', code: String(code).trim(), name: logDoc?.setName ? `${logDoc.setName} ${code}` : String(code).trim() },
+            1,
+            logOpts
+          );
+        }
+      });
     });
   }
 
-  // 3) 설비 마스터 tpmLogs 내 해당 날짜 작업자 점검 기록 보유 설비
+  // 3) 설비 마스터 tpmLogs 내 해당 날짜 작업자 점검 기록 보유 설비 (현재 차종·부품만 필터)
   if (parsedDate) {
     equipments.forEach((eq) => {
       if (!eq) return;
       if (getEquipmentCategory(eq) === 'measuring') return;
       const evalRes = evaluateEquipmentDayTpm(eq, parsedDate.year, parsedDate.month, parsedDate.day);
       if (evalRes?.hasWorkerRecord) {
-        registerEquipment(eq, 2);
+        registerEquipment(eq, 2, { fromCurrentTpmSummary: false });
       }
     });
   }
@@ -1196,9 +1422,10 @@ function syncTodayTpmLogsIfNeeded(container, state) {
     .then((logs) => {
       state.tpmFetchInflightDate = '';
       state.tpmFetchedDate = reportDateStr;
+      state.tpmLogDocs = Array.isArray(logs) ? logs : [];
       state.tpmLogEquipmentIds = new Set();
       state.tpmLogEquipmentCodes = new Set();
-      (logs || []).forEach((logDoc) => {
+      state.tpmLogDocs.forEach((logDoc) => {
         (logDoc?.equipmentIds || []).forEach((id) => {
           if (id) state.tpmLogEquipmentIds.add(String(id));
         });
@@ -1507,9 +1734,25 @@ export function renderJointDowntimeSection(ctx) {
     ? `${existingData.id || ''}:${existingData.updatedAtMs || ''}:${existingData.downtimeMinutes || 0}:${(existingData.downtimeItems || []).length}`
     : '__new__';
 
+  const { targetCar, targetPart, formCode } = normalizeTargetScope(ctx);
+  const nextScopeKey = `${targetCar}::${targetPart}::${formCode}`;
+  const scopeChangedOnNew = !existingData && state.scopeKey && state.scopeKey !== nextScopeKey;
+  state.scopeKey = nextScopeKey;
+
   if (state.existingSignature !== existingSig || state.items.length === 0) {
     state.items = parseInitialDowntimeItems(existingData);
     state.existingSignature = existingSig;
+  } else if (scopeChangedOnNew) {
+    state.items.forEach((it) => {
+      if (it.category === '설비' || it.category === '금형') {
+        it.targetId = '';
+        it.targetCode = '';
+        it.targetName = '';
+        it.detail = '';
+        it.equip = '';
+        it.reason = '';
+      }
+    });
   }
 
   downtimeCard.style.display = 'block';

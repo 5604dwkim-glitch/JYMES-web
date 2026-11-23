@@ -8,6 +8,7 @@ import {
   getEquipmentSetCategory,
   getCategoryMeta
 } from '../../constants/equipmentCategories';
+import { invalidateEquipmentSetsCache } from '../../services/firestore';
 
 const SET_SORT_STORAGE_KEY = 'jymes_eq_set_sort_order';
 
@@ -203,6 +204,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
       
       setSetName('');
       setSelectedEqIds([]);
+      invalidateEquipmentSetsCache();
       fetchData();
       alert('설비 셋트가 구성되었습니다.');
     } catch (err) {
@@ -236,6 +238,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
     setSavingSetId(set.id);
     try {
       await updateDoc(doc(db, 'equipment_sets', set.id), { name: trimmed });
+      invalidateEquipmentSetsCache();
       setEquipmentSets((prev) =>
         prev.map((item) => (item.id === set.id ? { ...item, name: trimmed } : item))
       );
@@ -252,6 +255,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
     if (window.confirm('이 설비 셋트를 삭제하시겠습니까?')) {
       try {
         await deleteDoc(doc(db, 'equipment_sets', setId));
+        invalidateEquipmentSetsCache();
         if (editingSetId === setId) {
           cancelEditingSet();
         }

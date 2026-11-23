@@ -464,6 +464,18 @@ export function invalidateEquipmentsCache() {
 }
 
 // ─────────────────────────────────────────────
+// ④-2 Equipment Sets 캐시 (인메모리, TTL 5분)
+// ─────────────────────────────────────────────
+let equipmentSetsCache = null;
+let equipmentSetsCacheAt = 0;
+const EQUIPMENT_SETS_CACHE_TTL_MS = 5 * 60 * 1000;
+
+export function invalidateEquipmentSetsCache() {
+  equipmentSetsCache = null;
+  equipmentSetsCacheAt = 0;
+}
+
+// ─────────────────────────────────────────────
 // ⑤ ChangePoints 캐시 (인메모리, TTL 30분)
 // ─────────────────────────────────────────────
 let changePointsCache = null;
@@ -1697,6 +1709,31 @@ export async function fetchEquipments() {
     console.error('Error fetching equipments:', e);
     return [];
   }
+}
+
+export async function fetchEquipmentSets(forceRefresh = false) {
+  if (!forceRefresh && equipmentSetsCache && (Date.now() - equipmentSetsCacheAt < EQUIPMENT_SETS_CACHE_TTL_MS)) {
+    return equipmentSetsCache;
+  }
+  if (!forceRefresh && slimInflight.has('equipment_sets')) {
+    return slimInflight.get('equipment_sets');
+  }
+  const task = (async () => {
+    try {
+      const snap = await getDocs(collection(db, 'equipment_sets'));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      equipmentSetsCache = data;
+      equipmentSetsCacheAt = Date.now();
+      return data;
+    } catch (e) {
+      console.warn('Error fetching equipment_sets:', e);
+      return equipmentSetsCache || [];
+    } finally {
+      slimInflight.delete('equipment_sets');
+    }
+  })();
+  slimInflight.set('equipment_sets', task);
+  return task;
 }
 
 // [개선③] fetchChangePoints — 캐시 + 진행중 요청 공유 + limit(200)

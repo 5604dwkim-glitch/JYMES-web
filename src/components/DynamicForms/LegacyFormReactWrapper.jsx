@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim, fetchEquipmentsSlim } from '../../services/firestore';
+import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim, fetchEquipmentsSlim, fetchEquipmentSets } from '../../services/firestore';
 import { fetchJointMoldDefaults, fetchLatestJointMoldEntryForForm } from '../../services/jointMoldDefaults';
 import { readLocalJointMoldDefaults } from '../../utils/jointMoldDefaultsHelper';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
@@ -53,11 +53,13 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
         ]);
         const moldsPromise = fetchMoldsSlim();
         const equipmentsPromise = fetchEquipmentsSlim();
+        const equipmentSetsPromise = fetchEquipmentSets();
         const moldDefaultsPromise = fetchJointMoldDefaults();
-        const [workersRaw, moldsFirst, equipmentsFirst, jointMoldDefaults] = await Promise.all([
+        const [workersRaw, moldsFirst, equipmentsFirst, equipmentSetsFirst, jointMoldDefaults] = await Promise.all([
           withTimeout(fetchWorkersSlim(), 10000, []),
           withTimeout(moldsPromise, 8000, null),
           withTimeout(equipmentsPromise, 8000, null),
+          withTimeout(equipmentSetsPromise, 6000, null),
           withTimeout(moldDefaultsPromise, 2500, readLocalJointMoldDefaults())
         ]);
 
@@ -81,6 +83,7 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
             return entry;
           },
           equipments: equipmentsFirst || [],
+          equipmentSets: equipmentSetsFirst || [],
           getTpmSummary: () => tpmSummaryRef.current,
           onOpenTpmModal: () => handleOpenTpmModalRef.current?.('downtime'),
           processes: DEFAULT_PROCESSES,
@@ -155,6 +158,14 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
         if (equipmentsFirst === null) {
           equipmentsPromise.then((late) => {
             formCtx.equipments = late || [];
+            if (containerRef.current) {
+              containerRef.current.dispatchEvent(new CustomEvent('jymes:equipments-loaded'));
+            }
+          });
+        }
+        if (equipmentSetsFirst === null) {
+          equipmentSetsPromise.then((late) => {
+            formCtx.equipmentSets = late || [];
             if (containerRef.current) {
               containerRef.current.dispatchEvent(new CustomEvent('jymes:equipments-loaded'));
             }

@@ -487,6 +487,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
              get qtySection() { return container.querySelector('#qtySection'); },
              isDtCrewClip, currentMakerName, molds: store.getMolds(),
              equipments: _ctx.equipments || [],
+             equipmentSets: _ctx.equipmentSets || [],
              getTpmSummary: _ctx.getTpmSummary,
              onOpenTpmModal: _ctx.onOpenTpmModal,
              isReadOnlyPreview: store.isReadOnlyPreview(),
