@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import MoldHistoryCardModal from './MoldHistoryCardModal';
 import MoldRepairRequestModal from './MoldRepairRequestModal';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { collection, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { CAR_MODELS, CAR_MODEL_PARTS } from '../../constants/masterData';
 import { getCurrentFormCode } from '../../constants/formCodes';
@@ -57,6 +57,7 @@ export default function MoldManagement() {
   const [activeTab, setActiveTab] = useState('list');
   const [molds, setMolds] = useState([]);
   const [historyMold, setHistoryMold] = useState(null);
+  const [historyAutoSyncKey, setHistoryAutoSyncKey] = useState('');
   const [repairMold, setRepairMold] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -106,7 +107,10 @@ export default function MoldManagement() {
     if (!target?.moldId || historyDeepLinkDoneRef.current || molds.length === 0) return;
     historyDeepLinkDoneRef.current = true;
     const mold = molds.find((m) => m.id === target.moldId);
-    if (mold) setHistoryMold(mold);
+    if (mold) {
+      setHistoryAutoSyncKey(target.autoSyncKey || '');
+      setHistoryMold(mold);
+    }
     routeNavigate(routeLocation.pathname, { replace: true, state: null });
   }, [routeLocation, routeNavigate, molds]);
 
@@ -161,9 +165,14 @@ export default function MoldManagement() {
         repairDetails: repairData
       };
       
-      const updatedHistory = [...(repairMold.history || []), newHistoryRow];
-      
       const moldRef = doc(db, 'molds', repairMold.id);
+      const snap = await getDoc(moldRef).catch(() => null);
+      const prevHistory =
+        snap?.exists?.() && Array.isArray(snap.data()?.history)
+          ? snap.data().history
+          : (repairMold.history || []);
+      const updatedHistory = [...prevHistory, newHistoryRow];
+
       await updateDoc(moldRef, { history: updatedHistory });
       invalidateMoldsCache();
 
@@ -372,10 +381,14 @@ export default function MoldManagement() {
       {historyMold && (
         <MoldHistoryCardModal 
           mold={historyMold} 
-          onClose={() => setHistoryMold(null)}
+          initialAutoSyncKey={historyAutoSyncKey}
+          onClose={() => {
+            setHistoryMold(null);
+            setHistoryAutoSyncKey('');
+          }}
           onUpdate={(updatedMold) => {
             if (updatedMold) setHistoryMold(updatedMold);
-            setMolds(molds.map(m => m.id === updatedMold.id ? updatedMold : m));
+            setMolds((prev) => prev.map(m => m.id === updatedMold.id ? updatedMold : m));
           }}
         />
       )}

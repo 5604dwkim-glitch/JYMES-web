@@ -293,6 +293,11 @@ export async function upsertAutoChangePoint(autoKey, payload, qPointDraft = {}) 
       ...qPointDraft
     });
 
+    const preservedAutoSourceType =
+      existing.autoSourceType && String(existing.autoSourceType).startsWith('report_downtime')
+        ? existing.autoSourceType
+        : (payload.autoSourceType || existing.autoSourceType || 'auto');
+
     await updateDoc(docRef, {
       date: dateYmd,
       month: monthLabel,
@@ -310,7 +315,7 @@ export async function upsertAutoChangePoint(autoKey, payload, qPointDraft = {}) 
       qPointData,
       note: payload.note || existing.note || '',
       autoSourceKey: safeKey,
-      autoSourceType: payload.autoSourceType || existing.autoSourceType || 'auto',
+      autoSourceType: preservedAutoSourceType,
       updatedAt: new Date().toISOString()
     });
   }
@@ -502,6 +507,11 @@ export async function syncEquipmentRepairToChangePoint(equipment, historyRow, ro
       historyRow.confirmed
   );
 
+  const isRepairCompleted = rd.repairStatus === '완료';
+  const resolvedActionResult = rawAction
+    ? (isRepairCompleted && !rawAction.includes('수리완료') ? `${rawAction} (수리완료)` : rawAction)
+    : (rd.verificationResult || (isRepairCompleted ? '설비 수리완료' : '수리의뢰서 접수'));
+
   return upsertAutoChangePoint(
     autoKey,
     {
@@ -513,7 +523,7 @@ export async function syncEquipmentRepairToChangePoint(equipment, historyRow, ro
       details: `${typeTag} ${eqTitle} — ${rawIssue || '설비 수리 진행'}`,
       actionTime,
       actionPlan: rd.remarks || '설비 수리 및 정상 작동·초품 확인',
-      actionResult: rawAction || rd.verificationResult || '수리의뢰서 접수',
+      actionResult: resolvedActionResult,
       qualityCheck: isVerified,
       note: `자동연동(설비수리 · ${equipment.code || equipment.name || equipment.id})`,
       autoSourceType: 'equipment_repair'
@@ -580,6 +590,11 @@ export async function syncMoldRepairToChangePoint(mold, historyRow, rowIndex = 0
       historyRow.confirmed
   );
 
+  const isMoldRepairCompleted = rd.repairStatus === '완료';
+  const resolvedMoldActionResult = rawAction
+    ? (isMoldRepairCompleted && !rawAction.includes('수리완료') ? `${rawAction} (수리완료)` : rawAction)
+    : (rd.verificationResult || (isMoldRepairCompleted ? '금형 수리완료' : '금형 수리의뢰 접수'));
+
   return upsertAutoChangePoint(
     autoKey,
     {
@@ -591,7 +606,7 @@ export async function syncMoldRepairToChangePoint(mold, historyRow, rowIndex = 0
       details: `${typeTag} ${moldTitle} — ${rawIssue || '금형 수리/보수'}`,
       actionTime,
       actionPlan: rd.remarks || '금형 수리·습합 후 초품 치수 및 외관 검사',
-      actionResult: rawAction || rd.verificationResult || '금형 수리의뢰 접수',
+      actionResult: resolvedMoldActionResult,
       qualityCheck: isVerified,
       note: `자동연동(금형수리 · ${moldCodeLabel})`,
       autoSourceType: 'mold_repair'

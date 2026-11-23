@@ -314,7 +314,15 @@ const getInitialAncillaryEquipments = (anc, useJointDefaults = true) => {
 export const DEFAULT_EQUIPMENT_PHOTO_1 = '/images/equipment_photo_1.jpg';
 export const DEFAULT_EQUIPMENT_PHOTO_2 = '/images/equipment_photo_2.jpg';
 
-export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate, readOnly = false, disableBackdropClose = false }) {
+export default function EquipmentHistoryCardModal({
+  equipment,
+  onClose,
+  onUpdate,
+  readOnly = false,
+  disableBackdropClose = false,
+  initialAutoSyncKey = '',
+  initialOpenRepair = false
+}) {
   const eqCategory = getEquipmentCategory(equipment);
   const useJointDefaults = eqCategory === 'joint';
 
@@ -387,6 +395,31 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
   };
   const [editingRepairIndex, setEditingRepairIndex] = useState(null);
   const [selectedIndices, setSelectedIndices] = useState([]);
+  const [directRepairActive, setDirectRepairActive] = useState(false);
+  const focusedRowRef = useRef(null);
+  const autoOpenHandledRef = useRef(false);
+
+  const focusRowIdx = initialAutoSyncKey
+    ? (formData.history || []).findIndex(
+        (r) => r?.autoSyncKey === initialAutoSyncKey || r?.syncId === initialAutoSyncKey
+      )
+    : -1;
+
+  useEffect(() => {
+    if (focusRowIdx < 0) return;
+    const t = setTimeout(() => {
+      focusedRowRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    }, 120);
+    return () => clearTimeout(t);
+  }, [focusRowIdx]);
+
+  useEffect(() => {
+    if (!initialOpenRepair || readOnly || autoOpenHandledRef.current || focusRowIdx < 0) return;
+    autoOpenHandledRef.current = true;
+    setEditingState(true);
+    setDirectRepairActive(true);
+    setEditingRepairIndex(focusRowIdx);
+  }, [initialOpenRepair, readOnly, focusRowIdx]);
 
   const handlePhotoSlotUpload = async (slotIndex, e) => {
     if (!isEditing) return;
@@ -443,18 +476,64 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
     setSelectedIndices([]);
   };
 
-  const handleSaveRepairFromHistory = (index, repairData) => {
+  const handleSaveRepairFromHistory = async (index, repairData) => {
     if (!isEditing) return;
     const newHistory = [...formData.history];
-    newHistory[index] = {
-      ...newHistory[index],
-      date: newHistory[index].date || repairData.requestDate || '',
+    const prevRow = newHistory[index] || {};
+    const isCompletedStatus = repairData?.repairStatus === '완료';
+    const nextRow = {
+      ...prevRow,
+      syncId: prevRow.syncId || `eqhist_${Date.now()}_${index}`,
+      date: prevRow.date || repairData.requestDate || '',
       issue: repairData.requestContent,
-      action: repairData.actionContent,
+      action: repairData.actionContent || (isCompletedStatus ? '수리완료' : prevRow.action || ''),
+      attachment: '수리의뢰서',
+      confirmed: Boolean(prevRow.confirmed || repairData.qualityPic || repairData.verificationResult),
       repairDetails: repairData
     };
+    newHistory[index] = nextRow;
     setFormData({ ...formData, history: newHistory });
     setEditingRepairIndex(null);
+
+    if (directRepairActive && equipment?.id) {
+      try {
+        const equipmentRef = doc(db, 'equipments', equipment.id);
+        const snap = await getDoc(equipmentRef).catch(() => null);
+        const freshHistory = snap?.exists?.() && Array.isArray(snap.data()?.history)
+          ? [...snap.data().history]
+          : [...newHistory];
+        const matchIdx = nextRow.autoSyncKey
+          ? freshHistory.findIndex((h) => h?.autoSyncKey === nextRow.autoSyncKey)
+          : index;
+        if (matchIdx >= 0 && matchIdx < freshHistory.length) {
+          freshHistory[matchIdx] = nextRow;
+        } else {
+          freshHistory.push(nextRow);
+        }
+        await updateDoc(equipmentRef, { history: freshHistory });
+        invalidateEquipmentsCache();
+        try {
+          await syncEquipmentRepairToChangePoint(equipment, nextRow, matchIdx >= 0 ? matchIdx : index);
+        } catch (syncErr) {
+          console.error('Failed to auto-sync direct equipment repair to changePoint:', syncErr);
+        }
+        const stripPhoto = (obj) => {
+          const out = { ...obj };
+          ['equipmentPhoto', 'equipmentPhoto2'].forEach((key) => {
+            if (typeof out[key] === 'string' && out[key].startsWith('data:image')) delete out[key];
+          });
+          return out;
+        };
+        if (onUpdate) onUpdate({ ...stripPhoto(equipment), ...stripPhoto({ ...formData, history: freshHistory }) });
+        setDirectRepairActive(false);
+        setEditingState(false);
+        alert(isCompletedStatus ? '설비 수리 완료 처리되었으며 변동점에 반영되었습니다.' : '설비 수리 의뢰 내용이 저장되었으며 변동점에 반영되었습니다.');
+        onClose?.();
+      } catch (err) {
+        console.error('Failed direct save equipment repair:', err);
+        alert('수리의뢰 저장 중 오류가 발생했습니다.');
+      }
+    }
   };
 
   const handleSave = async () => {
@@ -863,7 +942,16 @@ export default function EquipmentHistoryCardModal({ equipment, onClose, onUpdate
                 </thead>
                 <tbody>
                   {formData.history.map((row, i) => (
-                    <tr key={i} data-eq-history-row="1" style={{ borderBottom: '1px solid #cbd5e1' }}>
+                    <tr
+                      key={i}
+                      ref={i === focusRowIdx ? focusedRowRef : undefined}
+                      data-eq-history-row="1"
+                      data-focused-row={i === focusRowIdx ? '1' : undefined}
+                      style={{
+                        borderBottom: '1px solid #cbd5e1',
+                        ...(i === focusRowIdx ? { background: '#eff6ff', boxShadow: 'inset 4px 0 0 #2563eb' } : {})
+                      }}
+                    >
                       <td className="eq-hist-check" data-label="선택" data-editing={isEditing ? '1' : '0'} style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         <input
                           type="checkbox"

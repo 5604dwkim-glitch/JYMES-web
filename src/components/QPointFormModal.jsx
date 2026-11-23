@@ -1,4 +1,33 @@
 import React, { useState, useEffect } from 'react';
+import { fetchReportDowntimePhoto } from '../services/firestore';
+
+const createDefaultQPointForm = (rowData = null) => ({
+  reportDate: rowData?.date || new Date().toLocaleDateString('sv-SE'),
+  carModel: rowData?.carModel || '',
+  partName: rowData?.partName || '',
+  partnerName: '(주)조영산업',
+  devType: '양산',
+  partNo: '',
+  author: '',
+  changeReason: rowData?.details || rowData?.issueDetail || '',
+  changeWorker: '',
+  changeDocs: ['변경 내용 이력표'],
+  changeDocsOther: '',
+  reviewNeeds: ['공정점검 필요'],
+  reviewNeedsOther: '',
+  changeDate: rowData?.date || '',
+  applyDate: rowData?.actionTime || rowData?.date || '',
+  identifyMethod: '無',
+  changeContentText: rowData?.details || '',
+  beforeImage: '',
+  afterImage: '',
+  qcPartner: '',
+  qcQuantity: '',
+  qcContent: rowData?.actionResult || '',
+  qcResult: '',
+  qcApprover1: '',
+  qcApprover2: ''
+});
 
 const processImage = (file) => {
   return new Promise((resolve) => {
@@ -31,39 +60,29 @@ const processImage = (file) => {
 };
 
 export default function QPointFormModal({ isOpen, onClose, onSave, initialData, rowData }) {
-  const [formData, setFormData] = useState({
-    reportDate: new Date().toLocaleDateString('sv-SE'),
-    carModel: rowData?.carModel || '',
-    partName: rowData?.partName || '',
-    partnerName: '',
-    devType: '양산',
-    partNo: '',
-    author: '',
-    changeReason: rowData?.issueDetail || '',
-    changeWorker: '',
-    changeDocs: [],
-    changeDocsOther: '',
-    reviewNeeds: [],
-    reviewNeedsOther: '',
-    changeDate: '',
-    applyDate: '',
-    identifyMethod: '無',
-    changeContentText: '',
-    beforeImage: '',
-    afterImage: '',
-    qcPartner: '',
-    qcQuantity: '',
-    qcContent: '',
-    qcResult: '',
-    qcApprover1: '',
-    qcApprover2: ''
-  });
+  const [formData, setFormData] = useState(() => ({
+    ...createDefaultQPointForm(rowData),
+    ...(initialData || {})
+  }));
 
   useEffect(() => {
-    if (initialData) {
-      setFormData(prev => ({ ...prev, ...initialData }));
+    if (!isOpen) return undefined;
+    const base = createDefaultQPointForm(rowData);
+    const next = initialData ? { ...base, ...initialData } : base;
+    setFormData(next);
+
+    if (!next.beforeImage && next.beforePhotoId) {
+      let alive = true;
+      fetchReportDowntimePhoto(next.beforePhotoId).then((url) => {
+        if (!alive || !url) return;
+        setFormData((prev) => (prev.beforeImage ? prev : { ...prev, beforeImage: url }));
+      });
+      return () => {
+        alive = false;
+      };
     }
-  }, [initialData]);
+    return undefined;
+  }, [isOpen, initialData, rowData]);
 
   if (!isOpen) return null;
 

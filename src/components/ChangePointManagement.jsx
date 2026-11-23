@@ -23,7 +23,11 @@ import {
   REPAIR_STATE_LABEL
 } from '../services/downtimeChain';
 import { exportQPointToExcel } from '../utils/qPointExcelExport';
-import { HYUNDAI_ISSUE_CATEGORY_MAP } from '../services/changePointAutoSync';
+import {
+  HYUNDAI_ISSUE_CATEGORY_MAP,
+  syncEquipmentRepairToChangePoint,
+  syncMoldRepairToChangePoint
+} from '../services/changePointAutoSync';
 
 const LegacyDetailModal = lazy(() => import('./DynamicForms/LegacyDetailModal'));
 const EquipmentHistoryCardModal = lazy(() => import('./EquipmentManagement/EquipmentHistoryCardModal'));
@@ -198,12 +202,31 @@ export default function ChangePointManagement() {
   const handleQuickToggleCheck = async (cpRow, fieldKey, nextBool) => {
     if (!cpRow?.id) return;
     setSavingCpIds((prev) => ({ ...prev, [cpRow.id]: true }));
+    const nextQPointData =
+      fieldKey === 'qualityCheck' && cpRow.qPointData
+        ? {
+            ...cpRow.qPointData,
+            qcResult: nextBool ? (cpRow.qPointData.qcResult || '양호') : ''
+          }
+        : cpRow.qPointData;
     setData((prev) =>
-      prev.map((item) => (item.id === cpRow.id ? { ...item, [fieldKey]: nextBool } : item))
+      prev.map((item) =>
+        item.id === cpRow.id
+          ? {
+              ...item,
+              [fieldKey]: nextBool,
+              ...(fieldKey === 'qualityCheck' && nextQPointData ? { qPointData: nextQPointData } : {})
+            }
+          : item
+      )
     );
     try {
       const { id, createdAt: _createdAt, ...rest } = cpRow;
-      await updateChangePoint(id, { ...rest, [fieldKey]: nextBool });
+      await updateChangePoint(id, {
+        ...rest,
+        [fieldKey]: nextBool,
+        ...(fieldKey === 'qualityCheck' && nextQPointData ? { qPointData: nextQPointData } : {})
+      });
       await loadData(true, true);
     } catch {
       alert('상태 저장에 실패했습니다.');
@@ -214,6 +237,34 @@ export default function ChangePointManagement() {
         delete next[cpRow.id];
         return next;
       });
+    }
+  };
+
+  const handleSyncMissingChangePoint = async (boardItem) => {
+    const owner = boardItem?.repair?.owner;
+    const row = boardItem?.repair?.row;
+    const idx = boardItem?.repair?.idx ?? 0;
+    if (!owner?.id || !row) return;
+    try {
+      const fallbackRow = {
+        ...row,
+        issue:
+          row.issue ||
+          row.repairDetails?.requestContent ||
+          boardItem.slot?.reason ||
+          `${owner.name || (boardItem.kind === 'mold' ? '금형' : '설비')} 이상 조치`
+      };
+      const synced =
+        boardItem.kind === 'mold'
+          ? await syncMoldRepairToChangePoint(owner, fallbackRow, idx)
+          : await syncEquipmentRepairToChangePoint(owner, fallbackRow, idx);
+      if (synced) {
+        await loadData(true, true);
+        await loadLinkedAssets(true);
+      }
+    } catch (err) {
+      console.error('Failed to sync missing change point:', err);
+      alert('변동점 자동 연동 생성에 실패했습니다.');
     }
   };
 
@@ -304,15 +355,19 @@ export default function ChangePointManagement() {
   const handleSaveQPoint = async (qPointData) => {
     if (currentQPointRow.isNew) {
       // Just update the formData
-      setFormData(prev => ({ ...prev, qPointData }));
+      setFormData(prev => ({ ...prev, qPointData, qPointInstall: true }));
       setIsQPointModalOpen(false);
     } else {
       // Update existing row
       try {
         const { id, createdAt: _createdAt, ...updateData } = currentQPointRow;
-        await updateChangePoint(id, { ...updateData, qPointData });
+        await updateChangePoint(id, {
+          ...updateData,
+          qPointData,
+          qPointInstall: true
+        });
         setIsQPointModalOpen(false);
-        loadData(true, true);
+        await loadData(true, true);
       } catch {
         alert('Q.POINT 저장 실패');
       }
@@ -495,7 +550,11 @@ export default function ChangePointManagement() {
           📊 기본 대시보드
         </button>
         <button 
-          onClick={() => setActiveTab('linked')}
+          onClick={() => {
+            setActiveTab('linked');
+            loadLinkedAssets(true);
+            loadData(true, true);
+          }}
           style={{ padding: '10px 18px', borderRadius: '8px', border: 'none', background: activeTab === 'linked' ? '#0f172a' : '#e2e8f0', color: activeTab === 'linked' ? '#fff' : '#475569', fontWeight: 'bold', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
         >
           <span>🔗 설비·금형 연계 현황</span>
@@ -639,9 +698,22 @@ export default function ChangePointManagement() {
           linkedLoading={linkedLoading}
           savingCpIds={savingCpIds}
           onOpenReportModal={(rep) => setOpenReportModal(rep)}
-          onOpenEquipmentModal={(eq) => setOpenEquipmentModal(eq)}
-          onOpenMoldModal={(mold) => setOpenMoldModal(mold)}
+          onOpenEquipmentModal={(eq, opts = {}) =>
+            setOpenEquipmentModal(
+              eq
+                ? { owner: eq, autoSyncKey: opts.autoSyncKey || '', openRepair: Boolean(opts.openRepair) }
+                : null
+            )
+          }
+          onOpenMoldModal={(mold, opts = {}) =>
+            setOpenMoldModal(
+              mold
+                ? { owner: mold, autoSyncKey: opts.autoSyncKey || '', openRepair: Boolean(opts.openRepair) }
+                : null
+            )
+          }
           onQuickToggleCheck={handleQuickToggleCheck}
+          onSyncMissingChangePoint={handleSyncMissingChangePoint}
           onOpenQPointModal={(row) => {
             setCurrentQPointRow(row);
             setIsQPointModalOpen(true);
@@ -1101,8 +1173,17 @@ export default function ChangePointManagement() {
                                       <button
                                         type="button"
                                         onClick={() => {
-                                          if (linkInfo.kind === 'mold') setOpenMoldModal(linkInfo.repair.owner);
-                                          else setOpenEquipmentModal(linkInfo.repair.owner);
+                                          const syncKey =
+                                            linkInfo.repair?.row?.autoSyncKey ||
+                                            linkInfo.repair?.row?.syncId ||
+                                            '';
+                                          const modalPayload = {
+                                            owner: linkInfo.repair.owner,
+                                            autoSyncKey: syncKey,
+                                            openRepair: false
+                                          };
+                                          if (linkInfo.kind === 'mold') setOpenMoldModal(modalPayload);
+                                          else setOpenEquipmentModal(modalPayload);
                                         }}
                                         style={{
                                           padding: '2px 6px',
@@ -1167,38 +1248,50 @@ export default function ChangePointManagement() {
         </Suspense>
       )}
 
-      {openEquipmentModal && (
+      {openEquipmentModal?.owner && (
         <Suspense fallback={null}>
           <EquipmentHistoryCardModal
-            equipment={openEquipmentModal}
+            equipment={openEquipmentModal.owner}
+            initialAutoSyncKey={openEquipmentModal.autoSyncKey || ''}
+            initialOpenRepair={Boolean(openEquipmentModal.openRepair)}
             onClose={() => setOpenEquipmentModal(null)}
             onUpdate={(updatedEq) => {
-              setOpenEquipmentModal(updatedEq);
-              setLinkedAssets((prev) => ({
-                ...prev,
-                equipments: prev.equipments.map((item) =>
-                  item.id === updatedEq.id ? updatedEq : item
-                )
-              }));
+              if (updatedEq) {
+                setOpenEquipmentModal((prev) =>
+                  prev ? { ...prev, owner: updatedEq, openRepair: false } : null
+                );
+                setLinkedAssets((prev) => ({
+                  ...prev,
+                  equipments: prev.equipments.map((item) =>
+                    item.id === updatedEq.id ? updatedEq : item
+                  )
+                }));
+              }
               loadData(true, true);
             }}
           />
         </Suspense>
       )}
 
-      {openMoldModal && (
+      {openMoldModal?.owner && (
         <Suspense fallback={null}>
           <MoldHistoryCardModal
-            mold={openMoldModal}
+            mold={openMoldModal.owner}
+            initialAutoSyncKey={openMoldModal.autoSyncKey || ''}
+            initialOpenRepair={Boolean(openMoldModal.openRepair)}
             onClose={() => setOpenMoldModal(null)}
             onUpdate={(updatedMold) => {
-              if (updatedMold) setOpenMoldModal(updatedMold);
-              setLinkedAssets((prev) => ({
-                ...prev,
-                molds: prev.molds.map((item) =>
-                  item.id === updatedMold.id ? updatedMold : item
-                )
-              }));
+              if (updatedMold) {
+                setOpenMoldModal((prev) =>
+                  prev ? { ...prev, owner: updatedMold, openRepair: false } : null
+                );
+                setLinkedAssets((prev) => ({
+                  ...prev,
+                  molds: prev.molds.map((item) =>
+                    item.id === updatedMold.id ? updatedMold : item
+                  )
+                }));
+              }
               loadData(true, true);
             }}
           />

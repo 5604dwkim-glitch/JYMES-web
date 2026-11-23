@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { REPAIR_STATE_LABEL, ORIGIN_LABEL } from '../../services/downtimeChain';
+import { fetchReportDowntimePhoto } from '../../services/firestore';
 import { normalizeCarModelName } from './DeepChangePointDashboard';
 
 const STAGE_BADGE_MAP = {
@@ -51,6 +52,40 @@ function calcElapsedDays(dateStr) {
   return Math.max(0, Math.floor((Date.now() - t) / 86400000));
 }
 
+function buildFiveStageSteps(it, cp) {
+  const step1 = { label: '① 발생·접수', state: 'done', sub: it.date || '등록' };
+  const step2 = it.hasRepairRow
+    ? it.repairState === 'done'
+      ? { label: '② 수리조치', state: 'done', sub: '수리완료' }
+      : {
+          label: '② 수리조치',
+          state: 'active',
+          sub: it.repairState === 'working' ? '조치중' : '수리대기'
+        }
+    : { label: '② 수리조치', state: cp ? 'done' : 'pending', sub: cp ? '직접/해당없음' : '미등록' };
+
+  const repairClear = !it.hasRepairRow || it.repairState === 'done';
+  const step3 = !cp
+    ? { label: '③ 품질검증', state: 'pending', sub: '변동점 미연동' }
+    : it.qcDone
+      ? { label: '③ 품질검증', state: 'done', sub: '검증완료' }
+      : { label: '③ 품질검증', state: repairClear ? 'active' : 'pending', sub: '검증대기' };
+
+  const step4 = !cp
+    ? { label: '④ Q-Point', state: 'pending', sub: '대기' }
+    : it.qPointDone
+      ? { label: '④ Q-Point', state: 'done', sub: '작성완료' }
+      : { label: '④ Q-Point', state: it.qcDone ? 'active' : 'pending', sub: '작성권장' };
+
+  const step5 = !cp
+    ? { label: '⑤ 최종승인', state: 'pending', sub: '대기' }
+    : it.ceoDone
+      ? { label: '⑤ 최종승인', state: 'done', sub: '승인완료' }
+      : { label: '⑤ 최종승인', state: it.qcDone ? 'active' : 'pending', sub: '승인대기' };
+
+  return [step1, step2, step3, step4, step5];
+}
+
 export default function LinkedIssueTrackerTab({
   boardItems = [],
   manualAvailableCount = 0,
@@ -62,6 +97,7 @@ export default function LinkedIssueTrackerTab({
   onOpenEquipmentModal,
   onOpenMoldModal,
   onQuickToggleCheck,
+  onSyncMissingChangePoint,
   onOpenQPointModal,
   onJumpToDataRow
 }) {
@@ -71,6 +107,37 @@ export default function LinkedIssueTrackerTab({
   const [originFilter, setOriginFilter] = useState('ALL'); // 'ALL' | 'report' | 'tpm' | 'direct'
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'IN_PROGRESS' | 'AWAITING_REPAIR' | 'AWAITING_APPROVAL' | 'COMPLETED' | 'UNREGISTERED'
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [previewPhoto, setPreviewPhoto] = useState(null);
+  const [loadingPhotoKey, setLoadingPhotoKey] = useState('');
+  const [syncingKey, setSyncingKey] = useState('');
+
+  const handleOpenPhotoPreview = async ({ title, directUrl, photoId }) => {
+    if (directUrl) {
+      setPreviewPhoto({ title, url: directUrl });
+      return;
+    }
+    if (!photoId) return;
+    setLoadingPhotoKey(photoId);
+    try {
+      const url = await fetchReportDowntimePhoto(photoId);
+      if (url) setPreviewPhoto({ title, url });
+      else alert('저장된 사진 데이터를 찾을 수 없습니다.');
+    } catch {
+      alert('사진을 불러오지 못했습니다.');
+    } finally {
+      setLoadingPhotoKey('');
+    }
+  };
+
+  const handleTriggerMissingSync = async (boardItem) => {
+    if (!onSyncMissingChangePoint || !boardItem?.key) return;
+    setSyncingKey(boardItem.key);
+    try {
+      await onSyncMissingChangePoint(boardItem);
+    } finally {
+      setSyncingKey('');
+    }
+  };
 
   const availableYears = useMemo(() => {
     const years = new Set();
@@ -602,6 +669,12 @@ export default function LinkedIssueTrackerTab({
                     owner.code || owner.moldNumber ? ` (${owner.code || owner.moldNumber})` : ''
                   }`
                 : '';
+              const repairSyncKey = it.repair?.row?.autoSyncKey || it.repair?.row?.syncId || '';
+              const beforeDirectUrl = it.slot?.photoDataUrl || rd.beforeImage || cp?.qPointData?.beforeImage || '';
+              const beforePhotoId = it.slot?.photoId || rd.beforePhotoId || cp?.qPointData?.beforePhotoId || '';
+              const afterDirectUrl = rd.afterImage || cp?.qPointData?.afterImage || '';
+              const fiveSteps = buildFiveStageSteps(it, cp);
+              const isSyncingMissing = syncingKey === it.key;
 
               return (
                 <div
@@ -616,6 +689,66 @@ export default function LinkedIssueTrackerTab({
                     background: isInProgress ? '#fffdf9' : '#ffffff'
                   }}
                 >
+                  {/* 5단계 변동점 진행 상태바 */}
+                  <div
+                    style={{
+                      gridColumn: '1 / -1',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      flexWrap: 'wrap',
+                      paddingBottom: '8px',
+                      marginBottom: '2px',
+                      borderBottom: '1px dashed #e2e8f0'
+                    }}
+                  >
+                    {fiveSteps.map((step, sIdx) => {
+                      const pillBg =
+                        step.state === 'done'
+                          ? '#ecfdf5'
+                          : step.state === 'active'
+                            ? '#eff6ff'
+                            : '#f8fafc';
+                      const pillColor =
+                        step.state === 'done'
+                          ? '#047857'
+                          : step.state === 'active'
+                            ? '#1d4ed8'
+                            : '#94a3b8';
+                      const pillBorder =
+                        step.state === 'done'
+                          ? '#a7f3d0'
+                          : step.state === 'active'
+                            ? '#93c5fd'
+                            : '#e2e8f0';
+                      return (
+                        <React.Fragment key={step.label}>
+                          {sIdx > 0 && (
+                            <span style={{ color: '#cbd5e1', fontSize: '11px', fontWeight: 900 }}>›</span>
+                          )}
+                          <span
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              padding: '2px 8px',
+                              borderRadius: '999px',
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              background: pillBg,
+                              color: pillColor,
+                              border: `1px solid ${pillBorder}`
+                            }}
+                          >
+                            <span>{step.state === 'done' ? '✓' : step.state === 'active' ? '●' : '○'}</span>
+                            <span>{step.label}</span>
+                            <span style={{ fontWeight: 600, opacity: 0.9 }}>({step.sub})</span>
+                          </span>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+
                   {/* 좌측 전체 상태 및 일자 */}
                   <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '6px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
@@ -714,24 +847,51 @@ export default function LinkedIssueTrackerTab({
                       )}
                     </div>
 
-                    {r && onOpenReportModal && (
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() => onOpenReportModal(r)}
-                          style={{
-                            padding: '4px 10px',
-                            borderRadius: '6px',
-                            border: '1px solid #93c5fd',
-                            background: '#ffffff',
-                            color: '#1d4ed8',
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          📄 작업일보 상세 팝업
-                        </button>
+                    {((r && onOpenReportModal) || beforeDirectUrl || beforePhotoId) && (
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                        {r && onOpenReportModal && (
+                          <button
+                            type="button"
+                            onClick={() => onOpenReportModal(r)}
+                            style={{
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              border: '1px solid #93c5fd',
+                              background: '#ffffff',
+                              color: '#1d4ed8',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            📄 작업일보 상세 팝업
+                          </button>
+                        )}
+                        {(beforeDirectUrl || beforePhotoId) && (
+                          <button
+                            type="button"
+                            disabled={loadingPhotoKey === beforePhotoId}
+                            onClick={() =>
+                              handleOpenPhotoPreview({
+                                title: `${ownerTitle || '현장'} — 수리전/원인 사진`,
+                                directUrl: beforeDirectUrl,
+                                photoId: beforePhotoId
+                              })
+                            }
+                            style={{
+                              padding: '4px 9px',
+                              borderRadius: '6px',
+                              border: '1px solid #cbd5e1',
+                              background: '#ffffff',
+                              color: '#334155',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              cursor: loadingPhotoKey === beforePhotoId ? 'wait' : 'pointer'
+                            }}
+                          >
+                            {loadingPhotoKey === beforePhotoId ? '로딩...' : '📷 수리전 사진'}
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -802,27 +962,97 @@ export default function LinkedIssueTrackerTab({
                       )}
                     </div>
 
-                    {owner && (
-                      <div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (it.kind === 'mold') onOpenMoldModal?.(owner);
-                            else onOpenEquipmentModal?.(owner);
-                          }}
-                          style={{
-                            padding: '4px 10px',
-                            borderRadius: '6px',
-                            border: '1px solid #cbd5e1',
-                            background: '#f8fafc',
-                            color: '#0f172a',
-                            fontSize: '11px',
-                            fontWeight: 800,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {it.kind === 'mold' ? '🗜️ 금형 이력카드(수리의뢰서) 열기' : '🔧 설비 이력카드(수리의뢰서) 열기'}
-                        </button>
+                    {(owner || afterDirectUrl) && (
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
+                        {owner && it.hasRepairRow ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const opts = { autoSyncKey: repairSyncKey, openRepair: true };
+                                if (it.kind === 'mold') onOpenMoldModal?.(owner, opts);
+                                else onOpenEquipmentModal?.(owner, opts);
+                              }}
+                              style={{
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                border: it.repairState !== 'done' ? '1px solid #ef4444' : '1px solid #86efac',
+                                background: it.repairState !== 'done' ? '#fef2f2' : '#f0fdf4',
+                                color: it.repairState !== 'done' ? '#b91c1c' : '#15803d',
+                                fontSize: '11px',
+                                fontWeight: 800,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {it.repairState !== 'done' ? '🔧 수리 처리 / 완료하기' : '🔧 수리의뢰서 보기'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const opts = { autoSyncKey: repairSyncKey, openRepair: false };
+                                if (it.kind === 'mold') onOpenMoldModal?.(owner, opts);
+                                else onOpenEquipmentModal?.(owner, opts);
+                              }}
+                              style={{
+                                padding: '4px 8px',
+                                borderRadius: '6px',
+                                border: '1px solid #cbd5e1',
+                                background: '#f8fafc',
+                                color: '#334155',
+                                fontSize: '11px',
+                                fontWeight: 700,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              📋 이력카드
+                            </button>
+                          </>
+                        ) : owner ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const opts = { autoSyncKey: '', openRepair: false };
+                              if (it.kind === 'mold') onOpenMoldModal?.(owner, opts);
+                              else onOpenEquipmentModal?.(owner, opts);
+                            }}
+                            style={{
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              border: '1px solid #cbd5e1',
+                              background: '#f8fafc',
+                              color: '#0f172a',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {it.kind === 'mold' ? '🗜️ 금형 이력카드 열기' : '🔧 설비 이력카드 열기'}
+                          </button>
+                        ) : null}
+
+                        {afterDirectUrl && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleOpenPhotoPreview({
+                                title: `${ownerTitle || '현장'} — 수리후 조치 사진`,
+                                directUrl: afterDirectUrl
+                              })
+                            }
+                            style={{
+                              padding: '4px 9px',
+                              borderRadius: '6px',
+                              border: '1px solid #86efac',
+                              background: '#f0fdf4',
+                              color: '#15803d',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            📷 수리후 사진
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -868,7 +1098,19 @@ export default function LinkedIssueTrackerTab({
                             <button
                               type="button"
                               disabled={isSavingCp}
-                              onClick={() => onQuickToggleCheck?.(cp, 'qualityCheck', !it.qcDone)}
+                              onClick={() => {
+                                if (
+                                  !it.qcDone &&
+                                  it.hasRepairRow &&
+                                  it.repairState !== 'done' &&
+                                  !window.confirm(
+                                    '아직 ② 설비·금형 수리 상태가 [수리완료]로 저장되지 않았습니다.\n먼저 수리완료 처리를 하지 않고 품질검증을 진행하시겠습니까?'
+                                  )
+                                ) {
+                                  return;
+                                }
+                                onQuickToggleCheck?.(cp, 'qualityCheck', !it.qcDone);
+                              }}
                               title="클릭하여 품질 검증 완료/취소 즉시 전환"
                               style={{
                                 padding: '4px 8px',
@@ -887,7 +1129,18 @@ export default function LinkedIssueTrackerTab({
                             <button
                               type="button"
                               disabled={isSavingCp}
-                              onClick={() => onQuickToggleCheck?.(cp, 'ceoCheck', !it.ceoDone)}
+                              onClick={() => {
+                                if (
+                                  !it.ceoDone &&
+                                  !it.qcDone &&
+                                  !window.confirm(
+                                    '③ 품질검증이 아직 완료되지 않았습니다.\n품질검증 전에 대표이사 최종승인을 진행하시겠습니까?'
+                                  )
+                                ) {
+                                  return;
+                                }
+                                onQuickToggleCheck?.(cp, 'ceoCheck', !it.ceoDone);
+                              }}
                               title="클릭하여 대표이사(공장장) 승인 완료/취소 즉시 전환"
                               style={{
                                 padding: '4px 8px',
@@ -910,15 +1163,15 @@ export default function LinkedIssueTrackerTab({
                                 style={{
                                   padding: '4px 8px',
                                   borderRadius: '6px',
-                                  border: '1px solid #cbd5e1',
-                                  background: '#ffffff',
-                                  color: '#334155',
+                                  border: it.qPointDone ? '1px solid #86efac' : '1px solid #cbd5e1',
+                                  background: it.qPointDone ? '#f0fdf4' : '#ffffff',
+                                  color: it.qPointDone ? '#15803d' : '#334155',
                                   fontSize: '11px',
                                   fontWeight: 700,
                                   cursor: 'pointer'
                                 }}
                               >
-                                📝 Q-Point
+                                {it.qPointDone ? '📝 Q-Point 수정' : '📝 Q-Point 작성'}
                               </button>
                             )}
                           </div>
@@ -943,6 +1196,31 @@ export default function LinkedIssueTrackerTab({
                           )}
                         </div>
                       </>
+                    ) : it.hasRepairRow && owner && onSyncMissingChangePoint ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '8px', height: '100%' }}>
+                        <div style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.4 }}>
+                          연결된 변동점 문서가 아직 없습니다. 수리 이력을 바탕으로 변동점 문서를 즉시 생성할 수 있습니다.
+                        </div>
+                        <div>
+                          <button
+                            type="button"
+                            disabled={isSyncingMissing}
+                            onClick={() => handleTriggerMissingSync(it)}
+                            style={{
+                              padding: '5px 10px',
+                              borderRadius: '6px',
+                              border: '1px solid #6366f1',
+                              background: '#eef2ff',
+                              color: '#4338ca',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              cursor: isSyncingMissing ? 'wait' : 'pointer'
+                            }}
+                          >
+                            {isSyncingMissing ? '생성 중...' : '⚡ 변동점 즉시 연동 생성'}
+                          </button>
+                        </div>
+                      </div>
                     ) : (
                       <div style={{ fontSize: '11px', color: '#94a3b8', display: 'flex', alignItems: 'center', height: '100%' }}>
                         연결된 변동점 문서가 없습니다. (수리의뢰서 저장 시 자동 생성됩니다)
@@ -955,6 +1233,58 @@ export default function LinkedIssueTrackerTab({
           </div>
         )}
       </div>
+
+      {previewPhoto && (
+        <div
+          onClick={() => setPreviewPhoto(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.72)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#ffffff',
+              borderRadius: '14px',
+              padding: '16px',
+              maxWidth: '720px',
+              width: '100%',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.35)'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <strong style={{ fontSize: '14px', color: '#0f172a' }}>{previewPhoto.title}</strong>
+              <button
+                type="button"
+                onClick={() => setPreviewPhoto(null)}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  background: '#f8fafc',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                닫기
+              </button>
+            </div>
+            <img
+              src={previewPhoto.url}
+              alt={previewPhoto.title}
+              style={{ width: '100%', maxHeight: '72vh', objectFit: 'contain', borderRadius: '8px', background: '#f8fafc' }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

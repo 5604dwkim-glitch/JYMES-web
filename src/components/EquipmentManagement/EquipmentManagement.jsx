@@ -83,6 +83,7 @@ export default function EquipmentManagement() {
   // Form & Modal State
   const [showModal, setShowModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [historyAutoSyncKey, setHistoryAutoSyncKey] = useState('');
   const [showTpmLogModal, setShowTpmLogModal] = useState(false);
   const [tpmModalPeriod, setTpmModalPeriod] = useState(null);
   const [showRepairModal, setShowRepairModal] = useState(false);
@@ -160,6 +161,7 @@ export default function EquipmentManagement() {
       const targetCat = getEquipmentCategory(eq);
       setActiveTab('list');
       setSelectedEquipment(eq);
+      setHistoryAutoSyncKey(target.autoSyncKey || '');
       setShowHistoryModal(true);
       routeNavigate(`/equipment/${targetCat}`, { replace: true, state: null });
       return;
@@ -1174,9 +1176,11 @@ export default function EquipmentManagement() {
         ) : (
           <EquipmentHistoryCardModal
             equipment={selectedEquipment}
+            initialAutoSyncKey={historyAutoSyncKey}
             onClose={() => {
               setShowHistoryModal(false);
               setSelectedEquipment(null);
+              setHistoryAutoSyncKey('');
             }}
             onUpdate={(updatedEq) => {
               if (updatedEq) setSelectedEquipment(updatedEq);

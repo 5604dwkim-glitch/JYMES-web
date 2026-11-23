@@ -36,8 +36,8 @@ export function isCheckTruthy(val) {
 
 export function getRepairState(row) {
   if (!row) return 'none';
-  if (row.confirmed) return 'done';
   const rd = row.repairDetails || {};
+  if (rd.repairStatus === '완료' || row.confirmed) return 'done';
   if (String(rd.actionContent || '').trim() || String(rd.completionDate || '').trim()) return 'working';
   return 'received';
 }
@@ -53,7 +53,15 @@ export function getChangePointApprovalDetail(cp) {
   }
   const qcDone = isCheckTruthy(cp.qualityCheck);
   const ceoDone = isCheckTruthy(cp.ceoCheck);
-  const qPointDone = Boolean(isCheckTruthy(cp.qPointInstall) || cp.qPointData);
+  const qp = cp.qPointData || {};
+  const qPointDone = Boolean(
+    isCheckTruthy(cp.qPointInstall) ||
+    cp.qPointFile ||
+    qp.afterImage ||
+    qp.qcApprover1 ||
+    qp.qcApprover2 ||
+    (qp.qcResult && String(qp.qcResult).trim())
+  );
   return {
     qcDone,
     ceoDone,
@@ -336,6 +344,10 @@ export function buildFullLinkedIssueBoard({
     // 실제 수리 이력 행(row)이 있을 때만 수리 대기/조치중을 판별
     const hasRepairRow = Boolean(c.repair?.row);
     const repairDoneOrSkipped = !hasRepairRow || c.repairState === 'done';
+    const rd = c.repair?.row?.repairDetails || {};
+    const qp = c.cp?.qPointData || {};
+    const hasBeforePhoto = Boolean(rd.beforeImage || rd.beforePhotoId || qp.beforeImage || c.slot?.photoId || c.slot?.photoDataUrl);
+    const hasAfterPhoto = Boolean(rd.afterImage || qp.afterImage);
 
     let stageStatus = 'completed';
     if (!hasRepairRow && !c.cp) {
@@ -351,6 +363,8 @@ export function buildFullLinkedIssueBoard({
     return {
       ...c,
       hasRepairRow,
+      hasBeforePhoto,
+      hasAfterPhoto,
       qcDone: approval.qcDone,
       ceoDone: approval.ceoDone,
       qPointDone: approval.qPointDone,

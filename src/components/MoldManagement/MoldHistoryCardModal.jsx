@@ -13,7 +13,13 @@ const addThreeMonths = (dateStr) => {
   return d.toLocaleDateString('sv-SE');
 };
 
-export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
+export default function MoldHistoryCardModal({
+  mold,
+  onClose,
+  onUpdate,
+  initialAutoSyncKey = '',
+  initialOpenRepair = false
+}) {
   const [formData, setFormData] = useState({
     receiptDate: mold.receiptDate || mold.manufactureDate || '',
     productionStartDate:
@@ -31,6 +37,31 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
   const initialHistoryRef = useRef(mold.history);
   const [editingRepairIndex, setEditingRepairIndex] = useState(null);
   const [selectedIndices, setSelectedIndices] = useState([]);
+  const [directRepairActive, setDirectRepairActive] = useState(false);
+  const focusedRowRef = useRef(null);
+  const autoOpenHandledRef = useRef(false);
+
+  const focusRowIdx = initialAutoSyncKey
+    ? (formData.history || []).findIndex(
+        (r) => r?.autoSyncKey === initialAutoSyncKey || r?.syncId === initialAutoSyncKey
+      )
+    : -1;
+
+  useEffect(() => {
+    if (focusRowIdx < 0) return;
+    const t = setTimeout(() => {
+      focusedRowRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    }, 120);
+    return () => clearTimeout(t);
+  }, [focusRowIdx]);
+
+  useEffect(() => {
+    if (!initialOpenRepair || autoOpenHandledRef.current || focusRowIdx < 0) return;
+    autoOpenHandledRef.current = true;
+    setIsEditing(true);
+    setDirectRepairActive(true);
+    setEditingRepairIndex(focusRowIdx);
+  }, [initialOpenRepair, focusRowIdx]);
 
   useEffect(() => {
     let alive = true;
@@ -110,19 +141,59 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
     setSelectedIndices([]);
   };
 
-  const handleSaveRepairFromHistory = (index, repairData) => {
+  const handleSaveRepairFromHistory = async (index, repairData) => {
     if (!isEditing) return;
     const newHistory = [...formData.history];
-    newHistory[index] = {
-      ...newHistory[index],
-      date: newHistory[index].date || repairData.requestDate || '',
+    const prevRow = newHistory[index] || {};
+    const isCompletedStatus = repairData?.repairStatus === '완료';
+    const nextRow = {
+      ...prevRow,
+      syncId: prevRow.syncId || `moldhist_${Date.now()}_${index}`,
+      date: prevRow.date || repairData.requestDate || '',
       issue: repairData.requestContent,
-      action: repairData.actionContent,
-      confirmed: Boolean(repairData.qualityPic || repairData.verificationResult),
+      action: repairData.actionContent || (isCompletedStatus ? '수리완료' : prevRow.action || ''),
+      attachment: '수리의뢰서',
+      confirmed: Boolean(prevRow.confirmed || repairData.qualityPic || repairData.verificationResult),
       repairDetails: repairData
     };
+    newHistory[index] = nextRow;
     setFormData({ ...formData, history: newHistory });
     setEditingRepairIndex(null);
+
+    if (directRepairActive && mold?.id) {
+      try {
+        const moldRef = doc(db, 'molds', mold.id);
+        const snap = await getDoc(moldRef).catch(() => null);
+        const freshHistory = snap?.exists?.() && Array.isArray(snap.data()?.history)
+          ? [...snap.data().history]
+          : [...newHistory];
+        const matchIdx = nextRow.autoSyncKey
+          ? freshHistory.findIndex((h) => h?.autoSyncKey === nextRow.autoSyncKey)
+          : index;
+        if (matchIdx >= 0 && matchIdx < freshHistory.length) {
+          freshHistory[matchIdx] = nextRow;
+        } else {
+          freshHistory.push(nextRow);
+        }
+        await updateDoc(moldRef, { history: freshHistory });
+        invalidateMoldsCache();
+        try {
+          await syncMoldRepairToChangePoint(mold, nextRow, matchIdx >= 0 ? matchIdx : index);
+        } catch (syncErr) {
+          console.error('Failed to auto-sync direct mold repair to changePoint:', syncErr);
+        }
+        const { moldPhoto: _photo, ...formWithoutPhoto } = { ...formData, history: freshHistory };
+        const { moldPhoto: _legacyPhoto, ...moldWithoutPhoto } = mold;
+        if (onUpdate) onUpdate({ ...moldWithoutPhoto, ...formWithoutPhoto });
+        setDirectRepairActive(false);
+        setIsEditing(false);
+        alert(isCompletedStatus ? '금형 수리 완료 처리되었으며 변동점에 반영되었습니다.' : '금형 수리 의뢰 내용이 저장되었으며 변동점에 반영되었습니다.');
+        onClose?.();
+      } catch (err) {
+        console.error('Failed direct save mold repair:', err);
+        alert('수리의뢰 저장 중 오류가 발생했습니다.');
+      }
+    }
   };
 
   const handleSave = async () => {
@@ -161,14 +232,7 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
 
       try {
         await Promise.all(
-          normalizedHistory
-            .map((row, idx) => ({ row, idx }))
-            .filter(
-              ({ row }) =>
-                row.source !== 'report_downtime' &&
-                !String(row.autoSyncKey || '').startsWith('report_dt_')
-            )
-            .map(({ row, idx }) => syncMoldRepairToChangePoint(mold, row, idx))
+          normalizedHistory.map((row, idx) => syncMoldRepairToChangePoint(mold, row, idx))
         );
       } catch (syncErr) {
         console.error('Failed to auto-sync mold history rows to changePoint:', syncErr);
@@ -691,7 +755,15 @@ export default function MoldHistoryCardModal({ mold, onClose, onUpdate }) {
                 </thead>
                 <tbody>
                   {formData.history.map((row, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #cbd5e1' }}>
+                    <tr
+                      key={i}
+                      ref={i === focusRowIdx ? focusedRowRef : undefined}
+                      data-focused-row={i === focusRowIdx ? '1' : undefined}
+                      style={{
+                        borderBottom: '1px solid #cbd5e1',
+                        ...(i === focusRowIdx ? { background: '#eff6ff', boxShadow: 'inset 4px 0 0 #2563eb' } : {})
+                      }}
+                    >
                       <td style={{ borderRight: '1px solid #cbd5e1', padding: '4px' }}>
                         <input
                           type="checkbox"
