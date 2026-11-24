@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
-import { isFluidPage } from '../constants/layoutPages';
+import { isFluidPage, hasMobileDedicatedView } from '../constants/layoutPages';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import { EQUIPMENT_CATEGORIES, getCategoryMeta } from '../constants/equipmentCategories';
 import { prefetchAnalyticsData } from '../services/firestore';
 import { ILLUMINANCE_META, ILLUMINANCE_ROUTE_PATH, ILLUMINANCE_ROUTE_SLUG } from '../constants/illuminanceMeasurement';
@@ -51,6 +52,7 @@ export default function Layout() {
   const { t, td, lang, setLang } = useI18n();
   const navigate = useNavigate();
   const [isMobilePreview, setIsMobilePreview] = useState(false);
+  const { isMobileViewport, forcePcView, setForcePcView } = useMobileViewport();
   const location = useLocation();
   const isWorker = userRole?.role === 'worker';
   const [isReportMenuOpen, setIsReportMenuOpen] = useState(
@@ -376,7 +378,22 @@ export default function Layout() {
             <span className="page-subtitle">{sub}</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {hasMobileDedicatedView(location.pathname) && isMobileViewport && forcePcView && (
+              <button
+                type="button"
+                className="btn btn-sm"
+                onClick={() => setForcePcView(false)}
+                style={{
+                  background: '#eff6ff',
+                  color: '#1d4ed8',
+                  border: '1px solid #93c5fd',
+                  fontWeight: 800
+                }}
+              >
+                📱 모바일 요약 보기
+              </button>
+            )}
             <div className="lang-select-container" translate="no">
               <select 
                 className="lang-select" 
@@ -396,8 +413,16 @@ export default function Layout() {
           </div>
         </header>
 
-        {/* data-wide-page="1": 작업일보 외 화면은 최소 가로폭 유지 + 가로 스크롤 (index.css 참고) */}
-        <main className="content-body" id="contentBody" data-wide-page={isFluidPage(location.pathname) ? undefined : '1'}>
+        {/* data-wide-page="1": 작업일보 및 모바일 전용 화면 외에는 최소 가로폭 유지 + 가로 스크롤 (index.css 참고) */}
+        <main
+          className="content-body"
+          id="contentBody"
+          data-wide-page={
+            isFluidPage(location.pathname) || (hasMobileDedicatedView(location.pathname) && isMobileViewport && !forcePcView)
+              ? undefined
+              : '1'
+          }
+        >
           <div className="tab-view active" style={{ display: 'block' }}>
             <Outlet />
           </div>

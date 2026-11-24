@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, lazy } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useI18n } from '../contexts/I18nContext';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import {
   fetchMyRecentReports,
   fetchChangePoints,
@@ -31,6 +32,8 @@ import {
 import { Bar } from 'react-chartjs-2';
 import DowntimeChainCard from './DashboardParts/DowntimeChainCard';
 import FmbEnvMonthlyCard from './DashboardParts/FmbEnvMonthlyCard';
+
+const MobileDashboardView = lazy(() => import('./DashboardParts/MobileDashboardView'));
 import {
   buildDashboardKpiSummary,
   buildLast7DaysMiniTrend,
@@ -422,6 +425,7 @@ function AdminDashboard({
   autoRefreshEnabled = true,
   onToggleAutoRefresh
 }) {
+  const { isMobileDedicatedActive, setForcePcView } = useMobileViewport();
   const [isMonitorFullscreen, setIsMonitorFullscreen] = useState(false);
   const [isNativeFullscreen, setIsNativeFullscreen] = useState(() => Boolean(document.fullscreenElement));
   const [liveClock, setLiveClock] = useState(() => new Date().toLocaleTimeString('ko-KR', { hour12: false }));
@@ -679,6 +683,31 @@ function AdminDashboard({
   const displayMolds = moldCardInfo.urgent.length > 0
     ? moldCardInfo.urgent.slice(0, isMonitorFullscreen ? 4 : 6)
     : moldCardInfo.topFallback.slice(0, isMonitorFullscreen ? 4 : 5);
+
+  if (isMobileDedicatedActive && !isMonitorFullscreen) {
+    return (
+      <Suspense fallback={null}>
+        <MobileDashboardView
+          data={data}
+          kpi={kpi}
+          miniTrend={miniTrend}
+          top5Defects={top5Defects}
+          moldCardInfo={moldCardInfo}
+          defectStatus={defectStatus}
+          defectBadge={defectBadge}
+          miniChartData={miniChartData}
+          miniChartPlugins={miniChartPlugins}
+          lastRefStr={lastRefStr}
+          isRefreshing={isRefreshing}
+          autoRefreshEnabled={autoRefreshEnabled}
+          onToggleAutoRefresh={onToggleAutoRefresh}
+          onRefresh={onRefresh}
+          onSwitchToPc={() => setForcePcView(true)}
+          navigate={navigate}
+        />
+      </Suspense>
+    );
+  }
 
   return (
     <div

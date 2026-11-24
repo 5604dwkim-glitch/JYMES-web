@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, Suspense, lazy } from 
 import { useLocation } from 'react-router-dom';
 import LegacyAnalyticsWrapper from './DynamicForms/LegacyAnalyticsWrapper';
 import ProcessDefectAnalysis from './AnalyticsParts/ProcessDefectAnalysis';
+import { useMobileViewport } from '../hooks/useMobileViewport';
 import {
   fetchDailyStats,
   fetchRecentDailyStats,
@@ -13,9 +14,11 @@ import {
 } from '../services/firestore';
 
 const Gm9bqcGrunDashboard = lazy(() => import('./AnalyticsParts/Gm9bqcGrunDashboard'));
+const MobileAnalyticsView = lazy(() => import('./AnalyticsParts/MobileAnalyticsView'));
 
 export default function Analytics() {
   const location = useLocation();
+  const { isMobileDedicatedActive, setForcePcView } = useMobileViewport();
   const [reports, setReports] = useState([]);
   const [reportsLoading, setReportsLoading] = useState(false);
   const [hasFullHistory, setHasFullHistory] = useState(false);
@@ -158,6 +161,35 @@ export default function Analytics() {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#64748b', fontSize: '14px' }}>
         분석 데이터를 불러오는 중...
       </div>
+    );
+  }
+
+  if (isMobileDedicatedActive) {
+    return (
+      <Suspense
+        fallback={
+          <div style={{ padding: '32px 16px', textAlign: 'center', color: '#64748b', fontSize: '13.5px' }}>
+            모바일 분석 화면을 불러오는 중...
+          </div>
+        }
+      >
+        <MobileAnalyticsView
+          dailyStats={analysisPayload.dailyStats}
+          downtimeReports={analysisPayload.downtimeReports}
+          equipments={analysisPayload.equipments}
+          molds={analysisPayload.molds}
+          changePoints={analysisPayload.changePoints}
+          reports={reports}
+          reportsLoading={reportsLoading}
+          initialActiveTab={location.state?.activeTab}
+          initialSubTab={location.state?.subTab || 'trend'}
+          hasFullHistory={hasFullHistory}
+          onNeedFullHistory={ensureFullHistoryLoaded}
+          onSubTabDemand={ensureSubTabDataLoaded}
+          onRequestStellantisReports={ensureStellantisReportsLoaded}
+          onSwitchToPc={() => setForcePcView(true)}
+        />
+      </Suspense>
     );
   }
 
