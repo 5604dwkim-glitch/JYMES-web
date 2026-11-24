@@ -927,7 +927,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           }
         `}</style>
 
-        {/* 모바일 전용 카드형 목록 (차종 / 작업일자 / 공정 / 상태 + 상단 사각형 버튼 3개) */}
+        {/* 모바일 전용 카드형 목록 (차종 / 작업일자 / 공정 / 상태 / 작성자 + 상단 사각형 버튼 3개) */}
         <div className="report-mobile-card-list">
           {loading ? (
             <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
@@ -985,6 +985,10 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                     <span className={`status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : r.status === '임시저장' ? 'draft' : 'pending'}`} style={{ padding: '2px 6px', fontSize: '11px' }}>
                       {td(r.status)}
                     </span>
+                  </div>
+                  <div className="report-mobile-meta-item" style={{ gridColumn: '1 / -1', borderTop: '1px dashed #f1f5f9', paddingTop: '6px' }}>
+                    <span className="report-mobile-meta-label">{t('th_worker')}</span>
+                    <span className="report-mobile-meta-val">{r.workerName || '-'}</span>
                   </div>
                 </div>
               </div>
