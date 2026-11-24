@@ -262,48 +262,82 @@ export function parseInitialDowntimeItems(existingData) {
   return items.length > 0 ? items : [createEmptyItem()];
 }
 
+function formatMoldUnitLabel(moldNo) {
+  const raw = String(moldNo || '').trim();
+  if (!raw) return '';
+  if (/^\d+$/.test(raw)) return `${raw}호기`;
+  if (/^\d+\s*호$/.test(raw)) return `${raw.replace(/\s+/g, '')}기`;
+  return raw;
+}
+
 function getColumnHeaderForCell(td) {
   const tr = td?.closest('tr');
   const table = tr?.closest('table');
   if (!tr || !table) return '';
 
-  const cells = Array.from(tr.children);
-  let colIdx = 0;
-  for (const cell of cells) {
-    if (cell === td) break;
-    colIdx += Number(cell.colSpan) || 1;
+  const section = tr.closest('thead') || table;
+  const rows = Array.from(section.rows || []);
+  if (rows.length === 0) return '';
+
+  const grid = [];
+  let targetRowIdx = -1;
+  let targetColIdx = -1;
+
+  for (let r = 0; r < rows.length; r++) {
+    if (!grid[r]) grid[r] = [];
+    let c = 0;
+    for (const cell of Array.from(rows[r].children)) {
+      while (grid[r][c]) c += 1;
+      const colSpan = Number(cell.colSpan) || 1;
+      const rowSpan = Number(cell.rowSpan) || 1;
+      if (cell === td) {
+        targetRowIdx = r;
+        targetColIdx = c;
+      }
+      for (let dr = 0; dr < rowSpan; dr++) {
+        if (!grid[r + dr]) grid[r + dr] = [];
+        for (let dc = 0; dc < colSpan; dc++) {
+          grid[r + dr][c + dc] = cell;
+        }
+      }
+      c += colSpan;
+    }
+    if (rows[r] === tr) break;
   }
 
-  const theadRow = table.querySelector('thead tr:last-child') || table.querySelector('thead tr');
-  if (!theadRow) return '';
+  if (targetRowIdx < 0 || targetColIdx < 0) return '';
 
-  const headers = Array.from(theadRow.children);
-  let cursor = 0;
-  for (const th of headers) {
-    const span = Number(th.colSpan) || 1;
-    if (colIdx >= cursor && colIdx < cursor + span) {
-      return String(th.textContent || '').replace(/\s+/g, ' ').trim();
+  for (let r = targetRowIdx - 1; r >= 0; r--) {
+    const headerCell = grid[r]?.[targetColIdx];
+    if (!headerCell || headerCell.querySelector('select, input')) continue;
+    const text = String(headerCell.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text && !/^(구분|부위|금형)/.test(text)) {
+      return text;
     }
-    cursor += span;
   }
   return '';
 }
 
 function getSectionGroupTitleForSelect(sel) {
-  const card = sel?.closest('.card, div[style*="border-bottom"]');
-  const tableWrapper = sel?.closest('div');
   if (sel?.id?.startsWith('vulc2_mold_')) return '2차';
-  const prevTitle = tableWrapper?.previousElementSibling?.textContent?.trim();
-  if (prevTitle && prevTitle.length <= 24) return prevTitle.replace(/\s+/g, ' ');
-  const cardLabel = card?.querySelector(':scope > label')?.textContent?.trim();
-  if (cardLabel && cardLabel.length <= 30) return '';
-  return '';
+  const tableWrapper = sel?.closest('div');
+  const prevEl = tableWrapper?.previousElementSibling;
+  if (!prevEl || prevEl.tagName === 'LABEL' || prevEl.querySelector('.sec-num')) {
+    return '';
+  }
+  const prevTitle = String(prevEl.textContent || '').replace(/\s+/g, ' ').trim();
+  if (!prevTitle || prevTitle.length > 20 || /가류온도|가류시간|입력/.test(prevTitle)) {
+    return '';
+  }
+  return prevTitle;
 }
 
 export function getTopSelectedMolds(container, allMolds = [], carCode = '', partName = '') {
   const sec5 = container?.querySelector('#section5DynamicContainer');
   const moldSelects = sec5
-    ? Array.from(sec5.querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]'))
+    ? Array.from(sec5.querySelectorAll('select[id^="vulc_mold_"], select[id^="vulc2_mold_"]')).filter(
+        (sel) => !sel.closest('[data-joint-mold-stroke-card="1"]')
+      )
     : [];
 
   const hasSection5MoldSelects = moldSelects.length > 0;
@@ -327,9 +361,12 @@ export function getTopSelectedMolds(container, allMolds = [], carCode = '', part
       const colHeader = getColumnHeaderForCell(td);
       const groupTitle = getSectionGroupTitleForSelect(sel);
       const firstCellText = tr?.querySelector('th, td:first-child');
-      const rowLabel = firstCellText && !firstCellText.querySelector('select, input')
+      const rawRowLabel = firstCellText && !firstCellText.querySelector('select, input')
         ? String(firstCellText.textContent || '').replace(/\s+/g, ' ').trim()
         : '';
+      const rowLabel = /^(금형선택|금형\s*no\.?\s*\[?\s*호기\s*\]?|구분|부위)/i.test(rawRowLabel)
+        ? ''
+        : rawRowLabel;
 
       const posParts = [];
       if (groupTitle && (!colHeader || !colHeader.includes(groupTitle))) posParts.push(groupTitle);
@@ -338,37 +375,18 @@ export function getTopSelectedMolds(container, allMolds = [], carCode = '', part
       if (posParts.length === 0) posParts.push(`금형 ${idx + 1}`);
 
       const posLabel = posParts.join(' ');
-      const baseDisplay = `${posLabel} · ${moldNo}`;
-      labelCounts.set(baseDisplay, (labelCounts.get(baseDisplay) || 0) + 1);
+      const unitText = formatMoldUnitLabel(moldNo);
 
       rawEntries.push({
         key: `${sel.id}::${moldNo}`,
-        selectId: sel.id,
         moldId,
         moldNo,
-        posLabel,
-        baseDisplay
+        unitText,
+        posLabel
       });
     });
 
-    const seenDisplay = new Map();
-    rawEntries.forEach((entry) => {
-      const totalSame = labelCounts.get(entry.baseDisplay) || 1;
-      const nextNum = (seenDisplay.get(entry.baseDisplay) || 0) + 1;
-      seenDisplay.set(entry.baseDisplay, nextNum);
-      const displayLabel = totalSame > 1 ? `${entry.posLabel} #${nextNum} · ${entry.moldNo}` : entry.baseDisplay;
-      const equipText = totalSame > 1 ? `${entry.posLabel} #${nextNum} (${entry.moldNo})` : `${entry.posLabel} (${entry.moldNo})`;
-
-      options.push({
-        value: entry.key,
-        targetId: entry.moldId,
-        targetCode: entry.moldNo,
-        targetName: totalSame > 1 ? `${entry.posLabel} #${nextNum}` : entry.posLabel,
-        equip: equipText,
-        detail: equipText,
-        displayLabel
-      });
-    });
+    appendLabeledMoldOptions(options, rawEntries);
 
     return {
       source: 'section5',
@@ -377,51 +395,139 @@ export function getTopSelectedMolds(container, allMolds = [], carCode = '', part
     };
   }
 
-  // 상단에 금형 선택칸이 없는 조인트 양식(1052, 5004, 5005, 5006 등)은 등록 금형 마스터에서 해당 차종/부위 금형 제공
-  const normCar = String(carCode || '').trim().toUpperCase();
-  const normPart = String(partName || '').trim().toUpperCase();
-  const candidates = (allMolds || []).filter((m) => {
+  // 상단에 금형 선택칸이 없는 조인트 양식(1022, 1042, 1052, 2042, 4012, 5004~5006, 6002 등)은
+  // 등록 금형 마스터에서 해당 차종·부위 금형을 동일한 `{구분}-{N}호기` 양식으로 제공
+  const normCar = normalizeCarModelName(carCode).toUpperCase();
+  const carCandidates = (allMolds || []).filter((m) => {
     if (!m || m.status === '폐기') return false;
     const cars = [
-      String(m.carModel || '').toUpperCase(),
-      ...(Array.isArray(m.carModels) ? m.carModels.map((c) => String(c || '').toUpperCase()) : [])
+      normalizeCarModelName(m.carModel || '').toUpperCase(),
+      ...(Array.isArray(m.carModels) ? m.carModels.map((c) => normalizeCarModelName(c || '').toUpperCase()) : [])
     ].filter(Boolean);
     if (normCar && cars.length > 0 && !cars.includes(normCar)) return false;
     return true;
   });
 
-  const sortedCandidates = [...candidates].sort((a, b) => {
-    const aPartMatch = normPart && String(a.partName || a.part || a.moldType || '').toUpperCase().includes(normPart) ? 0 : 1;
-    const bPartMatch = normPart && String(b.partName || b.part || b.moldType || '').toUpperCase().includes(normPart) ? 0 : 1;
+  const partMatched = partName ? carCandidates.filter((m) => isMatchingMasterPart(m, partName)) : carCandidates;
+  const scopedCandidates = partMatched.length > 0 ? partMatched : carCandidates;
+
+  const sortedCandidates = [...scopedCandidates].sort((a, b) => {
+    const aPartMatch = partName && isMatchingMasterPart(a, partName) ? 0 : 1;
+    const bPartMatch = partName && isMatchingMasterPart(b, partName) ? 0 : 1;
     if (aPartMatch !== bPartMatch) return aPartMatch - bPartMatch;
-    return String(a.moldNumber || a.moldNo || a.code || a.name || '').localeCompare(String(b.moldNumber || b.moldNo || b.code || b.name || ''), 'ko');
+    const ka = parseMoldSortKey(a);
+    const kb = parseMoldSortKey(b);
+    const typeCmp = ka.typeLabel.localeCompare(kb.typeLabel, 'ko');
+    if (typeCmp !== 0) return typeCmp;
+    if (ka.num !== kb.num) return ka.num - kb.num;
+    return ka.moldNo.localeCompare(kb.moldNo, 'ko');
   });
 
   const usedIds = new Set();
+  const masterEntries = [];
   sortedCandidates.forEach((m) => {
     const moldNo = String(m.moldNumber || m.moldNo || m.code || m.name || '').trim();
     if (!moldNo) return;
     const key = `master::${m.id || moldNo}`;
     if (usedIds.has(key)) return;
     usedIds.add(key);
-    const typeLabel = String(m.moldType || m.partName || m.part || m.carModel || '금형').trim();
-    const equipText = `${typeLabel} (${moldNo})`;
-    options.push({
-      value: key,
-      targetId: String(m.id || '').trim(),
-      targetCode: moldNo,
-      targetName: typeLabel,
-      equip: equipText,
-      detail: equipText,
-      displayLabel: `${typeLabel} · ${moldNo}`
+    masterEntries.push({
+      key,
+      moldId: String(m.id || '').trim(),
+      moldNo,
+      unitText: formatMoldUnitLabel(moldNo),
+      posLabel: deriveMasterMoldTypeLabel(m)
     });
   });
+
+  appendLabeledMoldOptions(options, masterEntries);
 
   return {
     source: 'master',
     hasSection5MoldSelects: false,
     options
   };
+}
+
+/**
+ * 동일한 `{구분}-{N}호기` 라벨이 중복될 때 `#1`, `#2`를 붙여 목록 옵션을 확정한다.
+ */
+function appendLabeledMoldOptions(options, rawEntries) {
+  const labelCounts = new Map();
+  rawEntries.forEach((entry) => {
+    const baseDisplay = entry.unitText ? `${entry.posLabel}-${entry.unitText}` : entry.posLabel;
+    entry.baseDisplay = baseDisplay;
+    labelCounts.set(baseDisplay, (labelCounts.get(baseDisplay) || 0) + 1);
+  });
+
+  const seenDisplay = new Map();
+  rawEntries.forEach((entry) => {
+    const totalSame = labelCounts.get(entry.baseDisplay) || 1;
+    const nextNum = (seenDisplay.get(entry.baseDisplay) || 0) + 1;
+    seenDisplay.set(entry.baseDisplay, nextNum);
+    const finalPosLabel = totalSame > 1 ? `${entry.posLabel} #${nextNum}` : entry.posLabel;
+    const displayLabel = entry.unitText ? `${finalPosLabel}-${entry.unitText}` : finalPosLabel;
+
+    options.push({
+      value: entry.key,
+      targetId: entry.moldId,
+      targetCode: entry.moldNo,
+      targetName: finalPosLabel,
+      equip: displayLabel,
+      detail: displayLabel,
+      displayLabel
+    });
+  });
+}
+
+function canonicalizeMoldPart(raw) {
+  const up = String(raw || '').trim().toUpperCase();
+  if (!up) return '';
+  const compact = up.replace(/[\s/''"_\-()]/g, '');
+  if (compact.includes('FRUNK')) return 'FRUNK';
+  if (compact.includes('INBELT') || compact.includes('인벨트')) return 'INBELT';
+  if (compact.includes('PTG') || compact.includes('SIDETALEGATE') || compact.includes('SIDETAILGATE')) return 'PTG';
+  if (compact.includes('HOOD')) return 'HOOD';
+  if (compact.includes('RRCPART') || compact === 'PARTG') return 'PARTG';
+  if (compact.includes('DSIDE')) return 'D/SIDE';
+  if (compact.includes('GRUN')) return 'G/RUN';
+  if (compact === 'FRT' || compact.includes('FRTDOOR')) return 'FRT';
+  if (compact === 'RRR' || compact.includes('RRREAR') || compact.includes('REAR')) return 'RR_R';
+  if (compact === 'RRFIXED' || compact.includes('FIXED')) return 'RR_FIXED';
+  if (compact === 'UPR' || compact.includes('UPPER')) return 'UPR';
+  return up;
+}
+
+function isMatchingMasterPart(mold, partName) {
+  const canonTarget = canonicalizeMoldPart(partName);
+  if (!canonTarget) return true;
+  const moldPart = canonicalizeMoldPart(mold?.partName || mold?.part || '');
+  const moldType = canonicalizeMoldPart(mold?.moldType || '');
+  const rawJoined = `${String(mold?.partName || '')} ${String(mold?.part || '')} ${String(mold?.moldType || '')}`.toUpperCase();
+
+  if (moldPart === canonTarget || moldType === canonTarget) return true;
+  // 9BQC(5004/5005/5006): 마스터 부위는 'G/RUN'으로 등록되고 moldType으로 FRT/RR R/RR FIXED 구분되는 경우 대응
+  if ((canonTarget === 'FRT' || canonTarget === 'RR_R' || canonTarget === 'RR_FIXED') && moldPart === 'G/RUN') {
+    if (canonTarget === 'FRT') return rawJoined.includes('FRT') || (!rawJoined.includes('RR') && !rawJoined.includes('FIX'));
+    if (canonTarget === 'RR_R') return (rawJoined.includes('RR') && !rawJoined.includes('FIX')) || rawJoined.includes('REAR') || (!rawJoined.includes('FRT') && !rawJoined.includes('FIX'));
+    if (canonTarget === 'RR_FIXED') return rawJoined.includes('FIX') || (!rawJoined.includes('FRT') && !rawJoined.includes('RR'));
+  }
+  const normPartUp = String(partName || '').trim().toUpperCase();
+  return Boolean(normPartUp && rawJoined.includes(normPartUp));
+}
+
+function deriveMasterMoldTypeLabel(m) {
+  const rawType = String(m?.moldType || '').trim();
+  if (rawType && rawType !== '공통' && rawType !== '일반') return rawType;
+  return String(m?.partName || m?.part || rawType || m?.carModel || '금형').trim();
+}
+
+function parseMoldSortKey(mold) {
+  const typeLabel = deriveMasterMoldTypeLabel(mold);
+  const moldNo = String(mold?.moldNumber || mold?.moldNo || mold?.code || mold?.name || '').trim();
+  const numMatch = moldNo.match(/(\d+)/);
+  const num = numMatch ? Number(numMatch[1]) : Number.MAX_SAFE_INTEGER;
+  return { typeLabel, num, moldNo };
 }
 
 function normalizeCarModelName(val) {
@@ -1332,8 +1438,13 @@ function renderEditableDowntimeHtml(ctx, state) {
   const items = state.items.length > 0 ? state.items : [createEmptyItem()];
   const reportDateStr = getReportDateString(container, ctx?.existingData);
   const equipOptions = getTpmWrittenEquipments(ctx, state, reportDateStr);
-  const carCode = String(ctx?.carModelValue?.value || ctx?.existingData?.carModel || '').trim();
-  const partName = String(ctx?.partValueInput?.value || ctx?.existingData?.itemName || '').trim();
+  const scopeInfo = normalizeTargetScope(ctx);
+  const rawCarCode = String(ctx?.carModelValue?.value || ctx?.existingData?.carModel || '').trim();
+  const carCode = rawCarCode || scopeInfo.targetCar || '';
+  const rawPartName = String(ctx?.partValueInput?.value || ctx?.existingData?.itemName || '').trim();
+  const partName = ([5004, 5005, 5006].includes(scopeInfo.formCode) && scopeInfo.targetPart)
+    ? scopeInfo.targetPart
+    : (rawPartName || scopeInfo.targetPart || '');
   const moldResult = getTopSelectedMolds(container, ctx?.molds || [], carCode, partName);
   const canOpenTpm = typeof ctx?.onOpenTpmModal === 'function';
 
