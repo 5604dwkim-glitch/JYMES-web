@@ -468,6 +468,95 @@ export default function ReportList({ initialStatus = 'ALL' }) {
 
   return (
     <div className="report-list-view">
+      <style>{`
+        .report-list-view .report-filter-actions {
+          display: flex;
+          gap: 8px;
+          align-self: flex-end;
+          width: 100%;
+          justify-content: flex-end;
+          margin-top: 8px;
+        }
+        .report-list-view .report-bulk-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+          font-size: 13px;
+          color: var(--text-muted);
+          gap: 10px;
+        }
+        .report-list-view .report-bulk-actions {
+          display: flex;
+          gap: 8px;
+        }
+        @media (max-width: 768px) {
+          .report-list-view .report-quick-date-btn,
+          .report-list-view .report-bulk-zip-btn {
+            display: none !important;
+          }
+          .report-list-view .report-filter-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+          }
+          .report-list-view .report-filter-actions .btn,
+          .report-list-view .report-bulk-actions .btn {
+            width: 100%;
+            justify-content: center;
+            white-space: nowrap;
+            min-height: 40px;
+            padding: 6px 8px;
+          }
+          .report-list-view .report-bulk-bar {
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .report-list-view .report-result-count {
+            white-space: nowrap;
+            flex-shrink: 0;
+          }
+          .report-list-view .report-bulk-actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            flex: 1 1 240px;
+          }
+        }
+        body.mobile-preview-mode .report-list-view .report-quick-date-btn,
+        body.mobile-preview-mode .report-list-view .report-bulk-zip-btn {
+          display: none !important;
+        }
+        body.mobile-preview-mode .report-list-view .report-filter-actions {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 8px;
+          margin-top: 10px;
+        }
+        body.mobile-preview-mode .report-list-view .report-filter-actions .btn,
+        body.mobile-preview-mode .report-list-view .report-bulk-actions .btn {
+          width: 100%;
+          justify-content: center;
+          white-space: nowrap;
+          min-height: 40px;
+          padding: 6px 8px;
+        }
+        body.mobile-preview-mode .report-list-view .report-bulk-bar {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        body.mobile-preview-mode .report-list-view .report-result-count {
+          white-space: nowrap;
+          flex-shrink: 0;
+        }
+        body.mobile-preview-mode .report-list-view .report-bulk-actions {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 8px;
+          flex: 1 1 240px;
+        }
+      `}</style>
       <div className="filter-bar">
         <div className="filter-group">
           <div className="form-group" style={{ minWidth: '120px' }}>
@@ -525,9 +614,9 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', alignSelf: 'flex-end', width: '100%', justifyContent: 'flex-end', marginTop: '8px' }}>
+        <div className="report-filter-actions">
           <button 
-            className="btn btn-outline-secondary btn-sm" 
+            className="btn btn-outline-secondary btn-sm report-quick-date-btn" 
             onClick={() => {
               const dStr = getOffsetDateStr(-2);
               setStartDate(dStr);
@@ -538,7 +627,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           </button>
           
           <button 
-            className="btn btn-outline-secondary btn-sm" 
+            className="btn btn-outline-secondary btn-sm report-quick-date-btn" 
             onClick={() => {
               const dStr = getOffsetDateStr(-1);
               setStartDate(dStr);
@@ -549,7 +638,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           </button>
 
           <button 
-            className="btn btn-outline-secondary btn-sm" 
+            className="btn btn-outline-secondary btn-sm report-quick-date-btn" 
             onClick={() => {
               const dStr = getOffsetDateStr(0);
               setStartDate(dStr);
@@ -571,8 +660,8 @@ export default function ReportList({ initialStatus = 'ALL' }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', fontSize: '13px', color: 'var(--text-muted)' }}>
-        <div>
+      <div className="report-bulk-bar">
+        <div className="report-result-count">
           <span>{td('조회 결과:')} </span>
           <strong style={{ color: 'var(--accent-cyan)' }}>{filteredReports.length}</strong>
           {lang === 'ko' ? '건' : ''}
@@ -580,10 +669,10 @@ export default function ReportList({ initialStatus = 'ALL' }) {
             <span style={{ marginLeft: '6px', color: 'var(--text-muted)' }}>{td(`(전체 ${reports.length}건 중 검색)`)}</span>
           )}
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="report-bulk-actions">
           {userRole?.role !== 'worker' && (
             <>
-              <button className="btn btn-info btn-sm" onClick={handleBulkDownloadZIP} style={{ backgroundColor: '#0284c7', color: 'white', border: 'none' }}>
+              <button className="btn btn-info btn-sm report-bulk-zip-btn" onClick={handleBulkDownloadZIP} style={{ backgroundColor: '#0284c7', color: 'white', border: 'none' }}>
                 {td('선택항목 다운로드 (ZIP)')}
               </button>
               <button className="btn btn-success btn-sm" onClick={handleBulkApprove}>{t('btn_bulk_approve')}</button>
@@ -903,6 +992,16 @@ export default function ReportList({ initialStatus = 'ALL' }) {
             padding-top: 8px;
             border-top: 1px solid #e2e8f0;
           }
+          .report-list-view .report-mobile-top-meta {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            min-width: 0;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed #e2e8f0;
+          }
           .report-list-view .report-mobile-meta-item {
             display: flex;
             align-items: center;
@@ -927,7 +1026,7 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           }
         `}</style>
 
-        {/* 모바일 전용 카드형 목록 (차종 / 작업일자 / 공정 / 상태 / 작성자 + 상단 사각형 버튼 3개) */}
+        {/* 모바일 전용 카드형 목록 (1행: 작성자 · 작업일자 · 차종 / 2행: 공정 · 상태 + 상단 사각형 버튼 3개) */}
         <div className="report-mobile-card-list">
           {loading ? (
             <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
@@ -966,15 +1065,17 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                 </div>
 
                 <div className="report-mobile-meta">
-                  <div className="report-mobile-meta-item">
-                    <span className="report-mobile-meta-label">{t('th_vehicle')}</span>
-                    <span className="report-mobile-meta-val" style={{ color: 'var(--accent-emerald)', background: 'rgba(5,150,105,0.12)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px' }}>
+                  <div className="report-mobile-top-meta">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0, flex: '1 1 auto' }}>
+                      <span className="report-mobile-meta-label">{t('th_worker')}</span>
+                      <span className="report-mobile-meta-val" style={{ textAlign: 'left' }}>{r.workerName || '-'}</span>
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#334155', fontVariantNumeric: 'tabular-nums', flexShrink: 0, whiteSpace: 'nowrap' }}>
+                      {r.date}
+                    </span>
+                    <span style={{ color: 'var(--accent-emerald)', background: 'rgba(5,150,105,0.12)', padding: '2px 7px', borderRadius: '4px', fontSize: '12px', fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' }}>
                       {td(r.carModel)}
                     </span>
-                  </div>
-                  <div className="report-mobile-meta-item">
-                    <span className="report-mobile-meta-label">{td('작업일자')}</span>
-                    <span className="report-mobile-meta-val">{r.date}</span>
                   </div>
                   <div className="report-mobile-meta-item">
                     <span className="report-mobile-meta-label">{t('form_process')}</span>
@@ -985,10 +1086,6 @@ export default function ReportList({ initialStatus = 'ALL' }) {
                     <span className={`status-badge ${r.status === '승인 완료' ? 'approved' : r.status === '반려' ? 'rejected' : r.status === '임시저장' ? 'draft' : 'pending'}`} style={{ padding: '2px 6px', fontSize: '11px' }}>
                       {td(r.status)}
                     </span>
-                  </div>
-                  <div className="report-mobile-meta-item" style={{ gridColumn: '1 / -1', borderTop: '1px dashed #f1f5f9', paddingTop: '6px' }}>
-                    <span className="report-mobile-meta-label">{t('th_worker')}</span>
-                    <span className="report-mobile-meta-val">{r.workerName || '-'}</span>
                   </div>
                 </div>
               </div>
