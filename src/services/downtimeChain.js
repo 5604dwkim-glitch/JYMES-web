@@ -116,7 +116,10 @@ export function buildDowntimeChains({ reports = [], equipments = [], molds = [],
     if (report.isLeaderForm || report.isForkliftForm || report.isSupportForm) return;
 
     extractDowntimeSlots(report).forEach((slot) => {
-      if (!(slot.minutes > 0)) return;
+      const hasSlotActivity = Boolean(
+        slot.minutes > 0 || slot.comment || slot.repairType || slot.photoId || slot.photoDataUrl
+      );
+      if (!hasSlotActivity) return;
       const kind = classifyDowntimeIssueKind(slot.reason, slot.category);
       if (!kind) return; // 소재/기타 사유 등은 수리/변동점 자동등록 대상이 아님
 
@@ -307,6 +310,27 @@ export function buildFullLinkedIssueBoard({
   const extraChains = [];
   let manualAvailableCount = 0;
 
+  const reportById = new Map();
+  reports.forEach((r) => {
+    if (r?.id) reportById.set(String(r.id), r);
+  });
+
+  const directRepairByAutoKey = new Map();
+  equipments.forEach((eq) => {
+    (eq.history || []).forEach((row, idx) => {
+      if (row?.autoSyncKey) {
+        directRepairByAutoKey.set(sanitizeDocKey(row.autoSyncKey), { kind: 'equipment', owner: eq, row, idx });
+      }
+    });
+  });
+  molds.forEach((m) => {
+    (m.history || []).forEach((row, idx) => {
+      if (row?.autoSyncKey) {
+        directRepairByAutoKey.set(sanitizeDocKey(row.autoSyncKey), { kind: 'mold', owner: m, row, idx });
+      }
+    });
+  });
+
   changePoints.forEach((cp) => {
     if (!cp?.id || matchedCpIds.has(cp.id)) return;
     const isAuto = Boolean(cp.autoSourceKey || cp.autoSourceType || String(cp.id).startsWith('cp_auto_'));
@@ -316,26 +340,43 @@ export function buildFullLinkedIssueBoard({
     if (!isAuto && !(includeManualEquipMold && isManualTarget)) return;
 
     const autoKey = String(cp.autoSourceKey || (String(cp.id).startsWith('cp_auto_') ? cp.id.slice(8) : cp.id));
-    const { kind, owner } = resolveFallbackAssetForCp(cp, equipments, molds);
+    const safeAutoKey = sanitizeDocKey(autoKey);
+    const matchedRepair = directRepairByAutoKey.get(safeAutoKey) || null;
+    const { kind, owner } = matchedRepair
+      ? { kind: matchedRepair.kind, owner: matchedRepair.owner }
+      : resolveFallbackAssetForCp(cp, equipments, molds);
+
+    let matchedReport = null;
+    const rptKeyMatch = autoKey.match(/^report_dt_(.+)_s(\d+)$/);
+    if (rptKeyMatch && reportById.has(rptKeyMatch[1])) {
+      matchedReport = reportById.get(rptKeyMatch[1]);
+    } else {
+      const noteRptMatch = `${cp.note || ''} ${cp.details || ''}`.match(/#(RPT-[A-Za-z0-9_-]+)/);
+      if (noteRptMatch && reportById.has(noteRptMatch[1])) {
+        matchedReport = reportById.get(noteRptMatch[1]);
+      }
+    }
 
     let origin = isAuto ? 'auto_cp' : 'manual_cp';
     if (autoKey.startsWith('tpm_') || cp.autoSourceType === 'tpm') origin = 'tpm';
     else if (autoKey.startsWith('report_dt_') || String(cp.autoSourceType || '').startsWith('report_downtime')) origin = 'report';
     else if (autoKey.startsWith('eqrep_') || autoKey.startsWith('moldrep_')) origin = 'direct';
 
+    const repairObj = matchedRepair || (owner ? { kind, owner, row: null, idx: -1 } : null);
+    const repairState = matchedRepair ? getRepairState(matchedRepair.row) : 'none';
     const cpState = getChangePointState(cp);
     extraChains.push({
       key: `cp_only_${cp.id}`,
       origin,
       date: cp.date || '',
-      report: null,
+      report: matchedReport,
       slot: null,
       kind,
-      repair: owner ? { kind, owner, row: null, idx: -1 } : null,
+      repair: repairObj,
       cp,
-      repairState: 'none',
+      repairState,
       cpState,
-      overall: cpState === 'done' ? 'done' : 'progress'
+      overall: (matchedRepair ? repairState === 'done' : true) && cpState === 'done' ? 'done' : 'progress'
     });
   });
 

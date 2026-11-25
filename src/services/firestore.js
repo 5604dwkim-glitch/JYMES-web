@@ -622,10 +622,22 @@ export async function fetchDowntimeReports(sinceDate = '', forceRefresh = false)
         await slimInflight.get('downtime_reports');
       } else {
         const task = (async () => {
-          const q = query(collection(db, REPORTS_COLLECTION), where('downtimeMinutes', '>', 0));
-          const snap = await getDocs(q);
-          downtimeReportsCache = snap.docs
-            .map((d) => stripImageData({ id: d.id, ...d.data() }))
+          const [minSnap, reasonSnap] = await Promise.all([
+            getDocs(query(collection(db, REPORTS_COLLECTION), where('downtimeMinutes', '>', 0))),
+            getDocs(query(collection(db, REPORTS_COLLECTION), where('downtimeReason', '!=', ''))).catch(() => null)
+          ]);
+          const byId = new Map();
+          minSnap.docs.forEach((d) => {
+            byId.set(d.id, stripImageData({ id: d.id, ...d.data() }));
+          });
+          if (reasonSnap) {
+            reasonSnap.docs.forEach((d) => {
+              if (!byId.has(d.id)) {
+                byId.set(d.id, stripImageData({ id: d.id, ...d.data() }));
+              }
+            });
+          }
+          downtimeReportsCache = Array.from(byId.values())
             .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
           downtimeReportsCacheAt = Date.now();
           writeSlimCache('downtime_reports', downtimeReportsCache);

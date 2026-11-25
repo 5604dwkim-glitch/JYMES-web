@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, Suspense, lazy } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import {
   fetchChangePoints,
   addChangePoint,
@@ -35,6 +37,7 @@ import {
 const LegacyDetailModal = lazy(() => import('./DynamicForms/LegacyDetailModal'));
 const EquipmentHistoryCardModal = lazy(() => import('./EquipmentManagement/EquipmentHistoryCardModal'));
 const MoldHistoryCardModal = lazy(() => import('./MoldManagement/MoldHistoryCardModal'));
+const EquipmentTpmLogModal = lazy(() => import('./EquipmentManagement/EquipmentTpmLogModal'));
 
 ChartJS.register(ArcElement, PieController, Tooltip, Legend, CategoryScale, LinearScale, BarElement, BarController, Title, LineElement, LineController, PointElement);
 
@@ -42,19 +45,20 @@ ChartJS.register(ArcElement, PieController, Tooltip, Legend, CategoryScale, Line
 const ISSUE_CATEGORY_MAP = HYUNDAI_ISSUE_CATEGORY_MAP;
 
 const COLUMNS = [
-  { key: 'date', label: '작성일자', type: 'date', width: '86px' },
-  { key: 'type', label: '구분', type: 'select', width: '52px' },
-  { key: 'issueItem', label: '발생항목', type: 'select', width: '92px' },
-  { key: 'carModel', label: '차종', type: 'select', width: '64px' },
-  { key: 'partName', label: '품명', type: 'select', width: '68px' },
+  { key: 'date', label: '작성일자', type: 'date', width: '84px' },
+  { key: 'type', label: '구분', type: 'select', width: '48px' },
+  { key: 'issueItem', label: '발생항목', type: 'select', width: '88px' },
+  { key: 'carModel', label: '차종', type: 'select', width: '60px' },
+  { key: 'partName', label: '품명', type: 'select', width: '64px' },
   { key: 'details', label: '상세내용', width: 'auto' },
-  { key: 'actionTime', label: '조치시점', type: 'date', width: '86px' },
+  { key: 'actionTime', label: '조치시점', type: 'date', width: '84px' },
   { key: 'actionPlan', label: '조치방안', width: 'auto' },
   { key: 'actionResult', label: '조치결과', width: 'auto' },
-  { key: 'qualityCheck', label: '품질 검증', headerLabel: '품질\n검증', type: 'checkbox', width: '44px' },
-  { key: 'ceoCheck', label: '대표이사 검증', headerLabel: '대표이사\n검증', type: 'checkbox', width: '48px' },
-  { key: 'qPointInstall', label: 'Q.POINT 설치여부', headerLabel: 'Q.POINT\n설치여부', type: 'checkbox', width: '54px' },
-  { key: 'qPointFile', label: 'Q.POINT 첨부파일', headerLabel: 'Q.POINT\n첨부파일', type: 'file', width: '76px' },
+  { key: 'qualityCheck', label: '품질 검증', headerLabel: '품질\n검증', type: 'checkbox', width: '42px' },
+  { key: 'ceoCheck', label: '대표이사 검증', headerLabel: '대표이사\n검증', type: 'checkbox', width: '46px' },
+  { key: 'qPointInstall', label: 'Q.POINT 설치여부', headerLabel: 'Q.POINT\n설치여부', type: 'checkbox', width: '50px' },
+  { key: 'qPointFile', label: 'Q.POINT 첨부파일', headerLabel: 'Q.POINT\n첨부파일', type: 'file', width: '72px' },
+  { key: 'sourceLink', label: '등록출처', type: 'source', width: '86px' },
   { key: 'note', label: '비고', width: 'auto' }
 ];
 
@@ -96,6 +100,126 @@ export default function ChangePointManagement() {
   const [openReportModal, setOpenReportModal] = useState(null);
   const [openEquipmentModal, setOpenEquipmentModal] = useState(null);
   const [openMoldModal, setOpenMoldModal] = useState(null);
+  const [openTpmModal, setOpenTpmModal] = useState(null);
+  const [loadingReportId, setLoadingReportId] = useState('');
+
+  const handleOpenReportById = async (reportOrId) => {
+    if (!reportOrId) return;
+    if (typeof reportOrId === 'object' && reportOrId.id) {
+      setOpenReportModal(reportOrId);
+      return;
+    }
+    const reportId = String(reportOrId).trim();
+    if (!reportId) return;
+    const cached = linkedAssets.reports.find((r) => r?.id === reportId);
+    if (cached) {
+      setOpenReportModal(cached);
+      return;
+    }
+    setLoadingReportId(reportId);
+    try {
+      const snap = await getDoc(doc(db, 'reports', reportId));
+      if (snap.exists()) {
+        setOpenReportModal({ id: snap.id, ...snap.data() });
+      } else {
+        alert(`작업일보(${reportId}) 문서를 찾을 수 없습니다.`);
+      }
+    } catch {
+      alert('작업일보 상세 정보를 불러오지 못했습니다.');
+    } finally {
+      setLoadingReportId('');
+    }
+  };
+
+  const resolveRowSourceLinks = (row) => {
+    const linkInfo = cpLinkLookup.get(row.id) || null;
+    const autoKey = String(
+      row.autoSourceKey || (String(row.id || '').startsWith('cp_auto_') ? row.id.slice(8) : '') || ''
+    );
+    const combinedText = `${autoKey} ${row.note || ''} ${row.details || ''}`;
+
+    // 1) 작업일보 ID 추출 (비가동 일보 연동)
+    let reportId = linkInfo?.report?.id || '';
+    if (!reportId) {
+      const keyMatch = autoKey.match(/report_dt_(RPT-[A-Za-z0-9_-]+)_s\d+/i);
+      if (keyMatch) reportId = keyMatch[1];
+    }
+    if (!reportId) {
+      const textMatch = combinedText.match(/#?(RPT-\d{8}-[A-Za-z0-9_-]+)/i);
+      if (textMatch) reportId = textMatch[1];
+    }
+
+    // 2) 설비 / 금형 자산 매칭
+    let repairOwner = linkInfo?.repair?.owner || null;
+    let repairKind = linkInfo?.kind || (String(row.autoSourceType || '').includes('mold') ? 'mold' : 'equipment');
+    const syncKey =
+      linkInfo?.repair?.row?.autoSyncKey ||
+      linkInfo?.repair?.row?.syncId ||
+      autoKey ||
+      '';
+
+    if (!repairOwner) {
+      if (autoKey.startsWith('moldrep_') || /금형|지그/.test(`${row.issueItem || ''} ${row.details || ''}`)) {
+        repairKind = 'mold';
+        repairOwner =
+          linkedAssets.molds.find((m) => {
+            const code = String(m.code || m.moldNumber || '').trim();
+            return (
+              (m.id && autoKey.includes(m.id)) ||
+              (code.length >= 2 && combinedText.includes(code))
+            );
+          }) || null;
+      } else {
+        repairKind = 'equipment';
+        repairOwner =
+          linkedAssets.equipments.find((eq) => {
+            const code = String(eq.code || '').trim();
+            return (
+              (eq.id && autoKey.includes(eq.id)) ||
+              (code.length >= 2 && combinedText.includes(code))
+            );
+          }) || null;
+      }
+    }
+
+    // 3) TPM 일지 연동 여부
+    const isTpm =
+      linkInfo?.origin === 'tpm' ||
+      row.autoSourceType === 'tpm' ||
+      autoKey.startsWith('tpm_') ||
+      String(row.issueItem || '').includes('TPM') ||
+      String(row.note || '').includes('TPM일지') ||
+      String(row.details || '').includes('[TPM');
+
+    let tpmYear = null;
+    let tpmMonth = null;
+    if (isTpm) {
+      const tpmMatch = autoKey.match(/^tpm_.+_(\d{4})(\d{2})(\d{2})$/);
+      if (tpmMatch) {
+        tpmYear = Number(tpmMatch[1]);
+        tpmMonth = Number(tpmMatch[2]);
+      } else if (row.date && /^\d{4}-\d{2}/.test(row.date)) {
+        const parts = row.date.split('-');
+        tpmYear = Number(parts[0]);
+        tpmMonth = Number(parts[1]);
+      }
+    }
+
+    return {
+      linkInfo,
+      reportObj: linkInfo?.report || null,
+      reportId,
+      repairOwner,
+      repairKind,
+      syncKey,
+      hasRepairRow: Boolean(linkInfo?.hasRepairRow),
+      repairState: linkInfo?.repairState || 'none',
+      isTpm,
+      tpmEquipment: isTpm && repairKind === 'equipment' ? repairOwner : null,
+      tpmYear,
+      tpmMonth
+    };
+  };
 
   // Data Grid States
   const [formData, setFormData] = useState({ ...INIT_FORM });
@@ -957,6 +1081,7 @@ export default function ChangePointManagement() {
                   <th colSpan={6} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>발생내역</th>
                   <th colSpan={5} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>조치결과</th>
                   <th colSpan={2} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>Q POINT</th>
+                  <th rowSpan={2} style={{ padding: '4px 2px', border: '1px solid #cbd5e1', width: '86px' }}>등록출처</th>
                   <th rowSpan={2} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>비고</th>
                 </tr>
                 {/* Sub Header Row */}
@@ -1127,6 +1252,13 @@ export default function ChangePointManagement() {
                         </td>
                       );
                     }
+                    if (c.type === 'source') {
+                      return (
+                        <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                          <span style={{ color: '#94a3b8', fontSize: '10px' }}>수동등록</span>
+                        </td>
+                      );
+                    }
                     return (
                       <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
                         <input
@@ -1277,6 +1409,13 @@ export default function ChangePointManagement() {
                               </td>
                             );
                           }
+                          if (c.type === 'source') {
+                            return (
+                              <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                                <span style={{ color: '#94a3b8', fontSize: '10px' }}>-</span>
+                              </td>
+                            );
+                          }
                           return (
                             <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
                               <input
@@ -1352,55 +1491,124 @@ export default function ChangePointManagement() {
                               </td>
                             );
                           }
-                          if (c.key === 'note') {
-                            const linkInfo = cpLinkLookup.get(row.id);
+                          if (c.type === 'source') {
+                            const src = resolveRowSourceLinks(row);
+                            const hasAnyLink = Boolean(src.reportId || src.tpmEquipment || src.repairOwner);
                             return (
-                              <td key={c.key} style={{ padding: '3px 4px', border: '1px solid #e2e8f0', overflowWrap: 'anywhere' }}>
-                                <span style={{ wordBreak: 'break-word' }}>{row[c.key]}</span>
-                                {linkInfo && (linkInfo.report || linkInfo.repair?.owner) && (
-                                  <div style={{ display: 'flex', gap: '3px', justifyContent: 'center', flexWrap: 'wrap', marginTop: row[c.key] ? '3px' : '0' }}>
-                                    {linkInfo.report && (
+                              <td
+                                key={c.key}
+                                style={{ padding: '2px 3px', border: '1px solid #e2e8f0', verticalAlign: 'middle' }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {hasAnyLink ? (
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center' }}>
+                                    {src.reportId && (
                                       <button
                                         type="button"
-                                        onClick={() => setOpenReportModal(linkInfo.report)}
-                                        style={{ padding: '1px 5px', borderRadius: '4px', border: '1px solid #93c5fd', background: '#eff6ff', color: '#1d4ed8', fontSize: '9.5px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                        title={`작업일보 상세 열기 (${src.reportId})`}
+                                        disabled={loadingReportId === src.reportId}
+                                        onClick={() => handleOpenReportById(src.reportObj || src.reportId)}
+                                        style={{
+                                          width: '100%',
+                                          padding: '2px 4px',
+                                          borderRadius: '4px',
+                                          border: '1px solid #93c5fd',
+                                          background: '#eff6ff',
+                                          color: '#1d4ed8',
+                                          fontSize: '9.5px',
+                                          fontWeight: 700,
+                                          cursor: 'pointer',
+                                          whiteSpace: 'nowrap',
+                                          overflow: 'hidden',
+                                          textOverflow: 'ellipsis'
+                                        }}
                                       >
-                                        📄 일보
+                                        {loadingReportId === src.reportId ? '로딩...' : '📄 작업일보'}
                                       </button>
                                     )}
-                                    {linkInfo.repair?.owner && (
+                                    {src.tpmEquipment && (
                                       <button
                                         type="button"
-                                        onClick={() => {
-                                          const syncKey =
-                                            linkInfo.repair?.row?.autoSyncKey ||
-                                            linkInfo.repair?.row?.syncId ||
-                                            '';
-                                          const modalPayload = {
-                                            owner: linkInfo.repair.owner,
-                                            autoSyncKey: syncKey,
-                                            openRepair: false
-                                          };
-                                          if (linkInfo.kind === 'mold') setOpenMoldModal(modalPayload);
-                                          else setOpenEquipmentModal(modalPayload);
-                                        }}
+                                        title={`TPM 점검일지 열기 (${src.tpmEquipment.code || src.tpmEquipment.name})`}
+                                        onClick={() =>
+                                          setOpenTpmModal({
+                                            equipment: src.tpmEquipment,
+                                            year: src.tpmYear,
+                                            month: src.tpmMonth
+                                          })
+                                        }
                                         style={{
-                                          padding: '1px 5px',
+                                          width: '100%',
+                                          padding: '2px 4px',
                                           borderRadius: '4px',
-                                          border: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '1px solid #fca5a5' : '1px solid #cbd5e1',
-                                          background: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '#fef2f2' : '#f8fafc',
-                                          color: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '#b91c1c' : '#334155',
+                                          border: '1px solid #86efac',
+                                          background: '#f0fdf4',
+                                          color: '#15803d',
                                           fontSize: '9.5px',
                                           fontWeight: 700,
                                           cursor: 'pointer',
                                           whiteSpace: 'nowrap'
                                         }}
                                       >
-                                        {linkInfo.kind === 'mold' ? '🗜️ 금형이력' : '🔧 설비이력'}
-                                        {linkInfo.hasRepairRow ? `(${REPAIR_STATE_LABEL[linkInfo.repairState]})` : ''}
+                                        📋 TPM일지
+                                      </button>
+                                    )}
+                                    {src.repairOwner && (
+                                      <button
+                                        type="button"
+                                        title={`${src.repairKind === 'mold' ? '금형이력카드' : '설비이력카드'} 열기 (${src.repairOwner.code || src.repairOwner.name || ''})`}
+                                        onClick={() => {
+                                          const modalPayload = {
+                                            owner: src.repairOwner,
+                                            autoSyncKey: src.syncKey,
+                                            openRepair: false
+                                          };
+                                          if (src.repairKind === 'mold') setOpenMoldModal(modalPayload);
+                                          else setOpenEquipmentModal(modalPayload);
+                                        }}
+                                        style={{
+                                          width: '100%',
+                                          padding: '2px 4px',
+                                          borderRadius: '4px',
+                                          border: src.hasRepairRow && src.repairState !== 'done' ? '1px solid #fca5a5' : '1px solid #cbd5e1',
+                                          background: src.hasRepairRow && src.repairState !== 'done' ? '#fef2f2' : '#f8fafc',
+                                          color: src.hasRepairRow && src.repairState !== 'done' ? '#b91c1c' : '#334155',
+                                          fontSize: '9.5px',
+                                          fontWeight: 700,
+                                          cursor: 'pointer',
+                                          whiteSpace: 'nowrap',
+                                          overflow: 'hidden',
+                                          textOverflow: 'ellipsis'
+                                        }}
+                                      >
+                                        {src.repairKind === 'mold' ? '🗜️ 금형이력' : '🔧 설비이력'}
+                                        {src.hasRepairRow ? `(${REPAIR_STATE_LABEL[src.repairState]})` : ''}
                                       </button>
                                     )}
                                   </div>
+                                ) : (
+                                  <span style={{ color: '#94a3b8', fontSize: '10px' }}>수동</span>
+                                )}
+                              </td>
+                            );
+                          }
+                          if (c.key === 'note') {
+                            const src = resolveRowSourceLinks(row);
+                            return (
+                              <td key={c.key} style={{ padding: '3px 4px', border: '1px solid #e2e8f0', overflowWrap: 'anywhere' }}>
+                                {src.reportId && String(row[c.key] || '').includes(src.reportId) ? (
+                                  <span
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleOpenReportById(src.reportObj || src.reportId);
+                                    }}
+                                    title={`클릭하여 작업일보(${src.reportId}) 열기`}
+                                    style={{ wordBreak: 'break-word', color: '#1d4ed8', textDecoration: 'underline', cursor: 'pointer', fontWeight: 600 }}
+                                  >
+                                    {row[c.key]}
+                                  </span>
+                                ) : (
+                                  <span style={{ wordBreak: 'break-word' }}>{row[c.key]}</span>
                                 )}
                               </td>
                             );
@@ -1496,6 +1704,28 @@ export default function ChangePointManagement() {
                   ...prev,
                   molds: prev.molds.map((item) =>
                     item.id === updatedMold.id ? updatedMold : item
+                  )
+                }));
+              }
+              loadData(true, true);
+            }}
+          />
+        </Suspense>
+      )}
+
+      {openTpmModal?.equipment && (
+        <Suspense fallback={null}>
+          <EquipmentTpmLogModal
+            equipment={openTpmModal.equipment}
+            initialYear={openTpmModal.year || undefined}
+            initialMonth={openTpmModal.month || undefined}
+            onClose={() => setOpenTpmModal(null)}
+            onUpdate={(updatedEq) => {
+              if (updatedEq) {
+                setLinkedAssets((prev) => ({
+                  ...prev,
+                  equipments: prev.equipments.map((item) =>
+                    item.id === updatedEq.id ? updatedEq : item
                   )
                 }));
               }
