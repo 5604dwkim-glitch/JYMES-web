@@ -108,6 +108,175 @@ function toMonthLabel(ymd) {
   return `${new Date().getMonth() + 1}월`;
 }
 
+/**
+ * 변동점 상세내용(`details`)에서 불필요한 출처 접두사([작업일보 비가동...], [설비수리...], [금형...]),
+ * 중복된 설비/금형 명칭, 반복되는 분류 태그([설비], [금형]), 일보 전체 특이사항 꼬리표 등을
+ * 제거하여 핵심 대상과 원인/내용만 간결하게 표기한다.
+ */
+export function formatCompactChangePointDetails(rawDetails) {
+  let s = String(rawDetails || '').trim();
+  if (!s) return '';
+
+  // 1) 줄바꿈이나 꼬리표로 붙은 "(작업일보 #...)" 및 "(특이사항: ...)" 메타 정보 제거
+  s = s
+    .replace(/\r?\n\s*\(작업일보\s*#[^)]*(?:\([^)]*\)[^)]*)*\)\s*/g, ' ')
+    .replace(/\s*\(작업일보\s*#[^)]*(?:\([^)]*\)[^)]*)*\)\s*$/g, '')
+    .replace(/\s*\(특이사항:\s*[^)]*\)\s*$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // 2) 선두 출처 태그 추출 및 제거
+  //    예: [작업일보 비가동], [작업일보 비가동 60분], [작업일보 1차 비가동 10분],
+  //        [설비수리·작동이상], [설비수리], [금형·수리], [금형수리], [TPM점검], [TPM 일지 이상]
+  let prefixSubType = '';
+  const prefixMatch = s.match(
+    /^\[(?:작업일보(?:\s*\d+차)?\s*비가동(?:\s*\d+분)?|TPM\s*점검|TPM\s*일지\s*이상|(?:설비수리|금형수리|금형)(?:[·・]([^\]]+))?)\]\s*/
+  );
+  if (prefixMatch) {
+    prefixSubType = String(prefixMatch[1] || '').trim();
+    s = s.slice(prefixMatch[0].length).trim();
+  }
+
+  // TPM 점검 기준문 "(기준내용): △수리" -> "(△수리)" 축약
+  s = s.replace(/\([^)]*\)\s*:\s*(△수리|X이상)/g, '($1)');
+
+  const normForCompare = (str) =>
+    String(str || '')
+      .replace(/^\[(설비|금형|소재|기타)\]\s*/g, '')
+      .replace(/[\s()[\]·・\-_]/g, '')
+      .toUpperCase();
+
+  const cleanRightSegment = (rawSeg) => {
+    let seg = String(rawSeg || '')
+      .replace(/^\[(?:설비|금형|소재|기타|TPM\s*일지\s*이상|TPM\s*점검)\]\s*/g, '')
+      .trim();
+    if (!seg) return '';
+
+    const tagMatch = seg.match(/^\[([^\]]+)\]\s*(.*)$/);
+    if (tagMatch) {
+      const tag = tagMatch[1].trim();
+      const rest = tagMatch[2].trim();
+      if (!rest) {
+        seg = tag;
+      } else if (
+        tag === '작동이상' ||
+        tag === '수리' ||
+        tag === '점검' ||
+        tag === '고장' ||
+        tag === '이상' ||
+        rest.includes(tag)
+      ) {
+        seg = rest;
+      } else {
+        seg = `${tag} (${rest})`;
+      }
+    }
+    return seg.trim();
+  };
+
+  const dedupeDotTokens = (tokens) => {
+    const kept = [];
+    for (const rawTok of tokens) {
+      const tok = String(rawTok || '').trim();
+      const nTok = normForCompare(tok);
+      if (!nTok) continue;
+      const dupIdx = kept.findIndex((k) => {
+        const nK = normForCompare(k);
+        return nK === nTok || nK.includes(nTok) || nTok.includes(nK);
+      });
+      if (dupIdx === -1) {
+        kept.push(tok);
+      } else {
+        const prev = kept[dupIdx];
+        if (!/\([^)]+\)/.test(prev) && /\([^)]+\)/.test(tok)) {
+          kept[dupIdx] = tok;
+        }
+      }
+    }
+    return kept;
+  };
+
+  const dashIdx = s.indexOf(' — ');
+  if (dashIdx !== -1) {
+    const rawLeft = s.slice(0, dashIdx).trim();
+    let rawRight = s.slice(dashIdx + 3).trim();
+
+    const leftTokens = dedupeDotTokens(rawLeft.split(/\s*[·・]\s*/));
+    const leftClean = leftTokens.join(' · ');
+    const leftNorms = leftTokens.map(normForCompare).filter(Boolean);
+    const fullLeftNorm = normForCompare(leftClean);
+
+    rawRight = rawRight
+      .replace(/^\[작업일보(?:\s*\d+차)?\s*비가동(?:\s*\d+분)?\]\s*/g, '')
+      .replace(/\s*\(특이사항:\s*[^)]*\)\s*$/g, '')
+      .trim();
+
+    // Right 선두에 "[인젝션 프레스 (DT-C-008)]" 처럼 설비/금형명이 대괄호로 중복된 경우 제거
+    const leadingBracketMatch = rawRight.match(/^\[([^\]]+)\]\s*/);
+    if (leadingBracketMatch && !/^(설비|금형|소재|기타)$/.test(leadingBracketMatch[1].trim())) {
+      const bNorm = normForCompare(leadingBracketMatch[1]);
+      if (
+        bNorm &&
+        (bNorm === fullLeftNorm ||
+          leftNorms.some((ln) => ln === bNorm || ln.includes(bNorm) || bNorm.includes(ln)))
+      ) {
+        rawRight = rawRight.slice(leadingBracketMatch[0].length).trim();
+      }
+    }
+
+    const rightSegments = rawRight
+      .split(/\s*[·・]\s*/)
+      .map(cleanRightSegment)
+      .filter(Boolean);
+
+    const filteredRight = rightSegments.filter((seg) => {
+      const segNorm = normForCompare(seg);
+      if (!segNorm) return false;
+      const isDupOfLeft =
+        segNorm === fullLeftNorm ||
+        leftNorms.some((ln) => ln === segNorm || ln.includes(segNorm));
+      return !isDupOfLeft;
+    });
+
+    let rightClean = dedupeDotTokens(filteredRight).join(' · ');
+    if (!rightClean && prefixSubType) {
+      rightClean = prefixSubType;
+    }
+
+    if (!leftClean || leftClean === '공정 설비' || leftClean === '공정 금형') {
+      return rightClean || leftClean || s;
+    }
+    if (!rightClean) return leftClean;
+
+    if (leftClean.endsWith('금형') && /^금형\s+/.test(rightClean)) {
+      rightClean = rightClean.replace(/^금형\s+/, '').trim();
+    } else if (leftClean.endsWith('설비') && /^설비\s+/.test(rightClean)) {
+      rightClean = rightClean.replace(/^설비\s+/, '').trim();
+    }
+
+    if (/^(수리|이상|고장|점검|파손|습합|설변|보수|작동이상|온조기|상단누유|하단누유|수리\/보수)$/.test(rightClean)) {
+      return `${leftClean} ${rightClean}`;
+    }
+
+    return `${leftClean} · ${rightClean}`;
+  }
+
+  // " — " 구분자가 없는 레거시/단일 문자열도 "[설비명] [설비] 설비명 · [작동이상] 내용" 형태면 정리
+  if (/^\[[^\]]+\]\s*\[(?:설비|금형)\]/.test(s)) {
+    s = s.replace(/^\[([^\]]+)\]\s*/, '$1 · ');
+  }
+  if (s.includes('·') || s.includes('・') || /^\[(?:설비|금형)\]/.test(s)) {
+    const tokens = s
+      .split(/\s*[·・]\s*/)
+      .map(cleanRightSegment)
+      .filter(Boolean);
+    const deduped = dedupeDotTokens(tokens);
+    if (deduped.length > 0) return deduped.join(' · ');
+  }
+
+  return s;
+}
+
 const SORTED_CAR_CODES = [...CAR_MODELS]
   .map((c) => c.code)
   .sort((a, b) => b.length - a.length);
@@ -241,6 +410,9 @@ export async function upsertAutoChangePoint(autoKey, payload, qPointDraft = {}) 
   const docRef = doc(db, 'changePoints', docId);
   const dateYmd = normalizeDateYmd(payload.date);
   const monthLabel = payload.month || toMonthLabel(dateYmd);
+  const compactPayloadDetails = payload.details
+    ? formatCompactChangePointDetails(payload.details)
+    : '';
 
   const snap = await getDoc(docRef);
   if (!snap.exists()) {
@@ -258,7 +430,7 @@ export async function upsertAutoChangePoint(autoKey, payload, qPointDraft = {}) 
       issueItem: payload.issueItem || '설비 고장/수리',
       carModel: payload.carModel || '',
       partName: payload.partName || '',
-      details: payload.details || '',
+      details: compactPayloadDetails,
       actionTime: payload.actionTime || dateYmd,
       actionPlan: payload.actionPlan || '',
       actionResult: payload.actionResult || '',
@@ -294,7 +466,7 @@ export async function upsertAutoChangePoint(autoKey, payload, qPointDraft = {}) 
       issueItem: payload.issueItem || existing.issueItem || '설비 고장/수리',
       carModel: payload.carModel || existing.carModel || '',
       partName: payload.partName || existing.partName || '',
-      details: payload.details || existing.details || '',
+      details: compactPayloadDetails || formatCompactChangePointDetails(existing.details || ''),
       actionTime: payload.actionTime || existing.actionTime || dateYmd,
       actionPlan: payload.actionPlan || existing.actionPlan || '',
       actionResult: payload.actionResult || existing.actionResult || '',
@@ -1228,7 +1400,13 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
       let eqDesc = slot.equip || `${reportData.processName || '공정'} 설비`;
 
       if (targetEq) {
-        eqDesc = `${targetEq.name || '설비'}(${targetEq.code || targetEq.id})${slot.equip ? ` · ${slot.equip}` : ''}`;
+        const baseEqTitle = `${targetEq.name || '설비'}(${targetEq.code || targetEq.id})`;
+        const normBaseEq = baseEqTitle.replace(/[\s()[\]·・\-_]/g, '').toUpperCase();
+        const normSlotEq = String(slot.equip || '').replace(/[\s()[\]·・\-_]/g, '').toUpperCase();
+        eqDesc =
+          normSlotEq && !normBaseEq.includes(normSlotEq) && !normSlotEq.includes(normBaseEq)
+            ? `${baseEqTitle} · ${slot.equip}`
+            : baseEqTitle;
         const currentEq = dirtyEquipments.get(targetEq.id) || targetEq;
         const nextHistory = Array.isArray(currentEq.history) ? [...currentEq.history] : [];
         const existingIdx = nextHistory.findIndex((h) => h?.autoSyncKey === autoKey);
@@ -1330,7 +1508,13 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
 
       if (targetMold) {
         const mCode = targetMold.code || targetMold.moldNumber || targetMold.id;
-        moldDesc = `${targetMold.name || targetMold.partName || '금형'}(${mCode})${slot.equip ? ` · ${slot.equip}` : ''}`;
+        const baseMoldTitle = `${targetMold.name || targetMold.partName || '금형'}(${mCode})`;
+        const normBaseMold = baseMoldTitle.replace(/[\s()[\]·・\-_]/g, '').toUpperCase();
+        const normSlotMold = String(slot.equip || '').replace(/[\s()[\]·・\-_]/g, '').toUpperCase();
+        moldDesc =
+          normSlotMold && !normBaseMold.includes(normSlotMold) && !normSlotMold.includes(normBaseMold)
+            ? `${baseMoldTitle} · ${slot.equip}`
+            : baseMoldTitle;
         const currentMold = dirtyMolds.get(targetMold.id) || targetMold;
         const nextHistory = Array.isArray(currentMold.history) ? [...currentMold.history] : [];
         const existingIdx = nextHistory.findIndex((h) => h?.autoSyncKey === autoKey);

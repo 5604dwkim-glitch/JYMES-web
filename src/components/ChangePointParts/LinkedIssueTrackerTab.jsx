@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { REPAIR_STATE_LABEL, ORIGIN_LABEL } from '../../services/downtimeChain';
 import { fetchReportDowntimePhoto } from '../../services/firestore';
+import { formatCompactChangePointDetails } from '../../services/changePointAutoSync';
 import { normalizeCarModelName } from './DeepChangePointDashboard';
 
 const STAGE_BADGE_MAP = {
@@ -831,8 +832,9 @@ export default function LinkedIssueTrackerTab({
                             {r.workerName ? ` (${r.workerName})` : ''}
                           </div>
                           <div style={{ fontSize: '11px', color: '#334155', marginTop: '3px', lineHeight: 1.4 }}>
-                            {it.slot?.equip ? `[${it.slot.equip}] ` : ''}
-                            {it.slot?.reason || '비가동 사유 기록'}
+                            {formatCompactChangePointDetails(
+                              `${it.slot?.equip ? `[${it.slot.equip}] ` : ''}${it.slot?.reason || ''}`
+                            ) || '비가동 사유 기록'}
                           </div>
                         </>
                       ) : (
@@ -841,7 +843,9 @@ export default function LinkedIssueTrackerTab({
                             {ownerTitle || cp?.issueItem || '현장 이상/수리 접수'}
                           </div>
                           <div style={{ fontSize: '11px', color: '#334155', marginTop: '3px', lineHeight: 1.4 }}>
-                            {rd.requestContent || it.repair?.row?.issue || cp?.details || '-'}
+                            {formatCompactChangePointDetails(
+                              rd.requestContent || it.repair?.row?.issue || cp?.details || ''
+                            ) || '-'}
                           </div>
                         </>
                       )}

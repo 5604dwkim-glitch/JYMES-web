@@ -2,7 +2,11 @@ import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, deleteF
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 import { buildStatsUpdate } from './statsAggregator';
-import { syncReportDowntimeToRepairAndChangePoint, cleanupReportDowntimeLinks } from './changePointAutoSync';
+import {
+  syncReportDowntimeToRepairAndChangePoint,
+  cleanupReportDowntimeLinks,
+  formatCompactChangePointDetails
+} from './changePointAutoSync';
 import { persistJointMoldDefaultsFromReport } from './jointMoldDefaults';
 import { resolveGm9bqcProcessCode } from './gm9bqcGrunEngine';
 
@@ -1928,7 +1932,19 @@ export const fetchChangePoints = async (forceRefresh = false) => {
     try {
       const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'), limit(500));
       const snapshot = await getDocs(q);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const data = snapshot.docs.map((docSnap) => {
+        const raw = docSnap.data() || {};
+        return {
+          id: docSnap.id,
+          ...raw,
+          ...(raw.details
+            ? {
+                rawDetails: raw.details,
+                details: formatCompactChangePointDetails(raw.details)
+              }
+            : {})
+        };
+      });
       changePointsCache = data;
       changePointsCacheAt = Date.now();
       return data;
@@ -1946,7 +1962,8 @@ export const fetchChangePoints = async (forceRefresh = false) => {
 export const updateChangePoint = async (id, data) => {
   try {
     const docRef = doc(db, 'changePoints', id);
-    await updateDoc(docRef, data);
+    const { rawDetails: _rawDetails, ...cleanData } = data || {};
+    await updateDoc(docRef, cleanData);
     changePointsCache = null; // 캐시 무효화
   } catch (error) {
     console.error('Error updating change point:', error);
