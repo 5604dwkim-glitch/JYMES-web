@@ -62,15 +62,56 @@ export default function Layout() {
     () => !isWorker && isEquipmentGroupRoutePath(location.pathname)
   );
   const analyticsPrefetchedAtRef = useRef(0);
+  const mainWrapperRef = useRef(null);
+  const contentBodyRef = useRef(null);
+  const pendingMobileScrollRef = useRef(false);
+  const scrollRafRef = useRef({ raf1: 0, raf2: 0 });
+
+  const cancelScheduledScroll = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    if (scrollRafRef.current.raf1) window.cancelAnimationFrame(scrollRafRef.current.raf1);
+    if (scrollRafRef.current.raf2) window.cancelAnimationFrame(scrollRafRef.current.raf2);
+    scrollRafRef.current.raf1 = 0;
+    scrollRafRef.current.raf2 = 0;
+  }, []);
+
+  useEffect(() => () => cancelScheduledScroll(), [cancelScheduledScroll]);
+
+  const scrollToMobilePage = useCallback(() => {
+    if (typeof window === 'undefined' || !isMobileViewport) return;
+    cancelScheduledScroll();
+    scrollRafRef.current.raf1 = window.requestAnimationFrame(() => {
+      scrollRafRef.current.raf1 = 0;
+      scrollRafRef.current.raf2 = window.requestAnimationFrame(() => {
+        scrollRafRef.current.raf2 = 0;
+        const target = mainWrapperRef.current;
+        if (!target) return;
+        if (contentBodyRef.current) {
+          contentBodyRef.current.scrollTop = 0;
+        }
+        const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        target.scrollIntoView({
+          behavior: prefersReduced ? 'auto' : 'smooth',
+          block: 'start'
+        });
+      });
+    });
+  }, [isMobileViewport, cancelScheduledScroll]);
+
+  const handleSidebarNavClick = useCallback((e) => {
+    if (!isMobileViewport) return;
+    const link = e.target?.closest?.('a.nav-item');
+    if (!link) return;
+    pendingMobileScrollRef.current = true;
+    scrollToMobilePage();
+  }, [isMobileViewport, scrollToMobilePage]);
 
   // 라우트 이동 시 활성 그룹만 자동으로 펼치고 비활성 그룹은 자동 접힘 처리
   useEffect(() => {
     if (isWorker) {
       setIsReportMenuOpen(true);
       setIsEquipmentMenuOpen(false);
-      return;
-    }
-    if (REPORT_ROUTES.includes(location.pathname)) {
+    } else if (REPORT_ROUTES.includes(location.pathname)) {
       setIsReportMenuOpen(true);
       setIsEquipmentMenuOpen(false);
     } else if (isEquipmentGroupRoutePath(location.pathname)) {
@@ -80,7 +121,12 @@ export default function Layout() {
       setIsReportMenuOpen(false);
       setIsEquipmentMenuOpen(false);
     }
-  }, [location.pathname, isWorker]);
+
+    if (pendingMobileScrollRef.current) {
+      pendingMobileScrollRef.current = false;
+      scrollToMobilePage();
+    }
+  }, [location.pathname, isWorker, scrollToMobilePage]);
 
   const handleToggleReportMenu = () => {
     setIsReportMenuOpen((prev) => {
@@ -228,7 +274,7 @@ export default function Layout() {
           </div>
         </div>
 
-        <nav className="sidebar-nav" aria-label={td('현황 · 분석')}>
+        <nav className="sidebar-nav" aria-label={td('현황 · 분석')} onClick={handleSidebarNavClick}>
           {/* 1. 현황 · 분석 */}
           <div className="sidebar-section-label">{td('현황 · 분석')}</div>
 
@@ -371,7 +417,7 @@ export default function Layout() {
         </div>
       </aside>
 
-      <div className="main-wrapper">
+      <div className="main-wrapper" ref={mainWrapperRef}>
         <header className="top-header">
           <div>
             <span className="page-title">{title}</span>
@@ -417,6 +463,7 @@ export default function Layout() {
         <main
           className="content-body"
           id="contentBody"
+          ref={contentBodyRef}
           data-wide-page={
             isFluidPage(location.pathname) || (hasMobileDedicatedView(location.pathname) && isMobileViewport && !forcePcView)
               ? undefined

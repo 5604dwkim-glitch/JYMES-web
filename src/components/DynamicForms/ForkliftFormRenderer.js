@@ -170,7 +170,12 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
   const btnForkDraftSave = shouldMountFixedBar && forkliftFixedBar ? forkliftFixedBar.querySelector('#btnForkDraftSave') : null;
   const btnForkFinalSubmit = shouldMountFixedBar && forkliftFixedBar ? forkliftFixedBar.querySelector('#btnForkFinalSubmit') : null;
 
-  const processForkliftSave = (targetStatus) => {
+  let isForkSaving = false;
+  const processForkliftSave = async (targetStatus) => {
+    if (isForkSaving) return;
+    isForkSaving = true;
+    if (btnForkDraftSave) btnForkDraftSave.disabled = true;
+    if (btnForkFinalSubmit) btnForkFinalSubmit.disabled = true;
     try {
       let yy = container.querySelector('#forkYear')?.value || '26';
       let mm = (container.querySelector('#forkMonth')?.value || '07').padStart(2, '0');
@@ -223,14 +228,14 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
       };
 
       if (existingData) {
-        store.updateReport(existingData.id, reportData);
+        await Promise.resolve(store.updateReport(existingData.id, reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 작업일보가 중간 저장되었습니다.', 'info');
         } else {
           windowMock.showToast('✅ 작업일보가 등록 완료되었습니다.', 'success');
         }
       } else {
-        store.addReport(reportData);
+        await Promise.resolve(store.addReport(reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 지게차 작업일보 중간 저장 성공!', 'info');
         } else {
@@ -250,6 +255,10 @@ export function renderForkliftPaperForm(container, existingData, loggedInWorkerN
     } catch (err) {
       console.error('Error saving forklift report:', err);
       windowMock.showToast(`⚠️ 저장 중 오류가 발생했습니다: ${err.message}`, 'error');
+    } finally {
+      isForkSaving = false;
+      if (btnForkDraftSave) btnForkDraftSave.disabled = false;
+      if (btnForkFinalSubmit) btnForkFinalSubmit.disabled = false;
     }
   };
 

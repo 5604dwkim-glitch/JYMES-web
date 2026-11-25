@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   collection,
-  getDocs,
   doc,
   writeBatch,
   updateDoc,
   deleteField
 } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { fetchEquipmentSets, fetchEquipmentsSlim, invalidateEquipmentsCache } from '../../services/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import {
   evaluateEquipmentDayTpm,
@@ -150,17 +150,17 @@ export default function TpmManagement({
     async function loadInitial() {
       setSetsLoading(true);
       try {
-        const setSnap = await getDocs(collection(db, 'equipment_sets'));
+        const setsRaw = await fetchEquipmentSets();
         if (!cancelled) {
-          const sets = setSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          const sets = [...setsRaw];
           sets.sort((a, b) => compareNaturalText(a.name, b.name));
           setAllEquipmentSets(sets);
         }
 
         if (!externalEquipments) {
-          const eqSnap = await getDocs(collection(db, 'equipments'));
+          const eqList = await fetchEquipmentsSlim();
           if (!cancelled) {
-            setLocalEquipments(eqSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+            setLocalEquipments(eqList);
           }
         }
       } catch (err) {
@@ -460,11 +460,12 @@ export default function TpmManagement({
   };
 
   const refreshDataAfterStamp = async () => {
+    invalidateEquipmentsCache();
     if (onRefreshEquipments) {
       await onRefreshEquipments(true);
     } else {
-      const eqSnap = await getDocs(collection(db, 'equipments'));
-      setLocalEquipments(eqSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const freshEqs = await fetchEquipmentsSlim({ forceRefresh: true });
+      setLocalEquipments(freshEqs);
     }
   };
 

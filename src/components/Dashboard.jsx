@@ -108,6 +108,9 @@ export default function Dashboard() {
     const unsubscribe = subscribeDailyStatsDate(todayStr, (updatedDoc) => {
       setDashboardData((prev) => {
         const list = Array.isArray(prev.dailyStats) ? prev.dailyStats : [];
+        if (updatedDoc?._deleted) {
+          return { ...prev, dailyStats: list.filter((s) => s.date !== updatedDoc.date) };
+        }
         const idx = list.findIndex((s) => s.date === updatedDoc.date);
         let nextList;
         if (idx >= 0) {
@@ -169,8 +172,8 @@ export default function Dashboard() {
     const dailyStatsTask = patch('dailyStats', fetchRecentDailyStats(90, forceRefresh));
     const tasks = [
       dailyStatsTask,
-      patch('equipments', fetchEquipmentsSlim({ maxAgeMs: 10 * 60 * 1000, forceRefresh })),
-      patch('molds', fetchMoldsSlim({ maxAgeMs: 10 * 60 * 1000, forceRefresh })),
+      patch('equipments', fetchEquipmentsSlim({ forceRefresh })),
+      patch('molds', fetchMoldsSlim({ forceRefresh })),
       patch('changePoints', fetchChangePoints(forceRefresh)),
       patch('downtimeReports', fetchDowntimeReports(dtSince, forceRefresh)),
       patch('fmbReports', fetchFmbReports(forceRefresh))

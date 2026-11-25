@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
+import { getLegacyFormContext, renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { DEFAULT_LEADER_ITEMS, DEFAULT_ATTENDANCE, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
 import { buildFmbDetailHTML } from './forms/f9004/f9004Renderer.js';
-import { fetchReportDowntimePhotos } from '../../services/firestore';
+import { fetchReportDowntimePhotos, fetchMoldsSlim, fetchEquipmentsSlim, fetchEquipmentSets } from '../../services/firestore';
+import { readLocalJointMoldDefaults } from '../../utils/jointMoldDefaultsHelper';
 import { useI18n } from '../../contexts/I18nContext';
 import { i18n } from '../../constants/translations';
 
@@ -601,11 +602,9 @@ export default function LegacyDetailModal({ report, onClose }) {
             
           </div>
         `;
+      } else if (r.isFmbForm || r.formCode === 9004 || r.processName === 'FMB보관실') {
+        modalBodyRef.current.innerHTML = buildFmbDetailHTML(r);
       } else {
-        if (r.isFmbForm || r.formCode === 9004 || r.processName === 'FMB보관실') {
-          modalBodyRef.current.innerHTML = buildFmbDetailHTML(r);
-          return;
-        }
         const cardDateTime = `
           <div class="card" style="padding: 3px 6px; margin-bottom: 3px; border: 1px solid #94a3b8; background: #fff;">
             <label style="font-size: 14px; font-weight: 700; color: #0284c7; margin-bottom: 2px; display: block;">
@@ -657,22 +656,31 @@ export default function LegacyDetailModal({ report, onClose }) {
         `;
 
         // ── Render legacy form virtually to extract DOM ──
-        setLegacyFormContext({
-          existingData: r,
-          isReadOnlyPreview: true,
-          userRoleInfo: { workerName: r.workerName, role: '작업자' },
-          workers: [{ id: 'EMP001', name: r.workerName, role: '작업자' }],
-          processes: DEFAULT_PROCESSES,
-          getItems: (code) => DEFAULT_ITEMS.filter(item => item.carModel === code),
-          onSave: () => {},
-          onNavigate: () => {},
-          showToast: () => {}
-        });
-
+        const prevCtx = getLegacyFormContext();
         const tempContainer = document.createElement('div');
         try {
+          setLegacyFormContext({
+            existingData: r,
+            isReadOnlyPreview: true,
+            userRoleInfo: { workerName: r.workerName, role: '작업자' },
+            workers: [{ id: 'EMP001', name: r.workerName, role: '작업자' }],
+            molds: [],
+            equipments: [],
+            equipmentSets: [],
+            jointMoldDefaults: readLocalJointMoldDefaults(),
+            processes: DEFAULT_PROCESSES,
+            getItems: (code) => DEFAULT_ITEMS.filter(item => item.carModel === code),
+            onSave: () => {},
+            onNavigate: () => {},
+            showToast: () => {}
+          });
+          // 백그라운드 워밍 (상세보기 중 다음 조회를 위해 슬림 마스터 캐시 유지)
+          fetchMoldsSlim().catch(() => {});
+          fetchEquipmentsSlim().catch(() => {});
+          fetchEquipmentSets().catch(() => {});
           renderReportForm(tempContainer, r.id);
         } finally {
+          setLegacyFormContext(prevCtx || {});
           // 가상 상세조회 렌더링 중 문서 하단 고정 버튼 바가 노출되지 않도록 즉시 숨김 처리
           ['standardFixedActionBar', 'leaderFixedActionBar', 'forkliftFixedActionBar'].forEach((barId) => {
             const barEl = document.getElementById(barId);
@@ -794,7 +802,7 @@ export default function LegacyDetailModal({ report, onClose }) {
                     양식 고유번호: #${r.formCode}
                   </div>
                   <div style="font-size: 13px; color: #1e293b; font-weight: 600;">
-                    [${r.carModel}] ${r.itemName || 'D/SIDE'} - ${r.processName} 공정 전용 양식
+                    [${r.carModel}] ${r.itemName ? `${r.itemName} - ` : ''}${r.processName} 공정 전용 양식
                   </div>
                 </div>
               </div>

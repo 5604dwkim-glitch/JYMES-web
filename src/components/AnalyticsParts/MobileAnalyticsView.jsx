@@ -218,24 +218,44 @@ export default function MobileAnalyticsView({
       } else {
         setGrunLoading(true);
       }
-      const q = query(collection(db, 'reports'), where('date', '==', todayYmd));
-      const unsub = onSnapshot(
-        q,
-        (snap) => {
-          const docs = [];
-          snap.forEach((docSnap) => {
-            const r = { id: docSnap.id, ...docSnap.data() };
-            if (resolveGm9bqcProcessCode(r)) docs.push(r);
-          });
-          set9bqcTodaySnapshotCache(todayYmd, docs);
-          setGrunReports(docs);
-          setGrunLoading(false);
-        },
-        () => {
-          setGrunLoading(false);
-        }
-      );
-      return () => unsub();
+      let cancelled = false;
+      let activeUnsub = () => {};
+
+      const attachListener = (scopedCar) => {
+        const q = scopedCar
+          ? query(collection(db, 'reports'), where('date', '==', todayYmd), where('carModel', '==', '9BQC'))
+          : query(collection(db, 'reports'), where('date', '==', todayYmd));
+
+        activeUnsub = onSnapshot(
+          q,
+          (snap) => {
+            if (cancelled) return;
+            const docs = [];
+            snap.forEach((docSnap) => {
+              const r = { id: docSnap.id, ...docSnap.data() };
+              if (resolveGm9bqcProcessCode(r)) docs.push(r);
+            });
+            set9bqcTodaySnapshotCache(todayYmd, docs);
+            setGrunReports(docs);
+            setGrunLoading(false);
+          },
+          (err) => {
+            if (cancelled) return;
+            if (scopedCar && (err?.code === 'failed-precondition' || String(err?.message || '').toLowerCase().includes('index'))) {
+              try { activeUnsub(); } catch { /* ignore */ }
+              attachListener(false);
+              return;
+            }
+            setGrunLoading(false);
+          }
+        );
+      };
+
+      attachListener(true);
+      return () => {
+        cancelled = true;
+        try { activeUnsub(); } catch { /* ignore */ }
+      };
     }
 
     let cancelled = false;
@@ -381,7 +401,9 @@ export default function MobileAnalyticsView({
 
   const stellantisCards = useMemo(() => {
     if (activeTab !== 'weekly') return [];
-    const monthReports = reports.filter((r) => String(r?.date || '').startsWith(`${weeklyMonth}-`));
+    const monthReports = reports.filter(
+      (r) => String(r?.date || '').startsWith(`${weeklyMonth}-`) && r?.status !== '임시저장' && r?.status !== '반려'
+    );
     const leaderReps = monthReports.filter((r) => r.isLeaderForm || r.workerName === '장수미');
     const clipReps = monthReports.filter((r) => (r.carModel === 'DT CREW' || r.carModel === 'DT QUAD') && r.processName === '클립머신');
 

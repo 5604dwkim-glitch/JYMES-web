@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { printEquipmentSetCard } from '../../utils/printEquipmentSet';
 import { printEquipmentLabels } from '../../utils/printEquipmentLabels';
@@ -8,7 +8,7 @@ import {
   getEquipmentSetCategory,
   getCategoryMeta
 } from '../../constants/equipmentCategories';
-import { invalidateEquipmentSetsCache } from '../../services/firestore';
+import { fetchEquipmentsSlim, fetchEquipmentSets, invalidateEquipmentSetsCache } from '../../services/firestore';
 
 const SET_SORT_STORAGE_KEY = 'jymes_eq_set_sort_order';
 
@@ -141,17 +141,23 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const eqQ = query(collection(db, 'equipments'), orderBy('code'));
-      const eqSnapshot = await getDocs(eqQ);
-      const eqData = eqSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      const [eqRaw, setsRaw] = await Promise.all([
+        fetchEquipmentsSlim({ forceRefresh }),
+        fetchEquipmentSets(forceRefresh)
+      ]);
+      const eqData = [...eqRaw].sort((a, b) => compareNaturalText(a.code, b.code));
       setEquipments(eqData);
 
-      const setQ = query(collection(db, 'equipment_sets'), orderBy('createdAt', 'desc'));
-      const setSnapshot = await getDocs(setQ);
-      const setData = setSnapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      const getCreatedSec = (s) => {
+        if (!s?.createdAt) return 0;
+        if (typeof s.createdAt.seconds === 'number') return s.createdAt.seconds;
+        if (typeof s.createdAt === 'string') return Math.floor(new Date(s.createdAt).getTime() / 1000) || 0;
+        return 0;
+      };
+      const setData = [...setsRaw].sort((a, b) => getCreatedSec(b) - getCreatedSec(a));
       setEquipmentSets(setData);
     } catch (err) {
       console.error(err);
@@ -205,7 +211,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
       setSetName('');
       setSelectedEqIds([]);
       invalidateEquipmentSetsCache();
-      fetchData();
+      fetchData(true);
       alert('설비 셋트가 구성되었습니다.');
     } catch (err) {
       console.error(err);
@@ -259,7 +265,7 @@ export default function EquipmentSetConfig({ category = 'joint' }) {
         if (editingSetId === setId) {
           cancelEditingSet();
         }
-        fetchData();
+        fetchData(true);
       } catch (err) {
         console.error(err);
         alert('삭제 중 오류가 발생했습니다.');

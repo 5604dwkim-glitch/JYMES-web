@@ -16,6 +16,7 @@ const MOLD_TYPE_MAP = {
   1011: ["LH", "RH"],
   1022: ["공통", "LH", "RH"],
   1042: ["공통", "LH", "RH"],
+  1052: ["Frunk", "LH", "RH"],
   2003: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
   2013: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
   2024: ["LH R[직각]", "LH S[둔각]", "LH T[직선]", "RH R[직각]", "RH S[둔각]", "RH T[직선]", "1", "2", "3", "4"],
@@ -45,11 +46,15 @@ const getAllJointMoldTypes = (carModel, partName) => {
     const found = CAR_MODEL_PARTS[carModel].find(p => p.name === partName || p.code === partName);
     if (found) partCode = found.code;
   }
-  const code1 = getCurrentFormCode(carModel, partCode, '조인트');
-  const code2 = getCurrentFormCode(carModel, partCode, '조인트 V부');
-  const types1 = getMoldTypesForFormCode(code1);
-  const types2 = code2 !== 9999 ? getMoldTypesForFormCode(code2) : [];
-  return Array.from(new Set([...types1, ...types2]));
+  const jointProcesses = ['조인트', '조인트 V부', '조인트-FRT', '조인트-RR R부', '조인트-RR Fixed'];
+  const collected = [];
+  jointProcesses.forEach((procName) => {
+    const code = getCurrentFormCode(carModel, partCode, procName);
+    if (code && code !== 9999) {
+      collected.push(...getMoldTypesForFormCode(code));
+    }
+  });
+  return Array.from(new Set(collected.length > 0 ? collected : getMoldTypesForFormCode(9999)));
 };
 
 export default function MoldManagement() {

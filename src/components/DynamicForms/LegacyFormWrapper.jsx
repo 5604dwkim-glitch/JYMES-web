@@ -53,6 +53,9 @@ function mountF9004WithRecovery(container, existingData, loggedInWorkerName) {
 }
 
 let _ctx = {};
+export function getLegacyFormContext() {
+  return _ctx;
+}
 export function setLegacyFormContext(ctx) {
   _ctx = ctx;
 }
@@ -586,7 +589,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
 
 
   // [2단계] 세부 차종 칩 동적 렌더링 함수
-  function renderSubCarChips(makerName, targetCarCode = null, targetPart = null) {
+  function renderSubCarChips(makerName, targetCarCode = null, targetPart = null, skipProcessRender = false) {
     let makerObj = MANUFACTURERS.find(m => m.name === makerName);
     if (!makerObj && makerName) {
       makerObj = MANUFACTURERS.find(m => m.name.includes(makerName) || makerName.includes(m.name.split('(')[0]));
@@ -647,14 +650,16 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
     }
 
     renderPartChips(activeCode, targetPart);
-    renderProcessChips(activeCode);
-    renderQtySection();
-    renderSection4LotTable();
-    renderSection5();
-    updateDowntimeSection();
-    renderFormCodeBadge();
-    updateSectionNumbers();
-    i18n.applyTranslations(container);
+    if (!skipProcessRender) {
+      renderProcessChips(activeCode);
+      renderQtySection();
+      renderSection4LotTable();
+      renderSection5();
+      updateDowntimeSection();
+      renderFormCodeBadge();
+      updateSectionNumbers();
+      i18n.applyTranslations(container);
+    }
   }
 
   // [3단계] 생산 공정 칩 동적 렌더링 함수
@@ -992,7 +997,7 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
   }
 
   // 초기 렌더링
-  renderSubCarChips(currentMakerName, currentCarCode, existingData ? (existingData.itemCode || existingData.itemName) : null);
+  renderSubCarChips(currentMakerName, currentCarCode, existingData ? (existingData.itemCode || existingData.itemName) : null, true);
   renderProcessChips(currentCarCode, existingData ? existingData.processName : '');
   const initActiveProc = processValue ? processValue.value : '';
   const isCommonSpecialInit =
@@ -1019,7 +1024,14 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
     });
   });
 
-  const processStandardSave = (targetStatus) => {
+  let isStandardSaving = false;
+  const processStandardSave = async (targetStatus) => {
+    if (isStandardSaving) return;
+    const draftBtn = document.getElementById('btnDraftSave');
+    const finalBtn = document.getElementById('btnFinalSubmit');
+    isStandardSaving = true;
+    if (draftBtn) draftBtn.disabled = true;
+    if (finalBtn) finalBtn.disabled = true;
     try {
       const formCode = getCurrentFormCode();
       const curCarModelValue = container.querySelector('#carModelValue');
@@ -2196,14 +2208,14 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
       };
 
       if (existingData) {
-        store.updateReport(existingData.id, reportData);
+        await Promise.resolve(store.updateReport(existingData.id, reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 작업일보가 중간 저장되었습니다.', 'info');
         } else {
           windowMock.showToast('✅ 작업일보가 성공적으로 등록 완료되었습니다.', 'success');
         }
       } else {
-        store.addReport(reportData);
+        await Promise.resolve(store.addReport(reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 작업일보가 중간 저장되었습니다.', 'info');
         } else {
@@ -2225,6 +2237,10 @@ function setupStandardMobileEvents(container, existingData, defaultMakerName, de
     } catch (err) {
       console.error('Error saving standard report:', err);
       windowMock.showToast(`⚠️ 저장 중 오류가 발생했습니다: ${err.message}`, 'error');
+    } finally {
+      isStandardSaving = false;
+      if (draftBtn) draftBtn.disabled = false;
+      if (finalBtn) finalBtn.disabled = false;
     }
   };
 
@@ -2286,8 +2302,11 @@ export function bindTimeWheelPicker(inputElem, titleText = '시간 선택') {
   });
 }
 
-function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCenter = 100, range = 30, unit = '', tolerance = null) {
+function bindNumberWheelPicker(inputElem, titleText = '수치 입력', defaultCenter = 100, range = 30, unit = '', tolerance = null, isAutoScan = false) {
   if (!inputElem) return;
+  if (!isAutoScan) {
+    inputElem._hasExplicitWheelPicker = true;
+  }
   inputElem.readOnly = true;
   inputElem.style.cursor = 'pointer';
   inputElem.onclick = (e) => {
@@ -3057,7 +3076,7 @@ export function autoBindAllDimensionInputs(container) {
     if (input.type === 'checkbox' || input.type === 'radio' || input.type === 'hidden') return;
     if (input.classList.contains('lot-datetime-input') || (input.id && input.id.startsWith('lotNo_'))) return;
     if (input.id && (input.id.startsWith('vulc_stroke_') || input.id.startsWith('vulc2_stroke_'))) return; // 3002 양식 타수 입력 예외
-    if (input.dataset.wheelSkip === '1') return; // 명시적 휠 피커 제외 (GEMINI.md 원칙 2)
+    if (input.dataset.wheelSkip === '1' || input._hasExplicitWheelPicker) return; // 명시적 휠 피커 제외·중복 덮어쓰기 방지 (GEMINI.md 원칙 2)
 
     let defVal = 0;
     let foundSpec = false;
@@ -3315,6 +3334,6 @@ export function autoBindAllDimensionInputs(container) {
       if (!isNaN(parsedRange) && parsedRange > 0) range = parsedRange;
     }
 
-    bindNumberWheelPicker(input, titleText, defVal, range, unit, toleranceVal);
+    bindNumberWheelPicker(input, titleText, defVal, range, unit, toleranceVal, true);
   });
 }

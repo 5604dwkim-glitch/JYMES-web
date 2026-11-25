@@ -284,7 +284,12 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
   const btnLeaderDraftSave = shouldMountFixedBar && leaderFixedBar ? leaderFixedBar.querySelector('#btnLeaderDraftSave') : null;
   const btnLeaderFinalSubmit = shouldMountFixedBar && leaderFixedBar ? leaderFixedBar.querySelector('#btnLeaderFinalSubmit') : null;
 
-  const processLeaderSave = (targetStatus) => {
+  let isLeaderSaving = false;
+  const processLeaderSave = async (targetStatus) => {
+    if (isLeaderSaving) return;
+    isLeaderSaving = true;
+    if (btnLeaderDraftSave) btnLeaderDraftSave.disabled = true;
+    if (btnLeaderFinalSubmit) btnLeaderFinalSubmit.disabled = true;
     try {
       // leaderFormContainer의 상위 폼 컨테이너에서 날짜/시간 입력 탐색 (전역 검색 방지)
       const formRoot = container.closest('form, [id="mobileWorkReportForm"]')?.parentElement || container.closest('[data-form-root]') || document;
@@ -370,7 +375,7 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
         workerId: existingData?.workerId || 'EMP001',
         itemCode: '공통',
         itemName: '공통',
-        targetQty: grandTotalPacked + grandTotalScrap + 50,
+        targetQty: grandTotalPacked + grandTotalScrap,
         actualQty: grandTotalPacked,
         defectQty: grandTotalScrap,
         isLeaderForm: true,
@@ -384,14 +389,14 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
       };
 
       if (existingData) {
-        store.updateReport(existingData.id, reportData);
+        await Promise.resolve(store.updateReport(existingData.id, reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 작업일보가 중간 저장되었습니다.', 'info');
         } else {
           windowMock.showToast('✅ 작업일보가 등록 완료되었습니다.', 'success');
         }
       } else {
-        store.addReport(reportData);
+        await Promise.resolve(store.addReport(reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 장수미 반장 작업일보 중간 저장 성공!', 'info');
         } else {
@@ -413,6 +418,10 @@ export function renderLeaderPaperForm(container, existingData, loggedInWorkerNam
     } catch (err) {
       console.error('Error saving leader report:', err);
       windowMock.showToast(`⚠️ 저장 중 오류가 발생했습니다: ${err.message}`, 'error');
+    } finally {
+      isLeaderSaving = false;
+      if (btnLeaderDraftSave) btnLeaderDraftSave.disabled = false;
+      if (btnLeaderFinalSubmit) btnLeaderFinalSubmit.disabled = false;
     }
   };
 

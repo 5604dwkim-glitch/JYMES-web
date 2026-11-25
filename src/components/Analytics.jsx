@@ -30,9 +30,14 @@ export default function Analytics() {
     downtimeReports: []
   });
   const [loading, setLoading] = useState(true);
+  const [activePcTab, setActivePcTab] = useState(() => {
+    const raw = location.state?.activeTab || 'tab-charts';
+    return (raw === 'tab-leader' || raw === 'tab-dtclip') ? 'tab-weekly' : raw;
+  });
 
   const mountedRef = useRef(true);
   const loadedFlagsRef = useRef({
+    charts: false,
     stellantis: false,
     downtime: false,
     equipAssets: false,
@@ -53,6 +58,13 @@ export default function Analytics() {
         return [];
       });
   }, []);
+
+  // 공정 및 불량 분석 탭 진입·호버 시에만 recent daily_stats 로드
+  const ensureChartsDataLoaded = useCallback(() => {
+    if (loadedFlagsRef.current.charts) return Promise.resolve();
+    loadedFlagsRef.current.charts = true;
+    return patchPayload('dailyStats', fetchRecentDailyStats(90, false));
+  }, [patchPayload]);
 
   // 주간 스텔란티스 실적 탭 진입(또는 마우스 호버) 시에만 반장·클립머신 경량 일보 로드
   const ensureStellantisReportsLoaded = useCallback(() => {
@@ -93,6 +105,7 @@ export default function Analytics() {
       return fullHistoryTaskRef.current;
     }
     loadedFlagsRef.current.fullHistory = true;
+    loadedFlagsRef.current.charts = true;
     const task = patchPayload('dailyStats', fetchDailyStats(null, false)).then((allStats) => {
       if (mountedRef.current) setHasFullHistory(true);
       return allStats;
@@ -102,41 +115,45 @@ export default function Analytics() {
   }, [patchPayload]);
 
   const handleTabChange = useCallback((tabId) => {
-    if (tabId === 'tab-weekly') {
+    setActivePcTab(tabId);
+    if (tabId === 'tab-charts') {
+      ensureChartsDataLoaded();
+    } else if (tabId === 'tab-weekly') {
       ensureStellantisReportsLoaded();
     }
-  }, [ensureStellantisReportsLoaded]);
+  }, [ensureChartsDataLoaded, ensureStellantisReportsLoaded]);
 
   const handleTabHover = useCallback((tabId) => {
-    if (tabId === 'tab-weekly') {
+    if (tabId === 'tab-charts') {
+      ensureChartsDataLoaded();
+    } else if (tabId === 'tab-weekly') {
       ensureStellantisReportsLoaded();
     } else if (tabId === 'tab-9bqc-grun') {
       import('./AnalyticsParts/Gm9bqcGrunDashboard').catch(() => {});
     }
-  }, [ensureStellantisReportsLoaded]);
+  }, [ensureChartsDataLoaded, ensureStellantisReportsLoaded]);
 
   useEffect(() => {
     mountedRef.current = true;
     const rawTab = location.state?.activeTab || 'tab-charts';
     const initialTab = (rawTab === 'tab-leader' || rawTab === 'tab-dtclip') ? 'tab-weekly' : rawTab;
     const initialSubTab = location.state?.subTab || 'trend';
+    setActivePcTab(initialTab);
 
     async function loadInitial() {
-      // 스텔란티스 탭이나 9BQC 현황판으로 직접 진입한 경우 화면을 즉시 열고 필요한 데이터만 병렬 로드
+      // 스텔란티스 탭이나 9BQC 현황판으로 직접 진입한 경우 불필요한 90일 daily_stats 조회를 지연시켜 읽기 최소화
       if (initialTab === 'tab-weekly') {
         ensureStellantisReportsLoaded();
         setLoading(false);
-        patchPayload('dailyStats', fetchRecentDailyStats(90, false));
         return;
       }
       if (initialTab === 'tab-9bqc-grun') {
         setLoading(false);
-        patchPayload('dailyStats', fetchRecentDailyStats(90, false));
         return;
       }
 
       // 기본 진입(📈 공정 및 불량 분석): 최근 90일 daily_stats 단일 쿼리만 우선 수행해 네트워크 경합 차단
-      const statsTask = patchPayload('dailyStats', fetchRecentDailyStats(90, false));
+      const statsTask = ensureChartsDataLoaded();
       if (initialSubTab === 'pareto' || initialSubTab === 'equip') {
         ensureSubTabDataLoaded(initialSubTab);
       }
@@ -154,7 +171,7 @@ export default function Analytics() {
     return () => {
       mountedRef.current = false;
     };
-  }, [location.state?.activeTab, location.state?.subTab, patchPayload, ensureStellantisReportsLoaded, ensureSubTabDataLoaded]);
+  }, [location.state?.activeTab, location.state?.subTab, ensureChartsDataLoaded, ensureStellantisReportsLoaded, ensureSubTabDataLoaded]);
 
   if (loading) {
     return (
@@ -224,6 +241,7 @@ export default function Analytics() {
           <Gm9bqcGrunDashboard
             reports={reports}
             reportsLoading={reportsLoading}
+            isActive={activePcTab === 'tab-9bqc-grun'}
           />
         </Suspense>
       }

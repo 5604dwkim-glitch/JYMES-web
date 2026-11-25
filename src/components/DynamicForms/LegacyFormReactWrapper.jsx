@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { renderReportForm, setLegacyFormContext } from './LegacyFormWrapper';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim, fetchEquipmentsSlim, fetchEquipmentSets } from '../../services/firestore';
+import { addReport, updateReport, fetchWorkersSlim, fetchMoldsSlim, fetchEquipmentsSlim, fetchEquipmentSets, fetchTodayTpmLogsByDate } from '../../services/firestore';
 import { fetchJointMoldDefaults, fetchLatestJointMoldEntryForForm } from '../../services/jointMoldDefaults';
 import { readLocalJointMoldDefaults } from '../../utils/jointMoldDefaultsHelper';
 import { generate50Workers, DEFAULT_PROCESSES, DEFAULT_ITEMS } from '../../constants/masterData';
@@ -12,6 +12,36 @@ import { i18n } from '../../constants/translations';
 import FormCodeBadge from './FormCodeBadge';
 import JointTpmGateCard from './JointTpmGateCard';
 import JointTpmCheckModal from './JointTpmCheckModal';
+
+function tpmLogMatchesCarPart(log, carModel, partCode) {
+  if (!log || !carModel) return false;
+  if (log.carModel) {
+    if (log.carModel !== carModel) return false;
+    if (log.partName && partCode && log.partName !== partCode) return false;
+    return true;
+  }
+  const setText = String(log.setName || '').toUpperCase();
+  const codes = Array.isArray(log.equipmentCodes) ? log.equipmentCodes.map((c) => String(c || '').toUpperCase()) : [];
+  const check = (setMatch, codePrefix) =>
+    (setText && setMatch(setText)) || codes.some((c) => c.startsWith(codePrefix));
+  switch (carModel) {
+    case 'JG1S': return check((s) => s.includes('JG1S') || s.includes('코치'), 'JG-');
+    case 'JG1': return check((s) => (s.includes('JG1') && !s.includes('JG1S') && !s.includes('코치')), 'JG-');
+    case 'DT CREW': return check((s) => s.includes('DT CREW') || s.includes('DTCREW'), 'DT-C-');
+    case 'DT QUAD': return check((s) => s.includes('DT QUAD') || s.includes('DTQUAD'), 'DT-Q-');
+    case 'DS CREW': return check((s) => s.includes('DS CREW') || s.includes('DSCREW'), 'DS-C-');
+    case 'DS STD': return check((s) => s.includes('DS STD') || s.includes('DSSTD'), 'DS-');
+    case 'KM/KX': return check((s) => s.includes('KM/KX') || s.includes('KMKX'), 'KM-');
+    case 'NE1a': return check((s) => s.includes('NE1'), 'NE-');
+    case 'ME1a': return check((s) => s.includes('ME1'), 'ME-');
+    case 'OV1K': return check((s) => s.includes('OV1'), 'OV-');
+    case 'LQ2a': return check((s) => s.includes('LQ2'), 'LQ-');
+    case 'MV1a': return check((s) => s.includes('MV1'), 'MV-');
+    case '9BQC': return check((s) => s.includes('9BQC'), '9B-');
+    case 'P417': return check((s) => s.includes('P417'), 'P4-');
+    default: return false;
+  }
+}
 
 export default function LegacyFormReactWrapper({ existingData, initialTpmSummary = null }) {
   const containerRef = useRef(null);
@@ -34,6 +64,7 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
   tpmSummaryRef.current = tpmSummary;
   const initialTpmSummaryRef = useRef(initialTpmSummary);
   initialTpmSummaryRef.current = initialTpmSummary;
+  const todayTpmLogsCacheRef = useRef({});
   const isSavingRef = useRef(false);
   const handleOpenTpmModalRef = useRef(null);
   const tpmOpenOriginRef = useRef('gate');
@@ -234,7 +265,59 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
   }, [isReady, lang]);
 
   const isJointProcess = typeof formSelections.process === 'string' && formSelections.process.startsWith('조인트');
-  const isJointTpmLocked = isJointProcess && !existingData && !tpmSummary && !tpmSkipped;
+  const isSummaryScoped =
+    tpmSummary &&
+    (!tpmSummary.carModel || !formSelections.carModel || tpmSummary.carModel === formSelections.carModel) &&
+    (!tpmSummary.partName || !formSelections.part || tpmSummary.partName === formSelections.part);
+  const effectiveTpmSummary = isSummaryScoped ? tpmSummary : null;
+  const isJointTpmLocked = isJointProcess && !existingData && !effectiveTpmSummary && !tpmSkipped;
+
+  // 당일 동일 차종/부품 설비 셋트 TPM 점검 이력이 이미 존재하면 자동 연동하여 중복 작성 잠금 해제
+  useEffect(() => {
+    if (!isReady || existingData || !isJointProcess || !formSelections.carModel || effectiveTpmSummary || tpmSkipped) return undefined;
+    let cancelled = false;
+    const reportDateStr = containerRef.current?.querySelector('#reportDate')?.value || new Date().toLocaleDateString('sv-SE');
+    const loadExistingTodayTpm = async () => {
+      try {
+        let logs = todayTpmLogsCacheRef.current[reportDateStr];
+        if (!logs) {
+          logs = await fetchTodayTpmLogsByDate(reportDateStr);
+          todayTpmLogsCacheRef.current[reportDateStr] = logs || [];
+        }
+        if (cancelled) return;
+        const matched = (logs || []).find((log) => tpmLogMatchesCarPart(log, formSelections.carModel, formSelections.part));
+        if (!matched) return;
+        const hydratedSummary = {
+          setId: matched.setId || '',
+          setName: matched.setName || '',
+          carModel: matched.carModel || formSelections.carModel,
+          partName: matched.partName || formSelections.part || '',
+          equipmentCount: Array.isArray(matched.equipmentIds) ? matched.equipmentIds.length : (matched.equipmentCodes?.length || 0),
+          equipmentIds: matched.equipmentIds || [],
+          equipmentCodes: matched.equipmentCodes || [],
+          equipments: (matched.equipmentIds || []).map((id, i) => ({
+            id,
+            code: matched.equipmentCodes?.[i] || '',
+            name: matched.setName || ''
+          })),
+          hasIssue: Boolean(matched.hasIssue),
+          reportDate: matched.reportDate || reportDateStr,
+          workerName: matched.workerName || ''
+        };
+        tpmSummaryRef.current = hydratedSummary;
+        setTpmSummary(hydratedSummary);
+        if (containerRef.current) {
+          containerRef.current.dispatchEvent(new CustomEvent('jymes:tpm-updated', { detail: hydratedSummary }));
+        }
+      } catch (err) {
+        console.warn('Failed to hydrate today tpm_logs:', err);
+      }
+    };
+    loadExistingTodayTpm();
+    return () => {
+      cancelled = true;
+    };
+  }, [isReady, existingData, isJointProcess, formSelections.carModel, formSelections.part, effectiveTpmSummary, tpmSkipped]);
 
   const scrollToNextReportStep = () => {
     setTimeout(() => {
@@ -269,6 +352,8 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
   const handleTpmComplete = (summary) => {
     const openedFromDowntime = tpmOpenOriginRef.current === 'downtime';
     tpmOpenOriginRef.current = 'gate';
+    const reportDateStr = summary?.reportDate || modalMeta.reportDate || '';
+    if (reportDateStr) delete todayTpmLogsCacheRef.current[reportDateStr];
     tpmSummaryRef.current = summary;
     setTpmSummary(summary);
     setTpmSkipped(false);
@@ -325,7 +410,7 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
       {tpmGateContainerElement && createPortal(
         <JointTpmGateCard
           isJointProcess={isJointProcess}
-          tpmSummary={tpmSummary}
+          tpmSummary={effectiveTpmSummary}
           tpmSkipped={tpmSkipped}
           isLocked={isJointTpmLocked}
           onOpenTpmModal={handleOpenTpmModal}
@@ -338,6 +423,8 @@ export default function LegacyFormReactWrapper({ existingData, initialTpmSummary
         <JointTpmCheckModal
           reportDate={modalMeta.reportDate}
           workerName={modalMeta.workerName}
+          carModel={formSelections.carModel}
+          partName={formSelections.part}
           onClose={() => setShowTpmModal(false)}
           onSkip={handleSkipTpm}
           onComplete={handleTpmComplete}

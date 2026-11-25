@@ -378,10 +378,11 @@ function renderWeeklyIntegratedSummaryTable(container, reports, selectedMonth, a
   const minDateStr = toLocalYMD(weeks[0].start);
   const maxDateStr = toLocalYMD(weeks[weeks.length - 1].end);
 
-  const leaderReports = reports.filter(r =>
+  const validReports = reports.filter(r => r && r.status !== '임시저장' && r.status !== '반려');
+  const leaderReports = validReports.filter(r =>
     r.date && r.date >= minDateStr && r.date <= maxDateStr && (r.isLeaderForm || r.workerName === '장수미')
   );
-  const clipReports = reports.filter(r =>
+  const clipReports = validReports.filter(r =>
     r.date && r.date >= minDateStr && r.date <= maxDateStr &&
     (r.carModel === 'DT CREW' || r.carModel === 'DT QUAD') && r.processName === '클립머신'
   );
@@ -861,6 +862,7 @@ function renderLeaderMonthlySummaryTable(container, reports, selectedMonth) {
   const maxDateStr = toLocalYMD(weeks[weeks.length - 1].end);
 
   const monthReports = reports.filter(r =>
+    r && r.status !== '임시저장' && r.status !== '반려' &&
     r.date && r.date >= minDateStr && r.date <= maxDateStr && (r.isLeaderForm || r.workerName === '장수미')
   );
 
@@ -1227,6 +1229,7 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
   const maxDateStr = toLocalYMD(weeks[weeks.length - 1].end);
 
   const monthReports = reports.filter(r =>
+    r && r.status !== '임시저장' && r.status !== '반려' &&
     r.date && r.date >= minDateStr && r.date <= maxDateStr &&
     (r.carModel === 'DT CREW' || r.carModel === 'DT QUAD') && r.processName === '클립머신'
   );
@@ -1527,6 +1530,7 @@ function renderDtclipMonthlySummaryTable(container, reports, selectedMonth) {
 
 function exportDtclipMonthlyCsv(reports, selectedMonth) {
   const monthReports = reports.filter(r =>
+    r && r.status !== '임시저장' && r.status !== '반려' &&
     r.date && r.date.startsWith(selectedMonth) &&
     (r.carModel === 'DT CREW' || r.carModel === 'DT QUAD') && r.processName === '클립머신'
   );
@@ -1562,10 +1566,11 @@ function exportDtclipMonthlyCsv(reports, selectedMonth) {
 }
 
 function exportStellantisWeeklyIntegratedCsv(reports, selectedMonth) {
-  const leaderReports = reports.filter(r =>
+  const validReports = reports.filter(r => r && r.status !== '임시저장' && r.status !== '반려');
+  const leaderReports = validReports.filter(r =>
     r.date && r.date.startsWith(selectedMonth) && (r.isLeaderForm || r.workerName === '장수미')
   );
-  const clipReports = reports.filter(r =>
+  const clipReports = validReports.filter(r =>
     r.date && r.date.startsWith(selectedMonth) &&
     (r.carModel === 'DT CREW' || r.carModel === 'DT QUAD') && r.processName === '클립머신'
   );

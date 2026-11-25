@@ -968,13 +968,13 @@ export function renderSection4LotTable(materialLots = {}, ctx) {
               <tr>
                 <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 12px;">중물</td>
                 <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_FRT_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일\n시분" >${curLots['lotNo_FRT_중물'] || curLots['lotNo_RH_FRT_초물'] || materialLots['FRT_중물'] || materialLots['RH_FRT_초물'] || ''}</textarea>
+                  <textarea id="lotNo_FRT_중물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일\n시분" >${curLots['lotNo_FRT_중물'] || curLots['lotNo_LH_FRT_중물'] || curLots['lotNo_RH_FRT_중물'] || materialLots['FRT_중물'] || materialLots['LH_FRT_중물'] || materialLots['RH_FRT_중물'] || ''}</textarea>
                 </td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 8px 4px; background: #fffde7; font-weight: 700; color: #000; font-size: 12px;">종물</td>
                 <td style="border: 1px solid #000; padding: 2px; background: #ffffff;">
-                  <textarea id="lotNo_FRT_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일\n시분" >${curLots['lotNo_FRT_종물'] || curLots['lotNo_LH_FRT_중물'] || materialLots['FRT_종물'] || materialLots['LH_FRT_중물'] || ''}</textarea>
+                  <textarea id="lotNo_FRT_종물" class="form-control lot-datetime-input" style="width: 100%; border: none; text-align: center; font-family: monospace; font-size: 11px; padding: 4px 2px; height: 34px; resize: none; overflow: hidden; line-height: 1.2; border-radius: 0; outline: none; background: transparent;" placeholder="년월일\n시분" >${curLots['lotNo_FRT_종물'] || curLots['lotNo_LH_FRT_종물'] || curLots['lotNo_RH_FRT_종물'] || materialLots['FRT_종물'] || materialLots['LH_FRT_종물'] || materialLots['RH_FRT_종물'] || ''}</textarea>
                 </td>
               </tr>
             </tbody>

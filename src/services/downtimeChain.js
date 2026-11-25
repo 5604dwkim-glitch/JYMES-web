@@ -112,7 +112,7 @@ export function buildDowntimeChains({ reports = [], equipments = [], molds = [],
 
   const chains = [];
   reports.forEach((report) => {
-    if (!report || report.status === '임시저장') return;
+    if (!report || report.status === '임시저장' || report.status === '반려') return;
     if (report.isLeaderForm || report.isForkliftForm || report.isSupportForm) return;
 
     extractDowntimeSlots(report).forEach((slot) => {
@@ -128,7 +128,7 @@ export function buildDowntimeChains({ reports = [], equipments = [], molds = [],
 
       let overall = 'progress';
       if (repairState === 'none' && cpState === 'none') overall = 'unregistered';
-      else if ((repairState === 'done' || repairState === 'none') && (cpState === 'done' || cpState === 'none')) overall = 'done';
+      else if (repairState === 'done' && cpState === 'done') overall = 'done';
 
       chains.push({
         key: autoKey,
@@ -200,7 +200,7 @@ export function buildRepairOriginChains({ equipments = [], molds = [], changePoi
         const repairState = getRepairState(row);
         const cpState = getChangePointState(cp);
         const overall =
-          repairState === 'done' && (cpState === 'done' || cpState === 'none') ? 'done' : 'progress';
+          repairState === 'done' && cpState === 'done' ? 'done' : 'progress';
 
         chains.push({
           key: `${kind}_${owner.id}_${token}`,

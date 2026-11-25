@@ -63,6 +63,7 @@ export function cleanDefectName(rawName, fromComboKey = false) {
   }
   return s
     .replace(/스카치/g, '스코치')
+    .replace('[조인트] 쪼개짐', '[조인트] 떨어짐')
     .replace('[공통] 기타 (상세 미지정)', '[공통] 기타')
     .trim();
 }
@@ -805,7 +806,13 @@ export function buildEquipMoldImpact({
     if (startDate && d < startDate) return false;
     if (endDate && d > endDate) return false;
     if (c.report) {
+      if (c.report.status === '임시저장' || c.report.status === '반려') return false;
+      if (filters.filterMfg && filters.filterMfg !== 'ALL') {
+        const mfg = MANUFACTURERS.find((m) => m.name === filters.filterMfg);
+        if (mfg && !mfg.models.some((mod) => mod.code === c.report.carModel)) return false;
+      }
       if (filters.filterCar !== 'ALL' && c.report.carModel !== filters.filterCar) return false;
+      if (filters.filterPart && filters.filterPart !== 'ALL' && (c.report.itemCode || c.report.itemName) !== filters.filterPart) return false;
       if (filters.filterProc !== 'ALL' && !procMatches(c.report.processName, filters.filterProc)) return false;
     }
     return true;
@@ -832,7 +839,7 @@ export function buildEquipMoldImpact({
   };
 
   downtimeReports.forEach((rep) => {
-    if (!rep || rep.status === '임시저장') return;
+    if (!rep || rep.status === '임시저장' || rep.status === '반려') return;
     const d = rep.date || '';
     if ((startDate && d < startDate) || (endDate && d > endDate)) return;
     if (filters.filterCar !== 'ALL' && rep.carModel !== filters.filterCar) return;
@@ -906,11 +913,12 @@ export function buildEquipMoldImpact({
     .sort((a, b) => b.minutes - a.minutes || b.count - a.count)
     .slice(0, 5);
 
-  // 2) 금형 누적타수 구간별 금형 수 및 해당 차종 평균 불량률
+  // 2) 금형 누적타수 구간별 금형 수 및 해당 차종 평균 불량률 (활성 필터 적용 + 차종별 1회만 합산)
   const carStatsMap = {};
   periodStats.forEach((r) => {
     if (!r.items) return;
     Object.entries(r.items).forEach(([comboKey, comboData]) => {
+      if (!matchComboKey(comboKey, filters)) return;
       const [sanCar] = comboKey.split('::');
       const car = restoreCarCode(sanCar);
       if (!carStatsMap[car]) carStatsMap[car] = { actual: 0, defect: 0 };
@@ -919,21 +927,31 @@ export function buildEquipMoldImpact({
     });
   });
 
+  const allowedMfgCars = filters.filterMfg && filters.filterMfg !== 'ALL'
+    ? new Set((MANUFACTURERS.find((m) => m.name === filters.filterMfg)?.models || []).map((mod) => mod.code))
+    : null;
+  const filteredMolds = molds.filter((m) => {
+    if (filters.filterCar && filters.filterCar !== 'ALL' && m.carModel !== filters.filterCar) return false;
+    if (allowedMfgCars && !allowedMfgCars.has(m.carModel)) return false;
+    return true;
+  });
+
   const brackets = [
-    { key: 'b0', label: '0 ~ 50%', min: 0, max: 50, color: '#34d399', molds: [], actual: 0, defect: 0 },
-    { key: 'b50', label: '50 ~ 70%', min: 50, max: 70, color: '#60a5fa', molds: [], actual: 0, defect: 0 },
-    { key: 'b70', label: '70 ~ 90%', min: 70, max: 90, color: '#f59e0b', molds: [], actual: 0, defect: 0 },
-    { key: 'b90', label: '90% 이상', min: 90, max: Infinity, color: '#ef4444', molds: [], actual: 0, defect: 0 }
+    { key: 'b0', label: '0 ~ 50%', min: 0, max: 50, color: '#34d399', molds: [], cars: new Set(), actual: 0, defect: 0 },
+    { key: 'b50', label: '50 ~ 70%', min: 50, max: 70, color: '#60a5fa', molds: [], cars: new Set(), actual: 0, defect: 0 },
+    { key: 'b70', label: '70 ~ 90%', min: 70, max: 90, color: '#f59e0b', molds: [], cars: new Set(), actual: 0, defect: 0 },
+    { key: 'b90', label: '90% 이상', min: 90, max: Infinity, color: '#ef4444', molds: [], cars: new Set(), actual: 0, defect: 0 }
   ];
 
-  molds.forEach((m) => {
+  filteredMolds.forEach((m) => {
     const cur = Number(m.currentStrokes || 0);
     const max = Math.max(1, Number(m.maxStrokes || 300000));
     const pct = (cur / max) * 100;
     const b = brackets.find((br) => pct >= br.min && pct < br.max) || brackets[0];
     b.molds.push(m);
     const car = m.carModel || '';
-    if (car && carStatsMap[car]) {
+    if (car && carStatsMap[car] && !b.cars.has(car)) {
+      b.cars.add(car);
       b.actual += carStatsMap[car].actual;
       b.defect += carStatsMap[car].defect;
     }

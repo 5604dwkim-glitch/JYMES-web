@@ -28,7 +28,7 @@ const JOINT_FORM_SCOPE_MAP = {
   2033: { car: 'DS STD',  part: 'D/SIDE' },
   2042: { car: 'KM/KX',   part: 'HOOD' },
   3002: { car: 'NE1a',    part: 'D/SIDE' },
-  3012: { car: 'ME1a',    part: 'PARTG' },
+  3012: { car: 'ME1a',    part: 'RR_C_PARTG' },
   4002: { car: 'OV1K',    part: 'PTG' },
   4012: { car: 'OV1K',    part: 'FRUNK' },
   4022: { car: 'LQ2a',    part: 'HOOD' },
@@ -629,6 +629,12 @@ function detectEquipmentScope(eq, setNames = []) {
   else if (codeUp.startsWith('JG-F-')) part = 'FRUNK';
   else if (codeUp.startsWith('9B-F-')) part = 'FRT';
   else if (codeUp.startsWith('9B-R-')) part = 'RR';
+
+  if (part === 'RR') {
+    const scopeHint = `${String(eq?.name || '').toUpperCase()} ${String(eq?.location || '').toUpperCase()} ${setText}`;
+    if (scopeHint.includes('FIXED') && !scopeHint.includes('R부')) part = 'RR_FIXED';
+    else if (scopeHint.includes('R부') && !scopeHint.includes('FIXED')) part = 'RR_R';
+  }
 
   if (!part && setText) {
     if (setText.includes('FRUNK')) part = 'FRUNK';

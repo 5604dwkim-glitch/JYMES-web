@@ -141,8 +141,8 @@ import { store } from './LegacyFormWrapper.jsx';
                 </tr>
                 <tr>
                   ${isQuad ? `
-                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size: 10px; padding: 2px 0px;">3호</th>
-                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size: 10px; padding: 2px 0px;">2호</th>
+                    <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size: 10px; padding: 2px 0px;">2호</th>
+                    <th style="border:1px solid var(--border-color); background:#d1fae5; color:#047857; font-size: 10px; padding: 2px 0px;">3호</th>
                   ` : `
                     <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size: 10px; padding: 2px 0px;">3호</th>
                     <th style="border:1px solid var(--border-color); background:#e0f2fe; color:#0369a1; font-size: 10px; padding: 2px 0px;">4호</th>
@@ -2933,8 +2933,8 @@ export function getPostQtyHTML(ed, container, formCode) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? ed?.qty_plan_FL ?? 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FR ?? ed?.qty_plan_FR ?? 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>
@@ -3080,8 +3080,8 @@ export function getForm4004QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? ed?.qty_plan_FL ?? 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FR ?? ed?.qty_plan_FR ?? 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>
@@ -3210,7 +3210,7 @@ export function getForm4012QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? ed?.qty_plan_FL ?? 300}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
@@ -3320,7 +3320,7 @@ export function getForm4013QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? ed?.qty_plan_FL ?? 300}" placeholder="0" /></td>
                 </tr>
               <tr>
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000;">
@@ -3433,8 +3433,8 @@ export function getForm4003QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? ed?.qty_plan_FL ?? 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FR ?? ed?.qty_plan_FR ?? 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>
@@ -3564,8 +3564,8 @@ export function getForm4002QtyHTML(ed, container) {
                 <td style="border: 1px solid #000; padding: 6px; background: #fffde7; font-weight: 700; color: #000; width: 12%;">
                   계획
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FL || 300}" placeholder="0" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${ed?.qty_plan_FR || 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FL" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FL ?? ed?.qty_plan_FL ?? 300}" placeholder="0" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="number" id="qty_plan_FR" class="form-control qty-calc-input" style="width: 100%; border: none; text-align: center; font-size: 10px; padding: 2px 0px;" value="${q.plan_FR ?? ed?.qty_plan_FR ?? 300}" placeholder="0" /></td>
                 
               </tr>
               <tr>

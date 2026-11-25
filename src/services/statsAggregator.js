@@ -94,7 +94,7 @@ export function extractDefectBreakdown(r) {
       addDefect('[조인트] 씹힘',         r.jointQtyTable[`chew_${pos}`]);
       addDefect('[조인트] 이물',         r.jointQtyTable[`foreign_${pos}`]);
       addDefect('[조인트] 찢어짐',       r.jointQtyTable[`torn_${pos}`]);
-      addDefect('[조인트] 쪼개짐',       r.jointQtyTable[`split_${pos}`]);
+      addDefect('[조인트] 떨어짐',       r.jointQtyTable[`split_${pos}`]);
       addDefect('[조인트] 밀림',         r.jointQtyTable[`push_${pos}`]);
       addDefect('[조인트] 미성형',       r.jointQtyTable[`lack_${pos}`]);
       addDefect('[조인트] 오버',         r.jointQtyTable[`over_${pos}`]);
@@ -124,6 +124,7 @@ export function extractDefectBreakdown(r) {
       addDefect('[검사/조인트] 변형',   r.postQtyTable[`j_deform_${pos}`]);
       addDefect('[검사/조인트] 이물',   r.postQtyTable[`j_foreign_${pos}`]);
       addDefect('[검사/조인트] 틀어짐', r.postQtyTable[`j_twist_${pos}`]);
+      addDefect('[검사/조인트] 기타',   r.postQtyTable[`j_oth_${pos}`]);
       POST_EXT_MAP.forEach(([k, name]) => addDefect(name, r.postQtyTable[`ext_${k}_${pos}`]));
       POST_POST_MAP.forEach(([k, name]) => addDefect(name, r.postQtyTable[`post_${k}_${pos}`]));
     });

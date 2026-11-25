@@ -3,7 +3,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   collection,
-  getDocs,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -21,7 +20,7 @@ import EquipmentHistoryCardModal, {
 import EquipmentRepairRequestModal from './EquipmentRepairRequestModal';
 import EquipmentTpmLogModal from './EquipmentTpmLogModal';
 import EquipmentSetConfig from './EquipmentSetConfig';
-import { invalidateEquipmentsCache } from '../../services/firestore';
+import { fetchEquipmentsSlim, invalidateEquipmentsCache } from '../../services/firestore';
 import { syncEquipmentRepairToChangePoint } from '../../services/changePointAutoSync';
 import { hasEquipmentTpmLog } from '../../constants/tpmLogTemplate';
 import {
@@ -172,15 +171,13 @@ export default function EquipmentManagement() {
   const fetchEquipments = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const snapshot = await getDocs(collection(db, 'equipments'));
+      const slimDocs = await fetchEquipmentsSlim();
       const legacyDocsToStamp = [];
-      const data = snapshot.docs.map((d) => {
-        const raw = d.data();
+      const data = slimDocs.map((raw) => {
         if (!raw.category) {
-          legacyDocsToStamp.push(d.id);
+          legacyDocsToStamp.push(raw.id);
         }
         return {
-          id: d.id,
           ...raw,
           category: getEquipmentCategory(raw)
         };

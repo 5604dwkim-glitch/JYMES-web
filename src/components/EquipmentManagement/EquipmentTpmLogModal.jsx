@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { doc, updateDoc } from 'firebase/firestore';
+import React, { useState, useEffect, useRef } from 'react';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -16,7 +16,7 @@ import {
 } from '../../constants/tpmLogTemplate';
 import TpmWheelNumberPickerModal from './TpmWheelNumberPickerModal';
 import { printTpmLogSheet } from '../../utils/printTpmLog';
-import { syncTpmAbnormalToRepairAndChangePoint } from '../../services/changePointAutoSync';
+import { syncTpmAbnormalToRepairAndChangePoint, cleanupTpmAbnormalLinks } from '../../services/changePointAutoSync';
 import { invalidateEquipmentsCache } from '../../services/firestore';
 
 const BORDER = '1px solid #000';
@@ -106,9 +106,32 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
   const [saving, setSaving] = useState(false);
   const [template, setTemplate] = useState(() => cloneTemplate(equipment.tpmTemplate, equipment));
   const [photo, setPhoto] = useState(equipment.tpmPhoto || '');
+  const photoDirtyRef = useRef(false);
   const [log, setLog] = useState(() =>
     normalizeLog(equipment.tpmLogs?.[getTpmLogKey(startYear, startMonth)])
   );
+
+  // 슬림 캐시로 열린 경우 원본 문서에서 TPM 사진·최신 이력 보강
+  useEffect(() => {
+    if (!equipment?.id) return undefined;
+    let cancelled = false;
+    photoDirtyRef.current = false;
+    getDoc(doc(db, 'equipments', equipment.id))
+      .then((snap) => {
+        if (cancelled || !snap.exists()) return;
+        const full = { id: snap.id, ...snap.data() };
+        setEqData(full);
+        if (!photoDirtyRef.current && full.tpmPhoto) {
+          setPhoto(full.tpmPhoto);
+        }
+      })
+      .catch((err) => {
+        console.warn('Failed to hydrate equipment TPM doc:', err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [equipment?.id]);
   const [activeWheelCell, setActiveWheelCell] = useState(null); // { rowId, day, label, currentVal, spec }
   const [managerStampInput, setManagerStampInput] = useState(() =>
     getSavedManagerStamp(userRole?.workerName)
@@ -140,13 +163,37 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
     setSaving(true);
     try {
       const key = getTpmLogKey(year, month);
-      await updateDoc(doc(db, 'equipments', equipment.id), {
+      const prevSavedLog = normalizeLog(eqData.tpmLogs?.[key]);
+      const updatePayload = {
         tpmTemplate: template,
-        tpmPhoto: photo,
         [`tpmLogs.${key}`]: log
-      });
+      };
+      if (photoDirtyRef.current) {
+        updatePayload.tpmPhoto = photo;
+      }
+      await updateDoc(doc(db, 'equipments', equipment.id), updatePayload);
       let latestHistory = eqData.history || [];
       try {
+        const hadPrevIssueForDay = (d, dateStr) => {
+          const compact = dateStr.replace(/-/g, '');
+          const autoKey = `tpm_${equipment.id}_${compact}`;
+          if (latestHistory.some((h) => h?.autoSyncKey === autoKey)) return true;
+          return (template.items || []).some((item) =>
+            (item.rows || []).some((row) => {
+              const prevVal = String(prevSavedLog.daily?.[row.id]?.[d] ?? '').trim();
+              if (!prevVal) return false;
+              if (prevVal === 'X' || prevVal === '△') return true;
+              const ws = getRowWheelSpec(row, item);
+              return Boolean(
+                ws &&
+                prevVal !== 'O' &&
+                Number.isFinite(Number(prevVal)) &&
+                (Number(prevVal) < ws.minSpec || Number(prevVal) > ws.maxSpec)
+              );
+            })
+          );
+        };
+
         for (let d = 1; d <= daysInMonth; d += 1) {
           const dayIssues = [];
           (template.items || []).forEach((item) => {
@@ -174,8 +221,8 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
             });
           });
 
+          const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
           if (dayIssues.length > 0) {
-            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             const dayWorker = String(log.worker?.[d] ?? '').trim() || workerStampName;
             const syncRes = await syncTpmAbnormalToRepairAndChangePoint({
               equipment: { ...eqData, history: latestHistory },
@@ -186,6 +233,10 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
             if (syncRes?.updatedHistory) {
               latestHistory = syncRes.updatedHistory;
             }
+          } else if (hadPrevIssueForDay(d, dateStr)) {
+            await cleanupTpmAbnormalLinks({ ...eqData, history: latestHistory }, dateStr).catch((cleanErr) => {
+              console.warn('Failed to clean resolved monthly TPM link:', cleanErr);
+            });
           }
         }
       } catch (syncErr) {
@@ -196,9 +247,10 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
         ...eqData,
         history: latestHistory,
         tpmTemplate: template,
-        tpmPhoto: photo,
+        tpmPhoto: photoDirtyRef.current ? photo : (eqData.tpmPhoto || photo),
         tpmLogs: { ...(eqData.tpmLogs || {}), [key]: log }
       };
+      photoDirtyRef.current = false;
       invalidateEquipmentsCache();
       setEqData(updated);
       if (onUpdate) onUpdate(updated);
@@ -282,6 +334,7 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
     setActiveWheelCell(null);
     setTemplate(cloneTemplate(eqData.tpmTemplate, eqData));
     setPhoto(eqData.tpmPhoto || '');
+    photoDirtyRef.current = false;
     setLog(normalizeLog(eqData.tpmLogs?.[getTpmLogKey(year, month)]));
     setIsEditing(false);
   };
@@ -292,6 +345,7 @@ export default function EquipmentTpmLogModal({ equipment, onClose, onUpdate, ini
     if (!isEditing || !file) return;
     try {
       setPhoto(await readAndResizePhoto(file));
+      photoDirtyRef.current = true;
     } catch (err) {
       console.error(err);
       alert('이미지 처리 중 오류가 발생했습니다.');

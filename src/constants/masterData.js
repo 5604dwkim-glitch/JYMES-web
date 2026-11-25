@@ -1070,7 +1070,7 @@ export function generateSampleReports(workers) {
           attainmentRate: Number(((actualQty / targetQty) * 100).toFixed(1)),
           materialLots: materialLots,
           isLeaderForm: primaryWorker && primaryWorker.name === '장수미',
-          formCode: 'HSC-DT-005',
+          formCode: primaryWorker && primaryWorker.name === '장수미' ? 9001 : 1001,
           leaderFormItems: leaderFormItems,
           attendanceData: DEFAULT_ATTENDANCE,
           downtimeMinutes: 0,

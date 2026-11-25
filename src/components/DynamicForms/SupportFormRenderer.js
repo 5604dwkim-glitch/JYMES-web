@@ -171,7 +171,12 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
   const btnSuppDraftSave = container.querySelector('#btnSuppDraftSave');
   const btnSuppFinalSubmit = container.querySelector('#btnSuppFinalSubmit');
 
-  const processSuppSave = (targetStatus) => {
+  let isSuppSaving = false;
+  const processSuppSave = async (targetStatus) => {
+    if (isSuppSaving) return;
+    isSuppSaving = true;
+    if (btnSuppDraftSave) btnSuppDraftSave.disabled = true;
+    if (btnSuppFinalSubmit) btnSuppFinalSubmit.disabled = true;
     try {
       const yy = container.querySelector('#suppYear')?.value || dateParts[0].substring(2);
       const mm = container.querySelector('#suppMonth')?.value || dateParts[1];
@@ -229,14 +234,14 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
       };
 
       if (existingData) {
-        store.updateReport(existingData.id, reportData);
+        await Promise.resolve(store.updateReport(existingData.id, reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 작업일보가 중간 저장되었습니다.', 'info');
         } else {
           windowMock.showToast('✅ 작업일보가 등록 완료되었습니다.', 'success');
         }
       } else {
-        store.addReport(reportData);
+        await Promise.resolve(store.addReport(reportData));
         if (targetStatus === '임시저장') {
           windowMock.showToast('📁 출하지원 작업일보 중간 저장 성공!', 'info');
         } else {
@@ -256,6 +261,10 @@ export function renderSupportPaperForm(container, existingData, loggedInWorkerNa
     } catch (err) {
       console.error('Error saving support report:', err);
       windowMock.showToast(`⚠️ 저장 중 오류가 발생했습니다: ${err.message}`, 'error');
+    } finally {
+      isSuppSaving = false;
+      if (btnSuppDraftSave) btnSuppDraftSave.disabled = false;
+      if (btnSuppFinalSubmit) btnSuppFinalSubmit.disabled = false;
     }
   };
 

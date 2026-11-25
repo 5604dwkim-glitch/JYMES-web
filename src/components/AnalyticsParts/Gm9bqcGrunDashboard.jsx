@@ -75,7 +75,7 @@ function MiniBarcode({ seedText, isEmpty }) {
   );
 }
 
-export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = false }) {
+export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = false, isActive = true }) {
   const today = useMemo(() => formatTodayYmd(), []);
   const yesterday = useMemo(() => shiftDateYmd(today, -1), [today]);
 
@@ -244,52 +244,73 @@ export default function Gm9bqcGrunDashboard({ reports = [], reportsLoading = fal
     };
   }, [historyStartNeeded, historyEndNeeded, historyRefreshTick, includesToday]);
 
-  // 2) 실시간 onSnapshot 구독은 오늘(today)이 조회 범위에 포함된 경우에만 + 오늘 날짜 1일치에만 한정
+  // 2) 실시간 onSnapshot 구독은 해당 탭이 활성이고 오늘(today)이 조회 범위에 포함된 경우에만 한정
   useEffect(() => {
     if (!includesToday) {
       setLiveStatus((prev) => (prev === 'fallback' ? prev : 'history'));
+      return undefined;
+    }
+    if (!isActive) {
       return undefined;
     }
 
     if (!get9bqcTodaySnapshotCache(today)) {
       setLiveStatus('connecting');
     }
-    const q = query(collection(db, 'reports'), where('date', '==', today));
 
-    const unsub = onSnapshot(
-      q,
-      (snapshot) => {
-        const docs = [];
-        snapshot.forEach((docSnap) => {
-          const r = { id: docSnap.id, ...docSnap.data() };
-          if (resolveGm9bqcProcessCode(r)) {
-            docs.push(r);
+    let cancelled = false;
+    let activeUnsub = () => {};
+
+    const attachListener = (scopedCar) => {
+      const q = scopedCar
+        ? query(collection(db, 'reports'), where('date', '==', today), where('carModel', '==', '9BQC'))
+        : query(collection(db, 'reports'), where('date', '==', today));
+
+      activeUnsub = onSnapshot(
+        q,
+        (snapshot) => {
+          if (cancelled) return;
+          const docs = [];
+          snapshot.forEach((docSnap) => {
+            const r = { id: docSnap.id, ...docSnap.data() };
+            if (resolveGm9bqcProcessCode(r)) {
+              docs.push(r);
+            }
+          });
+          set9bqcTodaySnapshotCache(today, docs);
+          setLiveTodayReports(docs);
+          setTodayResolved(true);
+          setLiveStatus('live');
+          setLastSyncedAt(
+            new Date().toLocaleTimeString('ko-KR', {
+              hour12: false,
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            })
+          );
+        },
+        (err) => {
+          if (cancelled) return;
+          if (scopedCar && (err?.code === 'failed-precondition' || String(err?.message || '').toLowerCase().includes('index'))) {
+            try { activeUnsub(); } catch { /* ignore */ }
+            attachListener(false);
+            return;
           }
-        });
-        set9bqcTodaySnapshotCache(today, docs);
-        setLiveTodayReports(docs);
-        setTodayResolved(true);
-        setLiveStatus('live');
-        setLastSyncedAt(
-          new Date().toLocaleTimeString('ko-KR', {
-            hour12: false,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-          })
-        );
-      },
-      (err) => {
-        console.error('9BQC G/RUN 오늘 실시간 구독 오류 (캐시 폴백):', err);
-        setTodayResolved(true);
-        setLiveStatus('fallback');
-      }
-    );
+          console.error('9BQC G/RUN 오늘 실시간 구독 오류 (캐시 폴백):', err);
+          setTodayResolved(true);
+          setLiveStatus('fallback');
+        }
+      );
+    };
+
+    attachListener(true);
 
     return () => {
-      unsub();
+      cancelled = true;
+      try { activeUnsub(); } catch { /* ignore */ }
     };
-  }, [includesToday, today]);
+  }, [includesToday, today, isActive]);
 
   // 최근 9BQC 가동일 탐색 (부모 reports + 캐시 이력 + 오늘 실시간 풀 합산)
   const latestActiveGrunDate = useMemo(() => {

@@ -464,10 +464,21 @@ export default function ProcessDefectAnalysis({
     const m = String(item.name || '').match(/^\[([^\]]+)\]/);
     if (!m) return;
     const tag = m[1];
-    const matchedProc =
+    let matchedProc =
       tag === '검사' || tag.startsWith('검사/')
         ? '검사포장'
-        : PROC_OPTIONS.find((p) => tag === p || tag.startsWith(`${p}/`));
+        : PROC_OPTIONS.find((p) => tag === p || tag.startsWith(`${p}/`) || tag.startsWith(`${p}-`));
+    if (!matchedProc) {
+      if (['글라스본딩', '정치절단', '단컷팅'].some((k) => tag === k || tag.startsWith(`${k}-`) || tag.startsWith(`${k} `))) {
+        matchedProc = '소재준비';
+      } else if (tag.startsWith('조인트')) {
+        matchedProc = '조인트';
+      } else if (tag.startsWith('후가공')) {
+        matchedProc = '후가공';
+      } else if (tag.startsWith('검사포장')) {
+        matchedProc = '검사포장';
+      }
+    }
     if (matchedProc) {
       setFilterProc(matchedProc);
     }

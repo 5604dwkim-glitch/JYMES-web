@@ -81,7 +81,14 @@ export default function ReportList({ initialStatus = 'ALL' }) {
     }
     const rawData = await fetchReports(filters);
     const data = isBasePrefix
-      ? rawData.filter(r => r.processName === processName || (typeof r.processName === 'string' && r.processName.startsWith(`${processName}-`)))
+      ? rawData.filter(
+          r =>
+            r.processName === processName ||
+            (typeof r.processName === 'string' &&
+              (r.processName.startsWith(`${processName}-`) ||
+                r.processName.startsWith(`${processName}(`) ||
+                r.processName.startsWith(`${processName} `)))
+        )
       : rawData;
     const curQuery = searchQueryRef.current;
 
@@ -732,8 +739,8 @@ export default function ReportList({ initialStatus = 'ALL' }) {
           let hasLotJung = false, hasDimJung = false;
           let hasLotJong = false, hasDimJong = false;
           const noDimFormCodes = new Set([
-            1003, 1012, 1023, 1033, 1043,
-            2004, 2014, 2026, 2034, 2043,
+            1003, 1012, 1013, 1023, 1033, 1043,
+            2001, 2004, 2011, 2014, 2026, 2034, 2041, 2043,
             3003, 3013,
             4003, 4013, 4023, 4033,
             5007, 6003

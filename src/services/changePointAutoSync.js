@@ -11,8 +11,9 @@ import {
 import { db } from '../firebase';
 import { CAR_MODELS, DEFAULT_ITEMS } from '../constants/masterData';
 import {
-  fetchMolds,
-  fetchEquipments,
+  fetchMoldsSlim,
+  fetchEquipmentsSlim,
+  fetchEquipmentSets,
   fetchReportDowntimePhotos,
   invalidateMoldsCache,
   invalidateEquipmentsCache,
@@ -70,21 +71,9 @@ export const HYUNDAI_ISSUE_CATEGORY_MAP = {
   ]
 };
 
-// 설비 셋트 캐시 (짧은 TTL로 중복 읽기 방지)
-let equipmentSetsCache = null;
-let equipmentSetsCacheAt = 0;
-const EQUIPMENT_SETS_TTL_MS = 10 * 60 * 1000;
-
 async function fetchEquipmentSetsCached() {
-  if (equipmentSetsCache && Date.now() - equipmentSetsCacheAt < EQUIPMENT_SETS_TTL_MS) {
-    return equipmentSetsCache;
-  }
   try {
-    const snap = await getDocs(collection(db, 'equipment_sets'));
-    const list = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-    equipmentSetsCache = list;
-    equipmentSetsCacheAt = Date.now();
-    return list;
+    return await fetchEquipmentSets();
   } catch (err) {
     console.warn('Failed to load equipment_sets for changePoint sync:', err);
     return [];
@@ -1049,6 +1038,99 @@ async function cleanupStaleAutoChangePointIfUnconfirmed(autoKey) {
   invalidateChangePointsCache();
 }
 
+function isAutoHistoryRowStartedOrConfirmed(row) {
+  if (!row) return false;
+  if (row.confirmed) return true;
+  const rd = row.repairDetails || {};
+  return Boolean(
+    String(rd.actionContent || '').trim() ||
+    String(rd.completionDate || '').trim() ||
+    String(rd.qualityPic || '').trim() ||
+    String(rd.verificationResult || '').trim()
+  );
+}
+
+async function removeAutoHistoryKeysFromCollection(collectionName, targetKeysSet) {
+  if (!targetKeysSet || targetKeysSet.size === 0) return false;
+  const list = collectionName === 'equipments'
+    ? await fetchEquipmentsSlim().catch(() => [])
+    : await fetchMoldsSlim().catch(() => []);
+
+  const affectedIds = (list || [])
+    .filter((item) =>
+      Array.isArray(item?.history) &&
+      item.history.some((row) => row?.autoSyncKey && targetKeysSet.has(row.autoSyncKey))
+    )
+    .map((item) => item.id);
+
+  if (affectedIds.length === 0) return false;
+
+  let mutated = false;
+  await Promise.all(
+    affectedIds.map(async (docId) => {
+      try {
+        const ref = doc(db, collectionName, docId);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return;
+        const freshHistory = Array.isArray(snap.data()?.history) ? snap.data().history : [];
+        const filteredHistory = freshHistory.filter((row) => {
+          if (!row?.autoSyncKey || !targetKeysSet.has(row.autoSyncKey)) return true;
+          return isAutoHistoryRowStartedOrConfirmed(row);
+        });
+        if (filteredHistory.length !== freshHistory.length) {
+          await updateDoc(ref, { history: filteredHistory });
+          mutated = true;
+        }
+      } catch (err) {
+        console.warn(`Failed to clean auto history keys from ${collectionName}/${docId}:`, err);
+      }
+    })
+  );
+
+  if (mutated) {
+    if (collectionName === 'equipments') invalidateEquipmentsCache();
+    else invalidateMoldsCache();
+  }
+  return mutated;
+}
+
+/**
+ * 작업일보 삭제·임시저장 전환·슬롯 비활성화 시 자동 연동된 미확인 변동점 및 미착수 설비/금형 수리이력 정리
+ */
+export async function cleanupReportDowntimeLinks(reportData, { slotNums = null } = {}) {
+  if (!reportData?.id) return;
+  const targetSlotNums = Array.isArray(slotNums) && slotNums.length > 0
+    ? slotNums
+    : extractDowntimeSlots(reportData).map((s) => s.slotNum);
+
+  const uniqueSlots = [...new Set(targetSlotNums.filter((n) => Number.isFinite(Number(n))))];
+  if (uniqueSlots.length === 0) return;
+
+  const autoKeys = uniqueSlots.map((n) => `report_dt_${reportData.id}_s${n}`);
+  const targetKeysSet = new Set(autoKeys);
+
+  await Promise.all([
+    ...autoKeys.map((key) => cleanupStaleAutoChangePointIfUnconfirmed(key).catch(() => {})),
+    removeAutoHistoryKeysFromCollection('equipments', targetKeysSet),
+    removeAutoHistoryKeysFromCollection('molds', targetKeysSet)
+  ]);
+}
+
+/**
+ * 월간/가동전 TPM 일지에서 이상 항목이 정상('O')으로 수정된 날짜의 미확인 자동 연동 정리
+ */
+export async function cleanupTpmAbnormalLinks(equipment, dateYmd) {
+  if (!equipment?.id || !dateYmd) return;
+  const normalizedDate = normalizeDateYmd(dateYmd);
+  const compactDate = normalizedDate.replace(/-/g, '');
+  const autoKey = `tpm_${equipment.id}_${compactDate}`;
+
+  await Promise.all([
+    cleanupStaleAutoChangePointIfUnconfirmed(autoKey).catch(() => {}),
+    removeAutoHistoryKeysFromCollection('equipments', new Set([autoKey]))
+  ]);
+}
+
 /**
  * 4) 작업일보(`reports`) 저장/수정 시 비가동 시간이 발생했고 사유가 설비 또는 금형 문제인 경우:
  *    - 설비 수리(`equipments.history`) 또는 금형 수리(`molds.history`) 자동 등록(Upsert)
@@ -1056,7 +1138,12 @@ async function cleanupStaleAutoChangePointIfUnconfirmed(autoKey) {
  */
 export async function syncReportDowntimeToRepairAndChangePoint(reportData, existingReport = null) {
   if (!reportData || !reportData.id) return;
-  if (reportData.status === '임시저장') return;
+  if (reportData.status === '임시저장' || reportData.status === '반려') {
+    if (existingReport) {
+      await cleanupReportDowntimeLinks(existingReport);
+    }
+    return;
+  }
   if (reportData.isLeaderForm || reportData.isForkliftForm || reportData.isSupportForm) return;
 
   const slots = extractDowntimeSlots(reportData);
@@ -1079,19 +1166,23 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
     return;
   }
 
-  // 비가동이 해제되거나 삭제된 슬롯의 미검증 자동 변동점 정리
+  // 비가동이 해제되거나 삭제된 슬롯의 미검증 자동 변동점 및 미착수 설비/금형 수리이력 정리
   const activeSlotNums = new Set(activeSlots.map((s) => s.slotNum));
   const candidateSlotNums = new Set([
     ...slots.map((s) => s.slotNum),
     ...prevSlots.map((s) => s.slotNum)
   ]);
+  const deactivatedSlotNums = [];
   for (const slotNum of candidateSlotNums) {
     if (!activeSlotNums.has(slotNum) && hadPrevAutoSlots) {
       const prevSlot = prevSlots.find((p) => p.slotNum === slotNum);
       if (prevSlot && isSyncTargetSlot(prevSlot)) {
-        await cleanupStaleAutoChangePointIfUnconfirmed(`report_dt_${reportData.id}_s${slotNum}`);
+        deactivatedSlotNums.push(slotNum);
       }
     }
+  }
+  if (deactivatedSlotNums.length > 0) {
+    await cleanupReportDowntimeLinks(reportData, { slotNums: deactivatedSlotNums });
   }
 
   if (activeSlots.length === 0) return;
@@ -1101,9 +1192,9 @@ export async function syncReportDowntimeToRepairAndChangePoint(reportData, exist
   const photoIds = activeSlots.map((s) => String(s.photoId || '').trim()).filter(Boolean);
 
   const [allEquipments, allSets, allMolds, photoMap] = await Promise.all([
-    needEquip ? fetchEquipments() : Promise.resolve([]),
+    needEquip ? fetchEquipmentsSlim() : Promise.resolve([]),
     needEquip ? fetchEquipmentSetsCached() : Promise.resolve([]),
-    needMold ? fetchMolds() : Promise.resolve([]),
+    needMold ? fetchMoldsSlim() : Promise.resolve([]),
     photoIds.length > 0 ? fetchReportDowntimePhotos(photoIds) : Promise.resolve({})
   ]);
 

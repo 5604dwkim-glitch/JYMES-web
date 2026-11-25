@@ -1945,31 +1945,31 @@ function renderSection5Core(ctx) {
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   초물(Start)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_p" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_frt_q" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_r" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_lh" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_start_rr_s_rh" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_start_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   중물(Harf)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_p" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_frt_q" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_r" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_lh" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_harf_rr_s_rh" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_harf_rr_s_rh || ''}" /></td>
               </tr>
               <tr>
                 <td style="border: 1px solid #000; background: #fffde7; font-weight: 700; padding: 4px;">
                   종물(Finish)
                 </td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_p" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_p || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_q" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_q || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_r" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_r || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_lh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_lh || ''}" /></td>
-                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_rh" data-wheel-parsed-spec="210" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_rh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_p" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_p || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_frt_q" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_frt_q || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_r" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_r || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_lh" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_lh || ''}" /></td>
+                <td style="border: 1px solid #000; padding: 2px;"><input type="text" id="vulc_temp_finish_rr_s_rh" data-wheel-parsed-spec="200" class="form-control" style="width:100%; height:24px; text-align:center; font-size:11px; padding:2px;" value="${v.temp_finish_rr_s_rh || ''}" /></td>
               </tr>
 
               <!-- 2. 가류시간 영역 -->
@@ -2150,6 +2150,17 @@ function renderSection5Core(ctx) {
 
         section5.innerHTML = `
           <div class="card" style="padding: 16px; margin-bottom: 16px;">
+            <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 6px; display: block;">
+              🧪 <span class="sec-num"></span> 조인트 고무 LOT 번호 입력
+            </label>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 10px;">조인트 고무 소재의 LOT 번호를 입력하세요.</p>
+            <input type="text" id="jointRubberLotNo" class="form-control lot-datetime-input"
+              style="max-width: 280px; font-family: monospace;"
+              placeholder="년월일시분 (예: 2607251330)"
+              value="${jointLotVal}" />
+          </div>
+
+          <div class="card" style="padding: 16px; margin-bottom: 16px;">
             <label style="font-size: 14px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px; display: block;">
               ♨️ <span class="sec-num"></span> 설비 가류온도 & 가류시간 입력
             </label>
@@ -2219,6 +2230,16 @@ function renderSection5Core(ctx) {
             </div>
           </div>
         `;
+
+        const jointInput4032 = section5.querySelector('#jointRubberLotNo');
+        if (jointInput4032) {
+          jointInput4032.addEventListener('blur', () => {
+            if (jointInput4032.value) jointInput4032.value = autoFormatDateTimeString(jointInput4032.value);
+          });
+          jointInput4032.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); jointInput4032.value = autoFormatDateTimeString(jointInput4032.value); }
+          });
+        }
 
         const phases = [{k:'start', n:'초물'}, {k:'harf', n:'중물'}, {k:'finish', n:'종물'}];
         const cols = [{k:'x_lr', n:'X부(L/R)'}, {k:'y_lr', n:'Y부(L/R)'}];

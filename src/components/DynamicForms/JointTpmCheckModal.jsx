@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { collection, doc, getDoc, getDocs, updateDoc, addDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, updateDoc, addDoc, query, where, serverTimestamp } from 'firebase/firestore';
 import jsQR from 'jsqr';
 import { db } from '../../firebase';
 import {
@@ -14,8 +14,8 @@ import {
   hasEquipmentTpmLog
 } from '../../constants/tpmLogTemplate';
 import TpmWheelNumberPickerModal from '../EquipmentManagement/TpmWheelNumberPickerModal';
-import { syncTpmAbnormalToRepairAndChangePoint } from '../../services/changePointAutoSync';
-import { invalidateEquipmentsCache } from '../../services/firestore';
+import { syncTpmAbnormalToRepairAndChangePoint, cleanupTpmAbnormalLinks } from '../../services/changePointAutoSync';
+import { fetchEquipmentSets, invalidateEquipmentsCache } from '../../services/firestore';
 import { getEquipmentSetCategory } from '../../constants/equipmentCategories';
 import { useI18n } from '../../contexts/I18nContext';
 
@@ -38,6 +38,8 @@ export default function JointTpmCheckModal({
   initialSetId = '',
   reportDate = '',
   workerName = '',
+  carModel = '',
+  partName = '',
   onClose,
   onSkip,
   onComplete
@@ -186,11 +188,10 @@ export default function JointTpmCheckModal({
 
     let cancelled = false;
     setSetsLoading(true);
-    getDocs(query(collection(db, 'equipment_sets'), orderBy('createdAt', 'desc')))
-      .then((snap) => {
+    fetchEquipmentSets()
+      .then((setsRaw) => {
         if (!cancelled) {
-          const items = snap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
+          const items = (setsRaw || [])
             .filter(s => getEquipmentSetCategory(s) === 'joint');
           items.sort((a, b) =>
             String(a.name || '').localeCompare(String(b.name || ''), 'ko', {
@@ -408,15 +409,19 @@ export default function JointTpmCheckModal({
       let hasIssue = false;
       const flatSummaryResults = {};
 
-      // 각 설비 문서의 tpmLogs.{YYYYMM} 에 일별 점검 + 작업자 확인 + 주간 점검 동시 반영
+      // 각 설비 문서의 tpmLogs.{YYYYMM} 에 일별 점검 + 작업자 확인 + 주간 점검 동시 반영 (최신 문서 기준 병합)
+      const compactDate = effectiveDateStr.replace(/-/g, '');
       await Promise.all(
         setEquipments.map(async (eq) => {
-          const currentLog = normalizeTpmLog(eq.tpmLogs?.[ymKey]);
+          const eqRef = doc(db, 'equipments', eq.id);
+          const freshSnap = await getDoc(eqRef).catch(() => null);
+          const freshEq = freshSnap?.exists?.() ? { id: freshSnap.id, ...freshSnap.data() } : eq;
+          const currentLog = normalizeTpmLog(freshEq.tpmLogs?.[ymKey]);
           const nextDaily = { ...currentLog.daily };
           const nextWeekly = currentLog.weekly.map(w => ({ ...w }));
           const nextWorker = { ...currentLog.worker, [dayNum]: stampWorker };
 
-          flatSummaryResults[eq.id] = { code: eq.code, name: eq.name, marks: {} };
+          flatSummaryResults[eq.id] = { code: freshEq.code || eq.code, name: freshEq.name || eq.name, marks: {} };
 
           const abnormalItems = [];
 
@@ -466,14 +471,19 @@ export default function JointTpmCheckModal({
             worker: nextWorker
           };
 
-          await updateDoc(doc(db, 'equipments', eq.id), {
+          await updateDoc(eqRef, {
             [`tpmLogs.${ymKey}`]: updatedMonthLog
           });
+
+          const updatedEqObj = {
+            ...freshEq,
+            tpmLogs: { ...(freshEq.tpmLogs || {}), [ymKey]: updatedMonthLog }
+          };
 
           if (abnormalItems.length > 0) {
             try {
               await syncTpmAbnormalToRepairAndChangePoint({
-                equipment: eq,
+                equipment: updatedEqObj,
                 dateYmd: effectiveDateStr,
                 abnormalItems,
                 workerName: stampWorker,
@@ -482,28 +492,55 @@ export default function JointTpmCheckModal({
             } catch (syncErr) {
               console.error('Failed to auto-sync Joint TPM abnormal to repair/changePoint:', syncErr);
             }
+          } else {
+            const autoKey = `tpm_${eq.id}_${compactDate}`;
+            const hadAutoHistory = Array.isArray(freshEq.history) && freshEq.history.some((h) => h?.autoSyncKey === autoKey);
+            if (hadAutoHistory) {
+              await cleanupTpmAbnormalLinks(freshEq, effectiveDateStr).catch((cleanErr) => {
+                console.warn('Failed to cleanup resolved Joint TPM link:', cleanErr);
+              });
+            }
           }
         })
       );
 
-      // 셋트 단위 점검 로그 컬렉션에도 이력 저장
-      await addDoc(collection(db, 'tpm_logs'), {
+      // 셋트 단위 점검 로그 컬렉션에도 이력 저장 (당일 동일 셋트 중복 문서 방지)
+      const logPayload = {
         setId: equipmentSet.id,
         setName: equipmentSet.name,
         reportDate: effectiveDateStr,
         workerName: stampWorker,
+        ...(carModel ? { carModel } : {}),
+        ...(partName ? { partName } : {}),
         equipmentIds: setEquipments.map(e => e.id),
         equipmentCodes: setEquipments.map(e => e.code),
         results: flatSummaryResults,
-        hasIssue,
-        createdAt: serverTimestamp()
-      });
+        hasIssue
+      };
+
+      const existingLogSnap = await getDocs(
+        query(collection(db, 'tpm_logs'), where('reportDate', '==', effectiveDateStr))
+      ).catch(() => null);
+      const sameSetDoc = existingLogSnap?.docs?.find((d) => d.data()?.setId === equipmentSet.id);
+      if (sameSetDoc) {
+        await updateDoc(doc(db, 'tpm_logs', sameSetDoc.id), {
+          ...logPayload,
+          updatedAt: serverTimestamp()
+        });
+      } else {
+        await addDoc(collection(db, 'tpm_logs'), {
+          ...logPayload,
+          createdAt: serverTimestamp()
+        });
+      }
 
       invalidateEquipmentsCache();
 
       const summary = {
         setId: equipmentSet.id,
         setName: equipmentSet.name,
+        carModel: carModel || '',
+        partName: partName || '',
         equipmentCount: setEquipments.length,
         equipmentIds: setEquipments.map(e => e.id),
         equipmentCodes: setEquipments.map(e => e.code),

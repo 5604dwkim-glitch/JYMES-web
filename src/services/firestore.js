@@ -2,7 +2,7 @@ import { collection, doc, getDocs, getDoc, setDoc, updateDoc, deleteDoc, deleteF
 import { db } from '../firebase';
 import { CAR_MODELS } from '../constants/masterData';
 import { buildStatsUpdate } from './statsAggregator';
-import { syncReportDowntimeToRepairAndChangePoint } from './changePointAutoSync';
+import { syncReportDowntimeToRepairAndChangePoint, cleanupReportDowntimeLinks } from './changePointAutoSync';
 import { persistJointMoldDefaultsFromReport } from './jointMoldDefaults';
 import { resolveGm9bqcProcessCode } from './gm9bqcGrunEngine';
 
@@ -174,10 +174,21 @@ function setReportsCache(serverFilters, data) {
 
 const myRecentReportsCache = new Map(); // workerName -> { data, timestamp }
 const MY_RECENT_CACHE_TTL_MS = 5 * 60 * 1000;
+const MY_RECENT_SESSION_PREFIX = 'jymes_my_recent_v1_';
 
 export function invalidateReportsCache({ reset9bqcHistory = false } = {}) {
   reportCache.clear();
   myRecentReportsCache.clear();
+  try {
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const k = sessionStorage.key(i);
+      if (k && k.startsWith(MY_RECENT_SESSION_PREFIX)) {
+        sessionStorage.removeItem(k);
+      }
+    }
+  } catch {
+    // ignore storage errors
+  }
   downtimeReportsCache = null; // 일보가 저장/수정/삭제되면 비가동 일보 캐시도 함께 무효화
   fmbReportsCache = null; // FMB보관실 월간 온·습도 대시보드 캐시도 함께 무효화
   stellantisReportsCache = null; // 주간 스텔란티스 실적 전용 캐시 무효화
@@ -188,6 +199,9 @@ export function invalidateReportsCache({ reset9bqcHistory = false } = {}) {
   }
   removeSlimCache('daily_stats');
   removeSlimCache('daily_stats_recent');
+  removeSlimCache('downtime_reports');
+  removeSlimCache('fmb_reports');
+  removeSlimCache('stellantis_reports');
 }
 
 // 9BQC G/RUN 종합 현황판 전용 영구 캐시 + 변동분 증분 동기화 (localStorage + RAM)
@@ -398,20 +412,20 @@ function remove9bqcCachedReports(ids) {
   }
 }
 
-// 비가동 일보 캐시 (대시보드 "연계 현황"용, 10분) — 대시보드 재방문 때마다 다시 읽지 않도록 한다
+// 비가동 일보 캐시 (대시보드 "연계 현황"용, 15분) — 대시보드 재방문/새로고침 시 중복 읽기 방지
 let downtimeReportsCache = null;
 let downtimeReportsCacheAt = 0;
-const DOWNTIME_REPORTS_CACHE_TTL_MS = 10 * 60 * 1000;
+const DOWNTIME_REPORTS_CACHE_TTL_MS = 15 * 60 * 1000;
 
-// FMB보관실 일보 캐시 (메인 대시보드 하단 월간 온·습도 현황용, 10분)
+// FMB보관실 일보 캐시 (메인 대시보드 하단 월간 온·습도 현황용, 15분)
 let fmbReportsCache = null;
 let fmbReportsCacheAt = 0;
-const FMB_REPORTS_CACHE_TTL_MS = 10 * 60 * 1000;
+const FMB_REPORTS_CACHE_TTL_MS = 15 * 60 * 1000;
 
-// 주간 스텔란티스 실적(반장 작업일보 + DT 클립머신) 전용 경량 캐시 (10분)
+// 주간 스텔란티스 실적(반장 작업일보 + DT 클립머신) 전용 경량 캐시 (15분)
 let stellantisReportsCache = null;
 let stellantisReportsCacheAt = 0;
-const STELLANTIS_REPORTS_CACHE_TTL_MS = 10 * 60 * 1000;
+const STELLANTIS_REPORTS_CACHE_TTL_MS = 15 * 60 * 1000;
 
 // 일별 통계(daily_stats) 전체/최근 캐시 (메인 대시보드 ↔ 공정 및 불량 분석 간 중복 읽기 방지, 10분)
 let dailyStatsAllCache = null;
@@ -493,25 +507,32 @@ export function invalidateChangePointsCache() {
 
 export async function fetchReports(filters = {}) {
   try {
-    // searchQuery는 클라이언트 필터이므로 캐시 키에서 제외
     const { searchQuery, ...serverFilters } = filters;
+    // 서버 쿼리는 날짜 범위(startDate/endDate)만 사용하므로 캐시 키를 기간으로 통일하여
+    // 차종/공정/상태/작업자 필터 변경 시 동일 기간 데이터를 Firestore에서 다시 읽지 않도록 한다.
+    const dateRangeKey = {
+      startDate: serverFilters.startDate || '',
+      endDate: serverFilters.endDate || ''
+    };
 
-    // 캐시 체크 (날짜/상태/차종/공정 기준)
-    let result = getReportsFromCache(serverFilters);
+    let baseResult = getReportsFromCache(dateRangeKey);
 
-    if (!result) {
+    if (!baseResult) {
       let q = collection(db, REPORTS_COLLECTION);
-      let constraints = [];
+      const constraints = [];
 
-      if (serverFilters.startDate) constraints.push(where('date', '>=', serverFilters.startDate));
-      if (serverFilters.endDate)   constraints.push(where('date', '<=', serverFilters.endDate));
+      if (dateRangeKey.startDate) constraints.push(where('date', '>=', dateRangeKey.startDate));
+      if (dateRangeKey.endDate)   constraints.push(where('date', '<=', dateRangeKey.endDate));
 
       if (constraints.length > 0) {
         q = query(q, ...constraints);
+      } else {
+        // 날짜 범위가 모두 비어 있을 때는 전 컬렉션 무한 스캔 대신 최신 500건으로 제한
+        q = query(q, orderBy(documentId(), 'desc'), limit(500));
       }
 
       const querySnapshot = await getDocs(q);
-      result = [];
+      baseResult = [];
       querySnapshot.forEach((doc) => {
         const r = { id: doc.id, ...doc.data() };
         // [구버전 반장일보 소급 매핑] DB에 잘못 저장된 과거 반장 일보를 메모리상 '공통'으로 통일
@@ -539,25 +560,27 @@ export async function fetchReports(filters = {}) {
           r.processName = 'FMB보관실';
           r.isFmbForm = true;
         }
-        result.push(r);
+        baseResult.push(r);
       });
 
-      // 서버필터 기반 클라이언트 필터
-      if (serverFilters.carModel && serverFilters.carModel !== 'ALL')
-        result = result.filter(r => r.carModel === serverFilters.carModel);
-      if (serverFilters.processName && serverFilters.processName !== 'ALL')
-        result = result.filter(r => r.processName === serverFilters.processName);
-      if (serverFilters.status && serverFilters.status !== 'ALL')
-        result = result.filter(r => r.status === serverFilters.status);
-      if (serverFilters.workerName) {
-        const kw = serverFilters.workerName.toLowerCase();
-        result = result.filter(r => r.workerName && r.workerName.toLowerCase().includes(kw));
-      }
+      baseResult = baseResult.sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
 
-      result = result.sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
+      // 기간 전체 원본 결과를 캐시에 저장
+      setReportsCache(dateRangeKey, baseResult);
+    }
 
-      // 캐시 저장
-      setReportsCache(serverFilters, result);
+    let result = baseResult;
+
+    // 차종/공정/상태/작업자 필터는 캐시된 기간 데이터 위에서 메모리 필터로 처리 (추가 Firestore 읽기 0회)
+    if (serverFilters.carModel && serverFilters.carModel !== 'ALL')
+      result = result.filter(r => r.carModel === serverFilters.carModel);
+    if (serverFilters.processName && serverFilters.processName !== 'ALL')
+      result = result.filter(r => r.processName === serverFilters.processName);
+    if (serverFilters.status && serverFilters.status !== 'ALL')
+      result = result.filter(r => r.status === serverFilters.status);
+    if (serverFilters.workerName) {
+      const kw = serverFilters.workerName.toLowerCase();
+      result = result.filter(r => r.workerName && r.workerName.toLowerCase().includes(kw));
     }
 
     // searchQuery는 항상 클라이언트에서만 처리 (Firestore 호출 없음)
@@ -586,7 +609,15 @@ export async function fetchReports(filters = {}) {
 export async function fetchDowntimeReports(sinceDate = '', forceRefresh = false) {
   try {
     const expired = Date.now() - downtimeReportsCacheAt > DOWNTIME_REPORTS_CACHE_TTL_MS;
-    if (forceRefresh || !downtimeReportsCache || expired) {
+    if (!forceRefresh && (!downtimeReportsCache || expired)) {
+      const local = readSlimCache('downtime_reports');
+      if (local && Date.now() - local.timestamp < DOWNTIME_REPORTS_CACHE_TTL_MS) {
+        downtimeReportsCache = local.data;
+        downtimeReportsCacheAt = local.timestamp;
+      }
+    }
+    const stillExpired = Date.now() - downtimeReportsCacheAt > DOWNTIME_REPORTS_CACHE_TTL_MS;
+    if (forceRefresh || !downtimeReportsCache || stillExpired) {
       if (!forceRefresh && slimInflight.has('downtime_reports')) {
         await slimInflight.get('downtime_reports');
       } else {
@@ -594,9 +625,10 @@ export async function fetchDowntimeReports(sinceDate = '', forceRefresh = false)
           const q = query(collection(db, REPORTS_COLLECTION), where('downtimeMinutes', '>', 0));
           const snap = await getDocs(q);
           downtimeReportsCache = snap.docs
-            .map((d) => ({ id: d.id, ...d.data() }))
+            .map((d) => stripImageData({ id: d.id, ...d.data() }))
             .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
           downtimeReportsCacheAt = Date.now();
+          writeSlimCache('downtime_reports', downtimeReportsCache);
           return downtimeReportsCache;
         })();
         slimInflight.set('downtime_reports', task);
@@ -616,18 +648,36 @@ export async function fetchDowntimeReports(sinceDate = '', forceRefresh = false)
 
 /**
  * FMB보관실(#9004) 일보만 단일 조건으로 조회 (메인 대시보드 하단 월간 온·습도 현황용)
- * processName == 'FMB보관실' 단일 필터이므로 복합 인덱스가 필요 없고 타 공정 일보를 읽지 않는다.
  */
 export async function fetchFmbReports(forceRefresh = false) {
   try {
     const expired = Date.now() - fmbReportsCacheAt > FMB_REPORTS_CACHE_TTL_MS;
-    if (forceRefresh || !fmbReportsCache || expired) {
+    if (!forceRefresh && (!fmbReportsCache || expired)) {
+      const local = readSlimCache('fmb_reports');
+      if (local && Date.now() - local.timestamp < FMB_REPORTS_CACHE_TTL_MS) {
+        fmbReportsCache = local.data;
+        fmbReportsCacheAt = local.timestamp;
+      }
+    }
+    const stillExpired = Date.now() - fmbReportsCacheAt > FMB_REPORTS_CACHE_TTL_MS;
+    if (forceRefresh || !fmbReportsCache || stillExpired) {
       if (!forceRefresh && slimInflight.has('fmb_reports')) {
         return await slimInflight.get('fmb_reports');
       }
       const task = (async () => {
-        const q = query(collection(db, REPORTS_COLLECTION), where('processName', '==', 'FMB보관실'));
-        const snap = await getDocs(q);
+        let snap;
+        try {
+          const qLimited = query(
+            collection(db, REPORTS_COLLECTION),
+            where('processName', '==', 'FMB보관실'),
+            orderBy(documentId(), 'desc'),
+            limit(240)
+          );
+          snap = await getDocs(qLimited);
+        } catch {
+          const qFallback = query(collection(db, REPORTS_COLLECTION), where('processName', '==', 'FMB보관실'));
+          snap = await getDocs(qFallback);
+        }
         fmbReportsCache = snap.docs
           .map((d) => ({
             id: d.id,
@@ -639,6 +689,7 @@ export async function fetchFmbReports(forceRefresh = false) {
           }))
           .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
         fmbReportsCacheAt = Date.now();
+        writeSlimCache('fmb_reports', fmbReportsCache);
         return fmbReportsCache;
       })();
       slimInflight.set('fmb_reports', task);
@@ -662,7 +713,15 @@ export async function fetchFmbReports(forceRefresh = false) {
 export async function fetchStellantisAnalyticsReports(forceRefresh = false) {
   try {
     const expired = Date.now() - stellantisReportsCacheAt > STELLANTIS_REPORTS_CACHE_TTL_MS;
-    if (!forceRefresh && stellantisReportsCache && !expired) {
+    if (!forceRefresh && (!stellantisReportsCache || expired)) {
+      const local = readSlimCache('stellantis_reports');
+      if (local && Date.now() - local.timestamp < STELLANTIS_REPORTS_CACHE_TTL_MS) {
+        stellantisReportsCache = local.data;
+        stellantisReportsCacheAt = local.timestamp;
+      }
+    }
+    const stillExpired = Date.now() - stellantisReportsCacheAt > STELLANTIS_REPORTS_CACHE_TTL_MS;
+    if (!forceRefresh && stellantisReportsCache && !stillExpired) {
       return stellantisReportsCache;
     }
     if (!forceRefresh && slimInflight.has('stellantis_reports')) {
@@ -682,7 +741,7 @@ export async function fetchStellantisAnalyticsReports(forceRefresh = false) {
       const collect = (snap) => {
         snap.forEach((docSnap) => {
           if (merged.has(docSnap.id)) return;
-          const r = { id: docSnap.id, ...docSnap.data() };
+          const r = stripImageData({ id: docSnap.id, ...docSnap.data() });
           if (r.isLeaderForm || r.processName === '반장 작업일보') {
             r.carModel = '공통';
             r.itemName = '공통';
@@ -703,6 +762,7 @@ export async function fetchStellantisAnalyticsReports(forceRefresh = false) {
       );
       stellantisReportsCache = list;
       stellantisReportsCacheAt = Date.now();
+      writeSlimCache('stellantis_reports', list);
       return list;
     })();
 
@@ -847,6 +907,28 @@ export async function fetchMyRecentReports(workerName) {
   if (cached && Date.now() - cached.timestamp < MY_RECENT_CACHE_TTL_MS) {
     return cached.data;
   }
+  try {
+    const rawSession = sessionStorage.getItem(MY_RECENT_SESSION_PREFIX + workerName);
+    if (rawSession) {
+      const parsed = JSON.parse(rawSession);
+      if (parsed && Array.isArray(parsed.data) && Date.now() - parsed.timestamp < MY_RECENT_CACHE_TTL_MS) {
+        myRecentReportsCache.set(workerName, parsed);
+        return parsed.data;
+      }
+    }
+  } catch {
+    // ignore storage errors
+  }
+
+  const saveWorkerRecentCache = (list) => {
+    const entry = { data: list, timestamp: Date.now() };
+    myRecentReportsCache.set(workerName, entry);
+    try {
+      sessionStorage.setItem(MY_RECENT_SESSION_PREFIX + workerName, JSON.stringify(entry));
+    } catch {
+      // ignore storage errors
+    }
+  };
 
   const sortNewest = (arr) =>
     arr.sort((a, b) => (b.date || '').localeCompare(a.date || '') || (b.id || '').localeCompare(a.id || ''));
@@ -861,11 +943,10 @@ export async function fetchMyRecentReports(workerName) {
     );
     const snap = await getDocs(qOrdered);
     const top3 = sortNewest(snap.docs.map((d) => ({ id: d.id, ...d.data() }))).slice(0, 3);
-    myRecentReportsCache.set(workerName, { data: top3, timestamp: Date.now() });
+    saveWorkerRecentCache(top3);
     return top3;
   } catch {
-    // 복합 인덱스 미생성 환경 폴백: 해당 작업자 일보를 모두 가져와 날짜·ID 내림차순 정렬 후 최신 3건 반환
-    // (기존 orderBy 없는 limit(20)은 오름차순 상위 20건만 읽어 20건 초과 시 최신 일보가 누락되던 문제 해결)
+    // 복합 인덱스 미생성 환경 폴백: 해당 작업자 일보를 가져와 날짜·ID 내림차순 정렬 후 최신 3건 반환
     try {
       const qFallback = query(
         collection(db, REPORTS_COLLECTION),
@@ -873,7 +954,7 @@ export async function fetchMyRecentReports(workerName) {
       );
       const snap = await getDocs(qFallback);
       const top3 = sortNewest(snap.docs.map((d) => ({ id: d.id, ...d.data() }))).slice(0, 3);
-      myRecentReportsCache.set(workerName, { data: top3, timestamp: Date.now() });
+      saveWorkerRecentCache(top3);
       return top3;
     } catch (fallbackErr) {
       console.error('Error fetching my recent reports:', fallbackErr);
@@ -961,32 +1042,60 @@ export async function processMoldStrokes(reportData, existingReport = null) {
     if (diff !== 0) strokeUpdates[target] = diff;
   });
 
-  // [개선④] 금형 코드별 개별 쿼리 → 캐시된 전체 목록에서 메모리 룩업 (N회 → 0~1회)
+  // [개선④] 경량 금형 캐시에서 차종·부품 우선 룩업 + 동일 금형 문서 ID 기준 증분 병합
   if (Object.keys(strokeUpdates).length > 0) {
-    const allMolds = await fetchMolds(); // 캐시 적용: 이미 읽었으면 Firestore 호출 없음
-    const moldMap = {};
+    const allMolds = await fetchMoldsSlim(); // 사진 제외 경량 캐시 사용 (9MB+ 다운로드 방지)
     const moldById = {};
+    const moldsByCodeOrNumber = new Map();
     allMolds.forEach(m => {
       moldById[m.id] = m;
-      if (m.code) moldMap[m.code] = m;
-      if (m.moldNumber) moldMap[m.moldNumber] = m;
+      [m.code, m.moldNumber].forEach(token => {
+        const key = token ? String(token).trim() : '';
+        if (!key) return;
+        if (!moldsByCodeOrNumber.has(key)) moldsByCodeOrNumber.set(key, []);
+        moldsByCodeOrNumber.get(key).push(m);
+      });
     });
+
+    const refCar = String(reportData?.carModel || existingReport?.carModel || '').trim().toUpperCase();
+    const refPart = String(reportData?.itemName || reportData?.itemCode || existingReport?.itemName || '').trim().toUpperCase();
+
+    const resolveMoldDoc = (target) => {
+      if (target.startsWith('id:')) return moldById[target.slice(3)] || null;
+      const codeKey = target.slice(5);
+      const candidates = moldsByCodeOrNumber.get(codeKey) || [];
+      if (candidates.length <= 1) return candidates[0] || null;
+      const carMatched = refCar ? candidates.filter(c => String(c.carModel || '').toUpperCase() === refCar) : [];
+      const pool = carMatched.length > 0 ? carMatched : candidates;
+      if (refPart) {
+        const partMatched = pool.find(c => {
+          const mp = String(c.partName || c.name || '').toUpperCase();
+          return mp.includes(refPart) || refPart.includes(mp);
+        });
+        if (partMatched) return partMatched;
+      }
+      return pool[0];
+    };
+
+    // id: 와 code: 가 같은 금형 문서를 가리켜도 문서당 1회만 batch.update 되도록 합산
+    const updatesByDocId = new Map();
+    for (const [target, strokesToAdd] of Object.entries(strokeUpdates)) {
+      if (strokesToAdd === 0) continue;
+      const moldDoc = resolveMoldDoc(target);
+      if (moldDoc?.id) {
+        updatesByDocId.set(moldDoc.id, (updatesByDocId.get(moldDoc.id) || 0) + strokesToAdd);
+      }
+    }
 
     const batch = writeBatch(db);
     let hasBatch = false;
-    for (const [target, strokesToAdd] of Object.entries(strokeUpdates)) {
-      if (strokesToAdd === 0) continue;
-      const moldDoc = target.startsWith('id:')
-        ? moldById[target.slice(3)]
-        : moldMap[target.slice(5)];
-      if (moldDoc) {
-        // 캐시된 타수 값 + 증감 방식은 동시 제출 시 덮어쓰기 위험이 있어 서버 측 증분(increment)으로 반영
-        batch.update(doc(db, 'molds', moldDoc.id), {
-          currentStrokes: increment(strokesToAdd)
-        });
-        hasBatch = true;
-      }
-    }
+    updatesByDocId.forEach((delta, moldId) => {
+      if (delta === 0) return;
+      batch.update(doc(db, 'molds', moldId), {
+        currentStrokes: increment(delta)
+      });
+      hasBatch = true;
+    });
     if (hasBatch) {
       try {
         await batch.commit();
@@ -999,6 +1108,13 @@ export async function processMoldStrokes(reportData, existingReport = null) {
     }
   }
   return true;
+}
+
+async function recomputeDailyStatsForDates(dates) {
+  const uniqueDates = [...new Set((dates || []).filter(Boolean))];
+  for (const targetDate of uniqueDates) {
+    await applyStatsUpdateSingleDate(null, { date: targetDate });
+  }
 }
 
 async function applyStatsUpdate(oldReport, newReport) {
@@ -1274,7 +1390,7 @@ export async function deleteReport(id) {
   try {
     const docRef = doc(db, REPORTS_COLLECTION, id);
     const docSnap = await getDoc(docRef);
-    const existingReport = docSnap.exists() ? docSnap.data() : null;
+    const existingReport = docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
 
     await deleteDoc(docRef);
     invalidateReportsCache();
@@ -1291,6 +1407,11 @@ export async function deleteReport(id) {
       } catch (strokeErr) {
         console.error('Failed to revert mold strokes on report delete:', strokeErr);
       }
+      try {
+        await cleanupReportDowntimeLinks(existingReport);
+      } catch (cleanupErr) {
+        console.error('Failed to clean downtime repair/changePoint links on report delete:', cleanupErr);
+      }
     }
 
     return true;
@@ -1302,6 +1423,14 @@ export async function deleteReport(id) {
 
 export async function bulkApproveReports(ids, approverName = '관리자') {
   try {
+    const existingList = [];
+    for (const id of ids) {
+      const snap = await getDoc(doc(db, REPORTS_COLLECTION, id));
+      if (snap.exists()) {
+        existingList.push({ id: snap.id, ...snap.data() });
+      }
+    }
+
     const batch = writeBatch(db);
     const now = new Date().toLocaleString('ko-KR');
     const nowMs = Date.now();
@@ -1311,16 +1440,49 @@ export async function bulkApproveReports(ids, approverName = '관리자') {
     });
     await batch.commit();
     invalidateReportsCache();
-    hydrate9bqcHistoryCache();
-    const updatedCachedDocs = [];
-    ids.forEach((id) => {
-      const existing = gm9bqcHistoryDocsById.get(id)
-        || (Array.isArray(gm9bqcTodaySnapshotCache.docs) ? gm9bqcTodaySnapshotCache.docs.find((d) => d.id === id) : null);
-      if (existing) {
-        updatedCachedDocs.push({ ...existing, status: '승인 완료', approver: approverName, approvedAt: now, updatedAtMs: nowMs });
+
+    // 통계 반영 (반려/임시저장 일보가 승인 전환될 때도 날짜별 1회 멱등 재계산)
+    await recomputeDailyStatsForDates(existingList.map((r) => r.date));
+
+    // 금형 타수 및 비가동 연동 보완 (임시저장 -> 승인완료 전환 등)
+    const updatedReports = [];
+    for (const prevDoc of existingList) {
+      const nextDoc = { ...prevDoc, status: '승인 완료', approver: approverName, approvedAt: now, updatedAtMs: nowMs };
+      if (!prevDoc.moldStrokesProcessed) {
+        try {
+          const ok = await processMoldStrokes(nextDoc, prevDoc);
+          if (ok) {
+            await updateDoc(doc(db, REPORTS_COLLECTION, prevDoc.id), { moldStrokesProcessed: true });
+            nextDoc.moldStrokesProcessed = true;
+          }
+        } catch (strokeErr) {
+          console.error('Failed to apply mold strokes on bulk approve:', strokeErr);
+        }
       }
-    });
-    if (updatedCachedDocs.length > 0) upsert9bqcCachedReports(updatedCachedDocs);
+      if (!isSubmittedReportStatus(prevDoc.status) || prevDoc.status === '반려') {
+        try {
+          await syncReportDowntimeToRepairAndChangePoint(nextDoc, prevDoc);
+        } catch (syncErr) {
+          console.error('Failed to sync downtime on bulk approve:', syncErr);
+        }
+      }
+      updatedReports.push(nextDoc);
+    }
+
+    hydrate9bqcHistoryCache();
+    if (updatedReports.length > 0) {
+      upsert9bqcCachedReports(updatedReports);
+    } else {
+      const updatedCachedDocs = [];
+      ids.forEach((id) => {
+        const existing = gm9bqcHistoryDocsById.get(id)
+          || (Array.isArray(gm9bqcTodaySnapshotCache.docs) ? gm9bqcTodaySnapshotCache.docs.find((d) => d.id === id) : null);
+        if (existing) {
+          updatedCachedDocs.push({ ...existing, status: '승인 완료', approver: approverName, approvedAt: now, updatedAtMs: nowMs });
+        }
+      });
+      if (updatedCachedDocs.length > 0) upsert9bqcCachedReports(updatedCachedDocs);
+    }
     return ids.length;
   } catch (error) {
     console.error('Error bulk approving:', error);
@@ -1334,7 +1496,7 @@ export async function bulkDeleteReports(ids) {
     for (const id of ids) {
       const docSnap = await getDoc(doc(db, REPORTS_COLLECTION, id));
       if (docSnap.exists()) {
-        existingReports.push(docSnap.data());
+        existingReports.push({ id: docSnap.id, ...docSnap.data() });
       }
     }
 
@@ -1347,16 +1509,22 @@ export async function bulkDeleteReports(ids) {
     invalidateReportsCache();
     remove9bqcCachedReports(ids);
 
+    await recomputeDailyStatsForDates(existingReports.map((r) => r.date));
+
     for (const r of existingReports) {
       if (Array.isArray(r?.downtimeItems)) {
         const photoIds = r.downtimeItems.map((it) => String(it?.photoId || '').trim()).filter(Boolean);
         if (photoIds.length > 0) await deleteDowntimePhotosByIds(photoIds);
       }
-      await applyStatsUpdate(r, null);
       try {
         await processMoldStrokes(null, r);
       } catch (strokeErr) {
         console.error('Failed to revert mold strokes on bulk delete:', strokeErr);
+      }
+      try {
+        await cleanupReportDowntimeLinks(r);
+      } catch (cleanupErr) {
+        console.error('Failed to clean downtime repair/changePoint links on bulk delete:', cleanupErr);
       }
     }
 
@@ -1736,7 +1904,7 @@ export async function fetchEquipmentSets(forceRefresh = false) {
   return task;
 }
 
-// [개선③] fetchChangePoints — 캐시 + 진행중 요청 공유 + limit(200)
+// [개선③] fetchChangePoints — 캐시 + 진행중 요청 공유 + limit(500)
 export const fetchChangePoints = async (forceRefresh = false) => {
   if (!forceRefresh && changePointsCache && (Date.now() - changePointsCacheAt < CHANGE_POINTS_CACHE_TTL_MS)) {
     return changePointsCache;
@@ -1746,7 +1914,7 @@ export const fetchChangePoints = async (forceRefresh = false) => {
   }
   const task = (async () => {
     try {
-      const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'), limit(200));
+      const q = query(collection(db, 'changePoints'), orderBy('createdAt', 'desc'), limit(500));
       const snapshot = await getDocs(q);
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       changePointsCache = data;
@@ -1934,6 +2102,14 @@ export function subscribeDailyStatsDate(dateStr, onUpdate) {
             }
           }
           onUpdate(item);
+        } else {
+          if (dailyStatsAllCache && Array.isArray(dailyStatsAllCache)) {
+            dailyStatsAllCache = dailyStatsAllCache.filter((s) => s.date !== snap.id);
+          }
+          if (dailyStatsRecentCache && Array.isArray(dailyStatsRecentCache)) {
+            dailyStatsRecentCache = dailyStatsRecentCache.filter((s) => s.date !== snap.id);
+          }
+          onUpdate({ id: snap.id, date: snap.id, _deleted: true });
         }
       },
       (err) => {
