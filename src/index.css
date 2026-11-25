@@ -685,6 +685,11 @@ input, select, textarea, button {
     flex-direction: column;
   }
 
+  #app .main-wrapper {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
   .sidebar {
     width: 100%;
     max-width: 100vw;
@@ -1153,6 +1158,7 @@ body.mobile-preview-mode .main-wrapper {
   overflow-y: visible !important;
   width: 100% !important;
   max-width: 100% !important;
+  min-height: calc(100vh - 40px);
 }
 body.mobile-preview-mode .content-body {
   width: 100% !important;

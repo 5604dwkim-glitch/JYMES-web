@@ -80,20 +80,26 @@ export default function Layout() {
   const scrollToMobilePage = useCallback(() => {
     if (typeof window === 'undefined' || !isMobileViewport) return;
     cancelScheduledScroll();
+
+    const jumpToWrapperTop = () => {
+      const target = mainWrapperRef.current;
+      if (!target) return;
+      if (contentBodyRef.current) {
+        contentBodyRef.current.scrollTop = 0;
+      }
+      const targetTop = Math.max(0, Math.round(target.getBoundingClientRect().top + window.scrollY));
+      window.scrollTo({ top: targetTop, left: 0, behavior: 'auto' });
+    };
+
     scrollRafRef.current.raf1 = window.requestAnimationFrame(() => {
       scrollRafRef.current.raf1 = 0;
+      jumpToWrapperTop();
       scrollRafRef.current.raf2 = window.requestAnimationFrame(() => {
         scrollRafRef.current.raf2 = 0;
         const target = mainWrapperRef.current;
-        if (!target) return;
-        if (contentBodyRef.current) {
-          contentBodyRef.current.scrollTop = 0;
+        if (target && Math.abs(target.getBoundingClientRect().top) > 2) {
+          jumpToWrapperTop();
         }
-        const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-        target.scrollIntoView({
-          behavior: prefersReduced ? 'auto' : 'smooth',
-          block: 'start'
-        });
       });
     });
   }, [isMobileViewport, cancelScheduledScroll]);
@@ -102,31 +108,37 @@ export default function Layout() {
     if (!isMobileViewport) return;
     const link = e.target?.closest?.('a.nav-item');
     if (!link) return;
-    pendingMobileScrollRef.current = true;
-    scrollToMobilePage();
-  }, [isMobileViewport, scrollToMobilePage]);
+    if (e.detail > 0 && typeof link.blur === 'function') {
+      link.blur();
+    }
+    const hrefAttr = link.getAttribute('href') || '';
+    const linkPath = hrefAttr.split('?')[0].split('#')[0];
+    if (linkPath && linkPath === location.pathname) {
+      pendingMobileScrollRef.current = false;
+      scrollToMobilePage();
+    } else {
+      pendingMobileScrollRef.current = true;
+    }
+  }, [isMobileViewport, location.pathname, scrollToMobilePage]);
 
   // 라우트 이동 시 활성 그룹만 자동으로 펼치고 비활성 그룹은 자동 접힘 처리
   useEffect(() => {
-    if (isWorker) {
-      setIsReportMenuOpen(true);
-      setIsEquipmentMenuOpen(false);
-    } else if (REPORT_ROUTES.includes(location.pathname)) {
-      setIsReportMenuOpen(true);
-      setIsEquipmentMenuOpen(false);
-    } else if (isEquipmentGroupRoutePath(location.pathname)) {
-      setIsEquipmentMenuOpen(true);
-      setIsReportMenuOpen(false);
-    } else {
-      setIsReportMenuOpen(false);
-      setIsEquipmentMenuOpen(false);
-    }
+    const nextReportOpen = isWorker || REPORT_ROUTES.includes(location.pathname);
+    const nextEquipmentOpen = !isWorker && isEquipmentGroupRoutePath(location.pathname);
+    setIsReportMenuOpen(nextReportOpen);
+    setIsEquipmentMenuOpen(nextEquipmentOpen);
+  }, [location.pathname, isWorker]);
 
-    if (pendingMobileScrollRef.current) {
-      pendingMobileScrollRef.current = false;
-      scrollToMobilePage();
-    }
-  }, [location.pathname, isWorker, scrollToMobilePage]);
+  // 사이드바 메뉴 링크 클릭으로 이동했을 때, 서브메뉴 접힘/펼침이 DOM에 반영된 뒤 본문 상단으로 즉시 이동
+  useEffect(() => {
+    if (!pendingMobileScrollRef.current) return;
+    const nextReportOpen = isWorker || REPORT_ROUTES.includes(location.pathname);
+    const nextEquipmentOpen = !isWorker && isEquipmentGroupRoutePath(location.pathname);
+    if (isReportMenuOpen !== nextReportOpen || isEquipmentMenuOpen !== nextEquipmentOpen) return;
+
+    pendingMobileScrollRef.current = false;
+    scrollToMobilePage();
+  }, [location.pathname, isWorker, isReportMenuOpen, isEquipmentMenuOpen, scrollToMobilePage]);
 
   const handleToggleReportMenu = () => {
     setIsReportMenuOpen((prev) => {
