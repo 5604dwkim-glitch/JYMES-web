@@ -4,13 +4,16 @@ import {
   fetchChangePoints,
   addChangePoint,
   updateChangePoint,
-  deleteChangePoint,
   fetchEquipments,
   fetchMolds,
   fetchDowntimeReports,
   invalidateEquipmentsCache,
   invalidateMoldsCache
 } from '../services/firestore';
+import {
+  deleteChangePointsWithLinks,
+  isAutoLinkedChangePoint
+} from '../services/changePointDelete';
 import { CAR_MODELS, DEFAULT_ITEMS } from '../constants/masterData';
 import { Chart as ChartJS, ArcElement, PieController, Tooltip, Legend, CategoryScale, LinearScale, BarElement, BarController, Title, LineElement, LineController, PointElement } from 'chart.js';
 import { Pie, Bar } from 'react-chartjs-2';
@@ -39,20 +42,20 @@ ChartJS.register(ArcElement, PieController, Tooltip, Legend, CategoryScale, Line
 const ISSUE_CATEGORY_MAP = HYUNDAI_ISSUE_CATEGORY_MAP;
 
 const COLUMNS = [
-  { key: 'date', label: '작성일자', type: 'date', width: '120px' },
-  { key: 'type', label: '구분', type: 'select', width: '80px' },
-  { key: 'issueItem', label: '발생항목', type: 'select', width: '120px' },
-  { key: 'carModel', label: '차종', type: 'select', width: '100px' },
-  { key: 'partName', label: '품명', type: 'select', width: '120px' },
-  { key: 'details', label: '상세내용', width: '200px' },
-  { key: 'actionTime', label: '조치시점', type: 'date', width: '120px' },
-  { key: 'actionPlan', label: '조치방안', width: '150px' },
-  { key: 'actionResult', label: '조치결과', width: '150px' },
-  { key: 'qualityCheck', label: '품질 검증', type: 'checkbox', width: '100px' },
-  { key: 'ceoCheck', label: '대표이사 검증', type: 'checkbox', width: '100px' },
-  { key: 'qPointInstall', label: 'Q.POINT 설치여부', type: 'checkbox', width: '120px' },
-  { key: 'qPointFile', label: 'Q.POINT 첨부파일', type: 'file', width: '160px' },
-  { key: 'note', label: '비고', width: '150px' }
+  { key: 'date', label: '작성일자', type: 'date', width: '86px' },
+  { key: 'type', label: '구분', type: 'select', width: '52px' },
+  { key: 'issueItem', label: '발생항목', type: 'select', width: '92px' },
+  { key: 'carModel', label: '차종', type: 'select', width: '64px' },
+  { key: 'partName', label: '품명', type: 'select', width: '68px' },
+  { key: 'details', label: '상세내용', width: 'auto' },
+  { key: 'actionTime', label: '조치시점', type: 'date', width: '86px' },
+  { key: 'actionPlan', label: '조치방안', width: 'auto' },
+  { key: 'actionResult', label: '조치결과', width: 'auto' },
+  { key: 'qualityCheck', label: '품질 검증', headerLabel: '품질\n검증', type: 'checkbox', width: '44px' },
+  { key: 'ceoCheck', label: '대표이사 검증', headerLabel: '대표이사\n검증', type: 'checkbox', width: '48px' },
+  { key: 'qPointInstall', label: 'Q.POINT 설치여부', headerLabel: 'Q.POINT\n설치여부', type: 'checkbox', width: '54px' },
+  { key: 'qPointFile', label: 'Q.POINT 첨부파일', headerLabel: 'Q.POINT\n첨부파일', type: 'file', width: '76px' },
+  { key: 'note', label: '비고', width: 'auto' }
 ];
 
 const INIT_FORM = Object.fromEntries(COLUMNS.map(c => [c.key, '']));
@@ -97,11 +100,15 @@ export default function ChangePointManagement() {
   // Data Grid States
   const [formData, setFormData] = useState({ ...INIT_FORM });
   const [editingId, setEditingId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [deletingSelected, setDeletingSelected] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
   const [dataQuickFilter, setDataQuickFilter] = useState('ALL'); // 'ALL' | 'AUTO' | 'UNCOMPLETED' | 'COMPLETED'
   const [dataSearchKeyword, setDataSearchKeyword] = useState('');
   const [isQPointModalOpen, setIsQPointModalOpen] = useState(false);
   const [currentQPointRow, setCurrentQPointRow] = useState(null);
+  const newRowTypeRef = useRef(null);
+  const newRowIssueRef = useRef(null);
 
   // Dashboard Filters (기본 대시보드 전용)
   const [filterMonth, setFilterMonth] = useState('전체');
@@ -313,10 +320,22 @@ export default function ChangePointManagement() {
 
   const handleAdd = async (keepEditing = false) => {
     if (!formData.date || !formData.issueItem) {
-      alert('발생일과 발생항목은 필수입니다.');
+      const todayYmd = new Date().toLocaleDateString('sv-SE');
+      if (!formData.date) {
+        setFormData((prev) => ({
+          ...prev,
+          date: todayYmd,
+          actionTime: prev.actionTime || todayYmd
+        }));
+      }
+      setTimeout(() => {
+        if (!formData.type) newRowTypeRef.current?.focus?.();
+        else newRowIssueRef.current?.focus?.();
+      }, 50);
+      alert('NEW 입력행에서 작성일자와 구분·발생항목을 입력한 뒤 [추가]를 눌러주세요.');
       return;
     }
-    
+
     // Auto fill month/week if possible
     let saveObj = { ...formData };
     if (saveObj.date && !saveObj.month) {
@@ -374,13 +393,45 @@ export default function ChangePointManagement() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('삭제하시겠습니까?')) return;
+  const toggleSelectRow = (id) => {
+    if (!id) return;
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (deletingSelected) return;
+    const targetRows = data.filter((r) => selectedIds.includes(r.id));
+    if (targetRows.length === 0) {
+      alert('삭제할 항목을 순번 좌측 체크박스에서 먼저 선택해주세요.');
+      return;
+    }
+
+    const hasLinked = targetRows.some(
+      (r) => isAutoLinkedChangePoint(r) || cpLinkLookup.has(r.id)
+    );
+    const confirmMsg = hasLinked
+      ? `선택한 ${targetRows.length}건의 변동점을 삭제하시겠습니까?\n\n• 연동된 설비·금형 이력카드 수리 내역이 함께 삭제됩니다.\n• TPM 일지에서 연동된 항목은 해당 일자의 TPM 일지가 정상(O/기준값)으로 수정됩니다.`
+      : `선택한 ${targetRows.length}건의 변동점을 삭제하시겠습니까?`;
+
+    if (!window.confirm(confirmMsg)) return;
+
+    setDeletingSelected(true);
     try {
-      await deleteChangePoint(id);
-      loadData(true, true);
+      const res = await deleteChangePointsWithLinks(targetRows, cpLinkLookup);
+      setSelectedIds([]);
+      if (editingId && targetRows.some((r) => r.id === editingId)) {
+        setEditingId(null);
+      }
+      await Promise.all([loadData(true, true), loadLinkedAssets(true)]);
+      if (res.errors.length > 0) {
+        alert(`일부 항목 처리 중 오류가 발생했습니다:\n${res.errors.join('\n')}`);
+      }
     } catch {
-      alert('삭제 실패');
+      alert('선택항목 삭제에 실패했습니다.');
+    } finally {
+      setDeletingSelected(false);
     }
   };
 
@@ -723,10 +774,90 @@ export default function ChangePointManagement() {
       ) : (
 
         /* DATA MANAGEMENT TAB */
-        <div style={{ background: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* 데이터 관리 상단 빠른 필터 & 검색 바 */}
+        <div style={{ background: '#fff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+          {/* 데이터 관리 상단 액션(추가·선택항목 삭제) + 빠른 필터 & 검색 바 */}
           <div style={{ padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => handleAdd(false)}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #059669',
+                  background: '#10b981',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                + 추가
+              </button>
+              <button
+                type="button"
+                disabled={deletingSelected}
+                onClick={handleDeleteSelected}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #dc2626',
+                  background: selectedIds.length > 0 ? '#ef4444' : '#fee2e2',
+                  color: selectedIds.length > 0 ? '#ffffff' : '#b91c1c',
+                  fontSize: '12px',
+                  fontWeight: 800,
+                  cursor: deletingSelected ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {deletingSelected
+                  ? '삭제 중...'
+                  : selectedIds.length > 0
+                    ? `선택항목 삭제 (${selectedIds.length})`
+                    : '선택항목 삭제'}
+              </button>
+              {editingId && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const targetRow = data.find((r) => r.id === editingId);
+                      if (targetRow) handleUpdate(targetRow, false);
+                    }}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: '6px',
+                      border: '1px solid #1d4ed8',
+                      background: '#2563eb',
+                      color: '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    수정저장
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(null);
+                      loadData(true, true);
+                    }}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      background: '#ffffff',
+                      color: '#475569',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소
+                  </button>
+                </>
+              )}
+              <span style={{ width: '1px', height: '18px', background: '#cbd5e1', margin: '0 4px' }} />
               <span style={{ fontSize: '12px', fontWeight: 800, color: '#334155' }}>빠른 보기:</span>
               {[
                 { id: 'ALL', label: `전체 (${dataTabCounts.total})` },
@@ -763,7 +894,7 @@ export default function ChangePointManagement() {
                 value={dataSearchKeyword}
                 onChange={(e) => setDataSearchKeyword(e.target.value)}
                 placeholder="차종·품명·항목·내용 검색..."
-                style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', width: '200px' }}
+                style={{ padding: '5px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', width: '190px' }}
               />
               {(dataQuickFilter !== 'ALL' || dataSearchKeyword.trim() !== '') && (
                 <button
@@ -787,48 +918,110 @@ export default function ChangePointManagement() {
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto', overflowY: 'auto', flex: 1 }}>
-            <table style={{ width: '100%', minWidth: '1700px', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'center' }}>
+          <div style={{ overflowX: 'hidden', overflowY: 'auto', flex: 1, width: '100%' }}>
+            <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'center' }}>
+              <colgroup>
+                <col style={{ width: '28px' }} />
+                <col style={{ width: '34px' }} />
+                {COLUMNS.map((c) => (
+                  <col
+                    key={c.key}
+                    style={c.width && c.width !== 'auto' ? { width: c.width } : undefined}
+                  />
+                ))}
+              </colgroup>
               <thead style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                 {/* Super Header Row */}
                 <tr style={{ background: '#eef2ff', borderBottom: '1px solid #cbd5e1' }}>
-                  <th rowSpan={2} style={{ padding: '6px', border: '1px solid #cbd5e1', width: '140px' }}>상태</th>
-                  <th rowSpan={2} style={{ padding: '6px', border: '1px solid #cbd5e1', width: '50px' }}>No.</th>
-                  <th colSpan={6} style={{ padding: '6px', border: '1px solid #cbd5e1' }}>발생내역</th>
-                  <th colSpan={5} style={{ padding: '6px', border: '1px solid #cbd5e1' }}>조치결과</th>
-                  <th colSpan={2} style={{ padding: '6px', border: '1px solid #cbd5e1' }}>Q POINT</th>
-                  <th rowSpan={2} style={{ padding: '6px', border: '1px solid #cbd5e1', width: '150px' }}>비고</th>
+                  <th rowSpan={2} style={{ padding: '3px 2px', border: '1px solid #cbd5e1', width: '28px', verticalAlign: 'middle' }}>
+                    <input
+                      type="checkbox"
+                      title="전체 선택/해제"
+                      checked={
+                        filteredSortedData.length > 0 &&
+                        filteredSortedData.every((r) => selectedIds.includes(r.id))
+                      }
+                      onChange={(e) => {
+                        const visibleIds = filteredSortedData.map((r) => r.id).filter(Boolean);
+                        if (e.target.checked) {
+                          setSelectedIds((prev) => Array.from(new Set([...prev, ...visibleIds])));
+                        } else {
+                          const visibleSet = new Set(visibleIds);
+                          setSelectedIds((prev) => prev.filter((id) => !visibleSet.has(id)));
+                        }
+                      }}
+                      style={{ width: '14px', height: '14px', cursor: 'pointer', accentColor: '#2563eb', verticalAlign: 'middle' }}
+                    />
+                  </th>
+                  <th rowSpan={2} style={{ padding: '4px 2px', border: '1px solid #cbd5e1', width: '34px' }}>No.</th>
+                  <th colSpan={6} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>발생내역</th>
+                  <th colSpan={5} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>조치결과</th>
+                  <th colSpan={2} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>Q POINT</th>
+                  <th rowSpan={2} style={{ padding: '5px 4px', border: '1px solid #cbd5e1' }}>비고</th>
                 </tr>
                 {/* Sub Header Row */}
                 <tr style={{ background: '#eef2ff', borderBottom: '2px solid #cbd5e1' }}>
                   {COLUMNS.slice(0, 6).map(c => (
-                                        <th key={c.key} style={{ padding: '6px', border: '1px solid #cbd5e1', width: c.width, cursor: ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? 'pointer' : 'default' }} onClick={() => ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? requestSort(c.key) : null}>
+                    <th
+                      key={c.key}
+                      style={{
+                        padding: '4px 2px',
+                        border: '1px solid #cbd5e1',
+                        width: c.width !== 'auto' ? c.width : undefined,
+                        whiteSpace: 'pre-line',
+                        lineHeight: 1.15,
+                        cursor: ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? 'pointer' : 'default'
+                      }}
+                      onClick={() => ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? requestSort(c.key) : null}
+                    >
                       {['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) && (
-                        <span style={{ marginRight: '4px', fontSize: '10px' }}>
+                        <span style={{ marginRight: '2px', fontSize: '9px' }}>
                           {sortConfig && sortConfig.key === c.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
                         </span>
                       )}
-                      {c.label}
+                      {c.headerLabel || c.label}
                     </th>
                   ))}
                   {COLUMNS.slice(6, 11).map(c => (
-                                        <th key={c.key} style={{ padding: '6px', border: '1px solid #cbd5e1', width: c.width, cursor: ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? 'pointer' : 'default' }} onClick={() => ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? requestSort(c.key) : null}>
+                    <th
+                      key={c.key}
+                      style={{
+                        padding: '4px 2px',
+                        border: '1px solid #cbd5e1',
+                        width: c.width !== 'auto' ? c.width : undefined,
+                        whiteSpace: 'pre-line',
+                        lineHeight: 1.15,
+                        cursor: ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? 'pointer' : 'default'
+                      }}
+                      onClick={() => ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? requestSort(c.key) : null}
+                    >
                       {['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) && (
-                        <span style={{ marginRight: '4px', fontSize: '10px' }}>
+                        <span style={{ marginRight: '2px', fontSize: '9px' }}>
                           {sortConfig && sortConfig.key === c.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
                         </span>
                       )}
-                      {c.label}
+                      {c.headerLabel || c.label}
                     </th>
                   ))}
                   {COLUMNS.slice(11, 13).map(c => (
-                                        <th key={c.key} style={{ padding: '6px', border: '1px solid #cbd5e1', width: c.width, cursor: ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? 'pointer' : 'default' }} onClick={() => ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? requestSort(c.key) : null}>
+                    <th
+                      key={c.key}
+                      style={{
+                        padding: '4px 2px',
+                        border: '1px solid #cbd5e1',
+                        width: c.width !== 'auto' ? c.width : undefined,
+                        whiteSpace: 'pre-line',
+                        lineHeight: 1.15,
+                        cursor: ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? 'pointer' : 'default'
+                      }}
+                      onClick={() => ['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) ? requestSort(c.key) : null}
+                    >
                       {['date', 'type', 'issueItem', 'carModel', 'partName'].includes(c.key) && (
-                        <span style={{ marginRight: '4px', fontSize: '10px' }}>
+                        <span style={{ marginRight: '2px', fontSize: '9px' }}>
                           {sortConfig && sortConfig.key === c.key ? (sortConfig.direction === 'asc' ? '▲' : '▼') : '↕'}
                         </span>
                       )}
-                      {c.label}
+                      {c.headerLabel || c.label}
                     </th>
                   ))}
                 </tr>
@@ -836,22 +1029,17 @@ export default function ChangePointManagement() {
               <tbody>
                 {/* Add New Row */}
                 <tr style={{ background: '#fffbeb' }}>
-                  <td style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                      <button onClick={() => handleAdd(true)} style={{ padding: '4px 6px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>중간저장</button>
-                      <button onClick={() => handleAdd(false)} style={{ padding: '4px 6px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>등록완료</button>
-                      <button onClick={() => setFormData({ ...INIT_FORM })} style={{ padding: '4px 6px', background: '#fee2e2', color: '#ef4444', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>삭제</button>
-                    </div>
-                  </td>
-                  <td style={{ padding: '4px', border: '1px solid #e2e8f0', fontWeight: 'bold' }}>NEW</td>
+                  <td style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#059669', fontWeight: 800 }}>+</td>
+                  <td style={{ padding: '2px', border: '1px solid #e2e8f0', fontWeight: 'bold', fontSize: '10px' }}>NEW</td>
                   {COLUMNS.map(c => {
                     if (c.key === 'type') {
                       return (
-                        <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                          <select 
-                            value={formData[c.key] || ''} 
+                        <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                          <select
+                            ref={newRowTypeRef}
+                            value={formData[c.key] || ''}
                             onChange={(e) => setFormData({...formData, [c.key]: e.target.value, issueItem: ''})}
-                            style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                            style={{ width: '100%', padding: '2px 1px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                           >
                             <option value="">선택</option>
                             <option value="4M">4M</option>
@@ -863,11 +1051,12 @@ export default function ChangePointManagement() {
                     if (c.key === 'issueItem') {
                       const options = formData.type ? ISSUE_CATEGORY_MAP[formData.type] || [] : [];
                       return (
-                        <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                          <select 
-                            value={formData[c.key] || ''} 
+                        <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                          <select
+                            ref={newRowIssueRef}
+                            value={formData[c.key] || ''}
                             onChange={(e) => setFormData({...formData, [c.key]: e.target.value})}
-                            style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                            style={{ width: '100%', padding: '2px 1px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                           >
                             <option value="">선택</option>
                             {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -877,11 +1066,11 @@ export default function ChangePointManagement() {
                     }
                     if (c.key === 'carModel') {
                       return (
-                        <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                          <select 
-                            value={formData[c.key] || ''} 
+                        <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                          <select
+                            value={formData[c.key] || ''}
                             onChange={(e) => setFormData({...formData, [c.key]: e.target.value, partName: ''})}
-                            style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                            style={{ width: '100%', padding: '2px 1px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                           >
                             <option value="">선택</option>
                             {CAR_MODELS.map(car => <option key={car.code} value={car.code}>{car.name}</option>)}
@@ -892,13 +1081,13 @@ export default function ChangePointManagement() {
                     if (c.key === 'partName') {
                       const options = formData.carModel ? DEFAULT_ITEMS.filter(it => it.carModel === formData.carModel) : [];
                       return (
-                        <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                          <select 
-                            value={formData[c.key] || ''} 
+                        <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                          <select
+                            value={formData[c.key] || ''}
                             onChange={(e) => {
                                setFormData({...formData, [c.key]: e.target.value});
                             }}
-                            style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                            style={{ width: '100%', padding: '2px 1px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                           >
                             <option value="">선택</option>
                             {options.map(opt => <option key={opt.name} value={opt.name}>{opt.name}</option>)}
@@ -906,46 +1095,46 @@ export default function ChangePointManagement() {
                         </td>
                       );
                     }
-                    
+
                     if (c.type === 'checkbox') {
                       return (
-                        <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
-                          <input 
+                        <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
+                          <input
                             type="checkbox"
                             checked={isLegacyChecked(formData[c.key])}
                             onChange={(e) => setFormData({...formData, [c.key]: e.target.checked})}
-                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                            style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                           />
                         </td>
                       );
                     }
                     if (c.type === 'file') {
                       return (
-                        <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                        <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
                           {formData.qPointInstall ? (
-                            <button 
+                            <button
                               onClick={() => {
                                 setCurrentQPointRow({ isNew: true, ...formData });
                                 setIsQPointModalOpen(true);
                               }}
-                              style={{ padding: '4px 8px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}
+                              style={{ padding: '2px 5px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold' }}
                             >
-                              📝 양식 작성
+                              📝 작성
                             </button>
                           ) : (
-                            <span style={{ color: '#94a3b8', fontSize: '11px' }}>설치 시 등록 가능</span>
+                            <span style={{ color: '#94a3b8', fontSize: '10px' }}>-</span>
                           )}
                         </td>
                       );
                     }
                     return (
-                      <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                        <input 
+                      <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                        <input
                           type={c.type || 'text'}
                           max={c.type === 'date' ? '9999-12-31' : undefined}
                           value={formData[c.key] || ''}
                           onChange={(e) => setFormData({...formData, [c.key]: e.target.value})}
-                          style={{ width: '100%', padding: '4px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                          style={{ width: '100%', padding: '2px 2px', border: '1px solid #cbd5e1', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                         />
                       </td>
                     );
@@ -955,32 +1144,41 @@ export default function ChangePointManagement() {
                 {/* Data Rows */}
                 {filteredSortedData.map((row, index) => {
                   const isEditing = editingId === row.id;
+                  const isSelected = selectedIds.includes(row.id);
                   return (
-                    <tr key={row.id} id={'cp-row-' + row.id} style={{ '&:hover': { background: '#f8fafc' }, ...(focusedCpId === row.id ? { background: '#fef9c3', outline: '2px solid #f59e0b' } : {}) }}>
-                      <td style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                        {isEditing ? (
-                          <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <button onClick={() => handleUpdate(row, true)} style={{ padding: '4px 6px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>중간저장</button>
-                            <button onClick={() => handleUpdate(row, false)} style={{ padding: '4px 6px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>등록완료</button>
-                            <button onClick={() => setEditingId(null)} style={{ padding: '4px 6px', background: '#94a3b8', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>취소</button>
-                          </div>
-                        ) : (
-                          <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                            <button onClick={() => setEditingId(row.id)} style={{ padding: '4px 6px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>수정</button>
-                            <button onClick={() => handleDelete(row.id)} style={{ padding: '4px 6px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}>삭제</button>
-                          </div>
-                        )}
+                    <tr
+                      key={row.id}
+                      id={'cp-row-' + row.id}
+                      onDoubleClick={() => {
+                        if (!isEditing) setEditingId(row.id);
+                      }}
+                      title={isEditing ? undefined : '더블클릭하여 수정'}
+                      style={{
+                        background: isSelected ? '#eff6ff' : undefined,
+                        ...(focusedCpId === row.id ? { background: '#fef9c3', outline: '2px solid #f59e0b' } : {})
+                      }}
+                    >
+                      <td
+                        style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleSelectRow(row.id)}
+                          style={{ width: '14px', height: '14px', cursor: 'pointer', accentColor: '#2563eb', verticalAlign: 'middle' }}
+                        />
                       </td>
-                      <td style={{ padding: '4px', border: '1px solid #e2e8f0' }}>{index + 1}</td>
+                      <td style={{ padding: '3px 2px', border: '1px solid #e2e8f0' }}>{index + 1}</td>
                       {COLUMNS.map(c => {
                         if (isEditing) {
                           if (c.key === 'type') {
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                                <select 
-                                  value={row[c.key] || ''} 
+                              <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                                <select
+                                  value={row[c.key] || ''}
                                   onChange={(e) => handleInputChange(e, true, c.key)}
-                                  style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '2px 1px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                                 >
                                   <option value="">선택</option>
                                   <option value="4M">4M</option>
@@ -997,11 +1195,11 @@ export default function ChangePointManagement() {
                               ? [curIssueVal, ...baseOptions]
                               : baseOptions;
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                                <select 
-                                  value={curIssueVal} 
+                              <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                                <select
+                                  value={curIssueVal}
                                   onChange={(e) => handleInputChange(e, true, c.key)}
-                                  style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '2px 1px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                                 >
                                   <option value="">선택</option>
                                   {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -1013,11 +1211,11 @@ export default function ChangePointManagement() {
                             const curCarVal = row[c.key] || '';
                             const hasCarOption = CAR_MODELS.some(car => car.code === curCarVal);
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                                <select 
-                                  value={curCarVal} 
+                              <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                                <select
+                                  value={curCarVal}
                                   onChange={(e) => handleInputChange(e, true, c.key)}
-                                  style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '2px 1px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                                 >
                                   <option value="">선택</option>
                                   {curCarVal && !hasCarOption && <option value={curCarVal}>{curCarVal}</option>}
@@ -1032,13 +1230,13 @@ export default function ChangePointManagement() {
                             const curPartVal = row[c.key] || '';
                             const hasPartOption = options.some(opt => opt.name === curPartVal);
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                                <select 
-                                  value={curPartVal} 
+                              <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                                <select
+                                  value={curPartVal}
                                   onChange={(e) => {
                                     handleInputChange(e, true, c.key);
                                   }}
-                                  style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                                  style={{ width: '100%', padding: '2px 1px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                                 >
                                   <option value="">선택</option>
                                   {curPartVal && !hasPartOption && <option value={curPartVal}>{curPartVal}</option>}
@@ -1047,68 +1245,69 @@ export default function ChangePointManagement() {
                               </td>
                             );
                           }
-                          
+
                           if (c.type === 'checkbox') {
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
-                                <input 
+                              <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
+                                <input
                                   type="checkbox"
                                   checked={isLegacyChecked(row[c.key])}
                                   onChange={(e) => handleInputChange({ target: { name: c.key, value: e.target.checked } }, true, c.key)}
-                                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                  style={{ width: '14px', height: '14px', cursor: 'pointer' }}
                                 />
                               </td>
                             );
                           }
                           if (c.type === 'file') {
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                              <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
                                 {row.qPointInstall ? (
-                                  <button 
+                                  <button
                                     onClick={() => {
                                       setCurrentQPointRow(row);
                                       setIsQPointModalOpen(true);
                                     }}
-                                    style={{ padding: '4px 8px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}
+                                    style={{ padding: '2px 5px', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px', fontWeight: 'bold' }}
                                   >
-                                    📝 양식 작성
+                                    📝 작성
                                   </button>
                                 ) : (
-                                  <span style={{ color: '#94a3b8', fontSize: '11px' }}>-</span>
+                                  <span style={{ color: '#94a3b8', fontSize: '10px' }}>-</span>
                                 )}
                               </td>
                             );
                           }
                           return (
-                            <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                              <input 
+                            <td key={c.key} style={{ padding: '2px', border: '1px solid #e2e8f0' }}>
+                              <input
                                 type={c.type || 'text'}
-                          max={c.type === 'date' ? '9999-12-31' : undefined}
+                                max={c.type === 'date' ? '9999-12-31' : undefined}
                                 value={row[c.key] || ''}
                                 onChange={(e) => handleInputChange(e, true, c.key)}
-                                style={{ width: '100%', padding: '4px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '11px', boxSizing: 'border-box' }}
+                                style={{ width: '100%', padding: '2px 2px', border: '1px solid #94a3b8', borderRadius: '2px', fontSize: '10.5px', boxSizing: 'border-box' }}
                               />
                             </td>
                           );
-                        
+
                         } else {
                           if (c.key === 'qualityCheck' || c.key === 'ceoCheck') {
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
+                              <td key={c.key} style={{ padding: '2px 1px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
                                 {isLegacyChecked(row[c.key]) ? (
                                   <div style={{
                                     display: 'inline-block',
                                     border: '1.5px solid #ef4444',
                                     color: '#ef4444',
-                                    padding: '2px 6px',
+                                    padding: '1px 4px',
                                     fontWeight: '700',
-                                    fontSize: '11px',
-                                    borderRadius: '2px'
+                                    fontSize: '10px',
+                                    borderRadius: '2px',
+                                    whiteSpace: 'nowrap'
                                   }}>
                                     확인
                                   </div>
                                 ) : (
-                                  <span style={{ color: '#94a3b8', fontSize: '11px' }}>-</span>
+                                  <span style={{ color: '#94a3b8', fontSize: '10px' }}>-</span>
                                 )}
                               </td>
                             );
@@ -1117,38 +1316,38 @@ export default function ChangePointManagement() {
                             const isChecked = isLegacyChecked(row[c.key]);
                             const hasFile = !!row.qPointFile;
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
+                              <td key={c.key} style={{ padding: '2px 1px', border: '1px solid #e2e8f0', textAlign: 'center', verticalAlign: 'middle' }}>
                                 {isChecked ? (
-                                  <span style={{ fontWeight: 'bold', fontSize: '13px', color: '#10b981' }}>V</span>
+                                  <span style={{ fontWeight: 'bold', fontSize: '12px', color: '#10b981' }}>V</span>
                                 ) : (
-                                  (!isChecked && !hasFile) ? null : <span style={{ color: '#94a3b8', fontSize: '11px' }}>-</span>
+                                  (!isChecked && !hasFile) ? null : <span style={{ color: '#94a3b8', fontSize: '10px' }}>-</span>
                                 )}
                               </td>
                             );
                           }
                           if (c.type === 'file') {
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+                              <td key={c.key} style={{ padding: '2px 2px', border: '1px solid #e2e8f0', textAlign: 'center' }}>
                                 {row.qPointData ? (
-                                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                                    <button 
+                                  <div style={{ display: 'flex', gap: '2px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                    <button
                                       onClick={() => {
                                         setCurrentQPointRow(row);
                                         setIsQPointModalOpen(true);
                                       }}
-                                      style={{ padding: '2px 6px', background: '#e2e8f0', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                      style={{ padding: '2px 4px', background: '#e2e8f0', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '9.5px', whiteSpace: 'nowrap' }}
                                     >
-                                      🔍 조회
+                                      조회
                                     </button>
-                                    <button 
+                                    <button
                                       onClick={() => exportQPointToExcel(row.qPointData, row)}
-                                      style={{ padding: '2px 6px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}
+                                      style={{ padding: '2px 4px', background: '#10b981', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '9.5px', whiteSpace: 'nowrap' }}
                                     >
-                                      ⬇️ 다운로드
+                                      다운
                                     </button>
                                   </div>
                                 ) : row[c.key] ? (
-                                  <span style={{ fontSize: '11px', color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer' }}>{row[c.key]}</span>
+                                  <span style={{ fontSize: '10px', color: '#3b82f6', textDecoration: 'underline', cursor: 'pointer', wordBreak: 'break-all' }}>{row[c.key]}</span>
                                 ) : null}
                               </td>
                             );
@@ -1156,15 +1355,15 @@ export default function ChangePointManagement() {
                           if (c.key === 'note') {
                             const linkInfo = cpLinkLookup.get(row.id);
                             return (
-                              <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                                <span style={{ wordBreak: 'break-all' }}>{row[c.key]}</span>
+                              <td key={c.key} style={{ padding: '3px 4px', border: '1px solid #e2e8f0', overflowWrap: 'anywhere' }}>
+                                <span style={{ wordBreak: 'break-word' }}>{row[c.key]}</span>
                                 {linkInfo && (linkInfo.report || linkInfo.repair?.owner) && (
-                                  <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap', marginTop: row[c.key] ? '4px' : '0' }}>
+                                  <div style={{ display: 'flex', gap: '3px', justifyContent: 'center', flexWrap: 'wrap', marginTop: row[c.key] ? '3px' : '0' }}>
                                     {linkInfo.report && (
                                       <button
                                         type="button"
                                         onClick={() => setOpenReportModal(linkInfo.report)}
-                                        style={{ padding: '2px 6px', borderRadius: '4px', border: '1px solid #93c5fd', background: '#eff6ff', color: '#1d4ed8', fontSize: '10px', fontWeight: 700, cursor: 'pointer' }}
+                                        style={{ padding: '1px 5px', borderRadius: '4px', border: '1px solid #93c5fd', background: '#eff6ff', color: '#1d4ed8', fontSize: '9.5px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
                                       >
                                         📄 일보
                                       </button>
@@ -1186,14 +1385,15 @@ export default function ChangePointManagement() {
                                           else setOpenEquipmentModal(modalPayload);
                                         }}
                                         style={{
-                                          padding: '2px 6px',
+                                          padding: '1px 5px',
                                           borderRadius: '4px',
                                           border: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '1px solid #fca5a5' : '1px solid #cbd5e1',
                                           background: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '#fef2f2' : '#f8fafc',
                                           color: linkInfo.hasRepairRow && linkInfo.repairState !== 'done' ? '#b91c1c' : '#334155',
-                                          fontSize: '10px',
+                                          fontSize: '9.5px',
                                           fontWeight: 700,
-                                          cursor: 'pointer'
+                                          cursor: 'pointer',
+                                          whiteSpace: 'nowrap'
                                         }}
                                       >
                                         {linkInfo.kind === 'mold' ? '🗜️ 금형이력' : '🔧 설비이력'}
@@ -1205,9 +1405,16 @@ export default function ChangePointManagement() {
                               </td>
                             );
                           }
+                          if (c.key === 'date' || c.key === 'actionTime') {
+                            return (
+                              <td key={c.key} style={{ padding: '3px 2px', border: '1px solid #e2e8f0', whiteSpace: 'nowrap', fontSize: '10.5px' }}>
+                                {row[c.key]}
+                              </td>
+                            );
+                          }
                           return (
-                            <td key={c.key} style={{ padding: '4px', border: '1px solid #e2e8f0' }}>
-                              <span style={{ wordBreak: 'break-all' }}>{row[c.key]}</span>
+                            <td key={c.key} style={{ padding: '3px 4px', border: '1px solid #e2e8f0', overflowWrap: 'anywhere' }}>
+                              <span style={{ wordBreak: 'break-word' }}>{row[c.key]}</span>
                             </td>
                           );
                         }
@@ -1217,7 +1424,7 @@ export default function ChangePointManagement() {
                 })}
                 {filteredSortedData.length === 0 && (
                   <tr>
-                    <td colSpan={COLUMNS.length + 3} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>조회 조건에 일치하는 데이터가 없습니다.</td>
+                    <td colSpan={COLUMNS.length + 2} style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>조회 조건에 일치하는 데이터가 없습니다.</td>
                   </tr>
                 )}
               </tbody>
