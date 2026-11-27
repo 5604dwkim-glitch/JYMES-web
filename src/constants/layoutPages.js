@@ -11,7 +11,7 @@ export const FLUID_PAGE_PATHS = ['/form', '/drafts', '/reports'];
 export const FLUID_PAGE_PREFIXES = ['/tpm-check', '/equipment-history'];
 
 // 모바일(<=768px 또는 모바일 모드)에서 1280px 최소폭을 해제하고 전용 간략 UI를 제공하는 경로
-export const MOBILE_DEDICATED_PATHS = ['/', '/analytics'];
+export const MOBILE_DEDICATED_PATHS = ['/', '/analytics', '/equipment/illuminance'];
 
 // 화면 전체 기준 최소 가로 해상도(px). PC는 사이드바(260px) 포함, 모바일은 콘텐츠 영역 기준.
 export const WIDE_PAGE_MIN_WIDTH = 1280;

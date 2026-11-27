@@ -103,14 +103,45 @@ export default function MoldHistoryCardModal({
     if (!isEditing) return;
     const file = e.target.files?.[0];
     e.target.value = '';
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, moldPhoto: reader.result }));
+    if (!file) return;
+
+    const maxWidth = 600;
+    const maxHeight = 800;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const rawDataUrl = String(reader.result || '');
+      const img = new Image();
+      img.onerror = () => {
+        setFormData((prev) => ({ ...prev, moldPhoto: rawDataUrl }));
         setPhotoDirty(true);
       };
-      reader.readAsDataURL(file);
-    }
+      img.onload = () => {
+        const { width, height } = img;
+        if (width <= maxWidth && height <= maxHeight && file.size <= 350 * 1024) {
+          setFormData((prev) => ({ ...prev, moldPhoto: rawDataUrl }));
+          setPhotoDirty(true);
+          return;
+        }
+        const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
+        const targetW = Math.max(1, Math.round(width * ratio));
+        const targetH = Math.max(1, Math.round(height * ratio));
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          setFormData((prev) => ({ ...prev, moldPhoto: rawDataUrl }));
+          setPhotoDirty(true);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+        const compressed = canvas.toDataURL('image/jpeg', 0.85);
+        setFormData((prev) => ({ ...prev, moldPhoto: compressed }));
+        setPhotoDirty(true);
+      };
+      img.src = rawDataUrl;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleClearPhoto = (e) => {

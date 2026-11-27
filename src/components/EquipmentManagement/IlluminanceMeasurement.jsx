@@ -13,6 +13,8 @@ import {
 import { db } from '../../firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { useMobileViewport } from '../../hooks/useMobileViewport';
+import MobileIlluminanceView from './MobileIlluminanceView';
 import {
   ILLUMINANCE_BUILDING_MAPS,
   ILLUMINANCE_COLLECTION,
@@ -72,6 +74,7 @@ const labelStyle = {
 export default function IlluminanceMeasurement() {
   const { userRole } = useAuth();
   const { td } = useI18n();
+  const { isMobileDedicatedActive, setForcePcView } = useMobileViewport();
 
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth() + 1;
@@ -1975,9 +1978,13 @@ export default function IlluminanceMeasurement() {
 
   return (
     <div
-      className="card"
+      className={isMobileDedicatedActive ? undefined : 'card'}
       data-illuminance-page="1"
-      style={{ minHeight: 'calc(100vh - 120px)', display: 'flex', flexDirection: 'column' }}
+      style={{
+        minHeight: isMobileDedicatedActive ? undefined : 'calc(100vh - 120px)',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
     >
       <style>{`
         [data-illuminance-page="1"] .table th,
@@ -2014,157 +2021,190 @@ export default function IlluminanceMeasurement() {
         }
       `}</style>
 
-      {/* 상단 뷰 탭 & 공통 도구 막대 */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '10px',
-          marginBottom: '14px',
-          paddingBottom: '12px',
-          borderBottom: '1px solid #e2e8f0'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            onClick={() => setActiveViewTab('ledger')}
-            style={{
-              padding: '8px 14px',
-              fontSize: '13px',
-              fontWeight: 800,
-              borderRadius: '8px',
-              border: activeViewTab === 'ledger' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-              background: activeViewTab === 'ledger' ? '#1d4ed8' : '#fff',
-              color: activeViewTab === 'ledger' ? '#fff' : '#334155',
-              cursor: 'pointer'
-            }}
-          >
-            📋 조도측정 관리 대장 (매월 첫째주 시트)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveViewTab('maps')}
-            style={{
-              padding: '8px 14px',
-              fontSize: '13px',
-              fontWeight: 800,
-              borderRadius: '8px',
-              border: activeViewTab === 'maps' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-              background: activeViewTab === 'maps' ? '#1d4ed8' : '#fff',
-              color: activeViewTab === 'maps' ? '#fff' : '#334155',
-              cursor: 'pointer'
-            }}
-          >
-            🗺️ 공장 전체 지도 & 동별 상세 도면 (①~⑩)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveViewTab('history')}
-            style={{
-              padding: '8px 14px',
-              fontSize: '13px',
-              fontWeight: 800,
-              borderRadius: '8px',
-              border: activeViewTab === 'history' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
-              background: activeViewTab === 'history' ? '#1d4ed8' : '#fff',
-              color: activeViewTab === 'history' ? '#fff' : '#334155',
-              cursor: 'pointer'
-            }}
-          >
-            📑 상세 측정 이력 리스트 ({historyRows.length})
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          {activeViewTab === 'ledger' && (
-            <button
-              type="button"
-              onClick={() => setShowMapPanelInLedger((v) => !v)}
-              style={{
-                padding: '7px 12px',
-                fontSize: '12px',
-                fontWeight: 700,
-                borderRadius: '6px',
-                border: '1px solid #cbd5e1',
-                background: showMapPanelInLedger ? '#f1f5f9' : '#fff',
-                color: '#334155',
-                cursor: 'pointer'
-              }}
-            >
-              {showMapPanelInLedger ? '🗺️ 상단 도면 접기' : '🗺️ 상단 도면 펼치기'}
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={handleExportExcel}
-            style={{
-              padding: '7px 12px',
-              fontSize: '12px',
-              fontWeight: 700,
-              borderRadius: '6px',
-              border: '1px solid #15803d',
-              background: '#f0fdf4',
-              color: '#166534',
-              cursor: 'pointer'
-            }}
-          >
-            📥 엑셀(.xlsx) 다운로드
-          </button>
-
-          <label
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              fontSize: '12px',
-              fontWeight: 600,
-              color: '#475569',
-              cursor: 'pointer'
-            }}
-            title="인쇄 시 2페이지에 공장 전체 지도 및 동별 상세 도면을 함께 출력합니다"
-          >
-            <input
-              type="checkbox"
-              checked={includeMapsOnPrint}
-              onChange={(e) => setIncludeMapsOnPrint(e.target.checked)}
-            />
-            <span>도면 포함</span>
-          </label>
-
-          <button
-            type="button"
-            onClick={handlePrintLedger}
-            style={{
-              padding: '7px 12px',
-              fontSize: '12px',
-              fontWeight: 700,
-              borderRadius: '6px',
-              border: '1px solid #334155',
-              background: '#1e293b',
-              color: '#fff',
-              cursor: 'pointer'
-            }}
-          >
-            🖨️ 관리 대장 인쇄 (A4)
-          </button>
-        </div>
-      </div>
-
-      {/* 본문 영역 */}
-      {loading ? (
-        <p>로딩 중...</p>
-      ) : loadError ? (
-        <p style={{ color: '#b91c1c' }}>{loadError}</p>
-      ) : activeViewTab === 'ledger' ? (
-        renderAnnualLedgerSheet()
-      ) : activeViewTab === 'maps' ? (
-        renderFullMapsGallery()
+      {isMobileDedicatedActive ? (
+        loading ? (
+          <div className="card" style={{ padding: '24px', textAlign: 'center' }}>
+            로딩 중...
+          </div>
+        ) : loadError ? (
+          <div className="card" style={{ padding: '24px', color: '#b91c1c' }}>
+            {loadError}
+          </div>
+        ) : (
+          <MobileIlluminanceView
+            selectedYear={selectedYear}
+            onChangeYear={setSelectedYear}
+            ledgerDraft={ledgerDraft}
+            isLedgerDirty={isLedgerDirty}
+            savingLedger={savingLedger}
+            onCellChange={handleLedgerCellChange}
+            onMetaChange={handleLedgerMetaChange}
+            onAutoFillMonthDate={handleAutoFillFirstWeekDates}
+            onSaveLedgerAll={handleSaveLedgerAll}
+            onOpenMonthlyBatchModal={openMonthlyBatchModal}
+            onOpenIndividualModal={openModal}
+            onDeleteRow={handleDelete}
+            onExportExcel={handleExportExcel}
+            onRefresh={loadRows}
+            onSwitchToPc={() => setForcePcView(true)}
+            historyRows={historyRows}
+          />
+        )
       ) : (
-        renderHistoryListView()
+        <>
+          {/* 상단 뷰 탭 & 공통 도구 막대 */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '10px',
+              marginBottom: '14px',
+              paddingBottom: '12px',
+              borderBottom: '1px solid #e2e8f0'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => setActiveViewTab('ledger')}
+                style={{
+                  padding: '8px 14px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  borderRadius: '8px',
+                  border: activeViewTab === 'ledger' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+                  background: activeViewTab === 'ledger' ? '#1d4ed8' : '#fff',
+                  color: activeViewTab === 'ledger' ? '#fff' : '#334155',
+                  cursor: 'pointer'
+                }}
+              >
+                📋 조도측정 관리 대장 (매월 첫째주 시트)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveViewTab('maps')}
+                style={{
+                  padding: '8px 14px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  borderRadius: '8px',
+                  border: activeViewTab === 'maps' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+                  background: activeViewTab === 'maps' ? '#1d4ed8' : '#fff',
+                  color: activeViewTab === 'maps' ? '#fff' : '#334155',
+                  cursor: 'pointer'
+                }}
+              >
+                🗺️ 공장 전체 지도 & 동별 상세 도면 (①~⑩)
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveViewTab('history')}
+                style={{
+                  padding: '8px 14px',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  borderRadius: '8px',
+                  border: activeViewTab === 'history' ? '1px solid #1d4ed8' : '1px solid #cbd5e1',
+                  background: activeViewTab === 'history' ? '#1d4ed8' : '#fff',
+                  color: activeViewTab === 'history' ? '#fff' : '#334155',
+                  cursor: 'pointer'
+                }}
+              >
+                📑 상세 측정 이력 리스트 ({historyRows.length})
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              {activeViewTab === 'ledger' && (
+                <button
+                  type="button"
+                  onClick={() => setShowMapPanelInLedger((v) => !v)}
+                  style={{
+                    padding: '7px 12px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    background: showMapPanelInLedger ? '#f1f5f9' : '#fff',
+                    color: '#334155',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {showMapPanelInLedger ? '🗺️ 상단 도면 접기' : '🗺️ 상단 도면 펼치기'}
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleExportExcel}
+                style={{
+                  padding: '7px 12px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  borderRadius: '6px',
+                  border: '1px solid #15803d',
+                  background: '#f0fdf4',
+                  color: '#166534',
+                  cursor: 'pointer'
+                }}
+              >
+                📥 엑셀(.xlsx) 다운로드
+              </button>
+
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: '#475569',
+                  cursor: 'pointer'
+                }}
+                title="인쇄 시 2페이지에 공장 전체 지도 및 동별 상세 도면을 함께 출력합니다"
+              >
+                <input
+                  type="checkbox"
+                  checked={includeMapsOnPrint}
+                  onChange={(e) => setIncludeMapsOnPrint(e.target.checked)}
+                />
+                <span>도면 포함</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={handlePrintLedger}
+                style={{
+                  padding: '7px 12px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  borderRadius: '6px',
+                  border: '1px solid #334155',
+                  background: '#1e293b',
+                  color: '#fff',
+                  cursor: 'pointer'
+                }}
+              >
+                🖨️ 관리 대장 인쇄 (A4)
+              </button>
+            </div>
+          </div>
+
+          {/* 본문 영역 */}
+          {loading ? (
+            <p>로딩 중...</p>
+          ) : loadError ? (
+            <p style={{ color: '#b91c1c' }}>{loadError}</p>
+          ) : activeViewTab === 'ledger' ? (
+            renderAnnualLedgerSheet()
+          ) : activeViewTab === 'maps' ? (
+            renderFullMapsGallery()
+          ) : (
+            renderHistoryListView()
+          )}
+        </>
       )}
 
       {/* 모달 1: 매월 첫째주 조도 기록 시트 (1~10번 공정 일괄 입력) */}
