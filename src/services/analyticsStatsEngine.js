@@ -492,12 +492,16 @@ export function buildTrendAnalysis({
     : null;
 
   const matrixRows = Object.entries(byDefect)
-    .map(([name, perLabel]) => ({
-      name,
-      shortName: shortDefectLabel(name),
-      perLabel,
-      total: Object.values(perLabel).reduce((a, b) => a + b, 0)
-    }))
+    .map(([name, perLabel]) => {
+      const total = Object.values(perLabel).reduce((a, b) => a + b, 0);
+      return {
+        name,
+        shortName: shortDefectLabel(name),
+        perLabel,
+        total,
+        rate: curActualSum > 0 ? +((total / curActualSum) * 100).toFixed(2) : 0
+      };
+    })
     .filter((r) => r.total > 0)
     .sort((a, b) => b.total - a.total);
 

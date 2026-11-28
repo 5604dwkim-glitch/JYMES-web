@@ -1008,13 +1008,22 @@ export default function ProcessDefectAnalysis({
                       </div>
 
                       <div style={{ width: chartGeom.rightGap, flexShrink: 0, boxSizing: 'border-box', paddingLeft: '4px' }}>
-                        {trendData.defectTable.rows.map((dt) => (
-                          <div key={dt.name} style={{ height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f5f9', fontSize: '11px', fontWeight: 800, color: '#334155' }}>
-                            {dt.total.toLocaleString()}
-                          </div>
-                        ))}
+                        {trendData.defectTable.rows.map((dt) => {
+                          const rowRate = trendData.summary.actualSum > 0
+                            ? ((dt.total / trendData.summary.actualSum) * 100).toFixed(2)
+                            : '0.00';
+                          return (
+                            <div
+                              key={dt.name}
+                              title={`${dt.name} 불량률: ${rowRate}% (${dt.total.toLocaleString()} / ${trendData.summary.actualSum.toLocaleString()} EA)`}
+                              style={{ height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid #f1f5f9', fontSize: '11px', fontWeight: 800, color: '#334155' }}
+                            >
+                              {rowRate}%
+                            </div>
+                          );
+                        })}
                         <div style={{ height: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fef2f2', borderRadius: '4px' }}>
-                          <span style={{ fontSize: '11px', fontWeight: 800, color: '#ef4444' }}>{trendData.summary.defectRate}%</span>
+                          <span style={{ fontSize: '11px', fontWeight: 800, color: '#ef4444' }}>{Number(trendData.summary.defectRate || 0).toFixed(2)}%</span>
                         </div>
                       </div>
                     </div>
