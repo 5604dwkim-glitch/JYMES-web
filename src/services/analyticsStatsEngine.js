@@ -4,6 +4,7 @@
  * - 비가동 일보 / 설비 / 금형 / 변동점 데이터를 결합해 설비·금형 영향 분석 지표를 계산한다.
  */
 import { MANUFACTURERS, CAR_MODEL_PARTS } from '../constants/masterData';
+import { normalizeDefectName, UNCLASSIFIED_DEFECT_NAME } from '../constants/defectAliases';
 import { extractDowntimeSlots, classifyDowntimeIssueKind } from './changePointAutoSync';
 import { buildLinkedChains } from './downtimeChain';
 
@@ -61,11 +62,8 @@ export function cleanDefectName(rawName, fromComboKey = false) {
     // 항목명의 본래 언더스코어(`클립누락_소재`)는 보존하고 대괄호 내부만 복원한다.
     s = s.replace(/^\[([^\]]+)\]/, (_, category) => `[${category.replace(/_/g, '/')}]`);
   }
-  return s
-    .replace(/스카치/g, '스코치')
-    .replace('[조인트] 쪼개짐', '[조인트] 떨어짐')
-    .replace('[공통] 기타 (상세 미지정)', '[공통] 기타')
-    .trim();
+  // 분류 접두사 제거 + 유사 명칭 표준화 (src/constants/defectAliases.js)
+  return normalizeDefectName(s.replace(/스카치/g, '스코치'));
 }
 
 export function shortDefectLabel(fullName) {
@@ -128,7 +126,7 @@ export function extractStatDayMetrics(statDoc, filters = {}) {
         }
       });
     }
-    if (defect > detailed) addDefect('[공통] 기타', defect - detailed);
+    if (defect > detailed) addDefect(UNCLASSIFIED_DEFECT_NAME, defect - detailed);
     return { actual, target, defect, reports, defects };
   }
 
@@ -157,7 +155,7 @@ export function extractStatDayMetrics(statDoc, filters = {}) {
       }
     });
   }
-  if (defect > detailed) addDefect('[공통] 기타', defect - detailed);
+  if (defect > detailed) addDefect(UNCLASSIFIED_DEFECT_NAME, defect - detailed);
 
   // targetQty 가 항목별로 집계된 문서는 정확 합계를 사용하고, 구버전 문서만 일 전체 목표 대비 실적 비중으로 비례 추정
   const dayTotalActual = Number(statDoc?.totalActualQty || 0);
@@ -371,7 +369,7 @@ export function buildThisWeekTop5Defects(dailyStats = []) {
       }
     });
     if (total > detailed) {
-      map['[공통] 기타'] = (map['[공통] 기타'] || 0) + (total - detailed);
+      map[UNCLASSIFIED_DEFECT_NAME] = (map[UNCLASSIFIED_DEFECT_NAME] || 0) + (total - detailed);
     }
     const list = Object.entries(map)
       .map(([name, qty]) => ({ name, shortName: shortDefectLabel(name), qty }))

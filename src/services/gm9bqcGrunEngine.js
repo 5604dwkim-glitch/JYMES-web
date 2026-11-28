@@ -1,4 +1,5 @@
 import { extractDefectBreakdown } from './statsAggregator.js';
+import { normalizeDefectName } from '../constants/defectAliases.js';
 import { resolveF5006Equip } from '../components/DynamicForms/forms/f5006/equipConfig.js';
 
 export const GM_9BQC_GRUN_PROCESS_DEFS = [
@@ -625,8 +626,8 @@ function extractShortTime(workHours) {
 }
 
 function simplifyDefectLabel(rawName) {
-  // '[조인트-FRT] 단차' -> '단차 (조인트-FRT)' 대신 간결하게 핵심 불량명 추출
-  const cleaned = String(rawName || '').replace(/^\[[^\]]+\]\s*/, '').trim();
+  // '[조인트-FRT] 단차' -> '단차' : 분류 제거 + 유사 명칭 표준화 (src/constants/defectAliases.js)
+  const cleaned = normalizeDefectName(rawName);
   return cleaned || String(rawName || '기타');
 }
 
